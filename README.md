@@ -36,9 +36,5 @@ A Node.js/TypeScript project with devcontainer support.
 ├── tsconfig.json
 └── README.md
 ```
-# tsumugi
-# tsumugi
-# tsumugi
-# tsumugi
-# tsumugi
+
 # tsumugi
