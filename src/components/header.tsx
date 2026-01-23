@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { Menu, LogOut, UserCircle, Home } from "lucide-react";
+import { Menu, LogOut, UserCircle, Home, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -24,8 +24,8 @@ export function Header() {
     null,
   );
 
-  // クリエイターモードのページかどうか
-  const isCreatorMode = pathname?.startsWith("/listing");
+  // 引き継ぎ側モードのページかどうか
+  const isHandoverHostMode = pathname?.startsWith("/listing");
 
   const handleBecomeCreatorClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -64,17 +64,17 @@ export function Header() {
               onClick={handleBecomeCreatorClick}
               className="hidden text-sm font-semibold text-foreground transition-colors hover:bg-muted rounded-full px-3 py-2 sm:block"
             >
-              {user ? "クリエイターモード" : "クリエイターになる"}
+              {user ? "引き継ぎ側モード" : "暮らしを譲る"}
             </button>
           )}
 
           {/* リスティング / 入居者に戻る - ホストのみ表示 */}
           {user?.isHost && (
             <Link
-              href={isCreatorMode ? "/" : "/listing"}
+              href={isHandoverHostMode ? "/" : "/listing"}
               className="hidden text-sm font-semibold text-foreground transition-colors hover:bg-muted rounded-full px-3 py-2 sm:block"
             >
-              {isCreatorMode ? "入居者に戻る" : "リスティング"}
+              {isHandoverHostMode ? "入居者に戻る" : "リスティング"}
             </Link>
           )}
 
@@ -87,76 +87,26 @@ export function Header() {
               >
                 <Menu className="h-4 w-4 text-gray-600" strokeWidth={2.5} />
                 {user ? (
-                  // ログイン時: Notion風シンプルアバター
-                  <div className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-[#F5F5F5] overflow-hidden">
+                  // ログイン時: 他のページと統一したアバター
+                  <div className="flex h-[30px] w-[30px] items-center justify-center rounded-full overflow-hidden" style={{ backgroundColor: '#FF385C' }}>
                     {user.avatarUrl ? (
                       <Image
                         src={user.avatarUrl}
                         alt={user.name}
                         width={30}
                         height={30}
-                        className="rounded-full object-cover"
+                        className="h-full w-full object-cover"
                       />
                     ) : (
-                      <svg viewBox="0 0 32 32" className="w-[22px] h-[22px]">
-                        {/* シンプルな顔 - Notion風 */}
-                        <circle
-                          cx="16"
-                          cy="12"
-                          r="7"
-                          fill="none"
-                          stroke="#37352F"
-                          strokeWidth="1.5"
-                        />
-                        <circle cx="13" cy="11" r="1" fill="#37352F" />
-                        <circle cx="19" cy="11" r="1" fill="#37352F" />
-                        <path
-                          d="M13 14.5 Q16 17 19 14.5"
-                          fill="none"
-                          stroke="#37352F"
-                          strokeWidth="1.2"
-                          strokeLinecap="round"
-                        />
-                        <path
-                          d="M8 28 Q8 20 16 20 Q24 20 24 28"
-                          fill="none"
-                          stroke="#37352F"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                        />
-                      </svg>
+                      <span className="text-sm font-semibold text-white">
+                        {user.name.charAt(0).toUpperCase()}
+                      </span>
                     )}
                   </div>
                 ) : (
-                  // 未ログイン時: Notion風シンプルアバター
-                  <div className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-[#F5F5F5] overflow-hidden">
-                    <svg viewBox="0 0 32 32" className="w-[22px] h-[22px]">
-                      {/* シンプルな顔 - Notion風 */}
-                      <circle
-                        cx="16"
-                        cy="12"
-                        r="7"
-                        fill="none"
-                        stroke="#91918E"
-                        strokeWidth="1.5"
-                      />
-                      <circle cx="13" cy="11" r="1" fill="#91918E" />
-                      <circle cx="19" cy="11" r="1" fill="#91918E" />
-                      <path
-                        d="M13 14.5 Q16 17 19 14.5"
-                        fill="none"
-                        stroke="#91918E"
-                        strokeWidth="1.2"
-                        strokeLinecap="round"
-                      />
-                      <path
-                        d="M8 28 Q8 20 16 20 Q24 20 24 28"
-                        fill="none"
-                        stroke="#91918E"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                      />
-                    </svg>
+                  // 未ログイン時: グレーの背景
+                  <div className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-gray-300 overflow-hidden">
+                    <UserCircle className="h-5 w-5 text-gray-600" />
                   </div>
                 )}
               </Button>
@@ -165,6 +115,15 @@ export function Header() {
               {user ? (
                 // ログイン時のメニュー
                 <>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/dashboard"
+                      className="flex items-center gap-2 py-3"
+                    >
+                      <LayoutDashboard className="h-4 w-4" />
+                      ダッシュボード
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link
                       href="/account"
@@ -177,11 +136,11 @@ export function Header() {
                   {user.isHost && (
                     <DropdownMenuItem asChild>
                       <Link
-                        href={isCreatorMode ? "/" : "/listing"}
+                        href={isHandoverHostMode ? "/" : "/listing"}
                         className="flex items-center gap-2 py-3"
                       >
                         <Home className="h-4 w-4" />
-                        {isCreatorMode ? "入居者に戻る" : "リスティング"}
+                        {isHandoverHostMode ? "入居者に戻る" : "リスティング"}
                       </Link>
                     </DropdownMenuItem>
                   )}
@@ -191,7 +150,7 @@ export function Header() {
                       onClick={handleBecomeCreatorClick}
                       className="flex items-center gap-2 py-3 font-medium cursor-pointer"
                     >
-                      クリエイターモード
+                      引き継ぎ側モード
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
@@ -210,7 +169,7 @@ export function Header() {
                     onClick={handleBecomeCreatorClick}
                     className="flex items-center gap-2 py-3 font-medium cursor-pointer"
                   >
-                    クリエイターになる
+                    暮らしを譲る
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem

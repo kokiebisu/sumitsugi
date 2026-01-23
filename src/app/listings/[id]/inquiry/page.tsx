@@ -44,7 +44,7 @@ export default async function InquiryPage({ params }: InquiryPageProps) {
         <div className="mx-auto max-w-2xl">
           {/* Back Link */}
           <Link
-            href={`/properties/${property.id}`}
+            href={`/listings/${property.id}`}
             className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />

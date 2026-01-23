@@ -7,7 +7,7 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
-import type { User, HostProfile, UserListing } from "@/lib/data";
+import type { User, HostProfile, UserListing, Inquiry } from "@/lib/data";
 
 interface AuthContextType {
   user: User | null;
@@ -23,16 +23,22 @@ interface AuthContextType {
   updateListing: (id: string, updates: Partial<UserListing>) => void;
   deleteListing: (id: string) => void;
   publishListing: (id: string) => void;
+  inquiries: Inquiry[];
+  addInquiry: (
+    inquiry: Omit<Inquiry, "id" | "submittedAt" | "updatedAt">,
+  ) => Inquiry;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const STORAGE_KEY = "tsumugi_user";
 const LISTINGS_STORAGE_KEY = "tsumugi_listings";
+const INQUIRIES_STORAGE_KEY = "tsumugi_inquiries";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [listings, setListings] = useState<UserListing[]>([]);
+  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -56,6 +62,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
+    const storedInquiries = localStorage.getItem(INQUIRIES_STORAGE_KEY);
+    if (storedInquiries) {
+      try {
+        setInquiries(JSON.parse(storedInquiries));
+      } catch {
+        localStorage.removeItem(INQUIRIES_STORAGE_KEY);
+      }
+    }
+
     setIsInitialized(true);
     setIsLoading(false);
   }, []);
@@ -75,21 +90,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isInitialized) return;
     try {
-      // 写真データを除外した軽量版を保存
-      const listingsWithoutPhotos = listings.map((listing) => ({
-        ...listing,
-        roomPhotos: [], // Base64データは保存しない
-        interiorPhotos:
-          listing.interiorPhotos?.map((p) => ({ ...p, photo: undefined })) ||
-          [],
-      }));
+      // 写真データも含めて保存を試みる
       localStorage.setItem(
         LISTINGS_STORAGE_KEY,
-        JSON.stringify(listingsWithoutPhotos),
+        JSON.stringify(listings),
       );
     } catch (e) {
-      // QuotaExceededError の場合は無視（写真データが大きすぎる）
-      console.warn("Failed to save listings to localStorage:", e);
+      // QuotaExceededError の場合は写真データを除外して再試行
+      console.warn("Failed to save listings with photos, trying without photos:", e);
+      try {
+        const listingsWithoutPhotos = listings.map((listing) => ({
+          ...listing,
+          roomPhotos: [], // Base64データは保存しない
+        }));
+        localStorage.setItem(
+          LISTINGS_STORAGE_KEY,
+          JSON.stringify(listingsWithoutPhotos),
+        );
+      } catch (e2) {
+        console.error("Failed to save listings to localStorage:", e2);
+      }
     }
   }, [listings, isInitialized]);
 
@@ -162,6 +182,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const addInquiry = (
+    inquiry: Omit<Inquiry, "id" | "submittedAt" | "updatedAt">,
+  ) => {
+    const now = new Date().toISOString();
+    const newInquiry: Inquiry = {
+      ...inquiry,
+      id: `inquiry_${Date.now()}`,
+      submittedAt: now,
+      updatedAt: now,
+    };
+    setInquiries((prev) => [...prev, newInquiry]);
+    return newInquiry;
+  };
+
+  // 永続化: inquiriesが変わるたびにlocalStorageに保存（初期化完了後のみ）
+  useEffect(() => {
+    if (!isInitialized) return;
+    try {
+      localStorage.setItem(INQUIRIES_STORAGE_KEY, JSON.stringify(inquiries));
+    } catch (e) {
+      console.error("Failed to save inquiries to localStorage:", e);
+    }
+  }, [inquiries, isInitialized]);
+
   return (
     <AuthContext.Provider
       value={{
@@ -176,6 +220,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         updateListing,
         deleteListing,
         publishListing,
+        inquiries,
+        addInquiry,
       }}
     >
       {children}
