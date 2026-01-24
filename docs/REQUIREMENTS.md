@@ -1,7 +1,8 @@
 # tsumugi（つむぎ） 要件定義書
 
-**バージョン**: 1.0
+**バージョン**: 1.1
 **作成日**: 2026-01-24
+**最終更新日**: 2026-01-24
 **ステータス**: 実験中
 
 ---
@@ -44,10 +45,10 @@
 - 物件情報の表示・検索
 - 物件登録・管理機能
 - 問い合わせフォーム
-- 基本的な認証機能
+- 基本的な認証機能（モック状態）
 
 ### 3.2 対象外（Phase 2以降）
-- ユーザー管理システム
+- ユーザー管理システム（データベース連携）
 - メッセージング機能
 - 決済システム
 - 電子契約機能
@@ -59,34 +60,44 @@
 
 ## 4. ユーザー種別
 
-### 4.1 クリエイター（ホスト）
-物件を提供する側のユーザー。自身のライフスタイルと共に物件を掲載する。
+### 4.1 ユーザーモデル（Airbnb風）
+全ユーザーは入居希望者として登録し、ホスト登録で`isHost=true`に切り替わる統一モデル。
 
-**主な属性**:
-- 氏名
-- プロフィール画像
-- 職業
-- 活動歴
-- SNSリンク（Instagram, Twitter, YouTube, TikTok, Website）
-- 自己紹介文
+**User（基本属性）**:
+- id: UUID形式
+- email: メールアドレス
+- name: 氏名
+- phone: 電話番号（任意）
+- avatarUrl: プロフィール画像URL（任意）
+- createdAt: 作成日時
+- authProvider: 認証プロバイダー（email/google/facebook/apple）
+- emailVerified: メール確認済みフラグ
+- isHost: ホストフラグ
+- isAdmin: 管理者フラグ（任意）
+- hostProfile: ホストプロフィール（isHost=trueの場合のみ）
 
-### 4.2 入居者（ゲスト）
-物件を探し、入居を希望するユーザー。
+### 4.2 クリエイター（ホスト）
+物件を提供する側のユーザー。`isHost=true`のユーザー。
 
-**主な属性**:
-- 氏名
-- メールアドレス
-- 電話番号
-- 希望入居時期
-- 希望期間
+**HostProfile（ホストプロフィール）**:
+- occupation: 職業
+- bio: 自己紹介
+- socialLinks: SNSリンク（Instagram, Twitter, YouTube, TikTok, Website）
+- rating: 評価（1-5）
+- reviewCount: レビュー数
+- yearsHosting: 活動歴（年数）
+- hostSince: ホスト登録日
 
-### 4.3 管理者
-プラットフォームを運営・管理するユーザー。
+### 4.3 入居者（ゲスト）
+物件を探し、入居を希望するユーザー。`isHost=false`のユーザー。
+
+### 4.4 管理者
+プラットフォームを運営・管理するユーザー。`isAdmin=true`のユーザー。
 
 **権限**:
 - 物件の承認・却下
 - 問い合わせの管理
-- ユーザー管理
+- ホスト申請の管理
 
 ---
 
@@ -124,7 +135,7 @@
 - `pending`: 未対応
 - `approved`: 承認済み
 - `viewing_scheduled`: 内見予約済み
-- `contracted`: 契約成立
+- `completed`: 完了
 - `rejected`: お断り
 
 ### 5.4 認証機能
@@ -157,6 +168,7 @@
 | S-004 | 問い合わせ | `/properties/[id]/inquiry` | 問い合わせフォーム |
 | S-005 | アカウント | `/account` | ユーザー情報表示 |
 | S-006 | アカウント編集 | `/account/edit` | ユーザー情報編集 |
+| S-007 | クリエイター紹介 | `/creator` | クリエイター紹介ページ |
 
 ### 6.2 クリエイター（ホスト）向け画面
 
@@ -184,20 +196,36 @@
 |-----------|-----|------|------|
 | id | string | ○ | 物件ID |
 | title | string | ○ | 物件タイトル |
-| description | string | ○ | 物件説明 |
+| summary | string | ○ | サマリー（1〜2文） |
 | images | string[] | ○ | 物件画像URL配列 |
-| style | Style | ○ | スタイルカテゴリ |
-| location | Location | ○ | 所在地情報 |
-| pricing | Pricing | ○ | 料金情報 |
-| contractPeriod | ContractPeriod | ○ | 契約期間 |
-| host | Host | ○ | クリエイター情報 |
-| amenities | string[] | - | 設備・備品 |
-| layoutType | string | - | 間取り |
-| size | number | - | 広さ（㎡） |
+| furnitureDescription | string | ○ | 家具・インテリアの説明 |
+| estimatedDuration | string | ○ | 契約期間（例：「2〜4ヶ月」） |
 | status | 'draft' \| 'public' | ○ | 公開ステータス |
-| availableFrom | Date | - | 入居可能日 |
+| story | string | ○ | 暮らしのストーリー |
+| conditions | string | ○ | 引き継ぎ条件 |
+| landlordRules | string | - | 大家さんのルール |
+| monthlyRent | number | ○ | 月額家賃 |
+| interiorFee | number | ○ | インテリア購入料 |
+| area | string | ○ | エリア（例：「東京」） |
+| style | string | - | インテリアスタイル |
+| basicAmenities | string[] | - | 基本設備 |
+| condition | 'excellent' \| 'good' \| 'used' | - | 家具の状態 |
+| amenities | Amenity[] | - | こだわりの機材・家具 |
+| fees | Fees | - | 料金詳細 |
+| host | Host | - | クリエイター情報 |
+| propertyDetails | PropertyDetails | - | 物件詳細 |
+| locationInfo | LocationInfo | - | エリア情報 |
+| handoverDetails | HandoverDetails | - | 引き継ぎ詳細 |
+| faq | FAQ[] | - | よくある質問 |
 
-### 7.2 Style（スタイル）
+### 7.2 Amenity（こだわりの機材・家具）
+
+| フィールド | 型 | 必須 | 説明 |
+|-----------|-----|------|------|
+| type | string | ○ | 種類（coffee, records, dj等） |
+| details | string | - | 機種名や詳細情報 |
+
+### 7.3 Style（スタイル）
 
 物件のインテリアスタイルを分類する6つのカテゴリ:
 
@@ -206,28 +234,18 @@
 | bohemian | ボヘミアン | 自由で個性的なスタイル |
 | minimal | ミニマル | シンプルで洗練されたスタイル |
 | vintage | ヴィンテージ | レトロで味のあるスタイル |
-| japanese-modern | 和モダン | 和とモダンの融合 |
+| modern | モダン | 現代的で洗練されたスタイル |
 | industrial | インダストリアル | 無骨で都会的なスタイル |
-| natural | ナチュラル | 自然素材を活かしたスタイル |
+| scandinavian | スカンジナビアン | 北欧風のナチュラルなスタイル |
 
-### 7.3 Location（所在地）
-
-| フィールド | 型 | 必須 | 説明 |
-|-----------|-----|------|------|
-| area | string | ○ | エリア名 |
-| station | string | ○ | 最寄り駅 |
-| walkMinutes | number | ○ | 徒歩分数 |
-| address | string | - | 詳細住所 |
-
-### 7.4 Pricing（料金）
+### 7.4 Fees（料金詳細）
 
 | フィールド | 型 | 必須 | 説明 |
 |-----------|-----|------|------|
-| rent | number | ○ | 月額家賃 |
-| managementFee | number | - | 管理費 |
 | deposit | number | - | 敷金 |
 | keyMoney | number | - | 礼金 |
-| interiorPurchasePrice | number | ○ | インテリア購入料 |
+| managementFee | number | - | 管理費・共益費 |
+| guaranteeFee | number | - | 保証会社利用料 |
 | cleaningFee | number | - | クリーニング代 |
 
 **初期費用計算式**:
@@ -235,33 +253,134 @@
 初期費用 = インテリア購入料 + 敷金 + 礼金 + 保証会社利用料 + クリーニング代
 ```
 
+**重要：月額家賃・管理費は初期費用に含まれません**
+
 ### 7.5 Host（クリエイター）
 
 | フィールド | 型 | 必須 | 説明 |
 |-----------|-----|------|------|
 | name | string | ○ | 名前 |
-| image | string | ○ | プロフィール画像 |
 | occupation | string | ○ | 職業 |
-| yearsActive | number | - | 活動歴（年） |
-| bio | string | - | 自己紹介 |
-| whyChoseThis | WhyChoseItem[] | - | 物件を選んだ理由 |
+| bio | string | ○ | 自己紹介 |
+| avatar | string | - | プロフィール画像 |
+| rating | number | - | 評価（1-5） |
+| reviewCount | number | - | レビュー数 |
+| yearsHosting | number | - | 活動歴（年数） |
+| whyChoseThis | WhyChoseItem[] | - | この部屋を選んだ理由 |
 | messageToNext | string | - | 次の入居者へのメッセージ |
 | socialLinks | SocialLinks | - | SNSリンク |
 
-### 7.6 Inquiry（問い合わせ）
+### 7.6 WhyChoseItem（この部屋を選んだ理由）
+
+| フィールド | 型 | 必須 | 説明 |
+|-----------|-----|------|------|
+| reason | string | ○ | 理由の説明 |
+| image | string | - | 関連画像URL |
+
+### 7.7 SocialLinks（SNSリンク）
+
+| フィールド | 型 | 必須 | 説明 |
+|-----------|-----|------|------|
+| instagram | string | - | @username形式 |
+| twitter | string | - | @username形式 |
+| youtube | string | - | @channelname形式 |
+| tiktok | string | - | @username形式 |
+| website | string | - | ドメイン名のみ |
+
+※URL生成はフロントエンドで自動処理
+
+### 7.8 PropertyDetails（物件詳細）
+
+| フィールド | 型 | 必須 | 説明 |
+|-----------|-----|------|------|
+| layout | string | ○ | 間取り（例：1K、1LDK） |
+| size | number | ○ | 専有面積（㎡） |
+| floor | string | ○ | 階数（例：3階/5階建） |
+| buildYear | number | ○ | 築年 |
+| facilities | string[] | - | 設備 |
+
+### 7.9 LocationInfo（エリア情報）
+
+| フィールド | 型 | 必須 | 説明 |
+|-----------|-----|------|------|
+| nearestStation | string | ○ | 最寄り駅 |
+| walkingMinutes | number | ○ | 徒歩分数 |
+| areaDescription | string | - | エリアの雰囲気説明 |
+| nearbyPlaces | NearbyPlace[] | - | 周辺施設 |
+| creatorRecommendations | string[] | - | クリエイターのおすすめスポット |
+
+### 7.10 HandoverDetails（引き継ぎ詳細）
+
+| フィールド | 型 | 必須 | 説明 |
+|-----------|-----|------|------|
+| included | string[] | ○ | 引き継ぎに含まれるもの |
+| notIncluded | string[] | - | 含まれないもの |
+| viewingAvailableFrom | string | - | 内見可能日 |
+| moveInAvailableFrom | string | - | 引き継ぎ可能日 |
+
+### 7.11 Inquiry（問い合わせ）
 
 | フィールド | 型 | 必須 | 説明 |
 |-----------|-----|------|------|
 | id | string | ○ | 問い合わせID |
 | propertyId | string | ○ | 物件ID |
-| name | string | ○ | 氏名 |
-| email | string | ○ | メールアドレス |
-| phone | string | - | 電話番号 |
-| message | string | ○ | メッセージ |
-| preferredMoveIn | Date | - | 希望入居日 |
-| preferredDuration | string | - | 希望期間 |
+| propertyTitle | string | ○ | 物件タイトル |
 | status | InquiryStatus | ○ | ステータス |
-| createdAt | Date | ○ | 作成日時 |
+| applicantName | string | ○ | 申込者氏名 |
+| applicantEmail | string | ○ | メールアドレス |
+| reason | string | ○ | 興味を持った理由 |
+| duration | string | - | 希望契約期間 |
+| questions | string | - | 質問 |
+| viewingDate | string | - | 内見日時 |
+| submittedAt | string | ○ | 送信日時 |
+| updatedAt | string | ○ | 更新日時 |
+| notes | string | - | 運営メモ |
+
+### 7.12 HostListing（ホスト申請）
+
+| フィールド | 型 | 必須 | 説明 |
+|-----------|-----|------|------|
+| id | string | ○ | 申請ID |
+| status | HostListingStatus | ○ | ステータス |
+| hostName | string | ○ | ホスト氏名 |
+| hostEmail | string | ○ | メールアドレス |
+| hostPhone | string | ○ | 電話番号 |
+| propertyAddress | string | ○ | 物件住所 |
+| monthlyRent | number | ○ | 月額家賃 |
+| moveOutDate | string | ○ | 退去予定日 |
+| furnitureDescription | string | ○ | 家具の説明 |
+| whyListing | string | ○ | 掲載理由 |
+| landlordConsent | boolean | ○ | 大家の同意 |
+| submittedAt | string | ○ | 送信日時 |
+| updatedAt | string | ○ | 更新日時 |
+| notes | string | - | 運営メモ |
+| publishedPropertyId | string | - | 公開された物件ID |
+
+**HostListingステータス**:
+- `pending`: 審査中
+- `approved`: 承認済み
+- `published`: 公開済み
+- `rejected`: 却下
+
+### 7.13 UserListing（ユーザー作成リスティング）
+
+| フィールド | 型 | 必須 | 説明 |
+|-----------|-----|------|------|
+| id | string | ○ | リスティングID |
+| userId | string | ○ | ユーザーID |
+| status | 'draft' \| 'published' | ○ | ステータス |
+| title | string | ○ | タイトル |
+| lifestyles | string[] | ○ | ライフスタイルタグ |
+| roomStyle | string | - | 部屋のスタイル |
+| story | string | ○ | ストーリー |
+| amenities | string[] | ○ | アメニティ |
+| furniture | string[] | ○ | 家具リスト |
+| furnitureDetails | Record | - | 家具詳細（ブランド・モデル） |
+| roomPhotos | string[] | ○ | 部屋の写真 |
+| interiorPhotos | InteriorPhoto[] | - | インテリア写真 |
+| createdAt | string | ○ | 作成日時 |
+| updatedAt | string | ○ | 更新日時 |
+| publishedAt | string | - | 公開日時 |
 
 ---
 
@@ -340,6 +459,7 @@
 - Airbnb風のクリーンでモダンなUI
 - ユーザー体験を最優先
 - 視覚的な一貫性
+- 写真を大きく使い、空間の魅力を伝える
 
 ### 10.2 カラーパレット
 
@@ -358,9 +478,15 @@ UI表示において統一する用語:
 |----------|--------|
 | ホスト | クリエイター |
 | インテリア利用料 | インテリア購入料 |
-| ホスティング歴 | 活動歴 |
+| yearsHosting | 活動歴 |
+| スーパーホスト | スーパークリエイター |
 
-※データ構造のフィールド名は変更しない
+※データ構造のフィールド名（`host`, `yearsHosting`）は変更しない
+
+### 10.4 スペーシング
+
+- アメニティアイコン（pill layout）：`gap-1.5`（6px）
+- クリエイターおすすめタグ：視覚的に囲む（`border border-coral/20`）
 
 ---
 
@@ -373,7 +499,7 @@ UI表示において統一する用語:
 3. **問い合わせ** - 入居希望者からの問い合わせ受付
 4. **内見調整** - 内見日程の調整
 5. **内見実施** - 実際の物件見学
-6. **契約** - 賃貸契約の締結
+6. **契約** - 賃貸契約の締結、インテリア購入料の支払い
 7. **引き継ぎ** - 物件・ライフスタイルの引き継ぎ完了
 
 ---
@@ -381,15 +507,16 @@ UI表示において統一する用語:
 ## 12. 今後の拡張予定
 
 ### Phase 2（次期開発）
-- ユーザー管理システム
+- ユーザー認証システム（データベース連携）
 - メッセージング機能
-- 決済システム
+- 決済システム統合
 - 電子契約機能
 
 ### Phase 3（将来開発）
 - レビュー・評価システム
 - マッチングAI
 - コミュニティ機能
+- クリエイターのプロフィールページ
 
 ---
 
@@ -405,6 +532,11 @@ UI表示において統一する用語:
 - 利用規約の策定
 - 特定商取引法に基づく表記
 
+### 13.3 ビジネスモデル上の法的位置づけ
+- tsumugiは物件の「仲介」ではなく「引き継ぎマッチング」を提供
+- 賃貸借契約は大家・管理会社と直接締結
+- インテリア購入は個人間売買
+
 ---
 
 ## 14. 用語集
@@ -413,9 +545,20 @@ UI表示において統一する用語:
 |------|------|
 | クリエイター | 物件を提供するユーザー（ホスト） |
 | 入居者 | 物件に入居するユーザー（ゲスト） |
-| インテリア購入料 | 家具・インテリアを含めた一時金 |
+| インテリア購入料 | 家具・インテリアを購入する費用 |
 | スタイル | 物件のインテリアスタイル分類 |
 | リスティング | クリエイターが登録した物件情報 |
+| 引き継ぎ | 物件とライフスタイルを次の人へ渡すこと |
+
+---
+
+## 15. 既知の技術的負債
+
+| ID | 問題 | 優先度 | ステータス |
+|----|------|--------|----------|
+| TD-001 | サンプルデータがハードコード | 低 | Phase 2 で対応 |
+| TD-002 | 認証がモック状態 | 中 | Phase 2 で対応 |
+| TD-003 | 画像最適化が未実装 | 低 | 後日対応 |
 
 ---
 
@@ -423,4 +566,5 @@ UI表示において統一する用語:
 
 | バージョン | 日付 | 変更内容 |
 |-----------|------|----------|
+| 1.1 | 2026-01-24 | データモデルを実際のコードベースに合わせて更新、スタイルカテゴリ更新、画面一覧追加、技術的負債セクション追加 |
 | 1.0 | 2026-01-24 | 初版作成 |
