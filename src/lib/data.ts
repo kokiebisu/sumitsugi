@@ -79,7 +79,7 @@ export interface HostListing {
 // 引き継ぎ対象の大型家具
 export type LargeFurnitureType = "bed" | "sofa" | "desk" | "table" | "storage" | "dining" | "wardrobe" | "tv" | "fridge"
 
-// User Listing (ユーザーが作成したリスティング) データ型
+// User Listing (ユーザーが作成した部屋) データ型
 export interface UserListing {
   id: string
   userId: string
@@ -92,8 +92,10 @@ export interface UserListing {
   managementFee?: number // 管理費
   area?: string // エリア
   layout?: string // 間取り
+  occupants?: number // 居住人数
   viewingAvailableFrom?: string // 内見可能日
   moveInAvailableFrom?: string // 引き継ぎ可能日
+  stations?: { name: string; walkingMinutes: number }[] // 最寄り駅（複数）
   createdAt: string
   updatedAt: string
   publishedAt?: string
@@ -211,9 +213,7 @@ export const properties: Property[] = [
       },
     },
     propertyDetails: {
-
       layout: "1K",
-
     },
     handoverDetails: {
       included: ["家具一式（ベッド、チェスト、本棚、テーブル）", "レコードプレーヤー", "タペストリー・アート作品", "植物（50鉢以上）", "スケートボード", "調理器具・食器"],
@@ -285,9 +285,7 @@ export const properties: Property[] = [
       },
     },
     propertyDetails: {
-
-      layout: "1K",
-
+      layout: "1LDK",
     },
     handoverDetails: {
       included: ["DJ機材一式（ターンテーブル×2、ミキサー）", "Marshallスピーカー", "レコード棚", "ベッドフレーム", "テーブル・チェア", "防音パネル", "レコードコレクション（約200枚）"],
@@ -356,6 +354,9 @@ export const properties: Property[] = [
         instagram: "@sota_vintage_life",
       },
     },
+    propertyDetails: {
+      layout: "1K",
+    },
   },
   {
     id: "1368794573069214650",
@@ -400,6 +401,9 @@ export const properties: Property[] = [
         website: "haruki-art.com",
       },
     },
+    propertyDetails: {
+      layout: "1LDK",
+    },
   },
   {
     id: "1368794573069214651",
@@ -443,6 +447,9 @@ export const properties: Property[] = [
         instagram: "@kento_industrial",
       },
     },
+    propertyDetails: {
+      layout: "1K",
+    },
   },
   {
     id: "1368794573069214652",
@@ -485,6 +492,9 @@ export const properties: Property[] = [
       socialLinks: {
         twitter: "@yuto_minimal",
       },
+    },
+    propertyDetails: {
+      layout: "1R",
     },
   },
   {
@@ -530,6 +540,9 @@ export const properties: Property[] = [
         twitter: "@mika_writes",
       },
     },
+    propertyDetails: {
+      layout: "1K",
+    },
   },
   {
     id: "1368794573069214654",
@@ -574,9 +587,7 @@ export const properties: Property[] = [
       },
     },
     propertyDetails: {
-
       layout: "1LDK",
-
     },
   },
   {
@@ -619,6 +630,9 @@ export const properties: Property[] = [
       socialLinks: {
         youtube: "@taro_films",
       },
+    },
+    propertyDetails: {
+      layout: "1R",
     },
   },
   {
@@ -664,9 +678,7 @@ export const properties: Property[] = [
       },
     },
     propertyDetails: {
-
       layout: "1LDK",
-
     },
   },
   {
@@ -710,6 +722,9 @@ export const properties: Property[] = [
         instagram: "@aya_ceramics",
       },
     },
+    propertyDetails: {
+      layout: "1K",
+    },
   },
   {
     id: "1368794573069214658",
@@ -752,6 +767,9 @@ export const properties: Property[] = [
         instagram: "@nao_color_design",
       },
     },
+    propertyDetails: {
+      layout: "1LDK",
+    },
   },
   {
     id: "1368794573069214659",
@@ -793,6 +811,9 @@ export const properties: Property[] = [
       socialLinks: {
         twitter: "@ken_business",
       },
+    },
+    propertyDetails: {
+      layout: "1K",
     },
   },
   {
@@ -837,9 +858,7 @@ export const properties: Property[] = [
       },
     },
     propertyDetails: {
-
       layout: "2DK",
-
     },
   },
   {
@@ -882,6 +901,9 @@ export const properties: Property[] = [
       socialLinks: {
         instagram: "@saki_botanical_life",
       },
+    },
+    propertyDetails: {
+      layout: "1LDK",
     },
   },
   {
@@ -926,6 +948,9 @@ export const properties: Property[] = [
         website: "riko-photo.com",
       },
     },
+    propertyDetails: {
+      layout: "1K",
+    },
   },
   {
     id: "1368794573069214663",
@@ -967,6 +992,9 @@ export const properties: Property[] = [
       socialLinks: {
         instagram: "@shun_vintage_furniture",
       },
+    },
+    propertyDetails: {
+      layout: "1LDK",
     },
   },
   {
@@ -1011,6 +1039,9 @@ export const properties: Property[] = [
         website: "yuki-ventures.com",
       },
     },
+    propertyDetails: {
+      layout: "1R",
+    },
   },
   {
     id: "1368794573069214665",
@@ -1052,6 +1083,9 @@ export const properties: Property[] = [
       socialLinks: {
         instagram: "@hana_tea_ceremony",
       },
+    },
+    propertyDetails: {
+      layout: "1DK",
     },
   },
   {
@@ -1096,6 +1130,9 @@ export const properties: Property[] = [
         instagram: "@masa_diy",
       },
     },
+    propertyDetails: {
+      layout: "1R",
+    },
   },
   {
     id: "1368794573069214667",
@@ -1137,6 +1174,9 @@ export const properties: Property[] = [
       socialLinks: {
         instagram: "@kohei_coffee",
       },
+    },
+    propertyDetails: {
+      layout: "1LDK",
     },
   },
   {
@@ -1181,6 +1221,9 @@ export const properties: Property[] = [
         youtube: "@takuma_movie_review",
       },
     },
+    propertyDetails: {
+      layout: "1LDK",
+    },
   },
   {
     id: "1368794573069214669",
@@ -1224,6 +1267,9 @@ export const properties: Property[] = [
         youtube: "@yumi_cooking",
       },
     },
+    propertyDetails: {
+      layout: "2LDK",
+    },
   },
   {
     id: "1368794573069214670",
@@ -1266,6 +1312,9 @@ export const properties: Property[] = [
         twitter: "@akira_books",
       },
     },
+    propertyDetails: {
+      layout: "1LDK",
+    },
   },
   {
     id: "1368794573069214671",
@@ -1307,6 +1356,9 @@ export const properties: Property[] = [
       socialLinks: {
         instagram: "@emi_yoga_life",
       },
+    },
+    propertyDetails: {
+      layout: "1K",
     },
   },
   {
@@ -1351,6 +1403,9 @@ export const properties: Property[] = [
         youtube: "@tatsuya_moto",
       },
     },
+    propertyDetails: {
+      layout: "1K",
+    },
   },
   {
     id: "1368794573069214673",
@@ -1393,6 +1448,9 @@ export const properties: Property[] = [
         instagram: "@mio_vet_life",
       },
     },
+    propertyDetails: {
+      layout: "2LDK",
+    },
   },
   {
     id: "1368794573069214674",
@@ -1434,6 +1492,9 @@ export const properties: Property[] = [
       socialLinks: {
         instagram: "@ryota_rooftop",
       },
+    },
+    propertyDetails: {
+      layout: "1LDK",
     },
   },
   {
@@ -1479,6 +1540,9 @@ export const properties: Property[] = [
         tiktok: "@yusuke_clips",
       },
     },
+    propertyDetails: {
+      layout: "1K",
+    },
   },
   {
     id: "1368794573069214671",
@@ -1522,6 +1586,9 @@ export const properties: Property[] = [
         twitter: "@ren_manga",
       },
     },
+    propertyDetails: {
+      layout: "1R",
+    },
   },
   {
     id: "1368794573069214672",
@@ -1564,6 +1631,9 @@ export const properties: Property[] = [
       socialLinks: {
         instagram: "@daisuke_osaka_food",
       },
+    },
+    propertyDetails: {
+      layout: "1K",
     },
   },
   {
@@ -1613,6 +1683,9 @@ export const properties: Property[] = [
       viewingAvailableFrom: "2026年3月1日〜",
       moveInAvailableFrom: "2026年4月1日〜",
     },
+    propertyDetails: {
+      layout: "1LDK",
+    },
   },
   {
     id: "1515284949501830585",
@@ -1659,6 +1732,9 @@ export const properties: Property[] = [
       notIncluded: ["着物・和装小物", "仕立て道具"],
       viewingAvailableFrom: "2026年2月15日〜",
       moveInAvailableFrom: "2026年3月15日〜",
+    },
+    propertyDetails: {
+      layout: "2K",
     },
   },
   {
@@ -1707,6 +1783,9 @@ export const properties: Property[] = [
       viewingAvailableFrom: "2026年2月20日〜",
       moveInAvailableFrom: "2026年3月20日〜",
     },
+    propertyDetails: {
+      layout: "1K",
+    },
   },
   {
     id: "1515284949501830587",
@@ -1753,6 +1832,9 @@ export const properties: Property[] = [
       notIncluded: ["スキー・スノーボード", "冬用衣類"],
       viewingAvailableFrom: "2026年3月1日〜",
       moveInAvailableFrom: "2026年4月1日〜",
+    },
+    propertyDetails: {
+      layout: "2LDK",
     },
   },
   {
@@ -1801,6 +1883,9 @@ export const properties: Property[] = [
       viewingAvailableFrom: "2026年2月10日〜",
       moveInAvailableFrom: "2026年3月1日〜",
     },
+    propertyDetails: {
+      layout: "1LDK",
+    },
   },
   {
     id: "1515284949501830589",
@@ -1847,6 +1932,9 @@ export const properties: Property[] = [
       notIncluded: ["ダイビング器材", "衣類"],
       viewingAvailableFrom: "2026年3月15日〜",
       moveInAvailableFrom: "2026年4月15日〜",
+    },
+    propertyDetails: {
+      layout: "1LDK",
     },
   },
   {

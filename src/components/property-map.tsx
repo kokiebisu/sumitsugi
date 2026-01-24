@@ -8,9 +8,10 @@ interface PropertyMapProps {
   lng: number
   neighborhood?: string
   title: string
+  interactive?: boolean
 }
 
-export function PropertyMap({ lat, lng, neighborhood }: PropertyMapProps) {
+export function PropertyMap({ lat, lng, neighborhood, interactive = false }: PropertyMapProps) {
   // 座標を少しずらしてプライバシーを保護（約200-500m範囲でランダム化）
   // useMemoで固定して再レンダリング時に変わらないようにする
   const { fuzzyLat, fuzzyLng } = useMemo(() => {
@@ -36,6 +37,11 @@ export function PropertyMap({ lat, lng, neighborhood }: PropertyMapProps) {
         referrerPolicy="no-referrer-when-downgrade"
         title={`${neighborhood || "物件"}周辺の地図`}
       />
+
+      {/* 非インタラクティブ時は透明なオーバーレイでマップ操作を無効化 */}
+      {!interactive && (
+        <div className="absolute inset-0" aria-hidden="true" />
+      )}
 
       {/* Airbnb風マーカー: 黒丸に家アイコン */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">

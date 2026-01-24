@@ -7,6 +7,15 @@ import Link from "next/link"
 import { Heart, ChevronLeft, ChevronRight } from "lucide-react"
 import type { Property } from "@/lib/data"
 
+function parseLocation(neighborhood: string | undefined): { ward?: string; town?: string } {
+  if (!neighborhood) return {}
+  const match = neighborhood.match(/^(.+?[区市])(.*)$/)
+  if (match) {
+    return { ward: match[1], town: match[2] || undefined }
+  }
+  return { ward: neighborhood }
+}
+
 interface PropertyCardProps {
   property: Property
 }
@@ -107,7 +116,10 @@ export function PropertyCard({ property }: PropertyCardProps) {
         )}
 
         <p className="mt-1 text-sm text-muted-foreground">
-          {property.area}{property.layout && ` / ${property.layout}`}
+          {(() => {
+            const { ward, town } = parseLocation(property.location?.neighborhood)
+            return [ward, town, property.layout].filter(Boolean).join(" / ")
+          })()}
         </p>
       </div>
     </Link>
