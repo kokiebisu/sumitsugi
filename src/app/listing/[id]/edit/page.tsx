@@ -57,15 +57,18 @@ const LAYOUT_OPTIONS = [
 
 // 引き継ぎ対象の大型家具
 const FURNITURE_ITEMS = [
-  { id: "bed", label: "ベッド", Icon: BedDouble },
-  { id: "sofa", label: "ソファ", Icon: Sofa },
-  { id: "desk", label: "デスク", Icon: Monitor },
-  { id: "storage", label: "収納", Icon: Archive },
-  { id: "table", label: "テーブル", Icon: Table2 },
-  { id: "wardrobe", label: "ワードローブ", Icon: Shirt },
-  { id: "tv", label: "テレビ台", Icon: Tv },
-  { id: "fridge", label: "冷蔵庫", Icon: Refrigerator },
+  { id: "bed" as const, label: "ベッド", Icon: BedDouble },
+  { id: "sofa" as const, label: "ソファ", Icon: Sofa },
+  { id: "desk" as const, label: "デスク", Icon: Monitor },
+  { id: "storage" as const, label: "収納", Icon: Archive },
+  { id: "table" as const, label: "テーブル", Icon: Table2 },
+  { id: "wardrobe" as const, label: "ワードローブ", Icon: Shirt },
+  { id: "tv" as const, label: "テレビ台", Icon: Tv },
+  { id: "fridge" as const, label: "冷蔵庫", Icon: Refrigerator },
 ];
+
+// Alias for backward compatibility
+const LARGE_FURNITURE_ITEMS = FURNITURE_ITEMS;
 
 export default function EditListingPage() {
   const { user, isLoading, listings, updateListing } = useAuth()
@@ -82,12 +85,29 @@ export default function EditListingPage() {
   const [isUploading, setIsUploading] = useState(false)
   const [pendingPhotos, setPendingPhotos] = useState<string[]>([])
   const [isLoadingFiles, setIsLoadingFiles] = useState(false)
+  const [rent, setRent] = useState("")
+  const [managementFee, setManagementFee] = useState("")
+  const [layout, setLayout] = useState("")
+  const [handoverFee, setHandoverFee] = useState("")
+  const [location, setLocation] = useState<LocationWithAddress | null>(null)
+  const [stations, setStations] = useState<StationInfo[]>([{ name: "", walkingMinutes: "" }])
+  const [viewingStartDate, setViewingStartDate] = useState<Date | null>(null)
+  const [viewingEndDate, setViewingEndDate] = useState<Date | null>(null)
+  const [moveInStartDate, setMoveInStartDate] = useState<Date | null>(null)
+  const [moveInEndDate, setMoveInEndDate] = useState<Date | null>(null)
 
   // リスティングデータを読み込み
   useEffect(() => {
     if (listing) {
       setSelectedFurniture(listing.furniture || [])
       setRoomPhotos(listing.roomPhotos || [])
+      setRent(listing.rent?.toString() || "")
+      setManagementFee(listing.managementFee?.toString() || "")
+      setLayout(listing.layout || "")
+      setHandoverFee(listing.handoverFee?.toString() || "")
+      if (listing.stations && listing.stations.length > 0) {
+        setStations(listing.stations.map(s => ({ name: s.name, walkingMinutes: s.walkingMinutes.toString() })))
+      }
     }
   }, [listing]);
 

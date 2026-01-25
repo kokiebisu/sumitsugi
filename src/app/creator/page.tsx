@@ -7,7 +7,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { useAuth } from "@/contexts/auth-context"
 import { CustomSignupDialog } from "@/components/auth/custom-signup-dialog"
-import { BecomeHostFlow } from "@/components/auth/become-host-flow"
+import { BecomeSellerFlow } from "@/components/auth/become-seller-flow"
 import { Button } from "@/components/ui/button"
 import { Plus, MoreHorizontal, Eye, Edit2, Trash2, Home, MessageSquare, BarChart3 } from "lucide-react"
 
@@ -88,9 +88,9 @@ function ListingCard({ listing, onDelete }: { listing: { id: string; title: stri
 
 export default function CreatorPage() {
   const router = useRouter()
-  const { user, login, becomeHost, listings, deleteListing } = useAuth()
+  const { user, login, becomeSeller, listings, deleteListing } = useAuth()
   const [showSignupDialog, setShowSignupDialog] = useState(false)
-  const [showBecomeHostFlow, setShowBecomeHostFlow] = useState(false)
+  const [showBecomeSellerFlow, setShowBecomeSellerFlow] = useState(false)
 
   // ユーザーのリスティングのみフィルター
   const userListings = listings.filter(l => l.userId === user?.id)
@@ -98,27 +98,27 @@ export default function CreatorPage() {
   const handleGetStarted = () => {
     if (!user) {
       setShowSignupDialog(true)
-    } else if (!user.isHost) {
-      setShowBecomeHostFlow(true)
+    } else if (!user.isSeller) {
+      setShowBecomeSellerFlow(true)
     }
   }
 
   const handleSignupComplete = (newUser: Parameters<typeof login>[0]) => {
     login(newUser)
     setShowSignupDialog(false)
-    // サインアップ完了後、すぐにBecomeHostFlowを表示
-    setShowBecomeHostFlow(true)
+    // サインアップ完了後、すぐにBecomeSellerFlowを表示
+    setShowBecomeSellerFlow(true)
   }
 
-  const handleBecomeHostComplete = (hostProfile: Parameters<typeof becomeHost>[0]) => {
-    becomeHost(hostProfile)
-    setShowBecomeHostFlow(false)
+  const handleBecomeSellerComplete = (hostProfile: Parameters<typeof becomeSeller>[0]) => {
+    becomeSeller(hostProfile)
+    setShowBecomeSellerFlow(false)
     // プロフィール作成完了後、ホスティングダッシュボードへリダイレクト
     router.push("/listing")
   }
 
   // ホストでリスティングがある場合はダッシュボード表示
-  if (user?.isHost && userListings.length > 0) {
+  if (user?.isSeller && userListings.length > 0) {
     return (
       <div className="flex min-h-screen flex-col">
         <Header />
@@ -183,7 +183,7 @@ export default function CreatorPage() {
   }
 
   // ホストだがリスティングがない場合は /listing にリダイレクト
-  if (user?.isHost && userListings.length === 0) {
+  if (user?.isSeller && userListings.length === 0) {
     router.push("/listing")
     return null
   }
@@ -216,7 +216,7 @@ export default function CreatorPage() {
                 はじめる
               </Button>
             )}
-            {user && !user.isHost && (
+            {user && !user.isSeller && (
               <Button
                 onClick={handleGetStarted}
                 size="lg"
@@ -300,10 +300,10 @@ export default function CreatorPage() {
         onSignupComplete={handleSignupComplete}
       />
 
-      {showBecomeHostFlow && (
-        <BecomeHostFlow
-          onComplete={handleBecomeHostComplete}
-          onClose={() => setShowBecomeHostFlow(false)}
+      {showBecomeSellerFlow && (
+        <BecomeSellerFlow
+          onComplete={handleBecomeSellerComplete}
+          onClose={() => setShowBecomeSellerFlow(false)}
         />
       )}
     </div>

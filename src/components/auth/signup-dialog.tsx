@@ -51,7 +51,7 @@ export function SignupDialog({
       name: fullName,
       createdAt: new Date().toISOString(),
       authProvider: "email",
-      isHost: false,
+      isSeller: false,
     }
 
     console.log("User created via email:", newUser)
@@ -73,7 +73,7 @@ export function SignupDialog({
       name: fullName,
       createdAt: new Date().toISOString(),
       authProvider: provider as "google" | "facebook" | "apple",
-      isHost: false,
+      isSeller: false,
     }
 
     console.log(`User created via ${provider}:`, newUser)

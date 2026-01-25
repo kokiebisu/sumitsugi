@@ -1,13 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import type { HostListing } from "@/lib/data"
+import type { SellerListing } from "@/lib/data"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Calendar, Mail, User, Phone, MapPin, Home } from "lucide-react"
 
 interface HostListingListProps {
-  listings: HostListing[]
+  listings: SellerListing[]
 }
 
 const statusColors = {
@@ -98,18 +98,18 @@ export function HostListingList({ listings }: HostListingListProps) {
               <div className="mb-4 grid gap-3 md:grid-cols-2">
                 <div className="flex items-center gap-2 text-sm">
                   <User className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">{listing.hostName}</span>
+                  <span className="font-medium">{listing.sellerName}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Mail className="h-4 w-4 text-muted-foreground" />
-                  <a href={`mailto:${listing.hostEmail}`} className="text-coral hover:underline">
-                    {listing.hostEmail}
+                  <a href={`mailto:${listing.sellerEmail}`} className="text-coral hover:underline">
+                    {listing.sellerEmail}
                   </a>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Phone className="h-4 w-4 text-muted-foreground" />
-                  <a href={`tel:${listing.hostPhone}`} className="text-coral hover:underline">
-                    {listing.hostPhone}
+                  <a href={`tel:${listing.sellerPhone}`} className="text-coral hover:underline">
+                    {listing.sellerPhone}
                   </a>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
