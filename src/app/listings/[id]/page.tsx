@@ -153,7 +153,7 @@ export default async function PropertyDetailPage({
 
             {/* Map Section - Full Grid Width (5 columns) */}
             {property.location && (
-              <div className="lg:col-span-5 pt-4 border-t border-border">
+              <div className="lg:col-span-5 pt-8">
                 <h2 className="mb-4 text-xl font-semibold text-foreground">
                   ロケーション
                 </h2>
