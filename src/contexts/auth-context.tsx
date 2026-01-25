@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import type { User, SellerProfile, UserListing, Inquiry } from "@/lib/data";
+import { inquiries as mockInquiries } from "@/lib/data";
 
 interface AuthContextType {
   user: User | null;
@@ -44,6 +45,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // 初期化: localStorageから復元
   useEffect(() => {
+    // 開発モード: 常にモックデータを使用（localStorageを無視）
+    if (process.env.NODE_ENV === "development") {
+      setInquiries(mockInquiries);
+
+      // 開発モード: テストユーザーとして自動ログイン
+      const devUser: User = {
+        id: "dev_user_001",
+        name: "田中 花子",
+        email: "tanaka@example.com",
+        isSeller: false,
+        createdAt: new Date().toISOString(),
+      };
+      setUser(devUser);
+
+      setIsInitialized(true);
+      setIsLoading(false);
+      return;
+    }
+
     const storedUser = localStorage.getItem(STORAGE_KEY);
     if (storedUser) {
       try {
