@@ -136,7 +136,7 @@ export default function NewListingPage() {
     if (areaName) {
       return `${areaName}の${livingType}部屋`;
     }
-    return `${livingType}あなたの部屋` || "あなたの部屋";
+    return `${livingType}あなたの部屋`;
   };
 
   // 日付を文字列にフォーマット（単体なら「〇〇日以降」、範囲なら「〇〇日 - 〇〇日」）
