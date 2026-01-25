@@ -147,6 +147,7 @@ export interface Property {
     neighborhood?: string // 町名（例：目黒区中目黒）
   }
   layout?: string // 間取り
+  occupancy?: number // 居住人数
   style?: string // e.g., "scandinavian", "industrial", "bohemian", "minimal", "vintage", "modern", etc.
   furniture?: LargeFurnitureType[] // 引き継ぎ対象の大型家具
   status: "draft" | "public"
@@ -221,6 +222,7 @@ export const properties: Property[] = [
     area: "東京",
     location: { lat: 35.6442, lng: 139.6986, neighborhood: "目黒区中目黒" },
     layout: "1K",
+    occupancy: 1,
     style: "bohemian",
     furniture: ["bed", "desk", "storage"],
     condition: "good",
@@ -292,6 +294,7 @@ export const properties: Property[] = [
     area: "東京",
     location: { lat: 35.6580, lng: 139.7016, neighborhood: "渋谷区恵比寿" },
     layout: "1LDK",
+    occupancy: 1,
     style: "industrial",
     furniture: ["bed", "sofa", "desk"],
     condition: "excellent",
@@ -364,6 +367,7 @@ export const properties: Property[] = [
     area: "東京",
     location: { lat: 35.7090, lng: 139.6651, neighborhood: "杉並区高円寺" },
     layout: "1K",
+    occupancy: 1,
     style: "vintage",
     furniture: ["bed", "desk", "storage"],
     condition: "used",

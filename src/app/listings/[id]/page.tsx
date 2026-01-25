@@ -24,6 +24,7 @@ import {
   Tv,
   Refrigerator,
   Coffee,
+  Users,
 } from "lucide-react";
 
 const FURNITURE_ICONS: Record<string, typeof BedDouble> = {
@@ -110,6 +111,45 @@ export default async function PropertyDetailPage({
                     .join(" / ")}
                 </p>
               </div>
+
+              {/* Property Info Section */}
+              <section className="py-8 border-b border-border">
+                <h2 className="mb-6 text-xl font-semibold text-foreground">
+                  物件情報
+                </h2>
+
+                <div className="grid grid-cols-2 gap-6">
+                  {/* 間取り */}
+                  <div className="flex items-start gap-3">
+                    <div className="rounded-lg bg-muted p-2">
+                      <Home className="h-5 w-5 text-foreground" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">間取り</p>
+                      <p className="text-base font-medium text-foreground">
+                        {property.layout}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* 居住人数 */}
+                  {property.occupancy && (
+                    <div className="flex items-start gap-3">
+                      <div className="rounded-lg bg-muted p-2">
+                        <Users className="h-5 w-5 text-foreground" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">
+                          居住人数
+                        </p>
+                        <p className="text-base font-medium text-foreground">
+                          {property.occupancy}人
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </section>
 
               {/* Furniture Section */}
               <section className="py-8 border-b border-border">
