@@ -67,6 +67,14 @@ export function InquiryList({ inquiries }: InquiryListProps) {
         >
           完了 ({inquiries.filter((i) => i.status === "completed").length})
         </Button>
+        <Button
+          variant={filterStatus === "viewing_completed" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setFilterStatus("viewing_completed")}
+          className="rounded-full"
+        >
+          内見完了 ({inquiries.filter((i) => i.status === "viewing_completed").length})
+        </Button>
       </div>
 
       {/* Inquiry Cards */}
