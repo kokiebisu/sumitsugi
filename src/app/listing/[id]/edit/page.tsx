@@ -170,7 +170,7 @@ export default function EditListingPage() {
     if (areaName) {
       return `${areaName}の${livingType}部屋`;
     }
-    return `${livingType}部屋` || "部屋";
+    return `${livingType}部屋`;
   };
 
   const handleSave = async () => {

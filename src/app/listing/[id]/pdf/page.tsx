@@ -306,7 +306,7 @@ export default function LandlordPDFPage() {
               <div>
                 <p className="text-sm text-gray-500 mb-2">同意日</p>
                 <div className="border-b border-gray-400 pb-1 h-8">
-                  <span className="text-sm text-gray-400">　　　　年　　　月　　　日</span>
+                  <span className="text-sm text-gray-400">    年   月   日</span>
                 </div>
               </div>
               <div>
