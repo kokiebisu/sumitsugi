@@ -37,7 +37,7 @@ export function CustomSignupDialog({
       phone: phone,
       createdAt: new Date().toISOString(),
       authProvider: "email",
-      isHost: false,
+      isSeller: false,
     };
 
     console.log("User created via phone:", newUser);
@@ -55,9 +55,10 @@ export function CustomSignupDialog({
       id: crypto.randomUUID(),
       email: email,
       name: "ゲスト",
+      phone: "", // TODO: 登録フォームから電話番号を取得
       createdAt: new Date().toISOString(),
       authProvider: "email",
-      isHost: false,
+      isSeller: false,
     };
 
     console.log("User created via email:", newUser);
@@ -73,9 +74,10 @@ export function CustomSignupDialog({
       id: crypto.randomUUID(),
       email: `user@${provider}.com`,
       name: "ゲスト",
+      phone: "", // TODO: ソーシャルログイン後に電話番号を取得
       createdAt: new Date().toISOString(),
       authProvider: provider as "google" | "facebook" | "apple",
-      isHost: false,
+      isSeller: false,
     };
 
     console.log(`User created via ${provider}:`, newUser);

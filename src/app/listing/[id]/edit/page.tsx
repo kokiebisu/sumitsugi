@@ -55,22 +55,6 @@ const LAYOUT_OPTIONS = [
   "4LDK",
 ];
 
-// お部屋のスタイル・テイスト
-const ROOM_STYLES = [
-  { id: "nordic", label: "北欧風", Icon: TreePine },
-  { id: "modern", label: "モダン", Icon: Sparkles },
-  { id: "vintage", label: "ヴィンテージ", Icon: Clock },
-  { id: "minimal", label: "ミニマル", Icon: Frame },
-  { id: "industrial", label: "インダストリアル", Icon: Briefcase },
-  { id: "natural", label: "ナチュラル", Icon: Leaf },
-  { id: "japanese", label: "和モダン", Icon: Moon },
-  { id: "bohemian", label: "ボヘミアン", Icon: Flower2 },
-  { id: "coastal", label: "コースタル・海辺", Icon: Waves },
-  { id: "midcentury", label: "ミッドセンチュリー", Icon: Armchair },
-  { id: "rustic", label: "ラスティック", Icon: Mountain },
-  { id: "contemporary", label: "コンテンポラリー", Icon: Lamp },
-];
-
 // 引き継ぎ対象の大型家具
 const FURNITURE_ITEMS = [
   { id: "bed", label: "ベッド", Icon: BedDouble },
@@ -84,110 +68,26 @@ const FURNITURE_ITEMS = [
 ];
 
 export default function EditListingPage() {
-  const { user, isLoading, listings, updateListing } = useAuth();
-  const router = useRouter();
-  const params = useParams();
-  const listingId = params.id as string;
+  const { user, isLoading, listings, updateListing } = useAuth()
+  const router = useRouter()
+  const params = useParams()
+  const listingId = params.id as string
 
-  const listing = listings.find((l) => l.id === listingId);
+  const listing = listings.find(l => l.id === listingId)
 
-  // 基本情報
-  const [selectedRoomStyle, setSelectedRoomStyle] = useState<string | null>(null);
-  const [story, setStory] = useState("");
-  const [selectedFurniture, setSelectedFurniture] = useState<string[]>([]);
-  const [roomPhotos, setRoomPhotos] = useState<string[]>([]);
+  const [selectedFurniture, setSelectedFurniture] = useState<LargeFurnitureType[]>([])
+  const [roomPhotos, setRoomPhotos] = useState<string[]>([])
+  const [isSaving, setIsSaving] = useState(false)
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+  const [pendingPhotos, setPendingPhotos] = useState<string[]>([])
+  const [isLoadingFiles, setIsLoadingFiles] = useState(false)
 
-  // 費用・物件情報
-  const [rent, setRent] = useState<string>("");
-  const [managementFee, setManagementFee] = useState<string>("");
-  const [layout, setLayout] = useState<string>("");
-  const [handoverFee, setHandoverFee] = useState<string>("");
-
-  // エリア・駅
-  const [location, setLocation] = useState<LocationWithAddress | null>(null);
-  const [stations, setStations] = useState<StationInfo[]>([
-    { name: "", walkingMinutes: "" },
-  ]);
-
-  // スケジュール
-  const [viewingStartDate, setViewingStartDate] = useState<Date | null>(null);
-  const [viewingEndDate, setViewingEndDate] = useState<Date | null>(null);
-  const [moveInStartDate, setMoveInStartDate] = useState<Date | null>(null);
-  const [moveInEndDate, setMoveInEndDate] = useState<Date | null>(null);
-
-  // UI状態
-  const [isSaving, setIsSaving] = useState(false);
-  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [pendingPhotos, setPendingPhotos] = useState<string[]>([]);
-  const [isLoadingFiles, setIsLoadingFiles] = useState(false);
-
-  // 日付文字列をパース
-  const parseDateRange = (dateString?: string): { start: Date | null; end: Date | null } => {
-    if (!dateString) return { start: null, end: null };
-
-    const parts = dateString.split(" - ");
-    const parseJapaneseDate = (str: string): Date | null => {
-      const match = str.match(/(\d+)年(\d+)月(\d+)日/);
-      if (match) {
-        return new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]));
-      }
-      return null;
-    };
-
-    if (parts.length === 2) {
-      return {
-        start: parseJapaneseDate(parts[0]),
-        end: parseJapaneseDate(parts[1]),
-      };
-    } else if (dateString.endsWith("〜")) {
-      return {
-        start: parseJapaneseDate(dateString.replace("〜", "")),
-        end: null,
-      };
-    }
-    return { start: null, end: null };
-  };
-
-  // 部屋データを読み込み
+  // リスティングデータを読み込み
   useEffect(() => {
     if (listing) {
-      setSelectedRoomStyle(listing.roomStyle || null);
-      setStory(listing.story || "");
-      setSelectedFurniture(listing.furniture || []);
-      setRoomPhotos(listing.roomPhotos || []);
-      setRent(listing.rent?.toString() || "");
-      setManagementFee(listing.managementFee?.toString() || "");
-      setLayout(listing.layout || "");
-      setHandoverFee(listing.handoverFee?.toString() || "");
-
-      // エリア情報を復元
-      if (listing.area) {
-        setLocation({
-          lat: 0,
-          lng: 0,
-          neighborhood: listing.area,
-        });
-      }
-
-      // 駅情報を復元
-      if (listing.stations && listing.stations.length > 0) {
-        setStations(
-          listing.stations.map((s) => ({
-            name: s.name,
-            walkingMinutes: s.walkingMinutes.toString(),
-          }))
-        );
-      }
-
-      // 日付情報を復元
-      const viewingDates = parseDateRange(listing.viewingAvailableFrom);
-      setViewingStartDate(viewingDates.start);
-      setViewingEndDate(viewingDates.end);
-
-      const moveInDates = parseDateRange(listing.moveInAvailableFrom);
-      setMoveInStartDate(moveInDates.start);
-      setMoveInEndDate(moveInDates.end);
+      setSelectedFurniture(listing.furniture || [])
+      setRoomPhotos(listing.roomPhotos || [])
     }
   }, [listing]);
 
@@ -254,14 +154,14 @@ export default function EditListingPage() {
   };
 
   const handleSave = async () => {
-    if (!listing) return;
-    setIsSaving(true);
+    if (!listing) return
+    setIsSaving(true)
+
+    const title = "私の暮らし"
 
     updateListing(listing.id, {
-      title: generateTitle(),
-      roomStyle: selectedRoomStyle,
-      story,
-      furniture: selectedFurniture as LargeFurnitureType[],
+      title,
+      furniture: selectedFurniture,
       roomPhotos,
       rent: rent ? parseInt(rent, 10) : undefined,
       managementFee: managementFee ? parseInt(managementFee, 10) : undefined,
@@ -374,37 +274,6 @@ export default function EditListingPage() {
       {/* メインコンテンツ */}
       <main className="flex-1 px-6 py-8 md:px-12">
         <div className="max-w-3xl mx-auto space-y-10">
-          {/* 部屋のスタイル */}
-          <section>
-            <h2 className="text-xl font-semibold mb-2">お部屋のテイスト</h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              インテリアのテイストを選んでください
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {ROOM_STYLES.map(({ id, label, Icon }) => {
-                const isSelected = selectedRoomStyle === id;
-                return (
-                  <button
-                    key={id}
-                    onClick={() => setSelectedRoomStyle(id)}
-                    className={cn(
-                      "flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left",
-                      isSelected
-                        ? "border-foreground bg-muted"
-                        : "border-border hover:border-foreground/40"
-                    )}
-                  >
-                    <Icon
-                      className="w-5 h-5 text-foreground flex-shrink-0"
-                      strokeWidth={1.5}
-                    />
-                    <span className="text-sm font-medium">{label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-
           {/* 写真 */}
           <section>
             <h2 className="text-xl font-semibold mb-2">部屋の写真</h2>
@@ -639,18 +508,36 @@ export default function EditListingPage() {
             </div>
           </section>
 
-          {/* ストーリー */}
+          {/* 家具 */}
           <section>
-            <h2 className="text-xl font-semibold mb-2">暮らしのストーリー</h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              この空間でどんな暮らしをしてきたか、思い出やこだわりを書いてください
-            </p>
-            <Textarea
-              placeholder="例：この部屋で過ごした3年間、窓から見える夕日を眺めながらコーヒーを飲むのが毎日の楽しみでした..."
-              value={story}
-              onChange={(e) => setStory(e.target.value)}
-              className="min-h-[200px] resize-none text-base p-4 rounded-xl border-2 focus:border-foreground"
-            />
+            <h2 className="text-xl font-semibold mb-4">引き継ぐ家具</h2>
+            <p className="text-sm text-muted-foreground mb-4">次の入居者に引き継ぎたい大型家具を選んでください</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {LARGE_FURNITURE_ITEMS.map(({ id, label, Icon }) => {
+                const isSelected = selectedFurniture.includes(id)
+                return (
+                  <button
+                    key={id}
+                    onClick={() => {
+                      if (isSelected) {
+                        setSelectedFurniture(selectedFurniture.filter((f) => f !== id))
+                      } else {
+                        setSelectedFurniture([...selectedFurniture, id])
+                      }
+                    }}
+                    className={cn(
+                      "flex flex-col items-center p-4 rounded-xl border-2 transition-all",
+                      isSelected
+                        ? "border-foreground bg-muted"
+                        : "border-border hover:border-foreground/40"
+                    )}
+                  >
+                    <Icon className="w-8 h-8 mb-2 text-foreground" strokeWidth={1.5} />
+                    <span className="text-sm font-medium text-center">{label}</span>
+                  </button>
+                )
+              })}
+            </div>
           </section>
         </div>
       </main>

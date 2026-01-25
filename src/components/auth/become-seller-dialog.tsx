@@ -12,21 +12,21 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { ArrowLeft, Loader2, Check } from "lucide-react"
-import type { HostProfile } from "@/lib/data"
+import type { SellerProfile } from "@/lib/data"
 
-interface BecomeHostDialogProps {
+interface BecomeSellerDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onComplete: (hostProfile: HostProfile) => void
+  onComplete: (sellerProfile: SellerProfile) => void
 }
 
 type Step = "profile" | "social" | "confirm"
 
-export function BecomeHostDialog({
+export function BecomeSellerDialog({
   open,
   onOpenChange,
   onComplete,
-}: BecomeHostDialogProps) {
+}: BecomeSellerDialogProps) {
   const [step, setStep] = useState<Step>("profile")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -53,7 +53,7 @@ export function BecomeHostDialog({
     setIsSubmitting(true)
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    const hostProfile: HostProfile = {
+    const sellerProfile: SellerProfile = {
       occupation,
       bio,
       socialLinks: {
@@ -61,11 +61,11 @@ export function BecomeHostDialog({
         twitter: twitter || undefined,
         website: website || undefined,
       },
-      hostSince: new Date().toISOString(),
+      sellerSince: new Date().toISOString(),
     }
 
     setIsSubmitting(false)
-    onComplete(hostProfile)
+    onComplete(sellerProfile)
 
     // Reset form
     setStep("profile")

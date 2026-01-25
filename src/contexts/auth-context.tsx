@@ -7,7 +7,7 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
-import type { User, HostProfile, UserListing, Inquiry } from "@/lib/data";
+import type { User, SellerProfile, UserListing, Inquiry } from "@/lib/data";
 
 interface AuthContextType {
   user: User | null;
@@ -15,7 +15,7 @@ interface AuthContextType {
   login: (user: User) => void;
   logout: () => void;
   updateUser: (updates: Partial<User>) => void;
-  becomeHost: (hostProfile: HostProfile) => void;
+  becomeSeller: (sellerProfile: SellerProfile) => void;
   listings: UserListing[];
   addListing: (
     listing: Omit<UserListing, "id" | "userId" | "createdAt" | "updatedAt">,
@@ -127,12 +127,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const becomeHost = (hostProfile: HostProfile) => {
+  const becomeSeller = (sellerProfile: SellerProfile) => {
     if (user) {
       setUser({
         ...user,
-        isHost: true,
-        hostProfile,
+        isSeller: true,
+        sellerProfile,
       });
     }
   };
@@ -214,7 +214,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         updateUser,
-        becomeHost,
+        becomeSeller,
         listings,
         addListing,
         updateListing,

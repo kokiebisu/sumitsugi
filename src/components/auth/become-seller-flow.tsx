@@ -8,10 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Check, User, Link2, CheckCircle, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/lib/site-config";
-import type { HostProfile } from "@/lib/data";
+import type { SellerProfile } from "@/lib/data";
 
-interface BecomeHostFlowProps {
-  onComplete: (hostProfile: HostProfile) => void;
+interface BecomeSellerFlowProps {
+  onComplete: (sellerProfile: SellerProfile) => void;
   onClose: () => void;
 }
 
@@ -45,7 +45,7 @@ const occupations = [
   { id: "other", label: "その他" },
 ];
 
-export function BecomeHostFlow({ onComplete, onClose }: BecomeHostFlowProps) {
+export function BecomeSellerFlow({ onComplete, onClose }: BecomeSellerFlowProps) {
   const [step, setStep] = useState<Step>("intro");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -80,7 +80,7 @@ export function BecomeHostFlow({ onComplete, onClose }: BecomeHostFlowProps) {
     setIsSubmitting(true);
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    const hostProfile: HostProfile = {
+    const sellerProfile: SellerProfile = {
       occupation: selectedOccupations
         .map((id) => occupations.find((o) => o.id === id)?.label)
         .filter(Boolean)
@@ -91,11 +91,11 @@ export function BecomeHostFlow({ onComplete, onClose }: BecomeHostFlowProps) {
         twitter: twitter || undefined,
         website: website || undefined,
       },
-      hostSince: new Date().toISOString(),
+      sellerSince: new Date().toISOString(),
     };
 
     setIsSubmitting(false);
-    onComplete(hostProfile);
+    onComplete(sellerProfile);
   };
 
   const canProceed = useCallback(() => {

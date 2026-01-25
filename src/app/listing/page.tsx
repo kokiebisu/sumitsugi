@@ -20,7 +20,7 @@ const scrollImages = {
   ],
   row2: [
     "https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=800&h=600&fit=crop", // 白いダイニング
-    "https://images.unsplash.com/photo-1556020685-ae41abfc9365?w=800&h=600&fit=crop", // 北欧スタイル
+    "https://images.unsplash.com/photo-1556020685-ae41abfc9365?w=800&h=600&fit=crop", // リビング
     "https://images.unsplash.com/photo-1486304873000-235643847519?w=800&h=600&fit=crop", // ミニマルリビング
     "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?w=800&h=600&fit=crop", // 植物のあるリビング
     "https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800&h=600&fit=crop", // 明るいワンルーム

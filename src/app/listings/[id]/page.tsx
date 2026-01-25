@@ -3,7 +3,6 @@ import Link from "next/link";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { ImageGallery } from "@/components/image-gallery";
-import { StyleBadge } from "@/components/style-badge";
 import { PropertySidebar } from "@/components/property-sidebar";
 import { PropertyMap } from "@/components/property-map";
 import {
@@ -14,11 +13,8 @@ import {
 import {
   ArrowLeft,
   Home,
-  Calendar,
-  Building2,
   CheckCircle2,
   XCircle,
-  HelpCircle,
   BedDouble,
   Sofa,
   Monitor,
@@ -60,7 +56,7 @@ export async function generateMetadata({ params }: PropertyDetailPageProps) {
 
   return {
     title: `${property.title} | tsumugi`,
-    description: property.summary,
+    description: property.title,
   };
 }
 
@@ -108,7 +104,7 @@ export default async function PropertyDetailPage({
                 <p className="mt-1 text-base font-normal text-foreground">
                   {[
                     property.location?.neighborhood || property.area,
-                    property.layout || property.propertyDetails?.layout,
+                    property.layout,
                   ]
                     .filter(Boolean)
                     .join(" / ")}
@@ -147,97 +143,7 @@ export default async function PropertyDetailPage({
                     </div>
                   </div>
                 )}
-
-                {/* Condition Badge */}
-                {property.condition && (
-                  <div>
-                    <span className="inline-block rounded-full bg-muted px-3 py-1.5 text-sm font-medium text-foreground">
-                      状態：
-                      {property.condition === "excellent" && "綺麗"}
-                      {property.condition === "good" && "良好"}
-                      {property.condition === "used" && "中古"}
-                    </span>
-                  </div>
-                )}
               </section>
-
-              {/* Property Details Section - Simplified */}
-              {property.propertyDetails && (
-                <section className="py-8 border-b border-border">
-                  <h2 className="mb-6 text-xl font-semibold text-foreground">
-                    物件情報
-                  </h2>
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="flex items-start gap-3">
-                      <Building2 className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-0.5">
-                          間取り
-                        </p>
-                        <p className="text-base font-semibold text-foreground">
-                          {property.propertyDetails.layout}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Home className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-0.5">
-                          エリア
-                        </p>
-                        <p className="text-base font-semibold text-foreground">
-                          {property.area}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </section>
-              )}
-
-              {/* Handover Schedule Section - 全物件で表示 */}
-              <section className="py-8">
-                <h2 className="mb-6 text-xl font-semibold text-foreground">
-                  引き継ぎスケジュール
-                </h2>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <Calendar className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        内見可能日
-                      </p>
-                      <p className="text-base text-foreground">
-                        {property.handoverDetails?.viewingAvailableFrom ||
-                          "要相談"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </section>
-              {/* FAQ Section */}
-              {property.faq && property.faq.length > 0 && (
-                <section className="py-8 border-b border-border">
-                  <h2 className="mb-6 text-xl font-semibold text-foreground">
-                    よくある質問
-                  </h2>
-                  <div className="space-y-6">
-                    {property.faq.map((item, index) => (
-                      <div
-                        key={index}
-                        className="pb-6 border-b border-border last:border-0 last:pb-0"
-                      >
-                        <h3 className="mb-2 text-base font-semibold text-foreground flex items-start gap-2">
-                          <HelpCircle className="h-5 w-5 text-coral mt-0.5 flex-shrink-0" />
-                          {item.question}
-                        </h3>
-                        <p className="text-base leading-relaxed text-foreground/80 ml-7">
-                          {item.answer}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )}
             </div>
 
             {/* Sidebar / CTA - 2/5 width */}
