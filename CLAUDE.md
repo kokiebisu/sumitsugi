@@ -12,15 +12,22 @@
 ## Commands
 
 ```bash
-npm run dev     # 開発サーバー起動 (localhost:3000)
-npm run build   # プロダクションビルド
-npm run start   # プロダクションサーバー起動
-npm run lint    # ESLintでコードチェック
+npm run dev              # 開発サーバー起動 (localhost:3000)
+npm run build            # プロダクションビルド
+npm run start            # プロダクションサーバー起動
+npm run lint             # ESLintでコードチェック
+
+# Git Worktrees (with devcontainer support)
+npm run worktree:create  # 新しいworktreeを作成
+npm run worktree:list    # worktree一覧を表示
+npm run worktree:prune   # 削除済みworktreeをクリーンアップ
 ```
 
 ## Git Workflow
 
 **CRITICAL: `/worktree` skill auto-invokes** for ANY implementation task.
+
+The `/worktree` skill (defined in [.claude/skills/worktree.cl.md](.claude/skills/worktree.cl.md)) automatically creates an isolated git worktree with devcontainer support.
 
 Claude will automatically invoke `/worktree` as the FIRST action when you request:
 - Feature implementations
@@ -32,6 +39,25 @@ Claude will automatically invoke `/worktree` as the FIRST action when you reques
 **Skip worktree only for:** Single-line typo fixes, documentation-only changes.
 
 **Workflow:** `/worktree` (auto) → implement → `/commit` → `/pr`
+
+**How it works:**
+1. Claude invokes `/worktree` skill
+2. Creates branch and worktree in `.worktrees/<branch-name>/`
+3. Sets up devcontainer symlink
+4. You open the worktree in VS Code and reopen in container
+5. Continue development in the isolated environment
+
+### Devcontainers with Worktrees
+
+To use devcontainers with git worktrees:
+
+```bash
+npm run worktree:create feature-name  # Creates worktree with devcontainer support
+npm run worktree:list                 # List all worktrees
+npm run worktree:prune                # Clean up removed worktrees
+```
+
+See [.devcontainer/WORKTREE.md](.devcontainer/WORKTREE.md) for detailed documentation.
 
 ## Directory Structure
 
