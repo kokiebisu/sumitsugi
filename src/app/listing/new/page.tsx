@@ -6,31 +6,48 @@ import Link from "next/link";
 import { useAuth } from "@/contexts/auth-context";
 import type { LargeFurnitureType } from "@/lib/data";
 import { Button } from "@/components/ui/button";
+import { LocationPicker, type StationInfo, type LocationWithAddress } from "@/components/location-picker";
+import { EstimateCard } from "@/components/estimate-card";
+import { SingleDatePicker } from "@/components/date-range-picker";
 import { cn } from "@/lib/utils";
 import {
-  Leaf,
-  Sparkles,
-  TreePine,
-  Mountain,
-  Lamp,
-  Armchair,
-  Moon,
-  Flower2,
-  Briefcase,
-  Clock,
-  Frame,
   X,
   Plus,
-  Waves,
   BedDouble,
   Sofa,
   Monitor,
   Archive,
-  UtensilsCrossed,
+  Table2,
   Shirt,
   Tv,
   Refrigerator,
+  Users,
 } from "lucide-react";
+
+// 間取りの選択肢
+const LAYOUT_OPTIONS = [
+  "1R",
+  "1K",
+  "1DK",
+  "1LDK",
+  "2K",
+  "2DK",
+  "2LDK",
+  "3K",
+  "3DK",
+  "3LDK",
+  "4K",
+  "4DK",
+  "4LDK",
+];
+
+// 居住人数の選択肢
+const OCCUPANTS_OPTIONS = [
+  { value: "1", label: "1人" },
+  { value: "2", label: "2人" },
+  { value: "3", label: "3人" },
+  { value: "4", label: "4人以上" },
+];
 
 // 引き継ぎ対象の大型家具
 const FURNITURE_ITEMS = [
@@ -38,48 +55,37 @@ const FURNITURE_ITEMS = [
   { id: "sofa", label: "ソファ", Icon: Sofa },
   { id: "desk", label: "デスク", Icon: Monitor },
   { id: "storage", label: "収納", Icon: Archive },
-  { id: "dining", label: "ダイニング", Icon: UtensilsCrossed },
+  { id: "table", label: "テーブル", Icon: Table2 },
   { id: "wardrobe", label: "ワードローブ", Icon: Shirt },
   { id: "tv", label: "テレビ台", Icon: Tv },
   { id: "fridge", label: "冷蔵庫", Icon: Refrigerator },
-];
-
-// お部屋のスタイル・テイスト
-const ROOM_STYLES = [
-  { id: "nordic", label: "北欧風", Icon: TreePine },
-  { id: "modern", label: "モダン", Icon: Sparkles },
-  { id: "vintage", label: "ヴィンテージ", Icon: Clock },
-  { id: "minimal", label: "ミニマル", Icon: Frame },
-  { id: "industrial", label: "インダストリアル", Icon: Briefcase },
-  { id: "natural", label: "ナチュラル", Icon: Leaf },
-  { id: "japanese", label: "和モダン", Icon: Moon },
-  { id: "bohemian", label: "ボヘミアン", Icon: Flower2 },
-  { id: "coastal", label: "コースタル・海辺", Icon: Waves },
-  { id: "midcentury", label: "ミッドセンチュリー", Icon: Armchair },
-  { id: "rustic", label: "ラスティック", Icon: Mountain },
-  { id: "contemporary", label: "コンテンポラリー", Icon: Lamp },
 ];
 
 export default function NewListingPage() {
   const { user, isLoading, addListing } = useAuth();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
-  const [selectedRoomStyle, setSelectedRoomStyle] = useState<string | null>(null);
   const [roomPhotos, setRoomPhotos] = useState<string[]>([]);
   const [handoverFee, setHandoverFee] = useState<string>("");
   const [rent, setRent] = useState<string>("");
   const [layout, setLayout] = useState<string>("");
-  const [area, setArea] = useState<string>("");
+  const [location, setLocation] = useState<LocationWithAddress | null>(null);
   const [managementFee, setManagementFee] = useState<string>("");
   const [selectedFurniture, setSelectedFurniture] = useState<string[]>([]);
-  const [viewingAvailableFrom, setViewingAvailableFrom] = useState<string>("");
-  const [moveInAvailableFrom, setMoveInAvailableFrom] = useState<string>("");
+  const [viewingDate, setViewingDate] = useState<Date | null>(null);
+  const [viewingEndDate, setViewingEndDate] = useState<Date | null>(null);
+  const [moveInDate, setMoveInDate] = useState<Date | null>(null);
+  const [moveInEndDate, setMoveInEndDate] = useState<Date | null>(null);
+  const [stations, setStations] = useState<StationInfo[]>([
+    { name: "", walkingMinutes: "" },
+  ]);
+  const [occupants, setOccupants] = useState<string>("");
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [pendingPhotos, setPendingPhotos] = useState<string[]>([]);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
-  const totalSteps = 5;
+  const totalSteps = 7;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -94,30 +100,94 @@ export default function NewListingPage() {
     }
   }, [user, isLoading, router]);
 
+  // 住所詳細が入力されているかチェック
+  const hasDetailedAddress = () => {
+    const address = location?.address;
+    return Boolean(address?.streetAddress && address?.buildingInfo);
+  };
+
+  // タイトルを自動生成
+  const generateTitle = () => {
+    // 間取りから暮らしタイプを判定
+    const getLivingType = () => {
+      if (!layout) return "";
+      // 1R, 1K, 1DK, 1LDK は一人暮らし
+      if (layout.startsWith("1")) return "一人暮らしの";
+      // 2K, 2DK, 2LDK は二人暮らし
+      if (layout.startsWith("2")) return "二人暮らしの";
+      // 3K以上はファミリー向け
+      return "ファミリー向けの";
+    };
+
+    const livingType = getLivingType();
+
+    // エリア名を取得（区名や市名など短い形式で）
+    const getAreaName = () => {
+      if (location?.neighborhood) {
+        // "渋谷区渋谷" -> "渋谷"、"世田谷区三軒茶屋" -> "三軒茶屋" のように区以降を取得
+        const match = location.neighborhood.match(/区(.+)$/);
+        if (match) return match[1];
+        return location.neighborhood;
+      }
+      return null;
+    };
+
+    const areaName = getAreaName();
+    if (areaName) {
+      return `${areaName}の${livingType}部屋`;
+    }
+    return `${livingType}あなたの部屋` || "あなたの部屋";
+  };
+
+  // 日付を文字列にフォーマット（単体なら「〇〇日以降」、範囲なら「〇〇日 - 〇〇日」）
+  const formatDateRange = (start: Date | null, end: Date | null) => {
+    if (!start) return undefined;
+    const formatDate = (d: Date) =>
+      d.toLocaleDateString("ja-JP", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    if (end) {
+      return `${formatDate(start)} - ${formatDate(end)}`;
+    }
+    return `${formatDate(start)}以降`;
+  };
+
   const handleNext = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     } else {
-      // リスティングを作成して公開
-      const roomStyleLabel = ROOM_STYLES.find(s => s.id === selectedRoomStyle)?.label || "";
-      const title = roomStyleLabel ? `${roomStyleLabel}スタイルの暮らし` : "私の暮らし";
-
+      // ステップ7: 住所詳細が入力されていれば公開、そうでなければ下書き保存
+      const shouldPublish = hasDetailedAddress();
       addListing({
-        status: "published",
-        title,
-        roomStyle: selectedRoomStyle,
+        status: shouldPublish ? "published" : "draft",
+        title: generateTitle(),
+        roomStyle: null,
         roomPhotos,
         handoverFee: handoverFee ? parseInt(handoverFee, 10) : undefined,
         rent: rent ? parseInt(rent, 10) : undefined,
         managementFee: managementFee ? parseInt(managementFee, 10) : undefined,
         layout: layout || undefined,
-        area: area || undefined,
-        furniture: selectedFurniture.length > 0 ? selectedFurniture as LargeFurnitureType[] : undefined,
-        viewingAvailableFrom: viewingAvailableFrom || undefined,
-        moveInAvailableFrom: moveInAvailableFrom || undefined,
-        publishedAt: new Date().toISOString(),
+        occupants: occupants ? parseInt(occupants, 10) : undefined,
+        area: location?.neighborhood || "東京",
+        furniture:
+          selectedFurniture.length > 0
+            ? (selectedFurniture as LargeFurnitureType[])
+            : undefined,
+        viewingAvailableFrom: formatDateRange(viewingDate, viewingEndDate),
+        moveInAvailableFrom: formatDateRange(moveInDate, moveInEndDate),
+        stations: stations
+          .filter((s) => s.name)
+          .map((s) => ({
+            name: s.name,
+            walkingMinutes: s.walkingMinutes
+              ? parseInt(s.walkingMinutes, 10)
+              : 0,
+          })),
       });
 
+      // 公開・下書きどちらも部屋一覧へ遷移
       router.push("/listing");
     }
   };
@@ -131,28 +201,33 @@ export default function NewListingPage() {
   };
 
   const handleSaveAndExit = () => {
-    const hasData =
-      selectedRoomStyle !== null ||
-      roomPhotos.length > 0 ||
-      handoverFee.length > 0;
+    const hasData = roomPhotos.length > 0 || handoverFee.length > 0;
 
     if (hasData) {
-      const roomStyleLabel = ROOM_STYLES.find(s => s.id === selectedRoomStyle)?.label || "";
-      const title = roomStyleLabel ? `${roomStyleLabel}スタイルの暮らし` : "私の暮らし";
-
       addListing({
         status: "draft",
-        title,
-        roomStyle: selectedRoomStyle,
+        title: generateTitle(),
+        roomStyle: null,
         roomPhotos,
         handoverFee: handoverFee ? parseInt(handoverFee, 10) : undefined,
         rent: rent ? parseInt(rent, 10) : undefined,
         managementFee: managementFee ? parseInt(managementFee, 10) : undefined,
         layout: layout || undefined,
-        area: area || undefined,
-        furniture: selectedFurniture.length > 0 ? selectedFurniture as LargeFurnitureType[] : undefined,
-        viewingAvailableFrom: viewingAvailableFrom || undefined,
-        moveInAvailableFrom: moveInAvailableFrom || undefined,
+        area: location?.neighborhood || "東京",
+        furniture:
+          selectedFurniture.length > 0
+            ? (selectedFurniture as LargeFurnitureType[])
+            : undefined,
+        viewingAvailableFrom: formatDateRange(viewingDate, viewingEndDate),
+        moveInAvailableFrom: formatDateRange(moveInDate, moveInEndDate),
+        stations: stations
+          .filter((s) => s.name)
+          .map((s) => ({
+            name: s.name,
+            walkingMinutes: s.walkingMinutes
+              ? parseInt(s.walkingMinutes, 10)
+              : 0,
+          })),
       });
     }
 
@@ -162,11 +237,15 @@ export default function NewListingPage() {
   const canProceed = () => {
     switch (currentStep) {
       case 2:
-        return selectedRoomStyle !== null;
+        return roomPhotos.length >= 5;
       case 3:
-        return roomPhotos.length >= 3;
+        return location !== null;
       case 4:
-        return handoverFee.length > 0 && rent.length > 0 && layout.length > 0;
+        return rent.length > 0 && layout.length > 0;
+      case 5:
+        return true; // スケジュールは任意
+      case 6:
+        return selectedFurniture.length > 0 && handoverFee.length > 0;
       default:
         return true;
     }
@@ -252,7 +331,7 @@ export default function NewListingPage() {
 
       {/* メインコンテンツ */}
       <main className="flex-1 flex items-center justify-center">
-        <div className="w-full max-w-3xl px-6 py-12 md:px-12">
+        <div className="w-full max-w-7xl px-6 py-12 md:px-12">
           <p className="text-base font-medium text-foreground mb-4 text-center">
             ステップ {currentStep}
           </p>
@@ -270,80 +349,13 @@ export default function NewListingPage() {
                 暮らしを引き継ぐ
               </h1>
               <p className="text-lg text-foreground leading-relaxed max-w-xl mx-auto">
-                あなたの暮らしを次の人へ引き継ぐための情報を入力しましょう。部屋のスタイル、ストーリー、引き継ぎたい家具などを共有できます。
+                お部屋の写真やエリア、引き継ぎたい家具などの情報を入力して、次の住人を見つけましょう。
               </p>
             </div>
           )}
 
-          {/* ステップ2: お部屋のテイスト */}
+          {/* ステップ2: 部屋の写真 */}
           {currentStep === 2 && (
-            <div className="flex flex-col items-center">
-              <h1
-                className="text-[48px] font-medium text-foreground mb-3 leading-[1.15] text-center"
-                style={{
-                  fontFamily:
-                    '"Noto Sans JP", "Hiragino Kaku Gothic ProN", -apple-system, BlinkMacSystemFont, sans-serif',
-                }}
-              >
-                お部屋のテイストは？
-              </h1>
-              <p className="text-lg text-muted-foreground mb-8 text-center">
-                インテリアのテイストを選んでください
-              </p>
-              <div className="relative h-[360px] w-full max-w-xl">
-                <div
-                  className="absolute top-0 left-0 right-0 h-16 pointer-events-none z-10"
-                  style={{
-                    background:
-                      "linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%)",
-                  }}
-                />
-                <div
-                  className="absolute inset-0 overflow-y-auto py-12 scrollbar-hide"
-                  style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-                >
-                  <div className="grid grid-cols-3 gap-4">
-                    {ROOM_STYLES.map(({ id, label, Icon }) => {
-                      const isSelected = selectedRoomStyle === id;
-                      return (
-                        <button
-                          key={id}
-                          onClick={() => setSelectedRoomStyle(id)}
-                          className={cn(
-                            "flex flex-col items-start p-5 rounded-xl border-2 transition-all text-left",
-                            isSelected
-                              ? "border-foreground bg-muted"
-                              : "border-border hover:border-foreground/40",
-                          )}
-                        >
-                          <Icon
-                            className="w-8 h-8 mb-3 text-foreground"
-                            strokeWidth={1.5}
-                          />
-                          <span className="text-sm font-medium">{label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-                <div
-                  className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none z-10"
-                  style={{
-                    background:
-                      "linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%)",
-                  }}
-                />
-              </div>
-              <style jsx>{`
-                .scrollbar-hide::-webkit-scrollbar {
-                  display: none;
-                }
-              `}</style>
-            </div>
-          )}
-
-          {/* ステップ3: 部屋の写真 */}
-          {currentStep === 3 && (
             <div className="flex flex-col items-center w-full">
               <h1
                 className="text-[48px] font-medium text-foreground mb-3 leading-[1.15] text-center"
@@ -355,7 +367,7 @@ export default function NewListingPage() {
                 部屋の写真を追加
               </h1>
               <p className="text-lg text-muted-foreground mb-6 text-center max-w-lg">
-                お部屋の魅力が伝わる写真を3枚以上追加してください
+                お部屋の魅力が伝わる写真を5枚追加してください
               </p>
               <div className="w-screen relative -mx-6 md:-mx-12">
                 <div
@@ -375,12 +387,15 @@ export default function NewListingPage() {
                 <div
                   className={cn(
                     "flex gap-5 overflow-x-auto py-2 scrollbar-hide",
-                    roomPhotos.length === 0 && "justify-center"
+                    roomPhotos.length === 0 && "justify-center",
                   )}
                   style={{
                     scrollSnapType: "x mandatory",
                     WebkitOverflowScrolling: "touch",
-                    paddingLeft: roomPhotos.length === 0 ? "2rem" : "max(2rem, calc((100vw - 1200px) / 2))",
+                    paddingLeft:
+                      roomPhotos.length === 0
+                        ? "2rem"
+                        : "max(2rem, calc((100vw - 1200px) / 2))",
                   }}
                 >
                   {roomPhotos.map((photo, index) => (
@@ -420,7 +435,11 @@ export default function NewListingPage() {
                     </button>
                   )}
                   {roomPhotos.length > 0 && (
-                    <div className="flex-shrink-0" style={{ width: 'max(2rem, calc((100vw - 1200px) / 2))' }} aria-hidden="true" />
+                    <div
+                      className="flex-shrink-0"
+                      style={{ width: "max(2rem, calc((100vw - 1200px) / 2))" }}
+                      aria-hidden="true"
+                    />
                   )}
                 </div>
               </div>
@@ -428,9 +447,37 @@ export default function NewListingPage() {
                 <p
                   className={`text-sm font-medium ${roomPhotos.length >= 3 ? "text-green-600" : "text-muted-foreground"}`}
                 >
-                  {roomPhotos.length} / 5 枚（最低3枚必要）
+                  {roomPhotos.length} / 5 枚（最低5枚必要）
                   {roomPhotos.length >= 3 ? " ✓" : ""}
                 </p>
+              </div>
+            </div>
+          )}
+
+          {/* ステップ3: エリア選択 */}
+          {currentStep === 3 && (
+            <div className="flex flex-col items-center w-full">
+              <h1
+                className="text-[48px] font-medium text-foreground mb-3 leading-[1.15] text-center"
+                style={{
+                  fontFamily:
+                    '"Noto Sans JP", "Hiragino Kaku Gothic ProN", -apple-system, BlinkMacSystemFont, sans-serif',
+                }}
+              >
+                エリア
+              </h1>
+              <p className="text-lg text-muted-foreground mb-8 text-center">
+                地図をクリックして場所を指定してください
+              </p>
+              <div className="w-full max-w-2xl">
+                <LocationPicker
+                  onLocationSelect={setLocation}
+                  initialLocation={location ? { lat: location.lat, lng: location.lng } : undefined}
+                  initialAddress={location?.address}
+                  initialNeighborhood={location?.neighborhood}
+                  stations={stations}
+                  onStationsChange={setStations}
+                />
               </div>
             </div>
           )}
@@ -451,21 +498,6 @@ export default function NewListingPage() {
                 今わかる範囲で大丈夫です
               </p>
               <div className="w-full max-w-md space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    引き継ぎ費用（円） <span className="text-coral">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    placeholder="例: 50000"
-                    value={handoverFee}
-                    onChange={(e) => setHandoverFee(e.target.value)}
-                    className="w-full px-4 py-3 border border-border rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-foreground"
-                  />
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    家具・インテリアの引き継ぎにかかる費用
-                  </p>
-                </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
@@ -492,37 +524,134 @@ export default function NewListingPage() {
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      間取り <span className="text-coral">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="例: 1K"
-                      value={layout}
-                      onChange={(e) => setLayout(e.target.value)}
-                      className="w-full px-4 py-3 border border-border rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-foreground"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      エリア
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="例: 東京"
-                      value={area}
-                      onChange={(e) => setArea(e.target.value)}
-                      className="w-full px-4 py-3 border border-border rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-foreground"
-                    />
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-3">
+                    間取り <span className="text-coral">*</span>
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {LAYOUT_OPTIONS.map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => setLayout(option)}
+                        className={cn(
+                          "px-4 py-2 rounded-full border-2 text-sm font-medium transition-all",
+                          layout === option
+                            ? "border-foreground bg-foreground text-white"
+                            : "border-border hover:border-foreground/40",
+                        )}
+                      >
+                        {option}
+                      </button>
+                    ))}
                   </div>
                 </div>
-
-                {/* 大型家具チェック */}
-                <div className="pt-4 border-t border-border">
+                <div>
                   <label className="block text-sm font-medium text-foreground mb-3">
-                    引き継ぐ大型家具（複数選択可）
+                    何人で住んでいましたか？
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {OCCUPANTS_OPTIONS.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setOccupants(option.value)}
+                        className={cn(
+                          "px-4 py-2 rounded-full border-2 text-sm font-medium transition-all",
+                          occupants === option.value
+                            ? "border-foreground bg-foreground text-white"
+                            : "border-border hover:border-foreground/40",
+                        )}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ステップ5: 引き継ぎスケジュール */}
+          {currentStep === 5 && (
+            <div className="flex flex-col items-center w-full">
+              <h1
+                className="text-[48px] font-medium text-foreground mb-3 leading-[1.15] text-center"
+                style={{
+                  fontFamily:
+                    '"Noto Sans JP", "Hiragino Kaku Gothic ProN", -apple-system, BlinkMacSystemFont, sans-serif',
+                }}
+              >
+                引き継ぎスケジュール
+              </h1>
+              <p className="text-lg text-muted-foreground mb-8 text-center">
+                内見可能日と引き継ぎ可能日を選択
+              </p>
+
+              <div className="w-full space-y-8">
+                {/* 内見可能日 */}
+                <div>
+                  <SingleDatePicker
+                    selectedDate={viewingDate}
+                    endDate={viewingEndDate}
+                    onDateChange={(start, end) => {
+                      setViewingDate(start);
+                      setViewingEndDate(end ?? null);
+                    }}
+                    title={
+                      viewingDate && viewingEndDate
+                        ? `${viewingDate.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })} - ${viewingEndDate.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}`
+                        : viewingDate
+                        ? `${viewingDate.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}以降`
+                        : "内見可能日を選択"
+                    }
+                    subtitle={viewingEndDate ? undefined : "この日以降、内見を受け付けます"}
+                  />
+                </div>
+
+                {/* 引き継ぎ可能日 */}
+                <div>
+                  <SingleDatePicker
+                    selectedDate={moveInDate}
+                    endDate={moveInEndDate}
+                    onDateChange={(start, end) => {
+                      setMoveInDate(start);
+                      setMoveInEndDate(end ?? null);
+                    }}
+                    title={
+                      moveInDate && moveInEndDate
+                        ? `${moveInDate.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })} - ${moveInEndDate.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}`
+                        : moveInDate
+                        ? `${moveInDate.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}以降`
+                        : "引き継ぎ可能日を選択"
+                    }
+                    subtitle={moveInEndDate ? undefined : "この日以降、引き継ぎが可能です"}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ステップ6: 引き継ぎ費用 */}
+          {currentStep === 6 && (
+            <div className="flex flex-col items-center">
+              <h1
+                className="text-[48px] font-medium text-foreground mb-3 leading-[1.15] text-center"
+                style={{
+                  fontFamily:
+                    '"Noto Sans JP", "Hiragino Kaku Gothic ProN", -apple-system, BlinkMacSystemFont, sans-serif',
+                }}
+              >
+                引き継ぎ費用
+              </h1>
+              <p className="text-lg text-muted-foreground mb-8 text-center">
+                家具を選んで、引き継ぎ費用を決めましょう
+              </p>
+              <div className="w-full max-w-md space-y-6">
+                {/* 大型家具チェック */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-3">
+                    引き継ぐ大型家具（複数選択可） <span className="text-coral">*</span>
                   </label>
                   <div className="grid grid-cols-4 gap-3">
                     {FURNITURE_ITEMS.map(({ id, label, Icon }) => {
@@ -532,20 +661,23 @@ export default function NewListingPage() {
                           key={id}
                           type="button"
                           onClick={() => {
-                            setSelectedFurniture(prev =>
+                            setSelectedFurniture((prev) =>
                               isSelected
-                                ? prev.filter(f => f !== id)
-                                : [...prev, id]
+                                ? prev.filter((f) => f !== id)
+                                : [...prev, id],
                             );
                           }}
                           className={cn(
                             "flex flex-col items-center p-3 rounded-xl border-2 transition-all",
                             isSelected
                               ? "border-foreground bg-muted"
-                              : "border-border hover:border-foreground/40"
+                              : "border-border hover:border-foreground/40",
                           )}
                         >
-                          <Icon className="w-6 h-6 mb-1 text-foreground" strokeWidth={1.5} />
+                          <Icon
+                            className="w-6 h-6 mb-1 text-foreground"
+                            strokeWidth={1.5}
+                          />
                           <span className="text-xs font-medium">{label}</span>
                         </button>
                       );
@@ -553,57 +685,265 @@ export default function NewListingPage() {
                   </div>
                 </div>
 
-                {/* 引き継ぎスケジュール */}
-                <div className="pt-4 border-t border-border">
-                  <label className="block text-sm font-medium text-foreground mb-3">
-                    引き継ぎスケジュール
+                {/* AI見積もりカード */}
+                <EstimateCard
+                  furniture={selectedFurniture}
+                  area={location?.neighborhood || "東京"}
+                  rent={rent ? parseInt(rent, 10) : undefined}
+                  layout={layout}
+                  onEstimateComplete={(suggestedFee) => {
+                    setHandoverFee(suggestedFee.toString());
+                  }}
+                />
+
+                {/* 引き継ぎ費用入力 */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    引き継ぎ費用（円） <span className="text-coral">*</span>
                   </label>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs text-muted-foreground mb-2">
-                        内見可能日
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="例: 2026年2月1日〜"
-                        value={viewingAvailableFrom}
-                        onChange={(e) => setViewingAvailableFrom(e.target.value)}
-                        className="w-full px-4 py-3 border border-border rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-foreground"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-muted-foreground mb-2">
-                        引き継ぎ可能日
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="例: 2026年3月1日〜"
-                        value={moveInAvailableFrom}
-                        onChange={(e) => setMoveInAvailableFrom(e.target.value)}
-                        className="w-full px-4 py-3 border border-border rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-foreground"
-                      />
-                    </div>
-                  </div>
+                  <input
+                    type="number"
+                    placeholder="例: 50000"
+                    value={handoverFee}
+                    onChange={(e) => setHandoverFee(e.target.value)}
+                    className="w-full px-4 py-3 border border-border rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-foreground"
+                  />
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    家具・インテリアの引き継ぎにかかる費用
+                  </p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* ステップ5: 公開準備完了 */}
-          {currentStep === 5 && (
-            <div className="text-center">
+          {/* ステップ7: プレビュー */}
+          {currentStep === 7 && (
+            <div className="w-full">
               <h1
-                className="text-[48px] font-medium text-foreground mb-6 leading-[1.15]"
+                className="text-[48px] font-medium text-foreground mb-3 leading-[1.15] text-center"
                 style={{
                   fontFamily:
                     '"Noto Sans JP", "Hiragino Kaku Gothic ProN", -apple-system, BlinkMacSystemFont, sans-serif',
                 }}
               >
-                公開準備完了
+                プレビュー
               </h1>
-              <p className="text-lg text-foreground leading-relaxed max-w-xl mx-auto">
-                内容を確認して、リスティングを公開しましょう。
+              <p className="text-lg text-muted-foreground mb-8 text-center">
+                内容を確認して、部屋を公開しましょう
               </p>
+
+              {/* 住所詳細未入力の警告 */}
+              {!hasDetailedAddress() && (
+                <div className="max-w-4xl mx-auto mb-6">
+                  <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                    <div className="w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-white text-sm font-bold">!</span>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-amber-800">
+                        住所の詳細が入力されていません
+                      </p>
+                      <p className="text-sm text-amber-700 mt-1">
+                        内覧調整のため、番地と建物名の入力をお願いします。この情報は一般公開されません。
+                      </p>
+                      <p className="text-sm text-amber-700 mt-1">
+                        このまま登録すると下書きとして保存され、住所入力後に公開できます。
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setCurrentStep(3)}
+                        className="mt-3 px-4 py-2 text-sm font-medium text-amber-800 bg-amber-100 hover:bg-amber-200 rounded-lg transition-colors"
+                      >
+                        住所を入力する
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* プレビューコンテンツ - 物件詳細と同じレイアウト */}
+              <div className="max-w-4xl mx-auto">
+                {/* 画像ギャラリー */}
+                {roomPhotos.length > 0 && (
+                  <div className="mb-6">
+                    <div className="grid grid-cols-4 grid-rows-2 gap-2 h-[400px] rounded-xl overflow-hidden">
+                      <div className="col-span-2 row-span-2">
+                        <img
+                          src={roomPhotos[0]}
+                          alt="メイン画像"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      {roomPhotos.slice(1, 5).map((photo, index) => (
+                        <div key={index} className="col-span-1 row-span-1">
+                          <img
+                            src={photo}
+                            alt={`画像 ${index + 2}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* タイトルと場所 */}
+                <div className="pb-6 border-b border-border">
+                  <h2 className="text-[26px] font-medium text-foreground">
+                    {generateTitle()}
+                  </h2>
+                  <p className="mt-1 text-base font-normal text-foreground">
+                    {[location?.neighborhood, layout]
+                      .filter(Boolean)
+                      .join(" / ")}
+                  </p>
+                </div>
+
+                {/* 家具セクション */}
+                {selectedFurniture.length > 0 && (
+                  <section className="py-8 border-b border-border">
+                    <h3 className="mb-4 text-xl font-semibold text-foreground">
+                      引き継ぎできる大型家具
+                    </h3>
+                    <div className="flex gap-6">
+                      {selectedFurniture.map((furnitureId) => {
+                        const item = FURNITURE_ITEMS.find(
+                          (f) => f.id === furnitureId
+                        );
+                        if (!item) return null;
+                        const Icon = item.Icon;
+                        return (
+                          <div
+                            key={furnitureId}
+                            className="flex flex-col items-center gap-2"
+                          >
+                            <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center">
+                              <Icon
+                                className="h-7 w-7 text-foreground"
+                                strokeWidth={1.5}
+                              />
+                            </div>
+                            <span className="text-sm text-foreground">
+                              {item.label}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </section>
+                )}
+
+                {/* 物件情報 */}
+                <section className="py-8 border-b border-border">
+                  <h3 className="mb-6 text-xl font-semibold text-foreground">
+                    物件情報
+                  </h3>
+                  <div className="grid grid-cols-2 gap-6">
+                    {layout && (
+                      <div className="flex items-start gap-3">
+                        <Monitor className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-0.5">
+                            間取り
+                          </p>
+                          <p className="text-base font-semibold text-foreground">
+                            {layout}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {location?.neighborhood && (
+                      <div className="flex items-start gap-3">
+                        <Archive className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-0.5">
+                            エリア
+                          </p>
+                          <p className="text-base font-semibold text-foreground">
+                            {location.neighborhood}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {rent && (
+                      <div className="flex items-start gap-3">
+                        <Table2 className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-0.5">
+                            家賃
+                          </p>
+                          <p className="text-base font-semibold text-foreground">
+                            {parseInt(rent, 10).toLocaleString()}円/月
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {handoverFee && (
+                      <div className="flex items-start gap-3">
+                        <Shirt className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-0.5">
+                            引き継ぎ費用
+                          </p>
+                          <p className="text-base font-semibold text-foreground">
+                            {parseInt(handoverFee, 10).toLocaleString()}円
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {occupants && (
+                      <div className="flex items-start gap-3">
+                        <Users className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-0.5">
+                            居住人数
+                          </p>
+                          <p className="text-base font-semibold text-foreground">
+                            {occupants === "4" ? "4人以上" : `${occupants}人`}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </section>
+
+                {/* 引き継ぎスケジュール */}
+                {(viewingDate || moveInDate) && (
+                  <section className="py-8">
+                    <h3 className="mb-6 text-xl font-semibold text-foreground">
+                      引き継ぎスケジュール
+                    </h3>
+                    <div className="space-y-4">
+                      {viewingDate && (
+                        <div className="flex items-start gap-3">
+                          <Tv className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-sm text-muted-foreground">
+                              内見可能日
+                            </p>
+                            <p className="text-base text-foreground">
+                              {formatDateRange(viewingDate, viewingEndDate)}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      {moveInDate && (
+                        <div className="flex items-start gap-3">
+                          <Refrigerator className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-sm text-muted-foreground">
+                              引き継ぎ可能日
+                            </p>
+                            <p className="text-base text-foreground">
+                              {formatDateRange(moveInDate, moveInEndDate)}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </section>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -633,9 +973,17 @@ export default function NewListingPage() {
           <Button
             onClick={handleNext}
             disabled={!canProceed()}
-            className="rounded-lg bg-[#222222] px-6 py-3 text-base font-medium text-white hover:bg-[#000000] h-12 disabled:opacity-50"
+            className={`rounded-lg px-6 py-3 text-base font-medium text-white h-12 disabled:opacity-50 ${
+              currentStep === totalSteps && hasDetailedAddress()
+                ? "bg-[#E61E4D] hover:bg-[#D01346]"
+                : "bg-[#222222] hover:bg-[#000000]"
+            }`}
           >
-            {currentStep === totalSteps ? "公開する" : "次へ"}
+            {currentStep === totalSteps
+              ? hasDetailedAddress()
+                ? "公開する"
+                : "登録する"
+              : "次へ"}
           </Button>
         </div>
       </footer>

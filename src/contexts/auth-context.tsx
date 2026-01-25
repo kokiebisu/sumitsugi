@@ -144,7 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const now = new Date().toISOString();
     const newListing: UserListing = {
       ...listing,
-      id: `listing_${Date.now()}`,
+      id: `${Date.now()}`,
       userId: user.id,
       createdAt: now,
       updatedAt: now,
