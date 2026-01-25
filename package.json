@@ -17,6 +17,8 @@
     "worktree:prune": "git worktree prune"
   },
   "dependencies": {
+    "@auth/core": "^0.41.0",
+    "@auth/drizzle-adapter": "^1.11.1",
     "@hookform/resolvers": "^3.10.0",
     "@neondatabase/serverless": "^1.0.2",
     "@radix-ui/react-accordion": "1.2.2",
