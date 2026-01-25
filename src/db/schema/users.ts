@@ -5,14 +5,14 @@ export const users = pgTable("users", {
   email: varchar("email", { length: 255 }).unique().notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   phone: varchar("phone", { length: 50 }),
-  avatarUrl: text("avatar_url"),
+  image: text("image"), // NextAuth uses 'image' field
+  emailVerified: timestamp("email_verified", { withTimezone: true }), // NextAuth uses timestamp
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 
   // Authentication
   passwordHash: text("password_hash"),
   authProvider: varchar("auth_provider", { length: 50 }).default("email"),
-  emailVerified: boolean("email_verified").default(false),
 
   // Roles
   isSeller: boolean("is_seller").default(false).notNull(),
