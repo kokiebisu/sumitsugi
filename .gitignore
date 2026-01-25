@@ -5,3 +5,6 @@ dist/
 .DS_Store
 .next/
 tsconfig.tsbuildinfo
+
+# Claude Code local settings
+.claude/settings.local.json
