@@ -6,13 +6,17 @@ description: Generate and run end-to-end tests with Playwright. Creates test jou
 
 This command invokes the **e2e-runner** agent to generate, maintain, and execute end-to-end tests using Playwright.
 
+**IMPORTANT:** The e2e-runner will automatically invoke the `/worktree` skill to create an isolated test environment before running tests. This ensures tests run in a clean, isolated branch.
+
 ## What This Command Does
 
-1. **Generate Test Journeys** - Create Playwright tests for user flows
-2. **Run E2E Tests** - Execute tests across browsers
-3. **Capture Artifacts** - Screenshots, videos, traces on failures
-4. **Upload Results** - HTML reports and JUnit XML
-5. **Identify Flaky Tests** - Quarantine unstable tests
+1. **Create Worktree** - Invoke `/worktree` to set up isolated test environment
+2. **Generate Test Journeys** - Create Playwright tests for user flows
+3. **Run E2E Tests** - Execute tests across browsers
+4. **Capture Artifacts** - Screenshots, videos, traces on failures
+5. **Upload Results** - HTML reports and JUnit XML
+6. **Identify Flaky Tests** - Quarantine unstable tests
+7. **Commit & PR** - Create PR with test changes via worktree workflow
 
 ## When to Use
 
@@ -27,12 +31,14 @@ Use `/e2e` when:
 
 The e2e-runner agent will:
 
-1. **Analyze user flow** and identify test scenarios
-2. **Generate Playwright test** using Page Object Model pattern
-3. **Run tests** across multiple browsers (Chrome, Firefox, Safari)
-4. **Capture failures** with screenshots, videos, and traces
-5. **Generate report** with results and artifacts
-6. **Identify flaky tests** and recommend fixes
+1. **Invoke `/worktree` skill** - Create isolated git worktree with `test/` prefix
+2. **Analyze user flow** and identify test scenarios
+3. **Generate Playwright test** using Page Object Model pattern
+4. **Run tests** across multiple browsers (Chrome, Firefox, Safari)
+5. **Capture failures** with screenshots, videos, and traces
+6. **Generate report** with results and artifacts
+7. **Identify flaky tests** and recommend fixes
+8. **Commit & create PR** using worktree workflow
 
 ## Example Usage
 
