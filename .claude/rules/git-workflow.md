@@ -49,6 +49,12 @@ When creating PRs:
 5. Push with `-u` flag if new branch
 6. Verify PR contains only related changes
 7. **IMMEDIATELY merge PR with `gh pr merge <number> --squash --delete-branch`**
+8. **Switch back to main and delete local branch:**
+   ```bash
+   git checkout main
+   git pull origin main
+   git branch -D <feature-branch-name>
+   ```
 
 ## Feature Implementation Workflow
 
