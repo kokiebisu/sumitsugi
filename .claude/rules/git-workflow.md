@@ -20,10 +20,26 @@ Note: Attribution disabled globally via ~/.claude/settings.json.
 - If changes are unrelated, create separate PRs
 - Example: Stop tracking a file should not include documentation updates
 
-**Auto-Merge Permission:**
-- You have permission to merge PRs automatically after creation
-- Merge immediately for: small fixes, docs updates, config changes
-- Wait for user approval for: breaking changes, architecture decisions, new features
+**Auto-Merge Requirement (CRITICAL):**
+- You MUST merge PRs automatically after creation using `gh pr merge <number> --squash --delete-branch`
+- This is NOT optional - merge immediately after PR creation
+
+**When to merge automatically:**
+- Docs updates (README, CLAUDE.md, comments, etc.)
+- Config changes (eslint, tsconfig, package.json, etc.)
+- Bug fixes (small, non-breaking)
+- Small features (non-breaking, tests pass)
+- Refactoring (no behavior changes)
+- Test additions
+- Dependency updates
+
+**Only wait for user approval when:**
+- Breaking changes that affect existing APIs
+- Major architectural decisions
+- Large features spanning 10+ files
+- Changes requiring user input on approach
+
+**Default: MERGE IMMEDIATELY unless it clearly falls into the "wait" category**
 
 When creating PRs:
 1. Analyze full commit history (not just latest commit)
@@ -32,7 +48,7 @@ When creating PRs:
 4. Include test plan with TODOs
 5. Push with `-u` flag if new branch
 6. Verify PR contains only related changes
-7. Merge PR if appropriate (see Auto-Merge Permission above)
+7. **IMMEDIATELY merge PR with `gh pr merge <number> --squash --delete-branch`**
 
 ## Feature Implementation Workflow
 
