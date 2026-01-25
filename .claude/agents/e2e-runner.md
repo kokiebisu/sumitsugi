@@ -60,6 +60,23 @@ npx playwright test --project=webkit
 
 ## E2E Testing Workflow
 
+### 0. Worktree Setup Phase (FIRST STEP)
+
+**CRITICAL: Invoke the `/worktree` skill before running tests**
+
+Before starting E2E test work, invoke the `/worktree` skill to create an isolated environment:
+- The worktree skill handles branch creation (use `test/` prefix for E2E test branches)
+- It sets up the isolated directory
+- It manages the full git workflow
+
+**Why use worktree for E2E tests:**
+- Isolates test environment from main development
+- Prevents interference with ongoing work
+- Allows parallel test execution in different branches
+- Clean state for reproducible test results
+
+After the worktree is set up, continue with E2E test planning and execution below.
+
 ### 1. Test Planning Phase
 ```
 a) Identify critical user journeys
@@ -104,7 +121,10 @@ For each user journey:
 
 ### 3. Test Execution Phase
 ```
-a) Run tests locally
+a) Run tests locally (in worktree)
+   - Ensure you're in the worktree directory
+   - Start dev server: npm run dev
+   - Run tests: npx playwright test
    - Verify all tests pass
    - Check for flakiness (run 3-5 times)
    - Review generated artifacts
@@ -114,8 +134,13 @@ b) Quarantine flaky tests
    - Create issue to fix
    - Remove from CI temporarily
 
-c) Run in CI/CD
-   - Execute on pull requests
+c) Commit and create PR
+   - The /worktree skill handles commits and PR creation
+   - Follow the standard git workflow from the worktree skill
+   - Ensure test: prefix for E2E test commits
+
+d) Run in CI/CD
+   - Tests execute on pull requests automatically
    - Upload artifacts to CI
    - Report results in PR comments
 ```
