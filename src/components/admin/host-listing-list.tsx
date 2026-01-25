@@ -144,7 +144,7 @@ export function HostListingList({ listings }: HostListingListProps) {
 
                 <div className="rounded-lg bg-green-50 p-4">
                   <div className="flex items-center gap-2 text-sm font-semibold text-green-800">
-                    {listing.landlordConsent ? "大家さんの承諾済み" : "大家さんの承諾未確認"}
+                    {listing.landlordConsent.hasLandlordConsent ? "大家さんの承諾済み" : "大家さんの承諾未確認"}
                   </div>
                 </div>
 
