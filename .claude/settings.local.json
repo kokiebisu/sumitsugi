@@ -24,7 +24,25 @@
       "Bash(fuser:*)",
       "Bash(ls:*)",
       "Bash(npx prettier:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(git branch:*)",
+      "Bash(for branch in feat/location-picker feat/listing-forms feat/viewing-confirmation feat/handover-agreement-summary feat/progressive-image-gallery feat/listing-confirmation-page feat/landlord-pdf-generation)",
+      "Bash(do echo \"=== $branch ===\")",
+      "Bash(done)",
+      "Bash(do echo \"Pushing $branch...\")",
+      "Bash(git push:*)",
+      "Bash(gh auth:*)",
+      "Bash(git config:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(npm run lint)",
+      "Bash(npx eslint:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)"
+    ],
+    "additionalDirectories": [
+      "/workspaces/tsumugi/.claude/commands",
+      "/tmp",
+      "/workspaces/tsumugi/src/app/listing/[id]/confirm"
     ]
   }
 }
