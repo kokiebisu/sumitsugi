@@ -20,6 +20,11 @@ Note: Attribution disabled globally via ~/.claude/settings.json.
 - If changes are unrelated, create separate PRs
 - Example: Stop tracking a file should not include documentation updates
 
+**Auto-Merge Permission:**
+- You have permission to merge PRs automatically after creation
+- Merge immediately for: small fixes, docs updates, config changes
+- Wait for user approval for: breaking changes, architecture decisions, new features
+
 When creating PRs:
 1. Analyze full commit history (not just latest commit)
 2. Use `git diff [base-branch]...HEAD` to see all changes
@@ -27,6 +32,7 @@ When creating PRs:
 4. Include test plan with TODOs
 5. Push with `-u` flag if new branch
 6. Verify PR contains only related changes
+7. Merge PR if appropriate (see Auto-Merge Permission above)
 
 ## Feature Implementation Workflow
 
