@@ -1,0 +1,236 @@
+import { test, expect, testData, clearLocalStorage, setupAuthenticatedUser } from '../fixtures/test-fixtures'
+
+/**
+ * E2E Tests: Authentication Flow
+ *
+ * Critical user journey: User authentication (login/signup)
+ * Priority: HIGH
+ *
+ * Tests the authentication dialogs and login flows including:
+ * - Email login
+ * - Social login (mock)
+ * - User menu states
+ * - Logout flow
+ */
+
+test.describe('Authentication - Login Dialog', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/')
+    await clearLocalStorage(page)
+  })
+
+  test('should open login dialog from header menu', async ({ authPage, page }) => {
+    // Open menu and click login
+    await authPage.openLoginDialog()
+
+    // Verify dialog is visible
+    const isVisible = await authPage.isDialogVisible()
+    expect(isVisible).toBe(true)
+
+    // Verify dialog title
+    await expect(authPage.dialogTitle).toContainText('ログインまたは登録')
+  })
+
+  test('should display email input and continue button', async ({ authPage }) => {
+    await authPage.openLoginDialog()
+
+    // Verify email input exists
+    await expect(authPage.emailInput).toBeVisible()
+    await expect(authPage.emailInput).toHaveAttribute('type', 'email')
+
+    // Verify continue button exists
+    await expect(authPage.continueButton).toBeVisible()
+    await expect(authPage.continueButton).toContainText('続行')
+  })
+
+  test('should display social login buttons', async ({ authPage }) => {
+    await authPage.openLoginDialog()
+
+    // Verify social buttons exist
+    await expect(authPage.socialButtons.facebook).toBeVisible()
+    await expect(authPage.socialButtons.google).toBeVisible()
+    await expect(authPage.socialButtons.apple).toBeVisible()
+  })
+
+  test('should display phone login option', async ({ authPage }) => {
+    await authPage.openLoginDialog()
+
+    // Verify phone button exists
+    await expect(authPage.phoneButton).toBeVisible()
+    await expect(authPage.phoneButton).toContainText('電話番号で続行')
+  })
+
+  test('should close dialog when clicking close button', async ({ authPage }) => {
+    await authPage.openLoginDialog()
+    expect(await authPage.isDialogVisible()).toBe(true)
+
+    await authPage.closeDialog()
+    expect(await authPage.isDialogVisible()).toBe(false)
+  })
+
+  test('should close dialog when clicking overlay', async ({ authPage, page }) => {
+    await authPage.openLoginDialog()
+    expect(await authPage.isDialogVisible()).toBe(true)
+
+    // Click overlay (background) - use the outer dialog container's overlay
+    const overlay = page.locator('.fixed.inset-0.z-50 > .absolute.inset-0').first()
+    await overlay.click({ position: { x: 10, y: 10 } })
+
+    // Dialog should close
+    await authPage.signupDialog.waitFor({ state: 'hidden', timeout: 5000 })
+  })
+})
+
+test.describe('Authentication - Email Login Flow', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/')
+    await clearLocalStorage(page)
+  })
+
+  test('should require email before continuing', async ({ authPage }) => {
+    await authPage.openLoginDialog()
+
+    // Button should be disabled when email is empty
+    await expect(authPage.continueButton).toBeDisabled()
+
+    // Enter valid email
+    await authPage.emailInput.fill('test@example.com')
+
+    // Button should be enabled
+    await expect(authPage.continueButton).toBeEnabled()
+  })
+
+  test('should complete email login and close dialog', async ({ authPage, page }) => {
+    await authPage.openLoginDialog()
+
+    // Enter email and submit
+    await authPage.loginWithEmail(testData.users.testUser.email)
+
+    // Dialog should close
+    expect(await authPage.isDialogVisible()).toBe(false)
+
+    // User should be logged in (check localStorage)
+    const userState = await page.evaluate(() => {
+      return localStorage.getItem('tsumugi_user')
+    })
+    expect(userState).not.toBeNull()
+  })
+})
+
+test.describe('Authentication - Social Login Flow', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/')
+    await clearLocalStorage(page)
+  })
+
+  test('should complete Google login', async ({ authPage, page }) => {
+    await authPage.openLoginDialog()
+    await authPage.loginWithSocial('google')
+
+    // Dialog should close and user should be logged in
+    expect(await authPage.isDialogVisible()).toBe(false)
+
+    const userState = await page.evaluate(() => {
+      return localStorage.getItem('tsumugi_user')
+    })
+    expect(userState).not.toBeNull()
+  })
+
+  test('should complete Facebook login', async ({ authPage, page }) => {
+    await authPage.openLoginDialog()
+    await authPage.loginWithSocial('facebook')
+
+    expect(await authPage.isDialogVisible()).toBe(false)
+
+    const userState = await page.evaluate(() => {
+      return localStorage.getItem('tsumugi_user')
+    })
+    expect(userState).not.toBeNull()
+  })
+
+  test('should complete Apple login', async ({ authPage, page }) => {
+    await authPage.openLoginDialog()
+    await authPage.loginWithSocial('apple')
+
+    expect(await authPage.isDialogVisible()).toBe(false)
+
+    const userState = await page.evaluate(() => {
+      return localStorage.getItem('tsumugi_user')
+    })
+    expect(userState).not.toBeNull()
+  })
+})
+
+test.describe('Authentication - Logged In State', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/')
+    await setupAuthenticatedUser(page)
+  })
+
+  test('should show user avatar in header when logged in', async ({ authPage, page }) => {
+    // Menu button should show avatar instead of default icon
+    const avatarInMenu = page.locator('header button .rounded-full')
+    await expect(avatarInMenu).toBeVisible()
+  })
+
+  test('should show logout option in menu when logged in', async ({ authPage }) => {
+    const isLoggedIn = await authPage.isUserLoggedIn()
+    expect(isLoggedIn).toBe(true)
+  })
+
+  test('should show dashboard link in menu when logged in', async ({ authPage, page }) => {
+    await authPage.openMenu()
+
+    const dashboardLink = page.locator('[role="menuitem"]:has-text("ダッシュボード")')
+    await expect(dashboardLink).toBeVisible()
+  })
+
+  test('should show account link in menu when logged in', async ({ authPage, page }) => {
+    await authPage.openMenu()
+
+    const accountLink = page.locator('[role="menuitem"]:has-text("アカウント")')
+    await expect(accountLink).toBeVisible()
+  })
+})
+
+test.describe('Authentication - Logout Flow', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/')
+    await setupAuthenticatedUser(page)
+  })
+
+  test('should logout user when clicking logout', async ({ authPage, page }) => {
+    // Open menu and click logout directly (don't use isUserLoggedIn to avoid double menu open)
+    await authPage.openMenu()
+    await authPage.menuLogoutButton.click()
+    await page.waitForLoadState('networkidle')
+    await page.waitForTimeout(500)
+
+    // Verify logged out (localStorage cleared)
+    const userState = await page.evaluate(() => {
+      return localStorage.getItem('tsumugi_user')
+    })
+    expect(userState).toBeNull()
+  })
+
+  test('should show login option in menu after logout', async ({ authPage }) => {
+    await authPage.logout()
+
+    // Check menu shows login option
+    await authPage.openMenu()
+    await expect(authPage.menuLoginButton).toBeVisible()
+  })
+})
+
+test.describe('Authentication - Become Seller Flow', () => {
+  test('should trigger login dialog when clicking "暮らしを譲る" while not logged in', async ({ authPage, page }) => {
+    await page.goto('/')
+    await clearLocalStorage(page)
+
+    // Click the "暮らしを譲る" button
+    await authPage.clickBecomeSeller()
+
+    // Login dialog should appear
+    expect(await authPage.isDialogVisible()).toBe(true)
+  })
+})

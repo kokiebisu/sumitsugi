@@ -85,12 +85,15 @@ API_KEY=
 DEBUG=false
 ```
 
-## Available Commands
+## Automated Agent Usage
 
-- `/tdd` - Test-driven development workflow
-- `/plan` - Create implementation plan
-- `/code-review` - Review code quality
-- `/build-fix` - Fix build errors
+Claude will automatically use specialized agents based on task context:
+- **TDD workflow** - Auto-invoked for new features, bug fixes, refactoring
+- **Planning** - Auto-invoked for complex features requiring architectural decisions
+- **Code review** - Auto-invoked after code modifications
+- **Build fixes** - Auto-invoked when build errors occur
+
+No manual commands needed - Claude decides when to use these agents.
 
 ## Git Workflow
 

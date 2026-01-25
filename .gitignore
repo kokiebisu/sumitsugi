@@ -8,3 +8,10 @@ tsconfig.tsbuildinfo
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Playwright
+playwright-report/
+playwright-results.xml
+playwright-results.json
+test-results/
+tests/e2e/artifacts/

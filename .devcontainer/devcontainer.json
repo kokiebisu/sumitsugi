@@ -22,8 +22,8 @@
       }
     }
   },
-  "forwardPorts": [3000],
-  "postCreateCommand": "npm install",
+  "forwardPorts": [3000, 9323],
+  "postCreateCommand": "npm install && npx playwright install chromium",
   "remoteUser": "node",
   "mounts": [
     "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached"
