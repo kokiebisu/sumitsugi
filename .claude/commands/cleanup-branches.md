@@ -4,26 +4,32 @@ Clean up local and remote branches that have been merged into the main branch.
 
 ## Step 1: Identify Merged Branches
 
-1. **List local merged branches**:
+1. **List local branches**:
    ```bash
-   git branch --merged main | grep -v "^\* main$" | grep -v "^  main$"
+   git branch | grep -v "^\* main$" | grep -v "^  main$" | sed 's/^[* ] //'
    ```
 
-2. **List remote merged branches**:
+2. **Check for merged PRs (handles squash-merged branches)**:
    ```bash
-   git branch -r --merged main | grep -v "HEAD" | grep -v "main" | sed 's/origin\///'
+   gh pr list --state merged --json number,headRefName --jq '.[].headRefName'
    ```
 
-3. **Show summary** to user:
+3. **Cross-reference** local branches with merged PRs to identify candidates for deletion:
+   - Branches that appear in both lists are safe to delete
+   - Show both traditional merged branches and squash-merged branches
+
+4. **Show summary** to user:
    ```
-   Local branches to delete (X):
-   - feat/feature-a
-   - fix/bug-fix-b
+   Local branches that can be deleted (X):
+   - feat/feature-a (squash-merged in PR #123)
+   - fix/bug-fix-b (traditionally merged)
 
    Remote branches to delete (Y):
    - feat/feature-a
    - fix/bug-fix-b
    ```
+
+**Note:** Squash-merged branches won't show up in `git branch --merged` because their commits were squashed into a single new commit on main. We use GitHub PR data to identify these.
 
 ## Step 2: Confirm Deletion
 
@@ -98,34 +104,40 @@ git remote prune origin
    - Warn user about uncommitted changes
    - Suggest stashing: `git stash`
 
-3. **Branches not merged but pushed to remote**:
+3. **Squash-merged branches**:
+   - `git branch --merged` won't show squash-merged branches
+   - Must use `gh pr list --state merged` to find them
+   - User confirmation is important since git can't verify the merge
+   - Use `-D` (force delete) instead of `-d` when deleting
+
+4. **Branches not merged but pushed to remote**:
    - List these separately
    - Warn user they may contain unmerged work
    - Only delete if user explicitly confirms
 
-4. **Authentication required for remote**:
+5. **Authentication required for remote**:
    - Ensure gh CLI is authenticated
    - Use `gh auth status` to check
 
 ## Example Output
 
 ```
-Found 5 local merged branches:
-  - feat/location-picker
-  - feat/date-picker
-  - fix/typo-fix
-  - docs/update-readme
-  - chore/cleanup
+Checking for merged branches...
+
+Found 5 local branches that can be deleted:
+  - feat/location-picker (squash-merged in PR #45)
+  - feat/date-picker (squash-merged in PR #46)
+  - fix/typo-fix (traditionally merged)
+  - docs/update-readme (squash-merged in PR #47)
+  - chore/cleanup (traditionally merged)
 
 Found 3 remote merged branches:
   - feat/location-picker
   - feat/date-picker
   - fix/typo-fix
 
-Delete all merged branches? (local + remote)
-[Options: all / local only / remote only / cancel]
-
-> all
+How would you like to clean up these merged branches?
+[Options selected: Delete both local and remote branches]
 
 Deleting local branches...
 ✓ Deleted feat/location-picker
@@ -140,7 +152,7 @@ Deleting remote branches...
 ✓ Deleted origin/fix/typo-fix
 
 Pruning remote references...
-✓ Pruned 3 stale references
+✓ Pruned 5 stale references
 
 Cleanup complete!
 - Deleted 5 local branches
