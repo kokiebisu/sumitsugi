@@ -14,14 +14,14 @@ export interface HandoverProfile {
     youtube?: string
     tiktok?: string
   }
-  hostSince: string // ISO日付文字列
+  sellerSince: string // ISO日付文字列
 }
 
-// HostProfile (後方互換性のためのエイリアス)
-export type HostProfile = HandoverProfile
+// SellerProfile (後方互換性のためのエイリアス)
+export type SellerProfile = HandoverProfile
 
 // User (ユーザー) データ型
-// Airbnb風: 全ユーザーは入居希望者、ホスト登録でisHost=trueに
+// Airbnb風: 全ユーザーは入居希望者、ホスト登録でisSeller=trueに
 export interface User {
   id: string // UUID形式
   email: string
@@ -35,11 +35,11 @@ export interface User {
   emailVerified?: boolean
 
   // ロールフラグ（Airbnb風）
-  isHost: boolean
+  isSeller: boolean
   isAdmin?: boolean
 
-  // ホストプロフィール（isHost=trueの場合のみ）
-  hostProfile?: HostProfile
+  // ホストプロフィール（isSeller=trueの場合のみ）
+  sellerProfile?: SellerProfile
 }
 
 // Inquiry (引き継ぎ申し込み) データ型
@@ -57,13 +57,13 @@ export interface Inquiry {
   notes?: string // 運営メモ
 }
 
-// Host Listing (物件掲載申込) データ型
-export interface HostListing {
+// Seller Listing (物件掲載申込) データ型
+export interface SellerListing {
   id: string
   status: "pending" | "approved" | "published" | "rejected"
-  hostName: string
-  hostEmail: string
-  hostPhone: string
+  sellerName: string
+  sellerEmail: string
+  sellerPhone: string
   propertyAddress: string
   handoverFee?: number // 引き継ぎ費用
   moveOutDate: string
@@ -2046,14 +2046,14 @@ export const inquiries: Inquiry[] = [
   },
 ]
 
-// Mock Host Listing Data
-export const hostListings: HostListing[] = [
+// Mock Seller Listing Data
+export const hostListings: SellerListing[] = [
   {
     id: "host_001",
     status: "pending",
-    hostName: "山本 太郎",
-    hostEmail: "yamamoto@example.com",
-    hostPhone: "090-1111-2222",
+    sellerName: "山本 太郎",
+    sellerEmail: "yamamoto@example.com",
+    sellerPhone: "090-1111-2222",
     propertyAddress: "東京都渋谷区",
     moveOutDate: "2026-04-30",
     furnitureDescription: "北欧家具一式、ヴィンテージのダイニングテーブル、観葉植物多数",
@@ -2065,9 +2065,9 @@ export const hostListings: HostListing[] = [
   {
     id: "host_002",
     status: "approved",
-    hostName: "高橋 春子",
-    hostEmail: "takahashi@example.com",
-    hostPhone: "090-3333-4444",
+    sellerName: "高橋 春子",
+    sellerEmail: "takahashi@example.com",
+    sellerPhone: "090-3333-4444",
     propertyAddress: "東京都世田谷区",
     moveOutDate: "2026-03-31",
     furnitureDescription: "手作りの本棚、アンティーク照明、ベッドフレーム",
@@ -2094,11 +2094,11 @@ export function getInquiryById(id: string): Inquiry | undefined {
   return inquiries.find((inq) => inq.id === id)
 }
 
-// Host Listing functions
-export function getAllHostListings(): HostListing[] {
+// Seller Listing functions
+export function getAllSellerListings(): SellerListing[] {
   return hostListings.sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())
 }
 
-export function getHostListingById(id: string): HostListing | undefined {
+export function getSellerListingById(id: string): SellerListing | undefined {
   return hostListings.find((listing) => listing.id === id)
 }

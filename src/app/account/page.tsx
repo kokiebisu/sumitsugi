@@ -75,7 +75,7 @@ export default function AccountPage() {
                 <div>
                   <h2 className="text-xl font-semibold text-foreground">{user.name}</h2>
                   <p className="text-sm text-muted-foreground">
-                    {user.isHost ? "クリエイター" : "入居希望者"}
+                    {user.isSeller ? "クリエイター" : "入居希望者"}
                   </p>
                   <p className="mt-1 text-sm text-coral font-medium">プロフィールを編集</p>
                 </div>
@@ -126,7 +126,7 @@ export default function AccountPage() {
           </div>
 
           {/* クリエイタープロフィール（ホストのみ） */}
-          {user.isHost && user.hostProfile && (
+          {user.isSeller && user.sellerProfile && (
             <div className="mb-6 rounded-xl border border-border bg-background shadow-sm">
               <div className="border-b border-border p-4">
                 <h3 className="font-semibold text-foreground">クリエイタープロフィール</h3>
@@ -136,38 +136,38 @@ export default function AccountPage() {
                   <Briefcase className="h-5 w-5 text-muted-foreground" />
                   <div className="flex-1">
                     <p className="text-sm text-muted-foreground">職業・活動</p>
-                    <p className="text-foreground">{user.hostProfile.occupation}</p>
+                    <p className="text-foreground">{user.sellerProfile.occupation}</p>
                   </div>
                 </div>
                 <div className="p-4">
                   <p className="mb-2 text-sm text-muted-foreground">自己紹介</p>
-                  <p className="whitespace-pre-wrap text-foreground">{user.hostProfile.bio}</p>
+                  <p className="whitespace-pre-wrap text-foreground">{user.sellerProfile.bio}</p>
                 </div>
-                {user.hostProfile.socialLinks && (
+                {user.sellerProfile.socialLinks && (
                   <div className="p-4">
                     <p className="mb-3 text-sm text-muted-foreground">SNS</p>
                     <div className="space-y-2">
-                      {user.hostProfile.socialLinks.instagram && (
+                      {user.sellerProfile.socialLinks.instagram && (
                         <div className="flex items-center gap-2">
                           <Instagram className="h-4 w-4 text-muted-foreground" />
                           <span className="text-foreground">
-                            {user.hostProfile.socialLinks.instagram}
+                            {user.sellerProfile.socialLinks.instagram}
                           </span>
                         </div>
                       )}
-                      {user.hostProfile.socialLinks.twitter && (
+                      {user.sellerProfile.socialLinks.twitter && (
                         <div className="flex items-center gap-2">
                           <span className="text-muted-foreground">𝕏</span>
                           <span className="text-foreground">
-                            {user.hostProfile.socialLinks.twitter}
+                            {user.sellerProfile.socialLinks.twitter}
                           </span>
                         </div>
                       )}
-                      {user.hostProfile.socialLinks.website && (
+                      {user.sellerProfile.socialLinks.website && (
                         <div className="flex items-center gap-2">
                           <Globe className="h-4 w-4 text-muted-foreground" />
                           <span className="text-foreground">
-                            {user.hostProfile.socialLinks.website}
+                            {user.sellerProfile.socialLinks.website}
                           </span>
                         </div>
                       )}
@@ -178,7 +178,7 @@ export default function AccountPage() {
                   <Calendar className="h-5 w-5 text-muted-foreground" />
                   <div className="flex-1">
                     <p className="text-sm text-muted-foreground">クリエイター登録日</p>
-                    <p className="text-foreground">{formatDate(user.hostProfile.hostSince)}</p>
+                    <p className="text-foreground">{formatDate(user.sellerProfile.sellerSince)}</p>
                   </div>
                 </div>
               </div>
@@ -186,9 +186,9 @@ export default function AccountPage() {
           )}
 
           {/* クリエイターになる（非ホストのみ） */}
-          {!user.isHost && (
+          {!user.isSeller && (
             <Link
-              href="/creator"
+              href="/listing"
               className="mb-6 flex items-center justify-between rounded-xl border border-border bg-background p-6 shadow-sm transition-shadow hover:shadow-md"
             >
               <div className="flex items-center gap-4">
@@ -207,7 +207,7 @@ export default function AccountPage() {
           )}
 
           {/* リスティング（ホストのみ） */}
-          {user.isHost && (
+          {user.isSeller && (
             <Link
               href="/listing"
               className="mb-6 flex items-center justify-between rounded-xl border border-border bg-background p-6 shadow-sm transition-shadow hover:shadow-md"

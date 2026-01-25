@@ -32,22 +32,6 @@ import {
   Coffee,
 } from "lucide-react"
 
-// お部屋のスタイル・テイスト
-const ROOM_STYLES = [
-  { id: "nordic", label: "北欧風", Icon: TreePine },
-  { id: "modern", label: "モダン", Icon: Sparkles },
-  { id: "vintage", label: "ヴィンテージ", Icon: Clock },
-  { id: "minimal", label: "ミニマル", Icon: Frame },
-  { id: "industrial", label: "インダストリアル", Icon: Briefcase },
-  { id: "natural", label: "ナチュラル", Icon: Leaf },
-  { id: "japanese", label: "和モダン", Icon: Moon },
-  { id: "bohemian", label: "ボヘミアン", Icon: Flower2 },
-  { id: "coastal", label: "コースタル・海辺", Icon: Waves },
-  { id: "midcentury", label: "ミッドセンチュリー", Icon: Armchair },
-  { id: "rustic", label: "ラスティック", Icon: Mountain },
-  { id: "contemporary", label: "コンテンポラリー", Icon: Lamp },
-]
-
 // 引き継ぎ対象の大型家具
 const LARGE_FURNITURE_ITEMS: { id: LargeFurnitureType; label: string; Icon: typeof BedDouble }[] = [
   { id: "bed", label: "ベッド", Icon: BedDouble },
@@ -65,8 +49,6 @@ export default function EditListingPage() {
 
   const listing = listings.find(l => l.id === listingId)
 
-  const [selectedRoomStyle, setSelectedRoomStyle] = useState<string | null>(null)
-  const [story, setStory] = useState("")
   const [selectedFurniture, setSelectedFurniture] = useState<LargeFurnitureType[]>([])
   const [roomPhotos, setRoomPhotos] = useState<string[]>([])
   const [isSaving, setIsSaving] = useState(false)
@@ -78,8 +60,6 @@ export default function EditListingPage() {
   // リスティングデータを読み込み
   useEffect(() => {
     if (listing) {
-      setSelectedRoomStyle(listing.roomStyle || null)
-      setStory(listing.story || "")
       setSelectedFurniture(listing.furniture || [])
       setRoomPhotos(listing.roomPhotos || [])
     }
@@ -101,13 +81,10 @@ export default function EditListingPage() {
     if (!listing) return
     setIsSaving(true)
 
-    const roomStyleLabel = ROOM_STYLES.find(s => s.id === selectedRoomStyle)?.label || ""
-    const title = roomStyleLabel ? `${roomStyleLabel}スタイルの暮らし` : "私の暮らし"
+    const title = "私の暮らし"
 
     updateListing(listing.id, {
       title,
-      roomStyle: selectedRoomStyle,
-      story,
       furniture: selectedFurniture,
       roomPhotos,
     })
@@ -205,32 +182,6 @@ export default function EditListingPage() {
       {/* メインコンテンツ */}
       <main className="flex-1 px-6 py-8 md:px-12">
         <div className="max-w-3xl mx-auto space-y-10">
-          {/* 部屋のスタイル */}
-          <section>
-            <h2 className="text-xl font-semibold mb-4">お部屋のテイスト</h2>
-            <p className="text-sm text-muted-foreground mb-4">インテリアのテイストを選んでください</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {ROOM_STYLES.map(({ id, label, Icon }) => {
-                const isSelected = selectedRoomStyle === id
-                return (
-                  <button
-                    key={id}
-                    onClick={() => setSelectedRoomStyle(id)}
-                    className={cn(
-                      "flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left",
-                      isSelected
-                        ? "border-foreground bg-muted"
-                        : "border-border hover:border-foreground/40"
-                    )}
-                  >
-                    <Icon className="w-5 h-5 text-foreground flex-shrink-0" strokeWidth={1.5} />
-                    <span className="text-sm font-medium">{label}</span>
-                  </button>
-                )
-              })}
-            </div>
-          </section>
-
           {/* 写真 */}
           <section>
             <h2 className="text-xl font-semibold mb-4">部屋の写真</h2>
@@ -262,18 +213,6 @@ export default function EditListingPage() {
                 </button>
               )}
             </div>
-          </section>
-
-          {/* ストーリー */}
-          <section>
-            <h2 className="text-xl font-semibold mb-4">暮らしのストーリー</h2>
-            <p className="text-sm text-muted-foreground mb-4">この空間でどんな暮らしをしてきたか、思い出やこだわりを書いてください</p>
-            <Textarea
-              placeholder="例：この部屋で過ごした3年間、窓から見える夕日を眺めながらコーヒーを飲むのが毎日の楽しみでした..."
-              value={story}
-              onChange={(e) => setStory(e.target.value)}
-              className="min-h-[200px] resize-none text-base p-4 rounded-xl border-2 focus:border-foreground"
-            />
           </section>
 
           {/* 家具 */}

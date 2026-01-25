@@ -12,15 +12,14 @@ import { siteConfig } from "@/lib/site-config"
 import { useAuth } from "@/contexts/auth-context"
 import { Header } from "@/components/header"
 
-type Step = "intro" | "type" | "lifestyle" | "basic" | "photos" | "interior" | "story" | "confirm"
+type Step = "intro" | "type" | "lifestyle" | "basic" | "photos" | "interior" | "confirm"
 
-const steps: Step[] = ["intro", "type", "lifestyle", "basic", "photos", "interior", "story", "confirm"]
+const steps: Step[] = ["intro", "type", "lifestyle", "basic", "photos", "interior", "confirm"]
 
-// 3つのフェーズにステップをグループ化（Airbnb風）
+// 2つのフェーズにステップをグループ化（Airbnb風）
 const phases = [
   { name: "物件について", steps: ["intro", "type", "lifestyle"] },
-  { name: "詳細情報", steps: ["basic", "photos", "interior"] },
-  { name: "ストーリー", steps: ["story", "confirm"] },
+  { name: "詳細情報", steps: ["basic", "photos", "interior", "confirm"] },
 ]
 
 // 物件タイプ（フラットなLucideアイコン使用）
@@ -59,7 +58,6 @@ const stepImages: Record<Step, string> = {
   basic: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1920&auto=format&fit=crop&q=90",
   photos: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&auto=format&fit=crop&q=90",
   interior: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1920&auto=format&fit=crop&q=90",
-  story: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1920&auto=format&fit=crop&q=90",
   confirm: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1920&auto=format&fit=crop&q=90",
 }
 
@@ -78,7 +76,6 @@ export default function NewListingPage() {
   const [rent, setRent] = useState("")
   const [photos, setPhotos] = useState<string[]>([])
   const [interiorDescription, setInteriorDescription] = useState("")
-  const [story, setStory] = useState("")
 
   const currentStepIndex = steps.indexOf(step)
 
@@ -138,14 +135,12 @@ export default function NewListingPage() {
         return true // 写真は任意
       case "interior":
         return true // 説明は任意
-      case "story":
-        return story.trim() !== ""
       case "confirm":
         return true
       default:
         return false
     }
-  }, [step, propertyType, selectedLifestyles.length, address, area, rooms, rent, story])
+  }, [step, propertyType, selectedLifestyles.length, address, area, rooms, rent])
 
   // Enterキーで次へ
   useEffect(() => {
@@ -570,36 +565,6 @@ export default function NewListingPage() {
           </div>
         )}
 
-        {/* Step: Story */}
-        {step === "story" && (
-          <div className="flex min-h-full">
-            <div className="flex flex-1 flex-col justify-center px-12 py-16 lg:px-24">
-              <p className="text-sm text-muted-foreground mb-2">ステップ3</p>
-              <h1 className="text-3xl font-semibold mb-3">
-                暮らしのストーリー
-              </h1>
-              <p className="text-muted-foreground mb-8">
-                この空間でどんな暮らしをしてきましたか？
-              </p>
-              <div className="max-w-lg">
-                <Textarea
-                  placeholder="この部屋での思い出や、次の入居者に伝えたいことを教えてください"
-                  value={story}
-                  onChange={(e) => setStory(e.target.value)}
-                  className="min-h-[200px] resize-none"
-                />
-              </div>
-            </div>
-            <div className="hidden lg:block flex-1">
-              <img
-                src={stepImages.story}
-                alt="ストーリー"
-                className="h-full w-full object-cover"
-              />
-            </div>
-          </div>
-        )}
-
         {/* Step: Confirm */}
         {step === "confirm" && (
           <div className="flex min-h-full">
@@ -642,12 +607,6 @@ export default function NewListingPage() {
                       <p className="font-medium">¥{rent}</p>
                     </div>
                   </div>
-                  {story && (
-                    <div>
-                      <p className="text-sm text-muted-foreground">ストーリー</p>
-                      <p className="font-medium whitespace-pre-wrap">{story}</p>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>

@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { CheckCircle2, Loader2 } from "lucide-react"
 
-export function HostForm() {
+export function SellerForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [formData, setFormData] = useState({
@@ -19,7 +19,6 @@ export function HostForm() {
     propertyAddress: "",
     monthlyRent: "",
     moveOutDate: "",
-    furnitureDescription: "",
     whyListing: "",
     landlordConsent: false,
   })
@@ -31,8 +30,8 @@ export function HostForm() {
     // Simulate form submission
     await new Promise((resolve) => setTimeout(resolve, 1500))
 
-    // Log the host listing data
-    console.log("Host listing submitted:", {
+    // Log the seller listing data
+    console.log("Seller listing submitted:", {
       ...formData,
       submittedAt: new Date().toISOString(),
     })
@@ -168,24 +167,9 @@ export function HostForm() {
         </div>
       </div>
 
-      {/* Furniture & Story */}
+      {/* Story */}
       <div className="space-y-4 border-t border-border pt-6">
-        <h3 className="text-lg font-semibold text-foreground">家具・空間について</h3>
-
-        <div className="space-y-2">
-          <Label htmlFor="furnitureDescription" className="text-sm font-medium">
-            引き継ぐ家具・インテリアの説明 <span className="text-coral">*</span>
-          </Label>
-          <Textarea
-            id="furnitureDescription"
-            required
-            placeholder="例：ヴィンテージのチェスト、手作りの本棚、レコードプレーヤー、植物50鉢以上など"
-            rows={4}
-            value={formData.furnitureDescription}
-            onChange={(e) => setFormData({ ...formData, furnitureDescription: e.target.value })}
-            className="rounded-lg border-border resize-none"
-          />
-        </div>
+        <h3 className="text-lg font-semibold text-foreground">空間について</h3>
 
         <div className="space-y-2">
           <Label htmlFor="whyListing" className="text-sm font-medium">

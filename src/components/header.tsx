@@ -30,10 +30,10 @@ export function Header() {
   const handleBecomeCreatorClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!user) {
-      setRedirectAfterLogin("/creator");
+      setRedirectAfterLogin("/listing");
       setShowSignupDialog(true);
     } else {
-      window.location.href = "/creator";
+      window.location.href = "/listing";
     }
   };
 
@@ -59,7 +59,7 @@ export function Header() {
 
         <div className="flex items-center gap-2">
           {/* クリエイターになる / クリエイターモード Button - 非ホストのみ表示 */}
-          {(!user || !user.isHost) && (
+          {(!user || !user.isSeller) && (
             <button
               onClick={handleBecomeCreatorClick}
               className="hidden text-sm font-semibold text-foreground transition-colors hover:bg-muted rounded-full px-3 py-2 sm:block"
@@ -69,7 +69,7 @@ export function Header() {
           )}
 
           {/* リスティング / 入居者に戻る - ホストのみ表示 */}
-          {user?.isHost && (
+          {user?.isSeller && (
             <Link
               href={isHandoverHostMode ? "/" : "/listing"}
               className="hidden text-sm font-semibold text-foreground transition-colors hover:bg-muted rounded-full px-3 py-2 sm:block"
@@ -133,7 +133,7 @@ export function Header() {
                       アカウント
                     </Link>
                   </DropdownMenuItem>
-                  {user.isHost && (
+                  {user.isSeller && (
                     <DropdownMenuItem asChild>
                       <Link
                         href={isHandoverHostMode ? "/" : "/listing"}
@@ -145,7 +145,7 @@ export function Header() {
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
-                  {!user.isHost && (
+                  {!user.isSeller && (
                     <DropdownMenuItem
                       onClick={handleBecomeCreatorClick}
                       className="flex items-center gap-2 py-3 font-medium cursor-pointer"

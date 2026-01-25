@@ -50,7 +50,7 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="/host-resources" className="hover:underline">
+                <a href="/seller-resources" className="hover:underline">
                   出品者向けリソース
                 </a>
               </li>
@@ -60,7 +60,7 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="/hosting-responsibly" className="hover:underline">
+                <a href="/handover-responsibly" className="hover:underline">
                   責任ある引き継ぎとは
                 </a>
               </li>
