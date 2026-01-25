@@ -4,7 +4,7 @@ import { useState } from "react"
 import type { HostListing } from "@/lib/data"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, Mail, User, Phone, MapPin, DollarSign, Home } from "lucide-react"
+import { Calendar, Mail, User, Phone, MapPin, Home } from "lucide-react"
 
 interface HostListingListProps {
   listings: HostListing[]
@@ -116,10 +116,12 @@ export function HostListingList({ listings }: HostListingListProps) {
                   <MapPin className="h-4 w-4 text-muted-foreground" />
                   <span>{listing.propertyAddress}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <DollarSign className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-semibold">¥{listing.monthlyRent.toLocaleString()} /月</span>
-                </div>
+                {listing.handoverFee && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Home className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-semibold">引き継ぎ費用: ¥{listing.handoverFee.toLocaleString()}</span>
+                  </div>
+                )}
                 <div className="flex items-center gap-2 text-sm">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <span>退去予定: {new Date(listing.moveOutDate).toLocaleDateString("ja-JP")}</span>
@@ -142,7 +144,7 @@ export function HostListingList({ listings }: HostListingListProps) {
 
                 <div className="rounded-lg bg-green-50 p-4">
                   <div className="flex items-center gap-2 text-sm font-semibold text-green-800">
-                    {listing.landlordConsent ? "✓ 大家さんの承諾済み" : "⚠ 大家さんの承諾未確認"}
+                    {listing.landlordConsent ? "大家さんの承諾済み" : "大家さんの承諾未確認"}
                   </div>
                 </div>
 
@@ -157,12 +159,12 @@ export function HostListingList({ listings }: HostListingListProps) {
                   <div className="rounded-lg bg-green-50 p-4">
                     <div className="mb-2 text-sm font-semibold text-green-800">掲載中の物件</div>
                     <a
-                      href={`/properties/${listing.publishedPropertyId}`}
+                      href={`/listings/${listing.publishedPropertyId}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm text-coral hover:underline"
                     >
-                      物件ページを見る →
+                      物件ページを見る
                     </a>
                   </div>
                 )}

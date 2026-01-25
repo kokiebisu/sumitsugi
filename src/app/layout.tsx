@@ -19,8 +19,8 @@ import "./globals.css"
 // })
 
 export const metadata: Metadata = {
-  title: "くらしの引き継ぎ | 誰かの暮らしを、あなたへ",
-  description: "家具も、空間も、ストーリーも。大切にしてきた暮らしを、次の人へ引き継ぐサービスです。実験中。",
+  title: "Tsumugi | 暮らしの引き継ぎ",
+  description: "家具も、空間も、ストーリーも。大切にしてきた暮らしを、次の人へ引き継ぐサービスです。",
   generator: "v0.app",
   icons: {
     icon: [

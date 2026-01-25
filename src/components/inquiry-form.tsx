@@ -17,7 +17,7 @@ interface InquiryFormProps {
 }
 
 export function InquiryForm({ property }: InquiryFormProps) {
-  const { user, login } = useAuth()
+  const { user, login, addInquiry } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [showSignupDialog, setShowSignupDialog] = useState(false)
@@ -25,12 +25,9 @@ export function InquiryForm({ property }: InquiryFormProps) {
     name: "",
     email: "",
     reason: "",
-    duration: "",
-    viewing: "",
     questions: "",
   })
 
-  // ユーザーがログインしている場合、フォームに自動入力
   useEffect(() => {
     if (user) {
       setFormData((prev) => ({
@@ -44,26 +41,23 @@ export function InquiryForm({ property }: InquiryFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Check if user is logged in
     if (!user) {
-      // Show signup dialog
       setShowSignupDialog(true)
       return
     }
 
     setIsSubmitting(true)
 
-    // Simulate form submission
-    // In production, this would send to Google Forms, Tally, or a simple API
     await new Promise((resolve) => setTimeout(resolve, 1500))
 
-    // Log the inquiry data (for MVP, this would be stored manually)
-    console.log("Inquiry submitted:", {
+    addInquiry({
       propertyId: property.id,
       propertyTitle: property.title,
-      userId: user.id,
-      ...formData,
-      submittedAt: new Date().toISOString(),
+      status: "pending",
+      applicantName: formData.name,
+      applicantEmail: formData.email,
+      reason: formData.reason,
+      questions: formData.questions,
     })
 
     setIsSubmitting(false)
@@ -73,7 +67,6 @@ export function InquiryForm({ property }: InquiryFormProps) {
   const handleSignupComplete = (newUser: Parameters<typeof login>[0]) => {
     login(newUser)
     setShowSignupDialog(false)
-    // Pre-fill form with user data
     setFormData({
       ...formData,
       name: newUser.name,
@@ -85,24 +78,32 @@ export function InquiryForm({ property }: InquiryFormProps) {
     return (
       <div className="rounded-xl bg-green-50 p-8 text-center">
         <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-green-600" />
-        <h3 className="mb-2 text-lg font-medium text-foreground">お問い合わせを受け付けました</h3>
+        <h3 className="mb-2 text-lg font-medium text-foreground">引き継ぎ申し込みを受け付けました</h3>
         <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
           ご連絡ありがとうございます。
           <br />
           内容を確認の上、数日以内にメールでご連絡いたします。
         </p>
         <p className="text-xs text-muted-foreground">返信が届かない場合は、迷惑メールフォルダもご確認ください。</p>
+
+        <div className="mt-6">
+          <Button
+            onClick={() => window.location.href = "/dashboard"}
+            className="w-full rounded-lg bg-coral py-3 text-sm font-semibold text-white hover:bg-coral/90"
+          >
+            ダッシュボードで進捗を確認
+          </Button>
+        </div>
       </div>
     )
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* ログイン済みの場合、ユーザー情報を表示 */}
       {user && (
         <div className="rounded-lg bg-muted/50 p-4">
           <p className="text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">{user.name}</span> としてお問い合わせ
+            <span className="font-medium text-foreground">{user.name}</span> として申し込み
           </p>
         </div>
       )}
@@ -145,12 +146,12 @@ export function InquiryForm({ property }: InquiryFormProps) {
       {/* Reason - Most Important Field */}
       <div className="space-y-2">
         <Label htmlFor="reason" className="text-sm font-medium">
-          興味を持った理由 <span className="text-coral">*</span>
+          この暮らしに興味を持った理由 <span className="text-coral">*</span>
         </Label>
         <Textarea
           id="reason"
           required
-          placeholder="この物件のどんなところに惹かれましたか？どんな暮らしを想像しましたか？自由にお書きください。"
+          placeholder="この暮らしのどんなところに惹かれましたか？どんな生活を想像しましたか？自由にお書きください。"
           rows={5}
           value={formData.reason}
           onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
@@ -159,66 +160,10 @@ export function InquiryForm({ property }: InquiryFormProps) {
         <p className="text-xs text-muted-foreground">一番大切な項目です。あなたの想いをお聞かせください</p>
       </div>
 
-      {/* Duration - Optional */}
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">
-          想定している期間（任意）
-        </Label>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {[
-            { value: "1ヶ月", label: "1ヶ月" },
-            { value: "2〜3ヶ月", label: "2〜3ヶ月" },
-            { value: "半年程度", label: "半年程度" },
-            { value: "1年以上", label: "1年以上" },
-            { value: "未定", label: "未定" },
-          ].map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => setFormData({ ...formData, duration: formData.duration === option.value ? "" : option.value })}
-              className={`rounded-lg border-2 px-4 py-3 text-sm font-medium transition-all ${
-                formData.duration === option.value
-                  ? "border-foreground bg-muted text-foreground"
-                  : "border-border bg-background text-foreground hover:border-foreground/40"
-              }`}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Viewing - Optional */}
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">
-          内見について（任意）
-        </Label>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {[
-            { value: "希望する", label: "希望する" },
-            { value: "オンラインで希望", label: "オンラインで希望" },
-            { value: "まずは話を聞きたい", label: "まずは話を聞きたい" },
-          ].map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => setFormData({ ...formData, viewing: formData.viewing === option.value ? "" : option.value })}
-              className={`rounded-lg border-2 px-4 py-3 text-sm font-medium transition-all ${
-                formData.viewing === option.value
-                  ? "border-foreground bg-muted text-foreground"
-                  : "border-border bg-background text-foreground hover:border-foreground/40"
-              }`}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* Questions - Optional */}
       <div className="space-y-2">
         <Label htmlFor="questions" className="text-sm font-medium">
-          質問・不安点（任意）
+          質問・確認したいこと（任意）
         </Label>
         <Textarea
           id="questions"
@@ -234,7 +179,7 @@ export function InquiryForm({ property }: InquiryFormProps) {
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="w-full rounded-lg bg-[#E61E4D] py-6 text-base font-medium text-white hover:bg-[#D01346] disabled:opacity-70"
+        className="w-full rounded-lg bg-coral py-6 text-base font-medium text-white hover:bg-coral/90 disabled:opacity-70 shadow-md"
       >
         {isSubmitting ? (
           <>
@@ -242,17 +187,17 @@ export function InquiryForm({ property }: InquiryFormProps) {
             送信中...
           </>
         ) : user ? (
-          "問い合わせを送る"
+          "引き継ぎを申し込む"
         ) : (
-          "ログインして問い合わせを送る"
+          "ログインして申し込む"
         )}
       </Button>
 
       {/* Notice */}
       <p className="text-center text-xs leading-relaxed text-muted-foreground">
-        送信いただいた内容は、マッチングや条件確定のためではなく、
+        送信後、内見の日程調整のご連絡をいたします。
         <br className="hidden sm:block" />
-        対話のきっかけとして活用させていただきます。
+        この暮らしがあなたに合うかどうか、実際に見て判断してください。
       </p>
 
       {/* Signup Dialog */}

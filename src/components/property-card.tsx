@@ -6,7 +6,6 @@ import { useState } from "react"
 import Link from "next/link"
 import { Heart, ChevronLeft, ChevronRight } from "lucide-react"
 import type { Property } from "@/lib/data"
-import { AmenityIcons } from "./amenity-icons"
 
 interface PropertyCardProps {
   property: Property
@@ -38,7 +37,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
   }
 
   return (
-    <Link href={`/properties/${property.id}`} className="group block">
+    <Link href={`/listings/${property.id}`} className="group block">
       <div className="relative aspect-square overflow-hidden rounded-xl bg-muted">
         {!imageLoaded && (
           <div className="absolute inset-0 animate-pulse bg-muted" />
@@ -92,24 +91,24 @@ export function PropertyCard({ property }: PropertyCardProps) {
         )}
       </div>
 
+      {/* MVP構成: 一言コピー → 引き継ぎ費用 → 家賃 → 基本情報 */}
       <div className="mt-3">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="font-medium text-foreground line-clamp-1">{property.title}</h3>
-        </div>
-        <p className="mt-0.5 text-sm text-muted-foreground line-clamp-1">{property.summary}</p>
+        <h3 className="font-medium text-foreground line-clamp-1">{property.title}</h3>
 
-        {/* Amenity Icons */}
-        {property.amenities && property.amenities.length > 0 && (
-          <div className="mt-2">
-            <AmenityIcons amenities={property.amenities.slice(0, 3)} size="sm" />
-          </div>
+        <p className="mt-1.5 text-sm">
+          <span className="text-muted-foreground">引き継ぎ費用 </span>
+          <span className="font-semibold text-foreground">¥{property.handoverFee.toLocaleString()}</span>
+        </p>
+
+        {property.rent && (
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            家賃 ¥{property.rent.toLocaleString()}/月
+          </p>
         )}
 
-        <p className="mt-2 text-sm">
-          <span className="font-semibold text-foreground">¥{property.monthlyRent.toLocaleString()}</span>
-          <span className="text-muted-foreground"> /月</span>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {property.area}{property.layout && ` / ${property.layout}`}
         </p>
-        <p className="text-sm text-muted-foreground">インテリア代 ¥{property.interiorFee.toLocaleString()}</p>
       </div>
     </Link>
   )

@@ -23,7 +23,8 @@
       "Bash(tee:*)",
       "Bash(fuser:*)",
       "Bash(ls:*)",
-      "Bash(npx prettier:*)"
+      "Bash(npx prettier:*)",
+      "Bash(git restore:*)"
     ]
   }
 }

@@ -5,30 +5,25 @@ import Link from "next/link"
 import type { Inquiry } from "@/lib/data"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, Mail, User, MessageSquare, ExternalLink } from "lucide-react"
+import { Mail, User, MessageSquare, ExternalLink } from "lucide-react"
 
 interface InquiryListProps {
   inquiries: Inquiry[]
 }
 
-const statusColors = {
+const statusColors: Record<Inquiry["status"], string> = {
   pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  approved: "bg-blue-100 text-blue-800 border-blue-200",
-  viewing_scheduled: "bg-purple-100 text-purple-800 border-purple-200",
+  decided: "bg-blue-100 text-blue-800 border-blue-200",
   completed: "bg-green-100 text-green-800 border-green-200",
-  rejected: "bg-gray-100 text-gray-800 border-gray-200",
 }
 
-const statusLabels = {
+const statusLabels: Record<Inquiry["status"], string> = {
   pending: "新規",
-  approved: "承認済み",
-  viewing_scheduled: "内見予定",
+  decided: "引き継ぎ決定",
   completed: "完了",
-  rejected: "却下",
 }
 
 export function InquiryList({ inquiries }: InquiryListProps) {
-  const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null)
   const [filterStatus, setFilterStatus] = useState<string>("all")
 
   const filteredInquiries =
@@ -55,20 +50,20 @@ export function InquiryList({ inquiries }: InquiryListProps) {
           新規 ({inquiries.filter((i) => i.status === "pending").length})
         </Button>
         <Button
-          variant={filterStatus === "viewing_scheduled" ? "default" : "outline"}
+          variant={filterStatus === "decided" ? "default" : "outline"}
           size="sm"
-          onClick={() => setFilterStatus("viewing_scheduled")}
+          onClick={() => setFilterStatus("decided")}
           className="rounded-full"
         >
-          内見予定 ({inquiries.filter((i) => i.status === "viewing_scheduled").length})
+          引き継ぎ決定 ({inquiries.filter((i) => i.status === "decided").length})
         </Button>
         <Button
-          variant={filterStatus === "approved" ? "default" : "outline"}
+          variant={filterStatus === "completed" ? "default" : "outline"}
           size="sm"
-          onClick={() => setFilterStatus("approved")}
+          onClick={() => setFilterStatus("completed")}
           className="rounded-full"
         >
-          承認済み ({inquiries.filter((i) => i.status === "approved").length})
+          完了 ({inquiries.filter((i) => i.status === "completed").length})
         </Button>
       </div>
 
@@ -76,7 +71,7 @@ export function InquiryList({ inquiries }: InquiryListProps) {
       <div className="space-y-4">
         {filteredInquiries.length === 0 ? (
           <div className="rounded-lg border border-border bg-background p-12 text-center">
-            <p className="text-muted-foreground">問い合わせがありません</p>
+            <p className="text-muted-foreground">引き継ぎ申し込みがありません</p>
           </div>
         ) : (
           filteredInquiries.map((inquiry) => (
@@ -95,7 +90,7 @@ export function InquiryList({ inquiries }: InquiryListProps) {
                   <h3 className="mb-1 text-lg font-semibold text-foreground">{inquiry.propertyTitle}</h3>
                   <p className="text-sm text-muted-foreground">ID: {inquiry.id}</p>
                 </div>
-                <Link href={`/properties/${inquiry.propertyId}`} target="_blank">
+                <Link href={`/listings/${inquiry.propertyId}`} target="_blank">
                   <Button variant="outline" size="sm" className="gap-1">
                     <ExternalLink className="h-3 w-3" />
                     物件を見る
@@ -114,20 +109,6 @@ export function InquiryList({ inquiries }: InquiryListProps) {
                     {inquiry.applicantEmail}
                   </a>
                 </div>
-                {inquiry.duration && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span>契約期間: {inquiry.duration}</span>
-                  </div>
-                )}
-                {inquiry.viewingDate && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium text-purple-600">
-                      内見: {new Date(inquiry.viewingDate).toLocaleString("ja-JP")}
-                    </span>
-                  </div>
-                )}
               </div>
 
               <div className="space-y-3">
@@ -141,7 +122,7 @@ export function InquiryList({ inquiries }: InquiryListProps) {
 
                 {inquiry.questions && (
                   <div className="rounded-lg bg-muted/50 p-4">
-                    <div className="mb-2 text-sm font-semibold text-foreground">質問・不安点</div>
+                    <div className="mb-2 text-sm font-semibold text-foreground">質問・確認事項</div>
                     <p className="text-sm leading-relaxed text-foreground/90">{inquiry.questions}</p>
                   </div>
                 )}

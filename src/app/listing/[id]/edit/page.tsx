@@ -7,99 +7,55 @@ import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
-import { Music, Palette, Leaf, Coffee, Book, Camera, Dumbbell, Gamepad2, UtensilsCrossed, Wine, Plane, Cat, Baby, Sparkles, TreePine, Sofa, Bike, Mountain, Waves, Film, Shirt, Headphones, Tv, Lamp, Armchair, Bath, Moon, Sun, Heart, Flower2, Briefcase, GraduationCap, Tent, Guitar, Upload, X, ArrowLeft, Wifi, Monitor, Refrigerator, WashingMachine, Microwave, AirVent, ParkingCircle, BedDouble, Table, BookOpen, Frame, Clock, Fan, Utensils, CookingPot, Blinds, Archive, Speaker, Printer, LucideIcon } from "lucide-react"
+import type { LargeFurnitureType } from "@/lib/data"
+import {
+  Leaf,
+  Sparkles,
+  TreePine,
+  Sofa,
+  Mountain,
+  Lamp,
+  Armchair,
+  Moon,
+  Flower2,
+  Briefcase,
+  Clock,
+  Frame,
+  X,
+  Plus,
+  BedDouble,
+  Monitor,
+  Archive,
+  Waves,
+  ArrowLeft,
+  Upload,
+  Coffee,
+} from "lucide-react"
 
-// ライフスタイル（アイコン付き）
-const LIFESTYLES = [
-  { id: "dj", label: "DJ・音楽", Icon: Music },
-  { id: "art", label: "アート", Icon: Palette },
-  { id: "plant", label: "植物・ボタニカル", Icon: Leaf },
-  { id: "cafe", label: "カフェ風", Icon: Coffee },
-  { id: "reading", label: "読書・書斎", Icon: Book },
-  { id: "photo", label: "写真・映像", Icon: Camera },
-  { id: "fitness", label: "フィットネス", Icon: Dumbbell },
-  { id: "gaming", label: "ゲーミング", Icon: Gamepad2 },
-  { id: "cooking", label: "料理好き", Icon: UtensilsCrossed },
-  { id: "wine", label: "ワイン・お酒", Icon: Wine },
-  { id: "travel", label: "旅行・海外", Icon: Plane },
-  { id: "pet", label: "ペットと暮らす", Icon: Cat },
-  { id: "family", label: "ファミリー向け", Icon: Baby },
-  { id: "minimal", label: "ミニマル", Icon: Sparkles },
-  { id: "scandinavian", label: "北欧", Icon: TreePine },
-  { id: "vintage", label: "ヴィンテージ", Icon: Sofa },
-  { id: "cycling", label: "サイクリング", Icon: Bike },
-  { id: "outdoor", label: "アウトドア", Icon: Mountain },
-  { id: "surf", label: "サーフィン・海", Icon: Waves },
-  { id: "movie", label: "映画鑑賞", Icon: Film },
-  { id: "fashion", label: "ファッション", Icon: Shirt },
-  { id: "audio", label: "オーディオ", Icon: Headphones },
-  { id: "theater", label: "ホームシアター", Icon: Tv },
-  { id: "lighting", label: "照明・間接照明", Icon: Lamp },
-  { id: "lounge", label: "ラウンジ風", Icon: Armchair },
-  { id: "spa", label: "スパ・リラックス", Icon: Bath },
-  { id: "night", label: "夜型・バー風", Icon: Moon },
-  { id: "morning", label: "朝活・朝型", Icon: Sun },
-  { id: "wellness", label: "ウェルネス", Icon: Heart },
-  { id: "garden", label: "ガーデニング", Icon: Flower2 },
-  { id: "work", label: "リモートワーク", Icon: Briefcase },
-  { id: "study", label: "勉強・資格", Icon: GraduationCap },
-  { id: "camp", label: "キャンプ", Icon: Tent },
-  { id: "instrument", label: "楽器演奏", Icon: Guitar },
+// お部屋のスタイル・テイスト
+const ROOM_STYLES = [
+  { id: "nordic", label: "北欧風", Icon: TreePine },
+  { id: "modern", label: "モダン", Icon: Sparkles },
+  { id: "vintage", label: "ヴィンテージ", Icon: Clock },
+  { id: "minimal", label: "ミニマル", Icon: Frame },
+  { id: "industrial", label: "インダストリアル", Icon: Briefcase },
+  { id: "natural", label: "ナチュラル", Icon: Leaf },
+  { id: "japanese", label: "和モダン", Icon: Moon },
+  { id: "bohemian", label: "ボヘミアン", Icon: Flower2 },
+  { id: "coastal", label: "コースタル・海辺", Icon: Waves },
+  { id: "midcentury", label: "ミッドセンチュリー", Icon: Armchair },
+  { id: "rustic", label: "ラスティック", Icon: Mountain },
+  { id: "contemporary", label: "コンテンポラリー", Icon: Lamp },
 ]
 
-// アメニティ・設備
-const POPULAR_AMENITIES = [
-  { id: "wifi", label: "Wi-Fi", Icon: Wifi },
-  { id: "tv", label: "テレビ", Icon: Tv },
-  { id: "kitchen", label: "フルキッチン", Icon: UtensilsCrossed },
-  { id: "washingMachine", label: "洗濯機", Icon: WashingMachine },
-  { id: "parking", label: "駐車場", Icon: ParkingCircle },
-  { id: "aircon", label: "エアコン", Icon: AirVent },
-  { id: "workspace", label: "仕事専用スペース", Icon: Monitor },
-]
-
-const STANDOUT_AMENITIES = [
-  { id: "bathtub", label: "バスタブ", Icon: Bath },
-  { id: "refrigerator", label: "冷蔵庫", Icon: Refrigerator },
-  { id: "microwave", label: "電子レンジ", Icon: Microwave },
-  { id: "balcony", label: "バルコニー", Icon: Sun },
-  { id: "closet", label: "収納", Icon: Briefcase },
-  { id: "flooring", label: "フローリング", Icon: Sofa },
-]
-
-// 家具・インテリアアイテム
-const FURNITURE_ITEMS: { id: string; label: string; Icon: LucideIcon }[] = [
+// 引き継ぎ対象の大型家具
+const LARGE_FURNITURE_ITEMS: { id: LargeFurnitureType; label: string; Icon: typeof BedDouble }[] = [
   { id: "bed", label: "ベッド", Icon: BedDouble },
   { id: "sofa", label: "ソファ", Icon: Sofa },
-  { id: "table", label: "テーブル", Icon: Table },
-  { id: "chair", label: "チェア", Icon: Armchair },
   { id: "desk", label: "デスク", Icon: Monitor },
-  { id: "shelf", label: "シェルフ・棚", Icon: BookOpen },
-  { id: "tv", label: "テレビ", Icon: Tv },
-  { id: "tvstand", label: "テレビ台", Icon: Archive },
-  { id: "lamp", label: "照明・ランプ", Icon: Lamp },
-  { id: "curtain", label: "カーテン", Icon: Blinds },
-  { id: "rug", label: "ラグ・カーペット", Icon: Frame },
-  { id: "mirror", label: "ミラー", Icon: Frame },
-  { id: "clock", label: "時計", Icon: Clock },
-  { id: "art", label: "アート・絵画", Icon: Palette },
-  { id: "plant", label: "観葉植物", Icon: Leaf },
-  { id: "speaker", label: "スピーカー", Icon: Speaker },
-  { id: "refrigerator", label: "冷蔵庫", Icon: Refrigerator },
-  { id: "washingmachine", label: "洗濯機", Icon: WashingMachine },
-  { id: "microwave", label: "電子レンジ", Icon: Microwave },
-  { id: "aircon", label: "エアコン", Icon: Fan },
-  { id: "cookware", label: "調理器具", Icon: CookingPot },
-  { id: "dinnerware", label: "食器", Icon: Utensils },
-  { id: "storage", label: "収納ボックス", Icon: Archive },
-  { id: "printer", label: "プリンター", Icon: Printer },
+  { id: "table", label: "テーブル", Icon: Coffee },
+  { id: "storage", label: "収納", Icon: Archive },
 ]
-
-interface InteriorPhoto {
-  id: string
-  photo?: string
-  caption: string
-}
 
 export default function EditListingPage() {
   const { user, isLoading, listings, updateListing } = useAuth()
@@ -109,25 +65,23 @@ export default function EditListingPage() {
 
   const listing = listings.find(l => l.id === listingId)
 
-  const [selectedLifestyles, setSelectedLifestyles] = useState<string[]>([])
+  const [selectedRoomStyle, setSelectedRoomStyle] = useState<string | null>(null)
   const [story, setStory] = useState("")
-  const [interiorPhotos, setInteriorPhotos] = useState<InteriorPhoto[]>([])
-  const [selectedFurniture, setSelectedFurniture] = useState<string[]>([])
-  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([])
+  const [selectedFurniture, setSelectedFurniture] = useState<LargeFurnitureType[]>([])
+  const [roomPhotos, setRoomPhotos] = useState<string[]>([])
   const [isSaving, setIsSaving] = useState(false)
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
-  const [uploadTargetId, setUploadTargetId] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
-  const [uploadedPreview, setUploadedPreview] = useState<string | null>(null)
+  const [pendingPhotos, setPendingPhotos] = useState<string[]>([])
+  const [isLoadingFiles, setIsLoadingFiles] = useState(false)
 
   // リスティングデータを読み込み
   useEffect(() => {
     if (listing) {
-      setSelectedLifestyles(listing.lifestyles || [])
+      setSelectedRoomStyle(listing.roomStyle || null)
       setStory(listing.story || "")
-      setInteriorPhotos(listing.interiorPhotos?.length ? listing.interiorPhotos : [{ id: '1', photo: undefined, caption: '' }])
       setSelectedFurniture(listing.furniture || [])
-      setSelectedAmenities(listing.amenities || [])
+      setRoomPhotos(listing.roomPhotos || [])
     }
   }, [listing])
 
@@ -147,49 +101,71 @@ export default function EditListingPage() {
     if (!listing) return
     setIsSaving(true)
 
-    const lifestyleLabels = selectedLifestyles.map(id => {
-      const lifestyle = LIFESTYLES.find(l => l.id === id)
-      return lifestyle?.label || id
-    })
-    const title = lifestyleLabels.length > 0
-      ? `${lifestyleLabels[0]}の暮らし`
-      : "私の暮らし"
+    const roomStyleLabel = ROOM_STYLES.find(s => s.id === selectedRoomStyle)?.label || ""
+    const title = roomStyleLabel ? `${roomStyleLabel}スタイルの暮らし` : "私の暮らし"
 
     updateListing(listing.id, {
       title,
-      lifestyles: selectedLifestyles,
+      roomStyle: selectedRoomStyle,
       story,
-      amenities: selectedAmenities,
       furniture: selectedFurniture,
-      interiorPhotos: interiorPhotos.filter(p => p.photo || p.caption),
+      roomPhotos,
     })
 
     setIsSaving(false)
     router.push("/listing")
   }
 
-  const updateInteriorPhoto = (id: string, field: keyof InteriorPhoto, value: string | undefined) => {
-    setInteriorPhotos(interiorPhotos.map(item =>
-      item.id === id ? { ...item, [field]: value } : item
-    ))
-  }
-
-  const addPhotoSlot = () => {
-    if (interiorPhotos.length < 5) {
-      setInteriorPhotos([...interiorPhotos, { id: String(Date.now()), photo: undefined, caption: '' }])
-    }
-  }
-
-  const openUploadDialog = (id: string) => {
-    setUploadTargetId(id)
+  const openUploadDialog = () => {
     setUploadDialogOpen(true)
   }
 
   const closeUploadDialog = () => {
     setUploadDialogOpen(false)
-    setUploadTargetId(null)
     setIsUploading(false)
-    setUploadedPreview(null)
+    setPendingPhotos([])
+  }
+
+  const removePendingPhoto = (index: number) => {
+    setPendingPhotos(pendingPhotos.filter((_, i) => i !== index))
+  }
+
+  const removeRoomPhoto = (index: number) => {
+    setRoomPhotos(roomPhotos.filter((_, i) => i !== index))
+  }
+
+  const handleUploadConfirm = () => {
+    if (pendingPhotos.length === 0) return
+
+    setIsUploading(true)
+    setTimeout(() => {
+      const remaining = 5 - roomPhotos.length
+      const photosToAdd = pendingPhotos.slice(0, remaining)
+      setRoomPhotos([...roomPhotos, ...photosToAdd])
+      closeUploadDialog()
+    }, 500)
+  }
+
+  const handleFilesSelect = async (files: FileList | null) => {
+    if (!files) return
+
+    setIsLoadingFiles(true)
+    const fileArray = Array.from(files)
+
+    for (const file of fileArray) {
+      await new Promise((resolve) => setTimeout(resolve, 500))
+
+      const result = await new Promise<string>((resolve) => {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          resolve(reader.result as string)
+        }
+        reader.readAsDataURL(file)
+      })
+
+      setPendingPhotos((prev) => [...prev, result])
+    }
+    setIsLoadingFiles(false)
   }
 
   if (isLoading || !user) {
@@ -229,23 +205,17 @@ export default function EditListingPage() {
       {/* メインコンテンツ */}
       <main className="flex-1 px-6 py-8 md:px-12">
         <div className="max-w-3xl mx-auto space-y-10">
-          {/* ライフスタイル */}
+          {/* 部屋のスタイル */}
           <section>
-            <h2 className="text-xl font-semibold mb-4">ライフスタイル</h2>
-            <p className="text-sm text-muted-foreground mb-4">あなたの暮らしを表すキーワードを選択してください</p>
+            <h2 className="text-xl font-semibold mb-4">お部屋のテイスト</h2>
+            <p className="text-sm text-muted-foreground mb-4">インテリアのテイストを選んでください</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {LIFESTYLES.map(({ id, label, Icon }) => {
-                const isSelected = selectedLifestyles.includes(id)
+              {ROOM_STYLES.map(({ id, label, Icon }) => {
+                const isSelected = selectedRoomStyle === id
                 return (
                   <button
                     key={id}
-                    onClick={() => {
-                      if (isSelected) {
-                        setSelectedLifestyles(selectedLifestyles.filter((l) => l !== id))
-                      } else {
-                        setSelectedLifestyles([...selectedLifestyles, id])
-                      }
-                    }}
+                    onClick={() => setSelectedRoomStyle(id)}
                     className={cn(
                       "flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left",
                       isSelected
@@ -261,6 +231,39 @@ export default function EditListingPage() {
             </div>
           </section>
 
+          {/* 写真 */}
+          <section>
+            <h2 className="text-xl font-semibold mb-4">部屋の写真</h2>
+            <p className="text-sm text-muted-foreground mb-4">お部屋の魅力が伝わる写真を追加してください（3〜5枚）</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {roomPhotos.map((photo, index) => (
+                <div key={index} className="relative aspect-[4/3] rounded-xl overflow-hidden group">
+                  <img src={photo} alt={`部屋 ${index + 1}`} className="w-full h-full object-cover" />
+                  <button
+                    onClick={() => removeRoomPhoto(index)}
+                    className="absolute top-2 right-2 w-7 h-7 bg-black/50 rounded-full flex items-center justify-center hover:bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X className="w-4 h-4 text-white" />
+                  </button>
+                  {index === 0 && (
+                    <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/70 rounded text-xs text-white font-medium">
+                      カバー
+                    </div>
+                  )}
+                </div>
+              ))}
+              {roomPhotos.length < 5 && (
+                <button
+                  onClick={openUploadDialog}
+                  className="aspect-[4/3] border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center hover:border-foreground/40 transition-colors cursor-pointer"
+                >
+                  <Upload className="w-6 h-6 mb-2 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">追加</span>
+                </button>
+              )}
+            </div>
+          </section>
+
           {/* ストーリー */}
           <section>
             <h2 className="text-xl font-semibold mb-4">暮らしのストーリー</h2>
@@ -273,124 +276,12 @@ export default function EditListingPage() {
             />
           </section>
 
-          {/* アメニティ・設備 */}
+          {/* 家具 */}
           <section>
-            <h2 className="text-xl font-semibold mb-4">アメニティ・設備</h2>
-            <p className="text-sm text-muted-foreground mb-4">物件に含まれる設備を選んでください</p>
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-sm font-semibold text-foreground mb-3">人気のアメニティ</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {POPULAR_AMENITIES.map(({ id, label, Icon }) => {
-                    const isSelected = selectedAmenities.includes(id)
-                    return (
-                      <button
-                        key={id}
-                        onClick={() => {
-                          if (isSelected) {
-                            setSelectedAmenities(selectedAmenities.filter((a) => a !== id))
-                          } else {
-                            setSelectedAmenities([...selectedAmenities, id])
-                          }
-                        }}
-                        className={cn(
-                          "flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left",
-                          isSelected
-                            ? "border-foreground bg-muted"
-                            : "border-border hover:border-foreground/40"
-                        )}
-                      >
-                        <Icon className="w-5 h-5 text-foreground flex-shrink-0" strokeWidth={1.5} />
-                        <span className="text-sm font-medium">{label}</span>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold text-foreground mb-3">その他の設備</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {STANDOUT_AMENITIES.map(({ id, label, Icon }) => {
-                    const isSelected = selectedAmenities.includes(id)
-                    return (
-                      <button
-                        key={id}
-                        onClick={() => {
-                          if (isSelected) {
-                            setSelectedAmenities(selectedAmenities.filter((a) => a !== id))
-                          } else {
-                            setSelectedAmenities([...selectedAmenities, id])
-                          }
-                        }}
-                        className={cn(
-                          "flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left",
-                          isSelected
-                            ? "border-foreground bg-muted"
-                            : "border-border hover:border-foreground/40"
-                        )}
-                      >
-                        <Icon className="w-5 h-5 text-foreground flex-shrink-0" strokeWidth={1.5} />
-                        <span className="text-sm font-medium">{label}</span>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* 写真 */}
-          <section>
-            <h2 className="text-xl font-semibold mb-4">インテリア写真</h2>
-            <p className="text-sm text-muted-foreground mb-4">お気に入りのスポットや家具を紹介しましょう（最大5つ）</p>
-            <div className="space-y-4">
-              {interiorPhotos.map((item, index) => (
-                <div key={item.id} className="flex gap-4 items-start">
-                  <div className="w-32 h-32 flex-shrink-0">
-                    {item.photo ? (
-                      <div className="relative w-full h-full rounded-xl overflow-hidden">
-                        <img src={item.photo} alt="" className="w-full h-full object-cover" />
-                        <button
-                          onClick={() => updateInteriorPhoto(item.id, 'photo', undefined)}
-                          className="absolute top-2 right-2 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center hover:bg-black/70"
-                        >
-                          <X className="w-4 h-4 text-white" />
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => openUploadDialog(item.id)}
-                        className="w-full h-full border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center hover:border-foreground/40 transition-colors cursor-pointer"
-                      >
-                        <Upload className="w-5 h-5 mb-1 text-muted-foreground" />
-                        <p className="text-xs text-muted-foreground">写真{index + 1}</p>
-                      </button>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <Textarea
-                      placeholder={`写真${index + 1}の説明...`}
-                      value={item.caption}
-                      onChange={(e) => updateInteriorPhoto(item.id, 'caption', e.target.value)}
-                      className="min-h-[128px] resize-none text-sm"
-                    />
-                  </div>
-                </div>
-              ))}
-              {interiorPhotos.length < 5 && (
-                <Button variant="outline" onClick={addPhotoSlot} className="w-full">
-                  写真を追加
-                </Button>
-              )}
-            </div>
-          </section>
-
-          {/* 家具・インテリア */}
-          <section>
-            <h2 className="text-xl font-semibold mb-4">家具・インテリア</h2>
-            <p className="text-sm text-muted-foreground mb-4">引き継ぎたい家具やインテリアアイテムを選択してください</p>
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-              {FURNITURE_ITEMS.map(({ id, label, Icon }) => {
+            <h2 className="text-xl font-semibold mb-4">引き継ぐ家具</h2>
+            <p className="text-sm text-muted-foreground mb-4">次の入居者に引き継ぎたい大型家具を選んでください</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {LARGE_FURNITURE_ITEMS.map(({ id, label, Icon }) => {
                 const isSelected = selectedFurniture.includes(id)
                 return (
                   <button
@@ -403,14 +294,14 @@ export default function EditListingPage() {
                       }
                     }}
                     className={cn(
-                      "flex flex-col items-center p-3 rounded-xl border-2 transition-all",
+                      "flex flex-col items-center p-4 rounded-xl border-2 transition-all",
                       isSelected
                         ? "border-foreground bg-muted"
                         : "border-border hover:border-foreground/40"
                     )}
                   >
-                    <Icon className="w-6 h-6 mb-2 text-foreground" strokeWidth={1.5} />
-                    <span className="text-xs font-medium text-center">{label}</span>
+                    <Icon className="w-8 h-8 mb-2 text-foreground" strokeWidth={1.5} />
+                    <span className="text-sm font-medium text-center">{label}</span>
                   </button>
                 )
               })}
@@ -435,49 +326,85 @@ export default function EditListingPage() {
               <div className="w-8 h-8" />
             </div>
             <div className="p-6">
-              <div className="border-2 border-dashed border-border rounded-xl p-12 text-center">
-                {isUploading ? (
-                  <div className="flex flex-col items-center justify-center">
-                    {uploadedPreview && (
-                      <div className="w-24 h-24 rounded-xl overflow-hidden mb-4 animate-pulse">
-                        <img src={uploadedPreview} alt="" className="w-full h-full object-cover" />
+              {isUploading ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <div className="relative w-16 h-16 mb-4">
+                    <svg className="w-full h-full animate-spin" viewBox="0 0 50 50">
+                      <circle cx="25" cy="25" r="20" fill="none" stroke="#E5E5E5" strokeWidth="4" />
+                      <circle cx="25" cy="25" r="20" fill="none" stroke="#222222" strokeWidth="4" strokeLinecap="round" strokeDasharray="80, 200" strokeDashoffset="0" />
+                    </svg>
+                  </div>
+                  <p className="text-base font-medium text-foreground">アップロード中...</p>
+                </div>
+              ) : pendingPhotos.length > 0 || isLoadingFiles ? (
+                <div className="overflow-x-auto" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                  <div className="flex gap-3" style={{ minWidth: "min-content" }}>
+                    {pendingPhotos.map((photo, index) => (
+                      <div key={index} className="relative flex-shrink-0 w-32 h-32 rounded-xl overflow-hidden group">
+                        <img src={photo} alt="" className="w-full h-full object-cover" />
+                        <button
+                          onClick={() => removePendingPhoto(index)}
+                          className="absolute top-2 right-2 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center hover:bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-3 h-3 text-white" />
+                        </button>
+                      </div>
+                    ))}
+                    {isLoadingFiles && (
+                      <div className="flex-shrink-0 w-32 h-32 rounded-xl border-2 border-dashed border-border flex items-center justify-center bg-muted/30">
+                        <span className="text-xs text-muted-foreground">読み込み中...</span>
                       </div>
                     )}
-                    <p className="text-base font-medium text-foreground">アップロード中...</p>
+                    {!isLoadingFiles && (
+                      <label className="flex-shrink-0 w-32 h-32 border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center hover:border-foreground/40 transition-colors cursor-pointer">
+                        <Plus className="w-6 h-6 mb-1 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">追加</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          className="hidden"
+                          onChange={(e) => handleFilesSelect(e.target.files)}
+                        />
+                      </label>
+                    )}
                   </div>
-                ) : (
-                  <>
-                    <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-lg font-medium mb-3">ドラッグ＆ドロップ</p>
-                    <label className="inline-block">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0]
-                          if (file && uploadTargetId) {
-                            const reader = new FileReader()
-                            reader.onloadend = () => {
-                              const result = reader.result as string
-                              setUploadedPreview(result)
-                              setIsUploading(true)
-                              setTimeout(() => {
-                                updateInteriorPhoto(uploadTargetId, 'photo', result)
-                                closeUploadDialog()
-                              }, 800)
-                            }
-                            reader.readAsDataURL(file)
-                          }
-                        }}
-                      />
-                      <span className="text-base font-semibold text-foreground underline cursor-pointer hover:no-underline">
-                        参照
-                      </span>
-                    </label>
-                  </>
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-border rounded-xl p-12 text-center">
+                  <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-lg font-medium mb-3">ドラッグ＆ドロップ</p>
+                  <label className="inline-block">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => handleFilesSelect(e.target.files)}
+                    />
+                    <span className="text-base font-semibold text-foreground underline cursor-pointer hover:no-underline">
+                      参照
+                    </span>
+                  </label>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center justify-between px-6 py-4 border-t border-border">
+              <button onClick={closeUploadDialog} className="text-sm font-medium text-foreground underline hover:no-underline">
+                閉じる
+              </button>
+              <Button
+                onClick={handleUploadConfirm}
+                disabled={pendingPhotos.length === 0 || isUploading}
+                className={cn(
+                  "rounded-lg px-6 py-2 text-sm font-medium",
+                  pendingPhotos.length > 0
+                    ? "bg-foreground text-white hover:bg-foreground/90"
+                    : "bg-[#DDDDDD] text-muted-foreground cursor-not-allowed"
                 )}
-              </div>
+              >
+                アップロード
+              </Button>
             </div>
           </div>
         </div>

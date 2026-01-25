@@ -12,9 +12,9 @@ import { Button } from "@/components/ui/button"
 import { Plus, MoreHorizontal, Eye, Edit2, Trash2, Home, MessageSquare, BarChart3 } from "lucide-react"
 
 // リスティングカードコンポーネント
-function ListingCard({ listing, onDelete }: { listing: { id: string; title: string; status: string; interiorPhotos: Array<{ photo?: string }>; publishedAt?: string; lifestyles: string[] }, onDelete: (id: string) => void }) {
+function ListingCard({ listing, onDelete }: { listing: { id: string; title: string; status: string; roomPhotos?: string[]; publishedAt?: string }, onDelete: (id: string) => void }) {
   const [showMenu, setShowMenu] = useState(false)
-  const firstPhoto = listing.interiorPhotos.find(p => p.photo)?.photo
+  const firstPhoto = listing.roomPhotos?.[0]
 
   return (
     <div className="group relative bg-white rounded-2xl overflow-hidden border border-border hover:shadow-lg transition-shadow">
@@ -131,7 +131,7 @@ export default function CreatorPage() {
                 おかえりなさい、{user.name}さん
               </h1>
               <p className="text-muted-foreground">
-                クリエイターダッシュボードであなたのリスティングを管理しましょう
+                ダッシュボードであなたのリスティングを管理しましょう
               </p>
             </div>
 
@@ -222,7 +222,7 @@ export default function CreatorPage() {
                 size="lg"
                 className="h-14 px-10 rounded-lg bg-[#E61E4D] text-base font-semibold text-white hover:bg-[#D01346]"
               >
-                クリエイターになる
+                暮らしを譲る
               </Button>
             )}
           </div>
