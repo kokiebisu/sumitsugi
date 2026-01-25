@@ -43,15 +43,15 @@ export default function AccountEditPage() {
         phone: user.phone || "",
         avatarUrl: user.avatarUrl || "",
       })
-      if (user.isHost && user.hostProfile) {
+      if (user.isSeller && user.sellerProfile) {
         setHostFormData({
-          occupation: user.hostProfile.occupation || "",
-          bio: user.hostProfile.bio || "",
-          instagram: user.hostProfile.socialLinks?.instagram || "",
-          twitter: user.hostProfile.socialLinks?.twitter || "",
-          website: user.hostProfile.socialLinks?.website || "",
-          youtube: user.hostProfile.socialLinks?.youtube || "",
-          tiktok: user.hostProfile.socialLinks?.tiktok || "",
+          occupation: user.sellerProfile.occupation || "",
+          bio: user.sellerProfile.bio || "",
+          instagram: user.sellerProfile.socialLinks?.instagram || "",
+          twitter: user.sellerProfile.socialLinks?.twitter || "",
+          website: user.sellerProfile.socialLinks?.website || "",
+          youtube: user.sellerProfile.socialLinks?.youtube || "",
+          tiktok: user.sellerProfile.socialLinks?.tiktok || "",
         })
       }
     }
@@ -94,13 +94,13 @@ export default function AccountEditPage() {
     }
 
     // クリエイタープロフィールの更新
-    if (user.isHost && user.hostProfile) {
-      updates.hostProfile = {
-        ...user.hostProfile,
+    if (user.isSeller && user.sellerProfile) {
+      updates.sellerProfile = {
+        ...user.sellerProfile,
         occupation: hostFormData.occupation.trim(),
         bio: hostFormData.bio.trim(),
         socialLinks: {
-          ...user.hostProfile.socialLinks,
+          ...user.sellerProfile.socialLinks,
           instagram: hostFormData.instagram.trim() || undefined,
           twitter: hostFormData.twitter.trim() || undefined,
           website: hostFormData.website.trim() || undefined,
@@ -275,8 +275,8 @@ export default function AccountEditPage() {
               </div>
             </div>
 
-            {/* クリエイタープロフィール（ホストのみ） */}
-            {user.isHost && (
+            {/* クリエイタープロフィール（セラーのみ） */}
+            {user.isSeller && (
               <>
                 <div className="pt-6">
                   <h2 className="text-xl font-semibold text-foreground mb-6">クリエイタープロフィール</h2>

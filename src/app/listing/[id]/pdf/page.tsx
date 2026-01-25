@@ -3,8 +3,8 @@
 import { useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
-import { furnitureLabels, applianceLabels } from "@/lib/data";
-import type { LargeFurnitureType, LargeApplianceType } from "@/lib/data";
+import { furnitureLabels } from "@/lib/data";
+import type { LargeFurnitureType } from "@/lib/data";
 
 export default function LandlordPDFPage() {
   const { user, isLoading, listings } = useAuth();
@@ -48,14 +48,13 @@ export default function LandlordPDFPage() {
     day: "numeric",
   });
 
-  // 家具・家電リスト
+  // 家具リスト
   const furnitureList = listing.furniture
     ?.map((f) => furnitureLabels[f as LargeFurnitureType] || f)
     .join("、") || "なし";
 
-  const applianceList = listing.appliances
-    ?.map((a) => applianceLabels[a as LargeApplianceType] || a)
-    .join("、") || "なし";
+  // UserListingには appliances がないので空文字
+  const applianceList = "なし";
 
   return (
     <div className="min-h-screen bg-white">

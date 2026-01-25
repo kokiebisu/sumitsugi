@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import type { UserListing, LargeFurnitureType, LargeApplianceType } from "@/lib/data";
+import type { UserListing } from "@/lib/data";
 import { FileText, Download, Check } from "lucide-react";
 
 interface HandoverAgreementSummaryProps {
@@ -37,8 +37,7 @@ export function HandoverAgreementSummary({
   const [isGenerated, setIsGenerated] = useState(false);
 
   const furniture = listing.furniture || [];
-  const appliances = listing.appliances || [];
-  const allItems = [...furniture, ...appliances];
+  const allItems = [...furniture];
   const fee = agreedFee ?? listing.handoverFee ?? 0;
   const today = new Date().toLocaleDateString("ja-JP", {
     year: "numeric",
@@ -64,7 +63,7 @@ export function HandoverAgreementSummary({
 間取り: ${listing.layout || "未設定"}
 
 【譲渡対象物】
-${allItems.map((item) => `- ${ITEM_LABELS[item] || item}`).join("\n")}
+${allItems.map((item: string) => `- ${ITEM_LABELS[item] || item}`).join("\n")}
 
 【譲渡金額】
 ${fee.toLocaleString()}円
@@ -87,13 +86,6 @@ ${fee.toLocaleString()}円
 4. 譲渡対象物に起因する事故・故障・損害について、
    譲渡者および大家・管理会社は責任を負いません。
 
-${appliances.length > 0 ? `
-【大型家電に関する特記事項】
-以下の家電製品は故障・事故のリスクがあるため、
-引き継ぎ時に動作確認を行い、状態を記録することを推奨します。
-
-${appliances.map((item) => `- ${ITEM_LABELS[item] || item}`).join("\n")}
-` : ""}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 署名欄

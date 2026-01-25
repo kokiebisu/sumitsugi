@@ -42,12 +42,20 @@ export interface User {
   sellerProfile?: SellerProfile
 }
 
+// 内見確認情報
+export interface ViewingConfirmation {
+  hostConfirmed: boolean
+  hostConfirmedAt?: string
+  applicantConfirmed: boolean
+  applicantConfirmedAt?: string
+}
+
 // Inquiry (引き継ぎ申し込み) データ型
 export interface Inquiry {
   id: string
   propertyId: string
   propertyTitle: string
-  status: "pending" | "decided" | "completed"
+  status: "pending" | "decided" | "completed" | "viewing_completed"
   applicantName: string
   applicantEmail: string
   reason: string // 興味を持った理由
@@ -55,6 +63,7 @@ export interface Inquiry {
   submittedAt: string
   updatedAt: string
   notes?: string // 運営メモ
+  viewingConfirmation?: ViewingConfirmation // 内見確認状態
 }
 
 // Seller Listing (物件掲載申込) データ型
@@ -79,6 +88,21 @@ export interface SellerListing {
 // 引き継ぎ対象の大型家具
 export type LargeFurnitureType = "bed" | "sofa" | "desk" | "table" | "storage" | "dining" | "wardrobe" | "tv" | "fridge"
 
+// 引き継ぎ対象の大型家電
+export type LargeApplianceType = "washer" | "dryer" | "ac" | "microwave" | "dishwasher"
+
+// 大家承諾情報
+export interface LandlordConsent {
+  hasLandlordConsent: boolean
+}
+
+// 責任区分条件
+export interface LiabilityTerms {
+  isPrivateTransfer: boolean
+  noLandlordWarranty: boolean
+  selfResponsibility: boolean
+}
+
 // User Listing (ユーザーが作成した部屋) データ型
 export interface UserListing {
   id: string
@@ -102,6 +126,9 @@ export interface UserListing {
   // MVP後に追加検討
   furniture?: LargeFurnitureType[] // 大型家具
   story?: string
+  // 公開前確認
+  landlordConsent?: LandlordConsent // 大家承諾
+  liabilityTerms?: LiabilityTerms // 責任区分
 }
 
 export interface Property {
@@ -2029,6 +2056,15 @@ export const furnitureLabels: Record<LargeFurnitureType, string> = {
   wardrobe: "ワードローブ",
   tv: "テレビ台",
   fridge: "冷蔵庫",
+}
+
+// 家電タイプの日本語ラベル
+export const applianceLabels: Record<LargeApplianceType, string> = {
+  washer: "洗濯機",
+  dryer: "乾燥機",
+  ac: "エアコン",
+  microwave: "電子レンジ",
+  dishwasher: "食洗機",
 }
 
 // UserListingをProperty形式に変換

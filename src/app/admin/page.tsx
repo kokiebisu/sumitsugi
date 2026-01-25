@@ -3,7 +3,7 @@ import { Footer } from "@/components/footer"
 import { InquiryList } from "@/components/admin/inquiry-list"
 import { HostListingList } from "@/components/admin/host-listing-list"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { getAllInquiries, getAllHostListings } from "@/lib/data"
+import { getAllInquiries, getAllSellerListings, type SellerListing } from "@/lib/data"
 
 export const metadata = {
   title: "管理画面 | くらしの引き継ぎ",
@@ -12,10 +12,10 @@ export const metadata = {
 
 export default function AdminPage() {
   const inquiries = getAllInquiries()
-  const hostListings = getAllHostListings()
+  const hostListings = getAllSellerListings()
 
   const pendingInquiries = inquiries.filter((inq) => inq.status === "pending")
-  const pendingHostListings = hostListings.filter((listing) => listing.status === "pending")
+  const pendingHostListings = hostListings.filter((listing: SellerListing) => listing.status === "pending")
 
   return (
     <div className="flex min-h-screen flex-col">

@@ -15,12 +15,14 @@ const statusColors: Record<Inquiry["status"], string> = {
   pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
   decided: "bg-blue-100 text-blue-800 border-blue-200",
   completed: "bg-green-100 text-green-800 border-green-200",
+  viewing_completed: "bg-purple-100 text-purple-800 border-purple-200",
 }
 
 const statusLabels: Record<Inquiry["status"], string> = {
   pending: "新規",
   decided: "引き継ぎ決定",
   completed: "完了",
+  viewing_completed: "内見完了",
 }
 
 export function InquiryList({ inquiries }: InquiryListProps) {
