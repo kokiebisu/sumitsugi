@@ -78,7 +78,7 @@ export interface SellerListing {
   moveOutDate: string
   furnitureDescription: string
   whyListing: string
-  landlordConsent: boolean
+  landlordConsent: LandlordConsent
   submittedAt: string
   updatedAt: string
   notes?: string // 運営メモ
@@ -2186,7 +2186,7 @@ export const hostListings: SellerListing[] = [
     moveOutDate: "2026-04-30",
     furnitureDescription: "北欧家具一式、ヴィンテージのダイニングテーブル、観葉植物多数",
     whyListing: "海外転勤が決まり、大切にしてきた家具を次の人に引き継ぎたいです。",
-    landlordConsent: true,
+    landlordConsent: { hasLandlordConsent: true },
     submittedAt: "2026-01-16T11:00:00Z",
     updatedAt: "2026-01-16T11:00:00Z",
   },
@@ -2200,7 +2200,7 @@ export const hostListings: SellerListing[] = [
     moveOutDate: "2026-03-31",
     furnitureDescription: "手作りの本棚、アンティーク照明、ベッドフレーム",
     whyListing: "引っ越しすることになり、この部屋での思い出を大切にしてくれる人に譲りたいです。",
-    landlordConsent: true,
+    landlordConsent: { hasLandlordConsent: true },
     submittedAt: "2026-01-08T14:20:00Z",
     updatedAt: "2026-01-10T10:00:00Z",
     notes: "ヒアリング完了。掲載準備中。",

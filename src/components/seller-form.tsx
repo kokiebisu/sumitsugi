@@ -33,6 +33,7 @@ export function SellerForm() {
     // Log the seller listing data
     console.log("Seller listing submitted:", {
       ...formData,
+      landlordConsent: { hasLandlordConsent: formData.landlordConsent },
       submittedAt: new Date().toISOString(),
     })
 
