@@ -9,6 +9,10 @@ tsconfig.tsbuildinfo
 # Claude Code local settings
 .claude/settings.local.json
 
+# Git worktrees (when created in devcontainer)
+.worktrees/*
+!.worktrees/README.md
+
 # Playwright
 playwright-report/
 playwright-results.xml
