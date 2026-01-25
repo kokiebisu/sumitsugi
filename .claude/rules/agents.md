@@ -16,13 +16,44 @@ Located in `~/.claude/agents/`:
 | refactor-cleaner | Dead code cleanup | Code maintenance |
 | doc-updater | Documentation | Updating docs |
 
-## Immediate Agent Usage
+## Automatic Agent Invocation (CRITICAL)
 
-No user prompt needed:
-1. Complex feature requests - Use **planner** agent
-2. Code just written/modified - Use **code-reviewer** agent
-3. Bug fix or new feature - Use **tdd-guide** agent
-4. Architectural decision - Use **architect** agent
+Claude MUST automatically invoke these agents based on task context. NO user prompt needed:
+
+### Planning Agents
+**Use EnterPlanMode or planner agent when:**
+- New feature implementation with multiple approaches
+- Architectural decisions required
+- Multi-file changes (3+ files)
+- Unclear requirements needing exploration
+- User asks to "add", "implement", "build" something non-trivial
+
+**Example triggers:** "add dark mode", "implement auth", "refactor the checkout flow"
+
+### TDD Agent
+**Use tdd-guide agent or tdd-workflow skill when:**
+- Implementing new features
+- Adding new functions/components
+- Fixing bugs (write test first)
+- Refactoring existing code
+- Building business logic
+
+**Example triggers:** "add a function to calculate X", "fix the bug in Y", "implement feature Z"
+
+### Code Review Agent
+**Use code-reviewer agent IMMEDIATELY after:**
+- Writing new code
+- Modifying existing code
+- Completing implementation
+- Before committing changes
+
+**This is MANDATORY - always review code you write**
+
+### Other Agents
+- **architect** - System design, scalability decisions
+- **security-reviewer** - Authentication, user input, sensitive data
+- **build-error-resolver** - When build fails
+- **e2e-runner** - Critical user flows testing
 
 ## Parallel Task Execution
 
