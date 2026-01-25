@@ -18,6 +18,14 @@ npm run start   # プロダクションサーバー起動
 npm run lint    # ESLintでコードチェック
 ```
 
+## Git Workflow
+
+**Use `/worktree` skill** for non-trivial implementation tasks (features, fixes, refactoring).
+
+**Skip worktree for:** Single-line fixes, typos, trivial edits in current branch.
+
+**Workflow:** `/worktree` → implement → `/commit` → `/pr`
+
 ## Directory Structure
 
 ```
