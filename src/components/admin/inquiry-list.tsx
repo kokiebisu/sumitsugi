@@ -13,16 +13,24 @@ interface InquiryListProps {
 
 const statusColors: Record<Inquiry["status"], string> = {
   pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  decided: "bg-blue-100 text-blue-800 border-blue-200",
+  reviewing: "bg-orange-100 text-orange-800 border-orange-200",
+  approved: "bg-blue-100 text-blue-800 border-blue-200",
+  viewing_scheduled: "bg-purple-100 text-purple-800 border-purple-200",
+  contract_in_progress: "bg-indigo-100 text-indigo-800 border-indigo-200",
   completed: "bg-green-100 text-green-800 border-green-200",
-  viewing_completed: "bg-purple-100 text-purple-800 border-purple-200",
+  rejected: "bg-red-100 text-red-800 border-red-200",
+  cancelled: "bg-gray-100 text-gray-800 border-gray-200",
 }
 
 const statusLabels: Record<Inquiry["status"], string> = {
   pending: "新規",
-  decided: "引き継ぎ決定",
+  reviewing: "確認中",
+  approved: "承認済み",
+  viewing_scheduled: "内見予定",
+  contract_in_progress: "契約手続き中",
   completed: "完了",
-  viewing_completed: "内見完了",
+  rejected: "お断り",
+  cancelled: "キャンセル",
 }
 
 export function InquiryList({ inquiries }: InquiryListProps) {
@@ -52,12 +60,36 @@ export function InquiryList({ inquiries }: InquiryListProps) {
           新規 ({inquiries.filter((i) => i.status === "pending").length})
         </Button>
         <Button
-          variant={filterStatus === "decided" ? "default" : "outline"}
+          variant={filterStatus === "reviewing" ? "default" : "outline"}
           size="sm"
-          onClick={() => setFilterStatus("decided")}
+          onClick={() => setFilterStatus("reviewing")}
           className="rounded-full"
         >
-          引き継ぎ決定 ({inquiries.filter((i) => i.status === "decided").length})
+          確認中 ({inquiries.filter((i) => i.status === "reviewing").length})
+        </Button>
+        <Button
+          variant={filterStatus === "approved" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setFilterStatus("approved")}
+          className="rounded-full"
+        >
+          承認済み ({inquiries.filter((i) => i.status === "approved").length})
+        </Button>
+        <Button
+          variant={filterStatus === "viewing_scheduled" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setFilterStatus("viewing_scheduled")}
+          className="rounded-full"
+        >
+          内見予定 ({inquiries.filter((i) => i.status === "viewing_scheduled").length})
+        </Button>
+        <Button
+          variant={filterStatus === "contract_in_progress" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setFilterStatus("contract_in_progress")}
+          className="rounded-full"
+        >
+          契約手続き中 ({inquiries.filter((i) => i.status === "contract_in_progress").length})
         </Button>
         <Button
           variant={filterStatus === "completed" ? "default" : "outline"}
@@ -68,12 +100,20 @@ export function InquiryList({ inquiries }: InquiryListProps) {
           完了 ({inquiries.filter((i) => i.status === "completed").length})
         </Button>
         <Button
-          variant={filterStatus === "viewing_completed" ? "default" : "outline"}
+          variant={filterStatus === "rejected" ? "default" : "outline"}
           size="sm"
-          onClick={() => setFilterStatus("viewing_completed")}
+          onClick={() => setFilterStatus("rejected")}
           className="rounded-full"
         >
-          内見完了 ({inquiries.filter((i) => i.status === "viewing_completed").length})
+          お断り ({inquiries.filter((i) => i.status === "rejected").length})
+        </Button>
+        <Button
+          variant={filterStatus === "cancelled" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setFilterStatus("cancelled")}
+          className="rounded-full"
+        >
+          キャンセル ({inquiries.filter((i) => i.status === "cancelled").length})
         </Button>
       </div>
 

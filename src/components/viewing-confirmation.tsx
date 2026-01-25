@@ -46,7 +46,7 @@ export function ViewingConfirmation({
     const now = new Date().toISOString();
     const updatedInquiry: Inquiry = {
       ...inquiry,
-      status: bothConfirmed ? "viewing_completed" : inquiry.status,
+      status: bothConfirmed ? "approved" : inquiry.status,
       viewingConfirmation: {
         ...confirmation,
         ...(userRole === "host"
@@ -60,7 +60,7 @@ export function ViewingConfirmation({
       (userRole === "host" && isApplicantConfirmed) ||
       (userRole === "applicant" && isHostConfirmed)
     ) {
-      updatedInquiry.status = "viewing_completed";
+      updatedInquiry.status = "approved";
     }
 
     setTimeout(() => {

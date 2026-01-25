@@ -8,7 +8,7 @@ import { Check, Clock, Calendar, Home, ArrowRight } from "lucide-react"
 
 const inquirySteps = [
   { id: "pending", label: "申し込み", icon: Check },
-  { id: "decided", label: "引き継ぎ決定", icon: Calendar },
+  { id: "contract_in_progress", label: "引き継ぎ決定", icon: Calendar },
   { id: "completed", label: "引き継ぎ完了", icon: Home },
 ]
 
@@ -22,11 +22,17 @@ export default function DashboardPage() {
   const getStepIndex = (status: string) => {
     switch (status) {
       case "pending":
+      case "reviewing":
+      case "approved":
+      case "viewing_scheduled":
         return 0
-      case "decided":
+      case "contract_in_progress":
         return 1
       case "completed":
         return 2
+      case "rejected":
+      case "cancelled":
+        return 0
       default:
         return 0
     }
@@ -35,11 +41,21 @@ export default function DashboardPage() {
   const getNextAction = (status: string) => {
     switch (status) {
       case "pending":
-        return "内見の日程調整のご連絡をお待ちください"
-      case "decided":
+        return "前の住人からのご連絡をお待ちください"
+      case "reviewing":
+        return "前の住人が内容を確認中です"
+      case "approved":
+        return "内見の日程調整をお待ちください"
+      case "viewing_scheduled":
+        return "内見予定日が確定しました"
+      case "contract_in_progress":
         return "引き継ぎの準備を進めましょう"
       case "completed":
         return "引き継ぎが完了しました"
+      case "rejected":
+        return "申し訳ございません。今回はお断りとなりました"
+      case "cancelled":
+        return "申し込みがキャンセルされました"
       default:
         return "お待ちください"
     }
@@ -150,17 +166,21 @@ export default function DashboardPage() {
 
                     {/* 次のアクション */}
                     <div className={`rounded-lg p-4 ${
-                      inquiry.status === "pending"
+                      inquiry.status === "pending" || inquiry.status === "reviewing"
                         ? "bg-amber-50 border border-amber-200"
                         : inquiry.status === "completed"
                         ? "bg-green-50 border border-green-200"
-                        : "bg-blue-50"
+                        : inquiry.status === "rejected" || inquiry.status === "cancelled"
+                        ? "bg-red-50 border border-red-200"
+                        : "bg-blue-50 border border-blue-200"
                     }`}>
                       <p className={`flex items-center gap-2 text-sm font-semibold ${
-                        inquiry.status === "pending"
+                        inquiry.status === "pending" || inquiry.status === "reviewing"
                           ? "text-amber-900"
                           : inquiry.status === "completed"
                           ? "text-green-900"
+                          : inquiry.status === "rejected" || inquiry.status === "cancelled"
+                          ? "text-red-900"
                           : "text-blue-900"
                       }`}>
                         {inquiry.status === "pending" ? (

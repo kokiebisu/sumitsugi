@@ -55,7 +55,7 @@ export interface Inquiry {
   id: string
   propertyId: string
   propertyTitle: string
-  status: "pending" | "decided" | "completed" | "viewing_completed"
+  status: "pending" | "reviewing" | "approved" | "viewing_scheduled" | "contract_in_progress" | "completed" | "rejected" | "cancelled"
   applicantName: string
   applicantEmail: string
   reason: string // 興味を持った理由
@@ -2129,7 +2129,7 @@ export const inquiries: Inquiry[] = [
     id: "inq_002",
     propertyId: "2",
     propertyTitle: "DJ/プロデューサーの音楽制作空間",
-    status: "decided",
+    status: "contract_in_progress",
     applicantName: "佐藤 太郎",
     applicantEmail: "sato@example.com",
     reason: "DJとして活動しており、この防音環境と機材に魅力を感じました。レコードコレクションを引き継げるのも嬉しいです。",
@@ -2141,7 +2141,7 @@ export const inquiries: Inquiry[] = [
     id: "inq_003",
     propertyId: "1",
     propertyTitle: "アートと植物に囲まれたワンルーム",
-    status: "pending",
+    status: "reviewing",
     applicantName: "鈴木 美咲",
     applicantEmail: "suzuki@example.com",
     reason: "グラフィックデザイナーとして、こういう創作意欲が湧く空間を探していました。",
@@ -2165,12 +2165,49 @@ export const inquiries: Inquiry[] = [
     id: "inq_005",
     propertyId: "4",
     propertyTitle: "ヴィンテージ家具のある部屋",
-    status: "pending",
+    status: "approved",
     applicantName: "田中 花子",
     applicantEmail: "tanaka@example.com",
     reason: "ヴィンテージ家具に興味がありました。",
     submittedAt: "2026-01-08T09:00:00Z",
     updatedAt: "2026-01-09T15:00:00Z",
+    notes: "申し込み承認。内見日程調整待ち。",
+  },
+  {
+    id: "inq_006",
+    propertyId: "2",
+    propertyTitle: "DJ/プロデューサーの音楽制作空間",
+    status: "viewing_scheduled",
+    applicantName: "高橋 健太",
+    applicantEmail: "takahashi@example.com",
+    reason: "音楽制作に集中できる環境を探していました。",
+    submittedAt: "2026-01-13T14:00:00Z",
+    updatedAt: "2026-01-14T10:00:00Z",
+    notes: "内見予定: 2026年1月20日 14:00",
+  },
+  {
+    id: "inq_007",
+    propertyId: "3",
+    propertyTitle: "北欧ミニマルな1DK",
+    status: "rejected",
+    applicantName: "伊藤 真理",
+    applicantEmail: "ito@example.com",
+    reason: "シンプルな暮らしをしたいと思いました。",
+    submittedAt: "2026-01-05T11:00:00Z",
+    updatedAt: "2026-01-07T09:00:00Z",
+    notes: "前の住人の都合によりお断り。",
+  },
+  {
+    id: "inq_008",
+    propertyId: "1",
+    propertyTitle: "アートと植物に囲まれたワンルーム",
+    status: "cancelled",
+    applicantName: "渡辺 隆",
+    applicantEmail: "watanabe@example.com",
+    reason: "アート作品に囲まれた生活に憧れました。",
+    submittedAt: "2026-01-06T16:00:00Z",
+    updatedAt: "2026-01-08T14:00:00Z",
+    notes: "申込者都合によりキャンセル。",
   },
 ]
 
