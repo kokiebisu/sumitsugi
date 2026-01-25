@@ -20,11 +20,18 @@ npm run lint    # ESLintでコードチェック
 
 ## Git Workflow
 
-**Use `/worktree` skill** for non-trivial implementation tasks (features, fixes, refactoring).
+**CRITICAL: `/worktree` skill auto-invokes** for ANY implementation task.
 
-**Skip worktree for:** Single-line fixes, typos, trivial edits in current branch.
+Claude will automatically invoke `/worktree` as the FIRST action when you request:
+- Feature implementations
+- Bug fixes
+- Refactoring
+- Code modifications
+- UI/UX changes
 
-**Workflow:** `/worktree` → implement → `/commit` → `/pr`
+**Skip worktree only for:** Single-line typo fixes, documentation-only changes.
+
+**Workflow:** `/worktree` (auto) → implement → `/commit` → `/pr`
 
 ## Directory Structure
 
