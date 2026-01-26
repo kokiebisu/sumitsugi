@@ -23,6 +23,39 @@ npm run worktree:list    # worktree一覧を表示
 npm run worktree:prune   # 削除済みworktreeをクリーンアップ
 ```
 
+## Development Tools
+
+### Beads Task Tracker
+
+Use the `bd` command for AI-friendly task tracking instead of markdown TODOs:
+
+```bash
+bd ready              # Show tasks with no blockers
+bd create "Task"      # Create new task
+bd status --json      # Get JSON output for agents
+bd done <id>          # Mark task complete
+bd show <id>          # Show task details and dependencies
+```
+
+Tasks are stored in the `.beads/` directory and shared across git worktrees. Beads provides persistent, structured memory for AI agents with dependency tracking and merge-conflict-free task IDs.
+
+See [Beads documentation](https://github.com/steveyegge/beads) for details.
+
+### Superpowers Plugin
+
+This project uses the Superpowers plugin for structured AI development workflows.
+
+**Installation:** See [.devcontainer/SUPERPOWERS.md](.devcontainer/SUPERPOWERS.md)
+
+**Integration:** Superpowers formalizes the TDD, planning, and review workflows already defined in `.claude/rules/` and `.claude/agents/`, providing additional structure through composable skills.
+
+**Workflow Example:**
+```bash
+/superpowers:write-plan    # Create structured implementation plan
+bd create "Task from plan" # Create Beads tasks from plan
+bd ready                   # Check available work
+```
+
 ## Git Workflow
 
 **CRITICAL: `/worktree` skill auto-invokes** for ANY implementation task.

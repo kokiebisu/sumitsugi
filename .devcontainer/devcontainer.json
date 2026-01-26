@@ -25,7 +25,7 @@
     }
   },
   "forwardPorts": [3000, 9323],
-  "postCreateCommand": "npm install && npx playwright install chromium && git config --global worktree.guessRemote true",
+  "postCreateCommand": "npm install && npx playwright install chromium && git config --global worktree.guessRemote true && bd init --quiet",
   "remoteUser": "node",
   "mounts": [
     "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached"
