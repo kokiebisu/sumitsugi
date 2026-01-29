@@ -41,11 +41,18 @@ Tasks are stored in the `.beads/` directory and shared across git worktrees. Bea
 
 See [Beads documentation](https://github.com/steveyegge/beads) for details.
 
-### Superpowers Plugin
+### Claude Code & Superpowers Plugin
 
-This project uses the Superpowers plugin for structured AI development workflows.
+This project includes Claude Code CLI auto-installation in the devcontainer.
 
-**Installation:** See [.devcontainer/SUPERPOWERS.md](.devcontainer/SUPERPOWERS.md)
+**Setup:**
+- Claude Code CLI: Auto-installed during devcontainer build
+- First-time auth: Run `claude` to authenticate via browser (one-time)
+- Superpowers: Manual installation required (global, one-time):
+  ```
+  /plugin marketplace add obra/superpowers-marketplace
+  /plugin install superpowers@superpowers-marketplace
+  ```
 
 **Integration:** Superpowers formalizes the TDD, planning, and review workflows already defined in `.claude/rules/` and `.claude/agents/`, providing additional structure through composable skills.
 
@@ -58,37 +65,32 @@ bd ready                   # Check available work
 
 ## Git Workflow
 
-**CRITICAL: `/worktree` skill auto-invokes** for ANY implementation task.
+**Git Worktrees for Isolated Development**
 
-The `/worktree` skill (defined in [.claude/skills/worktree.cl.md](.claude/skills/worktree.cl.md)) automatically creates an isolated git worktree with devcontainer support.
+Use git worktrees (via Superpowers' `using-git-worktrees` skill or npm scripts) when:
+- Implementing complex features
+- Working from an implementation plan
+- Needing isolation from current workspace
+- Making changes that span multiple files/components
 
-Claude will automatically invoke `/worktree` as the FIRST action when you request:
-- Feature implementations
-- Bug fixes
-- Refactoring
-- Code modifications
-- UI/UX changes
+**Skip worktrees for:**
+- Single-line typo fixes
+- Documentation-only changes
+- Simple, low-risk edits
 
-**Skip worktree only for:** Single-line typo fixes, documentation-only changes.
+**Workflow:** Create worktree (when needed) → implement → `/commit` → `/pr`
 
-**Workflow:** `/worktree` (auto) → implement → `/commit` → `/pr`
+### Manual Worktree Commands
 
-**How it works:**
-1. Claude invokes `/worktree` skill
-2. Creates branch and worktree in `.worktrees/<branch-name>/`
-3. Sets up devcontainer symlink
-4. You open the worktree in VS Code and reopen in container
-5. Continue development in the isolated environment
-
-### Devcontainers with Worktrees
-
-To use devcontainers with git worktrees:
+You can create worktrees manually with:
 
 ```bash
 npm run worktree:create feature-name  # Creates worktree with devcontainer support
 npm run worktree:list                 # List all worktrees
 npm run worktree:prune                # Clean up removed worktrees
 ```
+
+Worktrees are created in `.worktrees/<branch-name>/` with automatic devcontainer symlink setup.
 
 See [.devcontainer/WORKTREE.md](.devcontainer/WORKTREE.md) for detailed documentation.
 
