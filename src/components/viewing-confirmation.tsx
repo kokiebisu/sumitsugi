@@ -7,7 +7,7 @@ import { Check, Clock, Eye, FileCheck, ArrowRight } from "lucide-react";
 
 interface ViewingConfirmationProps {
   inquiry: Inquiry;
-  userRole: "host" | "applicant";
+  userRole: "seller" | "applicant";
   onConfirm: (inquiry: Inquiry) => void;
 }
 
@@ -32,12 +32,12 @@ export function ViewingConfirmation({
     applicantConfirmed: false,
   };
 
-  const isHostConfirmed = confirmation.hostConfirmed;
+  const isSellerConfirmed = confirmation.hostConfirmed;
   const isApplicantConfirmed = confirmation.applicantConfirmed;
-  const bothConfirmed = isHostConfirmed && isApplicantConfirmed;
+  const bothConfirmed = isSellerConfirmed && isApplicantConfirmed;
 
   const canUserConfirm =
-    (userRole === "host" && !isHostConfirmed) ||
+    (userRole === "seller" && !isSellerConfirmed) ||
     (userRole === "applicant" && !isApplicantConfirmed);
 
   const handleConfirm = () => {
@@ -49,7 +49,7 @@ export function ViewingConfirmation({
       status: bothConfirmed ? "approved" : inquiry.status,
       viewingConfirmation: {
         ...confirmation,
-        ...(userRole === "host"
+        ...(userRole === "seller"
           ? { hostConfirmed: true, hostConfirmedAt: now }
           : { applicantConfirmed: true, applicantConfirmedAt: now }),
       },
@@ -57,8 +57,8 @@ export function ViewingConfirmation({
 
     // 両方確認済みならステータスを更新
     if (
-      (userRole === "host" && isApplicantConfirmed) ||
-      (userRole === "applicant" && isHostConfirmed)
+      (userRole === "seller" && isApplicantConfirmed) ||
+      (userRole === "applicant" && isSellerConfirmed)
     ) {
       updatedInquiry.status = "approved";
     }
@@ -88,31 +88,31 @@ export function ViewingConfirmation({
         {/* 譲る側 */}
         <div
           className={`flex items-center gap-3 p-4 rounded-xl border ${
-            isHostConfirmed
+            isSellerConfirmed
               ? "bg-green-50 border-green-200"
               : "bg-white border-border"
           }`}
         >
           <div
             className={`w-8 h-8 rounded-full flex items-center justify-center ${
-              isHostConfirmed ? "bg-green-500" : "bg-muted"
+              isSellerConfirmed ? "bg-green-500" : "bg-muted"
             }`}
           >
-            {isHostConfirmed ? (
+            {isSellerConfirmed ? (
               <Check className="w-4 h-4 text-white" />
             ) : (
               <Clock className="w-4 h-4 text-muted-foreground" />
             )}
           </div>
           <div className="flex-1">
-            <p className="font-medium text-foreground">譲る側（ホスト）</p>
+            <p className="font-medium text-foreground">譲る側（前の住人）</p>
             <p className="text-sm text-muted-foreground">
-              {isHostConfirmed
+              {isSellerConfirmed
                 ? `確認済み（${new Date(confirmation.hostConfirmedAt || "").toLocaleDateString("ja-JP")}）`
                 : "内見完了の確認待ち"}
             </p>
           </div>
-          {userRole === "host" && !isHostConfirmed && (
+          {userRole === "seller" && !isSellerConfirmed && (
             <Button
               size="sm"
               onClick={handleConfirm}

@@ -1,7 +1,7 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { InquiryList } from "@/components/admin/inquiry-list"
-import { HostListingList } from "@/components/admin/host-listing-list"
+import { SellerListingList } from "@/components/admin/seller-listing-list"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { getAllInquiries, getAllSellerListings, type SellerListing } from "@/lib/data"
 
@@ -12,10 +12,10 @@ export const metadata = {
 
 export default function AdminPage() {
   const inquiries = getAllInquiries()
-  const hostListings = getAllSellerListings()
+  const sellerListings = getAllSellerListings()
 
   const pendingInquiries = inquiries.filter((inq) => inq.status === "pending")
-  const pendingHostListings = hostListings.filter((listing: SellerListing) => listing.status === "pending")
+  const pendingSellerListings = sellerListings.filter((listing: SellerListing) => listing.status === "pending")
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -42,11 +42,11 @@ export default function AdminPage() {
             </div>
             <div className="rounded-lg border border-border bg-background p-6">
               <p className="text-sm text-muted-foreground">新規掲載申込</p>
-              <p className="text-3xl font-bold text-coral">{pendingHostListings.length}</p>
+              <p className="text-3xl font-bold text-coral">{pendingSellerListings.length}</p>
             </div>
             <div className="rounded-lg border border-border bg-background p-6">
               <p className="text-sm text-muted-foreground">全掲載申込</p>
-              <p className="text-3xl font-bold text-foreground">{hostListings.length}</p>
+              <p className="text-3xl font-bold text-foreground">{sellerListings.length}</p>
             </div>
           </div>
 
@@ -63,9 +63,9 @@ export default function AdminPage() {
               </TabsTrigger>
               <TabsTrigger value="listings">
                 掲載申込
-                {pendingHostListings.length > 0 && (
+                {pendingSellerListings.length > 0 && (
                   <span className="ml-2 rounded-full bg-coral px-2 py-0.5 text-xs text-white">
-                    {pendingHostListings.length}
+                    {pendingSellerListings.length}
                   </span>
                 )}
               </TabsTrigger>
@@ -76,7 +76,7 @@ export default function AdminPage() {
             </TabsContent>
 
             <TabsContent value="listings" className="mt-6">
-              <HostListingList listings={hostListings} />
+              <SellerListingList listings={sellerListings} />
             </TabsContent>
           </Tabs>
         </div>

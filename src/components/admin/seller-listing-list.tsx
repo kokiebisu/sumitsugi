@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Calendar, Mail, User, Phone, MapPin, Home } from "lucide-react"
 
-interface HostListingListProps {
+interface SellerListingListProps {
   listings: SellerListing[]
 }
 
@@ -24,7 +24,7 @@ const statusLabels = {
   rejected: "却下",
 }
 
-export function HostListingList({ listings }: HostListingListProps) {
+export function SellerListingList({ listings }: SellerListingListProps) {
   const [filterStatus, setFilterStatus] = useState<string>("all")
 
   const filteredListings =
