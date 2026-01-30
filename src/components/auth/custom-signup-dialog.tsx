@@ -40,7 +40,6 @@ export function CustomSignupDialog({
       isSeller: false,
     };
 
-    console.log("User created via phone:", newUser);
     setIsSubmitting(false);
     onSignupComplete(newUser);
   };
@@ -55,13 +54,12 @@ export function CustomSignupDialog({
       id: crypto.randomUUID(),
       email: email,
       name: "ゲスト",
-      phone: "", // TODO: 登録フォームから電話番号を取得
+      phone: phone,
       createdAt: new Date().toISOString(),
       authProvider: "email",
       isSeller: false,
     };
 
-    console.log("User created via email:", newUser);
     setIsSubmitting(false);
     onSignupComplete(newUser);
   };
@@ -80,7 +78,6 @@ export function CustomSignupDialog({
       isSeller: false,
     };
 
-    console.log(`User created via ${provider}:`, newUser);
     setIsSubmitting(false);
     onSignupComplete(newUser);
   };
@@ -211,6 +208,15 @@ export function CustomSignupDialog({
                 placeholder="メールアドレス"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                className="h-14 w-full rounded-lg border border-gray-300 px-3 text-base focus:border-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900"
+              />
+
+              {/* Phone Input */}
+              <input
+                type="tel"
+                placeholder="電話番号（任意）"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 className="h-14 w-full rounded-lg border border-gray-300 px-3 text-base focus:border-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900"
               />
 
