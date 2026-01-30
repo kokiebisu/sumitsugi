@@ -67,6 +67,17 @@ bd create "Task from plan" # Create Beads tasks from plan
 bd ready                   # Check available work
 ```
 
+### Context7 Plugin
+
+Provides enhanced context management for Claude Code sessions.
+
+**Installation:**
+```bash
+/plugin install context7@claude-plugins-official
+```
+
+This is a one-time global installation from the official Claude plugins repository.
+
 ## Git Workflow
 
 **Git Worktrees for Isolated Development**
