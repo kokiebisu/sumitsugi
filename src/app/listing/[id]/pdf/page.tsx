@@ -195,9 +195,12 @@ export default function LandlordPDFPage() {
                   </td>
                 </tr>
                 <tr className="border-b border-gray-100">
-                  <td className="py-3 text-gray-500">引き継ぎ可能日</td>
+                  <td className="py-3 text-gray-500">退去（引き渡し）希望時期</td>
                   <td className="py-3 text-gray-900">
                     {listing.moveInAvailableFrom || "調整中"}
+                    <span className="block text-xs text-gray-400 mt-1">
+                      ※実際の日程はクリーニング等により前後する場合があります
+                    </span>
                   </td>
                 </tr>
               </tbody>

@@ -295,10 +295,13 @@ export default function PreviewListingPage() {
                     <Calendar className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="text-sm text-muted-foreground">
-                        引き継ぎ可能日
+                        退去（引き渡し）希望時期
                       </p>
                       <p className="text-base text-foreground">
                         {listing.moveInAvailableFrom}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        ※実際の日程はクリーニング等により前後する場合があります
                       </p>
                     </div>
                   </div>
