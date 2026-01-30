@@ -48,10 +48,14 @@ This project includes Claude Code CLI auto-installation in the devcontainer.
 **Setup:**
 - Claude Code CLI: Auto-installed during devcontainer build
 - First-time auth: Run `claude` to authenticate via browser (one-time)
-- Superpowers: Manual installation required (global, one-time):
+- Plugins: Manual installation required (global, one-time):
   ```
+  # Superpowers - TDD, planning, and review workflows
   /plugin marketplace add obra/superpowers-marketplace
   /plugin install superpowers@superpowers-marketplace
+
+  # Ralph Loop - Interactive development loop
+  /plugin install ralph-loop@claude-plugins-official
   ```
 
 **Integration:** Superpowers formalizes the TDD, planning, and review workflows already defined in `.claude/rules/` and `.claude/agents/`, providing additional structure through composable skills.
