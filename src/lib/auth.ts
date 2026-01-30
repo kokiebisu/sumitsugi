@@ -24,12 +24,14 @@ declare module "next-auth" {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  // Type assertion needed due to version mismatch between @auth/drizzle-adapter and @auth/core
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   adapter: DrizzleAdapter(db, {
     usersTable: users,
     accountsTable: accounts,
     sessionsTable: sessions,
     verificationTokensTable: verificationTokens,
-  }),
+  }) as any,
 
   providers: [
     CredentialsProvider({
@@ -66,7 +68,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           id: user.id,
           email: user.email,
           name: user.name,
-          image: user.avatarUrl,
+          image: user.image,
           isSeller: user.isSeller,
           isAdmin: user.isAdmin || false,
         };
