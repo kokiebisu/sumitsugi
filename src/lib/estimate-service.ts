@@ -96,18 +96,24 @@ function calculateMockEstimate(input: EstimateInput): EstimateResult {
   }
 }
 
-// TODO: Claude APIを使った実装に切り替える場合はここを変更
-// async function calculateAIEstimate(input: EstimateInput): Promise<EstimateResult> {
-//   const response = await fetch("/api/estimate", {
-//     method: "POST",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify(input),
-//   })
-//   return response.json()
-// }
+// Claude APIを使った見積もり計算
+async function calculateAIEstimate(input: EstimateInput): Promise<EstimateResult> {
+  const response = await fetch("/api/estimate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  })
 
-// 現在の実装を切り替えるフラグ
-const USE_AI = false
+  if (!response.ok) {
+    throw new Error(`API request failed: ${response.status}`)
+  }
+
+  return response.json()
+}
+
+// AI実装を使用するかどうかのフラグ
+// 環境変数 NEXT_PUBLIC_USE_AI_ESTIMATE=true で有効化
+const USE_AI = process.env.NEXT_PUBLIC_USE_AI_ESTIMATE === "true"
 
 export async function getEstimate(input: EstimateInput): Promise<EstimateResult> {
   // 家具が選択されていない場合はデフォルト値を返す
@@ -124,8 +130,12 @@ export async function getEstimate(input: EstimateInput): Promise<EstimateResult>
   }
 
   if (USE_AI) {
-    // TODO: AI実装に切り替え
-    // return calculateAIEstimate(input)
+    try {
+      return await calculateAIEstimate(input)
+    } catch (error) {
+      // AI APIが失敗した場合はモック実装にフォールバック
+      console.error("AI estimate failed, falling back to mock:", error)
+    }
   }
 
   // モック実装を使用
