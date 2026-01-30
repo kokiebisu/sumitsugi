@@ -15,6 +15,13 @@
       "when": 1769765867387,
       "tag": "0001_nostalgic_butterfly",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1769765972903,
+      "tag": "0002_steep_franklin_richards",
+      "breakpoints": true
     }
   ]
 }
