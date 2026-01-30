@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, integer, timestamp, jsonb, decimal, index } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, integer, timestamp, jsonb, decimal, index, boolean } from "drizzle-orm/pg-core";
 import { users } from "./users";
 
 export const properties = pgTable("properties", {
@@ -30,6 +30,8 @@ export const properties = pgTable("properties", {
   style: varchar("style", { length: 50 }),
   furniture: text("furniture").array(), // Array of furniture types
   condition: varchar("condition", { length: 20 }), // 'excellent' | 'good' | 'used'
+  estimatedDuration: varchar("estimated_duration", { length: 50 }), // Contract duration e.g., '2〜4ヶ月'
+  landlordConsent: boolean("landlord_consent").default(false), // Landlord approval status
 
   // Detailed Descriptions
   furnitureDescription: text("furniture_description"),
