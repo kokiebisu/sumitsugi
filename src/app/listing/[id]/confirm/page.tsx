@@ -346,7 +346,7 @@ export default function ConfirmListingPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
-                      引き継ぎ可能日（いつから）
+                      退去（引き渡し）希望時期
                       <span className="text-coral ml-1">*</span>
                     </label>
                     <input
@@ -356,6 +356,9 @@ export default function ConfirmListingPage() {
                       min={viewingAvailableFrom || new Date().toISOString().split("T")[0]}
                       className="w-full px-4 py-3 border border-border rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-foreground"
                     />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      ※実際の日程はクリーニング等により前後する場合があります
+                    </p>
                   </div>
                 </div>
               </div>
