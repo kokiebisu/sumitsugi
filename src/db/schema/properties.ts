@@ -32,6 +32,7 @@ export const properties = pgTable("properties", {
   condition: varchar("condition", { length: 20 }), // 'excellent' | 'good' | 'used'
   estimatedDuration: varchar("estimated_duration", { length: 50 }), // Contract duration e.g., '2〜4ヶ月'
   landlordConsent: boolean("landlord_consent").default(false), // Landlord approval status
+  amenities: text("amenities").array(), // Array of amenities (e.g., WiFi, AC, washing machine)
 
   // Detailed Descriptions
   furnitureDescription: text("furniture_description"),
