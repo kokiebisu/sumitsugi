@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useAuth } from "@/contexts/auth-context";
 import { ImageGallery } from "@/components/image-gallery";
 import { Button } from "@/components/ui/button";
@@ -46,10 +47,13 @@ export function ProgressiveImageGallery({
         <div className="grid grid-cols-1 gap-2 md:grid-cols-4 md:grid-rows-2 md:h-[500px]">
           {/* メイン画像 */}
           <div className="relative col-span-1 row-span-2 overflow-hidden rounded-l-xl md:col-span-2 h-[400px] md:h-full">
-            <img
+            <Image
               src={images[0] || "/placeholder.svg"}
               alt={`${title} - メイン写真`}
-              className="h-full w-full object-cover"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover"
+              priority
             />
           </div>
 
@@ -63,10 +67,12 @@ export function ProgressiveImageGallery({
               onClick={() => setShowLoginPrompt(true)}
             >
               {images[index] ? (
-                <img
+                <Image
                   src={images[index]}
                   alt=""
-                  className="h-full w-full object-cover blur-lg brightness-75"
+                  fill
+                  sizes="25vw"
+                  className="object-cover blur-lg brightness-75"
                 />
               ) : (
                 <div className="h-full w-full bg-muted" />

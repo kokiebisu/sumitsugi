@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { ChevronLeft, ChevronRight, X } from "lucide-react"
 
 interface ImageGalleryProps {
@@ -45,13 +46,16 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
             {!loadedImages.has(0) && (
               <div className="absolute inset-0 animate-pulse bg-muted" />
             )}
-            <img
+            <Image
               src={images[0] || "/placeholder.svg"}
               alt={`${title} - メイン写真`}
-              className={`h-full w-full object-cover transition-transform duration-200 hover:brightness-90 ${
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className={`object-cover transition-transform duration-200 hover:brightness-90 ${
                 loadedImages.has(0) ? "opacity-100" : "opacity-0"
               }`}
               onLoad={() => handleImageLoad(0)}
+              priority
             />
           </div>
 
@@ -73,10 +77,12 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
                 {!loadedImages.has(imageIndex) && (
                   <div className="absolute inset-0 animate-pulse bg-muted" />
                 )}
-                <img
+                <Image
                   src={image || "/placeholder.svg"}
                   alt={`${title} - 写真${imageIndex + 1}`}
-                  className={`h-full w-full object-cover transition-transform duration-200 hover:brightness-90 ${
+                  fill
+                  sizes="25vw"
+                  className={`object-cover transition-transform duration-200 hover:brightness-90 ${
                     loadedImages.has(imageIndex) ? "opacity-100" : "opacity-0"
                   }`}
                   onLoad={() => handleImageLoad(imageIndex)}
@@ -103,10 +109,12 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
                 {!loadedImages.has(imageIndex) && (
                   <div className="absolute inset-0 animate-pulse bg-muted" />
                 )}
-                <img
+                <Image
                   src={image || "/placeholder.svg"}
                   alt={`${title} - 写真${imageIndex + 1}`}
-                  className={`h-full w-full object-cover transition-transform duration-200 hover:brightness-90 ${
+                  fill
+                  sizes="25vw"
+                  className={`object-cover transition-transform duration-200 hover:brightness-90 ${
                     loadedImages.has(imageIndex) ? "opacity-100" : "opacity-0"
                   }`}
                   onLoad={() => handleImageLoad(imageIndex)}
@@ -168,19 +176,22 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
             <ChevronRight className="h-6 w-6" />
           </button>
 
-          <div className="relative max-h-[85vh] max-w-5xl">
+          <div className="relative max-h-[85vh] max-w-5xl w-full h-[85vh]">
             {!modalImageLoaded && (
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="h-[400px] w-[600px] animate-pulse rounded-lg bg-muted" />
+                <div className="h-full w-full animate-pulse rounded-lg bg-muted" />
               </div>
             )}
-            <img
+            <Image
               src={images[selectedIndex] || "/placeholder.svg"}
               alt={`${title} - 写真${selectedIndex + 1}`}
-              className={`max-h-[85vh] w-auto rounded-lg object-contain ${
+              fill
+              sizes="100vw"
+              className={`object-contain rounded-lg ${
                 modalImageLoaded ? "opacity-100" : "opacity-0"
               }`}
               onLoad={() => setModalImageLoaded(true)}
+              priority
             />
           </div>
 

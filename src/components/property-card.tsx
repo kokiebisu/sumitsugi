@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Heart, ChevronLeft, ChevronRight } from "lucide-react"
 import type { Property } from "@/lib/data"
 
@@ -45,19 +46,24 @@ export function PropertyCard({ property }: PropertyCardProps) {
     setIsLiked(!isLiked)
   }
 
+  const currentImageSrc = property.images[currentImage] || "/placeholder.svg"
+
   return (
     <Link href={`/listings/${property.id}`} className="group block">
       <div className="relative aspect-square overflow-hidden rounded-xl bg-muted">
         {!imageLoaded && (
           <div className="absolute inset-0 animate-pulse bg-muted" />
         )}
-        <img
-          src={property.images[currentImage] || "/placeholder.svg"}
+        <Image
+          src={currentImageSrc}
           alt={property.title}
-          className={`h-full w-full object-cover transition-transform duration-300 ${
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          className={`object-cover transition-transform duration-300 ${
             imageLoaded ? "opacity-100" : "opacity-0"
           }`}
           onLoad={() => setImageLoaded(true)}
+          priority={false}
         />
 
         {/* Heart button */}
