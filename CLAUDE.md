@@ -41,27 +41,28 @@ Tasks are stored in the `.beads/` directory and shared across git worktrees. Bea
 
 See [Beads documentation](https://github.com/steveyegge/beads) for details.
 
-### Claude Code & Superpowers Plugin
+### Claude Code & Plugins
 
 This project includes Claude Code CLI auto-installation in the devcontainer.
 
+**Authentication Persistence:**
+- Claude config directory (`~/.claude`) is mounted from your host machine
+- Authentication persists across devcontainer restarts and rebuilds
+- One-time authentication that persists permanently
+
 **Setup:**
 - Claude Code CLI: Auto-installed during devcontainer build
-- First-time auth: Run `claude` to authenticate via browser (one-time)
-- Plugins: Install all at once using the setup script:
-  ```bash
-  bash scripts/setup-claude-plugins.sh
-  ```
+- First-time auth: Run `claude` to authenticate via browser (one-time, persists)
+- Plugins: Configured in `.claude/settings.json` and auto-enabled
 
-  Or install manually one by one:
-  ```bash
-  # Superpowers - TDD, planning, and review workflows
-  /plugin marketplace add obra/superpowers-marketplace
-  /plugin install superpowers@superpowers-marketplace
-
-  # Ralph Loop - Interactive development loop
-  /plugin install ralph-loop@claude-plugins-official
-  ```
+**Enabled Plugins:**
+- `superpowers` - TDD, planning, and review workflows
+- `context7` - Enhanced context management
+- `typescript-lsp` - TypeScript language server integration
+- `ralph-loop` - Interactive development loop
+- `code-review` - Automated code review
+- `security-guidance` - Security best practices
+- And more (see `.claude/settings.json` for full list)
 
 **Integration:** Superpowers formalizes the TDD, planning, and review workflows already defined in `.claude/rules/` and `.claude/agents/`, providing additional structure through composable skills.
 
@@ -71,17 +72,6 @@ This project includes Claude Code CLI auto-installation in the devcontainer.
 bd create "Task from plan" # Create Beads tasks from plan
 bd ready                   # Check available work
 ```
-
-### Context7 Plugin
-
-Provides enhanced context management for Claude Code sessions.
-
-**Installation:**
-```bash
-/plugin install context7@claude-plugins-official
-```
-
-This is a one-time global installation from the official Claude plugins repository.
 
 ## Git Workflow
 
