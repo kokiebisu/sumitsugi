@@ -7,7 +7,8 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
-import { Plus, MoreHorizontal, Eye, Edit2, Trash2 } from "lucide-react"
+import { Plus, MoreHorizontal, Eye, Edit2, Trash2, MessageSquare, Home } from "lucide-react"
+import { InquiryList } from "@/components/admin/inquiry-list"
 
 // 無限スクロール用の画像データ（Unsplash - 明るいインテリア・部屋の写真）
 const scrollImages = {
@@ -160,12 +161,17 @@ function ListingCard({ listing, onDelete }: { listing: { id: string; title: stri
 }
 
 export default function ListingPage() {
-  const { user, isLoading, listings, deleteListing } = useAuth()
+  const { user, isLoading, listings, deleteListing, inquiries } = useAuth()
   const router = useRouter()
   const [isVisible, setIsVisible] = useState(false)
+  const [activeTab, setActiveTab] = useState<"listings" | "inquiries">("listings")
 
   // ユーザーのリスティングのみフィルター
   const userListings = listings.filter(l => l.userId === user?.id)
+
+  // ユーザーのリスティングに対する問い合わせをフィルター
+  const userListingIds = userListings.map(l => l.id)
+  const userInquiries = inquiries.filter(inq => userListingIds.includes(inq.propertyId))
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -282,11 +288,8 @@ export default function ListingPage() {
           /* リスティング一覧 */
           <div className="mx-auto max-w-7xl px-6 py-10">
             {/* ヘッダー */}
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h1 className="text-3xl font-bold text-foreground">リスティング</h1>
-                <p className="text-muted-foreground mt-1">{userListings.length}件のリスティング</p>
-              </div>
+            <div className="flex items-center justify-between mb-6">
+              <h1 className="text-3xl font-bold text-foreground">ダッシュボード</h1>
               <Link href="/listing/new">
                 <Button className="rounded-lg bg-[#E61E4D] hover:bg-[#D01346] text-white gap-2">
                   <Plus className="w-4 h-4" />
@@ -295,16 +298,54 @@ export default function ListingPage() {
               </Link>
             </div>
 
-            {/* グリッド */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {userListings.map(listing => (
-                <ListingCard
-                  key={listing.id}
-                  listing={listing}
-                  onDelete={deleteListing}
-                />
-              ))}
+            {/* タブ */}
+            <div className="flex gap-2 mb-8 border-b border-border">
+              <button
+                onClick={() => setActiveTab("listings")}
+                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === "listings"
+                    ? "border-foreground text-foreground"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Home className="w-4 h-4" />
+                リスティング
+                <span className="ml-1 px-2 py-0.5 bg-muted text-muted-foreground text-xs rounded-full">
+                  {userListings.length}
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveTab("inquiries")}
+                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === "inquiries"
+                    ? "border-foreground text-foreground"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <MessageSquare className="w-4 h-4" />
+                問い合わせ
+                <span className="ml-1 px-2 py-0.5 bg-muted text-muted-foreground text-xs rounded-full">
+                  {userInquiries.length}
+                </span>
+              </button>
             </div>
+
+            {/* コンテンツ */}
+            {activeTab === "listings" ? (
+              /* リスティンググリッド */
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {userListings.map(listing => (
+                  <ListingCard
+                    key={listing.id}
+                    listing={listing}
+                    onDelete={deleteListing}
+                  />
+                ))}
+              </div>
+            ) : (
+              /* 問い合わせ一覧 */
+              <InquiryList inquiries={userInquiries} />
+            )}
           </div>
         )}
       </main>
