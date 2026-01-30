@@ -89,6 +89,14 @@ export interface SellerListing {
 // 引き継ぎ対象の大型家具
 export type LargeFurnitureType = "bed" | "sofa" | "desk" | "table" | "storage" | "dining" | "wardrobe" | "tv" | "fridge"
 
+// 家具アイテム（写真付き）
+export interface FurnitureItem {
+  type: LargeFurnitureType
+  photos: string[] // 家具の写真URL（最大3枚）
+  condition?: "excellent" | "good" | "fair" // 状態
+  notes?: string // 備考
+}
+
 // 引き継ぎ対象の大型家電
 export type LargeApplianceType = "washer" | "dryer" | "ac" | "microwave" | "dishwasher"
 
@@ -124,7 +132,8 @@ export interface UserListing {
   createdAt: string
   updatedAt: string
   publishedAt?: string
-  furniture?: LargeFurnitureType[] // 大型家具
+  furniture?: LargeFurnitureType[] // 大型家具（旧形式、互換性のため）
+  furnitureItems?: FurnitureItem[] // 家具アイテム（写真付き）
   story?: string
   landlordConsent?: LandlordConsent // 大家承諾
   liabilityTerms?: LiabilityTerms // 責任区分

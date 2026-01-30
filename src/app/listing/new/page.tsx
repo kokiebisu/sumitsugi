@@ -683,6 +683,15 @@ export default function NewListingPage() {
                       );
                     })}
                   </div>
+
+                  {/* 内見時合意の注意書き */}
+                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                    <p className="text-sm text-blue-800">
+                      <span className="font-medium">ご注意：</span>
+                      ここで選択した家具は掲載時の参考情報です。
+                      最終的な譲渡内容や金額は内見時に双方で確認・合意します。
+                    </p>
+                  </div>
                 </div>
 
                 {/* AI見積もりカード */}
