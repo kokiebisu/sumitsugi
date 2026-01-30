@@ -56,6 +56,73 @@ When creating PRs:
    git branch -D <feature-branch-name>
    ```
 
+## Creating Multiple PRs from Grouped Changes (CRITICAL)
+
+When you have multiple groups of changes to commit as separate PRs:
+
+**WRONG approach (what NOT to do):**
+```bash
+# DON'T do this - staging unrelated files together
+git add file1.md file2.md file3.jsonl  # All at once
+git commit -m "docs: update"           # Everything in one commit
+```
+
+**CORRECT approach (what TO do):**
+
+For each PR group, follow this exact sequence:
+
+1. **Create branch for FIRST group only:**
+   ```bash
+   git checkout -b <branch-name-for-group-1>
+   ```
+
+2. **Stage ONLY files for this group (CRITICAL):**
+   ```bash
+   git add <file1-from-group-1> <file2-from-group-1>  # ONLY group 1 files
+   ```
+
+3. **Verify what's staged before committing:**
+   ```bash
+   git status  # MUST show only files intended for this PR
+   ```
+
+   **STOP if you see unexpected files!** Only proceed if `git status` shows exactly the files you want in this PR.
+
+4. **Commit only staged files:**
+   ```bash
+   git commit -m "..."
+   ```
+
+5. **Push and create PR:**
+   ```bash
+   git push -u origin HEAD
+   gh pr create --title "..." --body "..."
+   ```
+
+6. **Merge immediately:**
+   ```bash
+   gh pr merge <number> --squash --delete-branch
+   ```
+
+7. **Return to main and pull:**
+   ```bash
+   git checkout main
+   git pull origin main
+   ```
+
+8. **Repeat steps 1-7 for SECOND group:**
+   - Create new branch
+   - Stage ONLY group 2 files
+   - Verify with `git status`
+   - Commit, push, create PR, merge
+
+**Key Rules:**
+- **ONE group per branch** - Never mix groups
+- **Explicit staging** - Use `git add <specific-file>`, NOT `git add .` or `git add -A`
+- **Always verify** - Run `git status` before committing
+- **Sequential processing** - Complete PR1 (merge) before starting PR2
+- **Clean state** - Return to main between PRs
+
 ## Feature Implementation Workflow
 
 1. **Plan First** (Automatic)
