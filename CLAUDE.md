@@ -48,8 +48,13 @@ This project includes Claude Code CLI auto-installation in the devcontainer.
 **Setup:**
 - Claude Code CLI: Auto-installed during devcontainer build
 - First-time auth: Run `claude` to authenticate via browser (one-time)
-- Plugins: Manual installation required (global, one-time):
+- Plugins: Install all at once using the setup script:
+  ```bash
+  bash scripts/setup-claude-plugins.sh
   ```
+
+  Or install manually one by one:
+  ```bash
   # Superpowers - TDD, planning, and review workflows
   /plugin marketplace add obra/superpowers-marketplace
   /plugin install superpowers@superpowers-marketplace
