@@ -1,5 +1,62 @@
 # Git Workflow
 
+## Git Worktree Usage (CRITICAL)
+
+**ALWAYS use git worktrees to prevent accidental file inclusion:**
+
+### Why Worktrees Matter
+
+Working directly in the main workspace can lead to accidentally committing unrelated modified files:
+- Example: You want to update CLAUDE.md but .beads/issues.jsonl is also modified
+- Without worktree: High risk of accidentally staging/committing both files together
+- With worktree: Complete isolation - only your intended changes exist in that workspace
+
+### When to Use Worktrees
+
+**Use worktrees for ALL changes when:**
+- There are ANY other modified files in your workspace (even unrelated ones)
+- Making documentation updates
+- Making configuration changes
+- Implementing features
+- Fixing bugs
+
+**Only skip worktrees when:**
+- Working directory is completely clean (no other modified files)
+- Making trivial single-file edits with no other changes present
+
+### Worktree Workflow (REQUIRED)
+
+```bash
+# 1. Create worktree FIRST (before making any changes)
+npm run worktree:create <branch-name>
+
+# 2. Navigate to worktree
+cd /workspaces/tsumugi/.worktrees/<branch-name>
+
+# 3. Make your changes in isolation
+
+# 4. Stage ONLY the files you changed
+git add <specific-file>
+
+# 5. Verify (CRITICAL - must show only your intended changes)
+git status
+
+# 6. Commit, push, create PR, merge
+git commit -m "..."
+git push -u origin HEAD
+gh pr create --title "..." --body "..."
+gh pr merge <number> --squash --delete-branch
+
+# 7. Return to main workspace
+cd /workspaces/tsumugi
+
+# 8. Clean up worktree
+git worktree remove /workspaces/tsumugi/.worktrees/<branch-name>
+git pull origin main
+```
+
+**Remember:** Worktrees prevent the "oops, I committed the wrong files" problem by giving you a clean, isolated workspace.
+
 ## Commit Message Format
 
 ```
