@@ -47,7 +47,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install global npm packages
-RUN npm install -g nodemon typescript typescript-language-server
+RUN npm install -g nodemon typescript typescript-language-server ts-node
 
 # Install Playwright system dependencies
 RUN npx -y playwright@1.58.0 install-deps chromium

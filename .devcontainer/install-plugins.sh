@@ -9,13 +9,11 @@ PLUGINS=(
   "frontend-design"
   "ralph-loop"
   "code-simplifier"
-  "commit-commands"
   "claude-md-management"
   "security-guidance"
   "superpowers"
   "serena"
   "context7"
-  "linear"
   "typescript-lsp"
 )
 
