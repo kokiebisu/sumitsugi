@@ -16,11 +16,11 @@ PLUGINS=(
   "serena"
   "context7"
   "linear"
+  "typescript-lsp"
 )
 
 # Optional plugins (disabled by default)
 OPTIONAL_PLUGINS=(
-  "typescript-lsp"
 )
 
 echo "Installing Claude Code plugins..."
