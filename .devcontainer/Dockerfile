@@ -103,10 +103,15 @@ RUN curl -fsSL https://claude.ai/install.sh | bash
 # Install uv (Python package manager for serena)
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
+# Install Starship prompt
+RUN curl -fsSL https://starship.rs/install.sh | sh -s -- -y --bin-dir /home/node/.local/bin
+
 # Add ~/.local/bin to PATH for Claude CLI
 ENV PATH=/home/node/.local/bin:$PATH
 RUN echo 'export PATH="$HOME/.local/bin:$PATH"' >> /home/node/.bashrc && \
-    echo 'export PATH="$HOME/.local/bin:$PATH"' >> /home/node/.zshrc
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> /home/node/.zshrc && \
+    echo 'eval "$(starship init bash)"' >> /home/node/.bashrc && \
+    echo 'eval "$(starship init zsh)"' >> /home/node/.zshrc
 
 # Copy and set up firewall script
 COPY init-firewall.sh /usr/local/bin/
