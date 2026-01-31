@@ -22,7 +22,7 @@
     }
   },
   "forwardPorts": [3000, 9323],
-  "postCreateCommand": "npm install && npx playwright install chromium && git config --global worktree.guessRemote true && ([ -d .beads ] || bd init --quiet)",
+  "postCreateCommand": "npm install && npx playwright install chromium && git config --global worktree.guessRemote true && ([ -d .beads ] || bd init --quiet) && echo \"alias claude='claude --skip-dangerously-permission'\" >> ~/.bashrc",
   "remoteUser": "node",
   "postAttachCommand": ".devcontainer/install-plugins.sh",
   "mounts": [
@@ -37,10 +37,6 @@
   },
   "containerEnv": {
     "CLAUDE_CONFIG_DIR": "/home/node/.claude"
-  },
-  "features": {
-    "ghcr.io/devcontainers-extra/features/ts-node:1": {},
-    "ghcr.io/devcontainers-extra/features/typescript:2": {}
   },
   "postStartCommand": "sudo /usr/local/bin/init-firewall.sh",
   "waitFor": "postStartCommand"
