@@ -5,7 +5,7 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "runArgs": ["--cap-add=NET_ADMIN", "--cpus=8"],
+  "runArgs": ["--cap-add=NET_ADMIN", "--cpus=6"],
   "customizations": {
     "vscode": {
       "extensions": [
