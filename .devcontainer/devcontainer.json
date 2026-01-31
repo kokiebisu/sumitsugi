@@ -1,54 +1,47 @@
 {
-  "name": "Claude Code Sandbox",
+  "name": "Node.js & TypeScript",
+  // This devcontainer config is shared across git worktrees via symlinks
+  // See WORKTREE.md for details on using devcontainers with git worktrees
   "build": {
-    "dockerfile": "Dockerfile",
-    "args": {
-      "TZ": "${localEnv:TZ:America/Los_Angeles}",
-      "CLAUDE_CODE_VERSION": "latest",
-      "GIT_DELTA_VERSION": "0.18.2",
-      "ZSH_IN_DOCKER_VERSION": "1.2.0"
-    }
+    "dockerfile": "Dockerfile"
   },
-  "runArgs": ["--cap-add=NET_ADMIN", "--cap-add=NET_RAW"],
+  "runArgs": ["--cap-add=NET_ADMIN", "--cpus=8"],
   "customizations": {
     "vscode": {
       "extensions": [
-        "anthropic.claude-code",
+        "Anthropic.claude-code",
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
+        "ms-vscode.vscode-typescript-next",
         "eamodio.gitlens"
       ],
       "settings": {
         "editor.formatOnSave": true,
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.codeActionsOnSave": {
-          "source.fixAll.eslint": "explicit"
-        },
-        "terminal.integrated.defaultProfile.linux": "zsh",
-        "terminal.integrated.profiles.linux": {
-          "bash": {
-            "path": "bash",
-            "icon": "terminal-bash"
-          },
-          "zsh": {
-            "path": "zsh"
-          }
-        }
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
       }
     }
   },
+  "forwardPorts": [3000, 9323],
+  "postCreateCommand": "npm install && npx playwright install chromium && git config --global worktree.guessRemote true && ([ -d .beads ] || bd init --quiet)",
   "remoteUser": "node",
+  "postAttachCommand": ".devcontainer/install-plugins.sh",
   "mounts": [
-    "source=claude-code-bashhistory-${devcontainerId},target=/commandhistory,type=volume",
-    "source=claude-code-config-${devcontainerId},target=/home/node/.claude,type=volume"
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.config/gh,target=/home/node/.config/gh,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.docker/run/docker.sock,target=/var/run/docker.sock,type=bind",
+    "source=${localEnv:HOME}/.claude,target=/home/node/.claude,type=bind,consistency=cached"
   ],
-  "containerEnv": {
-    "NODE_OPTIONS": "--max-old-space-size=4096",
-    "CLAUDE_CONFIG_DIR": "/home/node/.claude",
-    "POWERLEVEL9K_DISABLE_GITSTATUS": "true"
+  "remoteEnv": {
+    "SSH_AUTH_SOCK": "${localEnv:SSH_AUTH_SOCK}",
+    "GITHUB_PERSONAL_ACCESS_TOKEN": "${localEnv:GITHUB_PERSONAL_ACCESS_TOKEN}"
   },
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=delegated",
-  "workspaceFolder": "/workspace",
+  "containerEnv": {
+    "CLAUDE_CONFIG_DIR": "/home/node/.claude"
+  },
+  "features": {
+    "ghcr.io/devcontainers-extra/features/ts-node:1": {},
+    "ghcr.io/devcontainers-extra/features/typescript:2": {}
+  },
   "postStartCommand": "sudo /usr/local/bin/init-firewall.sh",
   "waitFor": "postStartCommand"
 }
