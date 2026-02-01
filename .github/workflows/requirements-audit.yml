@@ -1,4 +1,4 @@
-name: Daily Requirements Audit
+name: Requirements Audit
 
 on:
   schedule:
