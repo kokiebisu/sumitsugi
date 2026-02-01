@@ -1,0 +1,1 @@
+ALTER TABLE "properties" ADD COLUMN "additional_cleaning_fee" integer DEFAULT 8000 NOT NULL;
