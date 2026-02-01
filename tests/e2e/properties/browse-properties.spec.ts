@@ -10,7 +10,7 @@ import { test, expect, testData } from '../fixtures/test-fixtures'
  * organized by Tokyo districts with horizontal scrolling sections.
  */
 
-test.describe('Browse Properties - Home Page', () => {
+test.describe('Browse Properties - Home Page @properties @critical @smoke', () => {
   test.beforeEach(async ({ homePage }) => {
     await homePage.goto()
   })
@@ -108,7 +108,7 @@ test.describe('Browse Properties - Home Page', () => {
   })
 })
 
-test.describe('Browse Properties - Heart/Favorite', () => {
+test.describe('Browse Properties - Heart/Favorite @properties @extended', () => {
   test('should toggle heart icon when clicking favorite button', async ({ homePage, page }) => {
     await homePage.goto()
 
@@ -132,7 +132,7 @@ test.describe('Browse Properties - Heart/Favorite', () => {
   })
 })
 
-test.describe('Browse Properties - Image Carousel', () => {
+test.describe('Browse Properties - Image Carousel @properties @extended', () => {
   test('should navigate between images using arrow buttons', async ({ homePage, page }) => {
     await homePage.goto()
 
