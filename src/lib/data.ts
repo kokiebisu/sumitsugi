@@ -55,7 +55,18 @@ export interface Inquiry {
   id: string
   propertyId: string
   propertyTitle: string
-  status: "pending" | "reviewing" | "approved" | "viewing_scheduled" | "contract_in_progress" | "completed" | "rejected" | "cancelled"
+  status:
+    | "pending"
+    | "reviewing"
+    | "approved"
+    | "viewing_scheduled"
+    | "viewing_completed"
+    | "agreement_pending"
+    | "agreement_signed"
+    | "contract_in_progress"
+    | "completed"
+    | "rejected"
+    | "cancelled"
   applicantName: string
   applicantEmail: string
   reason: string // 興味を持った理由
@@ -64,6 +75,7 @@ export interface Inquiry {
   updatedAt: string
   notes?: string // 運営メモ
   viewingConfirmation?: ViewingConfirmation // 内見確認状態
+  handoverAgreementId?: string // 紐づく合意ID
 }
 
 // Seller Listing (物件掲載申込) データ型
