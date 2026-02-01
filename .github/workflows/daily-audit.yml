@@ -1,0 +1,132 @@
+name: Daily Requirements Audit
+
+on:
+  schedule:
+    # 毎日午前9時 (JST) = UTC 0時に実行
+    - cron: '0 0 * * *'
+  workflow_dispatch: # 手動実行も可能
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read requirements files
+        id: read-files
+        run: |
+          echo "Reading REQUIREMENTS.md and BUSINESS.md..."
+
+          REQUIREMENTS=""
+          BUSINESS=""
+
+          if [ -f ".claude/REQUIREMENTS.md" ]; then
+            REQUIREMENTS=$(cat .claude/REQUIREMENTS.md)
+          elif [ -f "REQUIREMENTS.md" ]; then
+            REQUIREMENTS=$(cat REQUIREMENTS.md)
+          fi
+
+          if [ -f ".claude/BUSINESS.md" ]; then
+            BUSINESS=$(cat .claude/BUSINESS.md)
+          elif [ -f "BUSINESS.md" ]; then
+            BUSINESS=$(cat BUSINESS.md)
+          fi
+
+          # Save to files for the next step
+          echo "$REQUIREMENTS" > /tmp/requirements.md
+          echo "$BUSINESS" > /tmp/business.md
+
+      - name: Run Claude Audit
+        id: claude-audit
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          REQUIREMENTS=$(cat /tmp/requirements.md)
+          BUSINESS=$(cat /tmp/business.md)
+
+          # Create prompt
+          PROMPT="You are auditing a project's requirements documentation. Review the following files and provide:
+
+          1. **Completeness Check**: Are there any missing requirements or gaps?
+          2. **Consistency Check**: Are there any contradictions between REQUIREMENTS.md and BUSINESS.md?
+          3. **Implementation Status**: Based on the requirements, what might still need to be implemented?
+          4. **Recommendations**: Any suggestions for improving the documentation?
+
+          Keep the response concise and actionable.
+
+          ---
+          ## REQUIREMENTS.md
+          $REQUIREMENTS
+
+          ---
+          ## BUSINESS.md
+          $BUSINESS"
+
+          # Call Claude API
+          RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
+            -H "Content-Type: application/json" \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            -d "{
+              \"model\": \"claude-sonnet-4-20250514\",
+              \"max_tokens\": 2048,
+              \"messages\": [{
+                \"role\": \"user\",
+                \"content\": $(echo "$PROMPT" | jq -Rs .)
+              }]
+            }")
+
+          # Extract the text content
+          AUDIT_RESULT=$(echo "$RESPONSE" | jq -r '.content[0].text // "Error: Could not get response from Claude"')
+
+          # Save to file (handle multiline)
+          echo "$AUDIT_RESULT" > /tmp/audit-result.md
+
+      - name: Post to Audit PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          AUDIT_RESULT=$(cat /tmp/audit-result.md)
+          DATE=$(date +%Y-%m-%d)
+
+          # Find or create the audit PR
+          AUDIT_PR=$(gh pr list --search "Daily Audit Tracker" --state open --json number --jq '.[0].number')
+
+          if [ -z "$AUDIT_PR" ]; then
+            echo "No audit PR found. Creating one..."
+
+            # Create a new branch for audit tracking
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git checkout -b daily-audit-tracker
+            echo "# Daily Audit Tracker" > .github/AUDIT_LOG.md
+            echo "" >> .github/AUDIT_LOG.md
+            echo "This PR tracks daily requirement audits. See comments for audit results." >> .github/AUDIT_LOG.md
+            git add .github/AUDIT_LOG.md
+            git commit -m "chore: initialize daily audit tracker"
+            git push -u origin daily-audit-tracker
+
+            # Create PR
+            AUDIT_PR=$(gh pr create \
+              --title "Daily Audit Tracker" \
+              --body "This PR is used to track daily requirement audits. Do not merge - audit results are posted as comments." \
+              --base main \
+              --head daily-audit-tracker \
+              | grep -oP 'https://github.com/.*/pull/\K\d+')
+          fi
+
+          # Post comment
+          gh pr comment "$AUDIT_PR" --body "## Daily Audit Report - $DATE
+
+          $AUDIT_RESULT
+
+          ---
+          *Automated audit by Claude*"
+
+          echo "Posted audit to PR #$AUDIT_PR"
