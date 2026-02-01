@@ -14,12 +14,15 @@ import {
   FileText,
 } from "lucide-react";
 
-// 引き継ぎ申し込みの進捗ステップ（8段階ステータス対応）
+// 引き継ぎ申し込みの進捗ステップ（9段階ステータス対応）
 const inquirySteps = [
   { id: "pending", label: "申し込み", icon: Clock },
   { id: "reviewing", label: "確認中", icon: Eye },
   { id: "approved", label: "承認済み", icon: Check },
   { id: "viewing_scheduled", label: "内見予定", icon: Calendar },
+  { id: "viewing_completed", label: "内見完了", icon: Check },
+  { id: "agreement_pending", label: "合意待ち", icon: FileText },
+  { id: "agreement_signed", label: "署名完了", icon: Check },
   { id: "contract_in_progress", label: "契約手続き中", icon: FileText },
   { id: "completed", label: "完了", icon: Home },
 ];
@@ -41,10 +44,16 @@ export default function DashboardPage() {
         return 2;
       case "viewing_scheduled":
         return 3;
-      case "contract_in_progress":
+      case "viewing_completed":
         return 4;
-      case "completed":
+      case "agreement_pending":
         return 5;
+      case "agreement_signed":
+        return 6;
+      case "contract_in_progress":
+        return 7;
+      case "completed":
+        return 8;
       case "rejected":
       case "cancelled":
         return -1; // 失敗状態は特別扱い
@@ -63,6 +72,12 @@ export default function DashboardPage() {
         return "内見の日程調整をお待ちください";
       case "viewing_scheduled":
         return "内見予定日が確定しました";
+      case "viewing_completed":
+        return "前の住人が引き継ぎ内容を準備中です";
+      case "agreement_pending":
+        return "引き継ぎ内容を確認して受諾してください";
+      case "agreement_signed":
+        return "残置物同意書の署名が完了しました";
       case "contract_in_progress":
         return "引き継ぎの準備を進めましょう";
       case "completed":
@@ -151,7 +166,7 @@ export default function DashboardPage() {
                               }}
                             />
 
-                            <div className="relative grid grid-cols-6 gap-4">
+                            <div className="relative grid grid-cols-9 gap-4">
                               {inquirySteps.map((step, index) => {
                                 const isPast = index < currentStepIndex;
                                 const isCurrent = index === currentStepIndex;
