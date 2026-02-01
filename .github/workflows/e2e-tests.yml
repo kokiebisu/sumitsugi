@@ -146,7 +146,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./playwright-report
           destination_dir: e2e-reports/${{ github.run_number }}
-          keep_files: false
+          keep_files: true
 
       - name: Comment PR with results and embedded screenshots
         if: always() && github.event_name == 'pull_request'
