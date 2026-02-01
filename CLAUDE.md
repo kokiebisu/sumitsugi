@@ -9,6 +9,18 @@
 **ノードバージョン:** 20
 **パッケージマネージャー:** npm
 
+## Environment Variables
+
+**Always load `.env.local` before running commands that need API keys:**
+
+```bash
+source .env.local
+```
+
+Available keys in `.env.local`:
+- `LINEAR_API_KEY` - Linear API for issue tracking sync
+- Other project-specific secrets
+
 ## Commands
 
 ```bash
