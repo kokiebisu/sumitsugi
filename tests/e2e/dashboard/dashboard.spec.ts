@@ -1,4 +1,4 @@
-import { test, expect, clearLocalStorage, setupAuthenticatedUser } from '../fixtures/test-fixtures'
+import { test, expect, testData, clearLocalStorage, setupAuthenticatedUser } from '../fixtures/test-fixtures'
 
 /**
  * E2E Tests: Dashboard
@@ -61,7 +61,7 @@ test.describe('Dashboard - With Inquiries', () => {
     await setupAuthenticatedUser(page)
 
     // Create an inquiry first
-    await page.goto('/listings/shibuya-dj-studio/inquiry')
+    await page.goto(`/listings/${testData.properties.dj}/inquiry`)
     await page.locator('textarea#reason').fill('この暮らしに興味があります')
     await page.locator('button[type="submit"]').click()
     await expect(page.locator('text=引き継ぎ申し込みを受け付けました')).toBeVisible({ timeout: 10000 })
@@ -181,7 +181,7 @@ test.describe('Dashboard - Action Buttons', () => {
     await setupAuthenticatedUser(page)
 
     // Create an inquiry
-    await page.goto('/listings/shibuya-dj-studio/inquiry')
+    await page.goto(`/listings/${testData.properties.dj}/inquiry`)
     await page.locator('textarea#reason').fill('この暮らしに興味があります')
     await page.locator('button[type="submit"]').click()
     await expect(page.locator('text=引き継ぎ申し込みを受け付けました')).toBeVisible({ timeout: 10000 })
@@ -205,13 +205,13 @@ test.describe('Dashboard - Multiple Inquiries', () => {
 
   test('should handle multiple inquiries', async ({ page }) => {
     // Create first inquiry
-    await page.goto('/listings/shibuya-dj-studio/inquiry')
+    await page.goto(`/listings/${testData.properties.dj}/inquiry`)
     await page.locator('textarea#reason').fill('DJ機材に興味があります')
     await page.locator('button[type="submit"]').click()
     await expect(page.locator('text=引き継ぎ申し込みを受け付けました')).toBeVisible({ timeout: 10000 })
 
     // Create second inquiry for different property
-    await page.goto('/listings/nakameguro-vintage/inquiry')
+    await page.goto('`/listings/${testData.properties.vintage}/inquiry`')
     await page.locator('textarea#reason').fill('ヴィンテージ家具に興味があります')
     await page.locator('button[type="submit"]').click()
     await expect(page.locator('text=引き継ぎ申し込みを受け付けました')).toBeVisible({ timeout: 10000 })

@@ -22,7 +22,7 @@ test.describe('Inquiry Flow - Unauthenticated User', () => {
 
   test('should show inquiry button on property detail page', async ({ page }) => {
     // Navigate to a property detail page
-    await page.goto('/listings/shibuya-dj-studio')
+    await page.goto(`/listings/${testData.properties.dj}`)
 
     // Should show inquiry button
     const inquiryButton = page.locator('a[href*="/inquiry"], button:has-text("この暮らしに興味がある")')
@@ -30,7 +30,7 @@ test.describe('Inquiry Flow - Unauthenticated User', () => {
   })
 
   test('should navigate to inquiry form when clicking inquiry button', async ({ page }) => {
-    await page.goto('/listings/shibuya-dj-studio')
+    await page.goto(`/listings/${testData.properties.dj}`)
 
     // Click inquiry button
     const inquiryButton = page.locator('a[href*="/inquiry"]').first()
@@ -44,7 +44,7 @@ test.describe('Inquiry Flow - Unauthenticated User', () => {
   })
 
   test('should show property summary on inquiry page', async ({ page }) => {
-    await page.goto('/listings/shibuya-dj-studio/inquiry')
+    await page.goto('/listings/${testData.properties.dj}/inquiry')
 
     // Should show property summary card
     const summaryCard = page.locator('text=お問い合わせ対象')
@@ -56,7 +56,7 @@ test.describe('Inquiry Flow - Unauthenticated User', () => {
   })
 
   test('should show all required form fields', async ({ page }) => {
-    await page.goto('/listings/shibuya-dj-studio/inquiry')
+    await page.goto('/listings/${testData.properties.dj}/inquiry')
 
     // Name field
     const nameInput = page.locator('input#name')
@@ -80,7 +80,7 @@ test.describe('Inquiry Flow - Unauthenticated User', () => {
   })
 
   test('should trigger login dialog when submitting without authentication', async ({ page, authPage }) => {
-    await page.goto('/listings/shibuya-dj-studio/inquiry')
+    await page.goto('/listings/${testData.properties.dj}/inquiry')
 
     // Fill form
     await page.locator('input#name').fill('テスト太郎')
@@ -95,12 +95,12 @@ test.describe('Inquiry Flow - Unauthenticated User', () => {
   })
 
   test('should have back link to property detail', async ({ page }) => {
-    await page.goto('/listings/shibuya-dj-studio/inquiry')
+    await page.goto('/listings/${testData.properties.dj}/inquiry')
 
     // Should show back link
     const backLink = page.locator('a:has-text("物件詳細に戻る")')
     await expect(backLink).toBeVisible()
-    await expect(backLink).toHaveAttribute('href', '/listings/shibuya-dj-studio')
+    await expect(backLink).toHaveAttribute('href', '/listings/${testData.properties.dj}')
   })
 })
 
@@ -111,7 +111,7 @@ test.describe('Inquiry Flow - Authenticated User', () => {
   })
 
   test('should pre-fill name and email for logged-in user', async ({ page }) => {
-    await page.goto('/listings/shibuya-dj-studio/inquiry')
+    await page.goto('/listings/${testData.properties.dj}/inquiry')
 
     // Wait for form to load
     await page.waitForSelector('input#name')
@@ -129,7 +129,7 @@ test.describe('Inquiry Flow - Authenticated User', () => {
   })
 
   test('should show user info banner when logged in', async ({ page }) => {
-    await page.goto('/listings/shibuya-dj-studio/inquiry')
+    await page.goto('/listings/${testData.properties.dj}/inquiry')
 
     // Should show "申し込み as [name]" banner
     const userBanner = page.locator('text=/.*として申し込み/')
@@ -137,7 +137,7 @@ test.describe('Inquiry Flow - Authenticated User', () => {
   })
 
   test('should successfully submit inquiry when authenticated', async ({ page }) => {
-    await page.goto('/listings/shibuya-dj-studio/inquiry')
+    await page.goto('/listings/${testData.properties.dj}/inquiry')
 
     // Fill required fields (name and email pre-filled)
     await page.locator('textarea#reason').fill('DJ機材がそのまま使える環境を探していました。ぜひ引き継がせていただきたいです。')
@@ -156,7 +156,7 @@ test.describe('Inquiry Flow - Authenticated User', () => {
   })
 
   test('should show dashboard button after successful submission', async ({ page }) => {
-    await page.goto('/listings/shibuya-dj-studio/inquiry')
+    await page.goto('/listings/${testData.properties.dj}/inquiry')
 
     // Fill and submit
     await page.locator('textarea#reason').fill('この暮らしに興味があります')
@@ -171,7 +171,7 @@ test.describe('Inquiry Flow - Authenticated User', () => {
   })
 
   test('should validate required fields', async ({ page }) => {
-    await page.goto('/listings/shibuya-dj-studio/inquiry')
+    await page.goto('/listings/${testData.properties.dj}/inquiry')
 
     // Clear reason field if pre-filled
     await page.locator('textarea#reason').clear()
@@ -192,7 +192,7 @@ test.describe('Inquiry Flow - Form Validation', () => {
   })
 
   test('should validate email format', async ({ page }) => {
-    await page.goto('/listings/shibuya-dj-studio/inquiry')
+    await page.goto('/listings/${testData.properties.dj}/inquiry')
 
     // Enter invalid email
     await page.locator('input#email').fill('invalid-email')
@@ -208,14 +208,14 @@ test.describe('Inquiry Flow - Form Validation', () => {
   })
 
   test('should show helper text for email field', async ({ page }) => {
-    await page.goto('/listings/shibuya-dj-studio/inquiry')
+    await page.goto('/listings/${testData.properties.dj}/inquiry')
 
     // Should show helper text explaining email usage
     await expect(page.locator('text=ご連絡はこちらのメールアドレスに送らせていただきます')).toBeVisible()
   })
 
   test('should show form purpose notice', async ({ page }) => {
-    await page.goto('/listings/shibuya-dj-studio/inquiry')
+    await page.goto('/listings/${testData.properties.dj}/inquiry')
 
     // Should show notice about form purpose
     await expect(page.locator('text=このフォームの目的')).toBeVisible()
@@ -231,8 +231,8 @@ test.describe('Inquiry Flow - Different Properties', () => {
 
   test('should work for different property types', async ({ page }) => {
     const properties = [
-      { id: 'shibuya-dj-studio', name: 'DJ' },
-      { id: 'nakameguro-vintage', name: 'ヴィンテージ' }
+      { id: testData.properties.dj, name: 'DJ' },
+      { id: testData.properties.vintage, name: 'ヴィンテージ' }
     ]
 
     for (const property of properties) {
@@ -260,7 +260,7 @@ test.describe('Inquiry Flow - Edge Cases', () => {
     // Try to access inquiry for a draft listing (if any exist)
     // This would need to be tested with actual draft listings
     // For now, just verify the route exists
-    await page.goto('/listings/shibuya-dj-studio/inquiry')
+    await page.goto('/listings/${testData.properties.dj}/inquiry')
     await expect(page.locator('h1')).toBeVisible()
   })
 })
