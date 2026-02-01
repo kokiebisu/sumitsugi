@@ -13,7 +13,7 @@ import { test, expect, testData, clearLocalStorage, setupAuthenticatedUser } fro
  * - Logout flow
  */
 
-test.describe('Authentication - Login Dialog', () => {
+test.describe('Authentication - Login Dialog @auth @quarantine', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await clearLocalStorage(page)
@@ -81,7 +81,7 @@ test.describe('Authentication - Login Dialog', () => {
   })
 })
 
-test.describe('Authentication - Email Login Flow', () => {
+test.describe('Authentication - Email Login Flow @auth @quarantine', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await clearLocalStorage(page)
@@ -117,7 +117,7 @@ test.describe('Authentication - Email Login Flow', () => {
   })
 })
 
-test.describe('Authentication - Social Login Flow', () => {
+test.describe('Authentication - Social Login Flow @auth @quarantine', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await clearLocalStorage(page)
@@ -161,7 +161,7 @@ test.describe('Authentication - Social Login Flow', () => {
   })
 })
 
-test.describe('Authentication - Logged In State', () => {
+test.describe('Authentication - Logged In State @auth @critical', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await setupAuthenticatedUser(page)
@@ -193,7 +193,7 @@ test.describe('Authentication - Logged In State', () => {
   })
 })
 
-test.describe('Authentication - Logout Flow', () => {
+test.describe('Authentication - Logout Flow @auth @critical', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await setupAuthenticatedUser(page)
@@ -222,7 +222,7 @@ test.describe('Authentication - Logout Flow', () => {
   })
 })
 
-test.describe('Authentication - Become Seller Flow', () => {
+test.describe('Authentication - Become Seller Flow @auth @listing @quarantine', () => {
   test('should trigger login dialog when clicking "暮らしを譲る" while not logged in', async ({ authPage, page }) => {
     await page.goto('/')
     await clearLocalStorage(page)
