@@ -121,8 +121,8 @@ jobs:
           git add ".github/audits/$AUDIT_DATE.md"
           git commit -m "docs(audit): report $AUDIT_DATE" || true
 
-          # Push and PR
-          git push -u origin "$BRANCH"
+          # Push and PR (force to handle re-runs on same day)
+          git push -u origin "$BRANCH" --force
 
           gh pr create \
             --title "$AUDIT_DATE Daily Audit" \
