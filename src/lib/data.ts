@@ -2326,6 +2326,52 @@ export const hostListings: SellerListing[] = [
   },
 ]
 
+// モック引き継ぎ合意データ
+export const mockHandoverAgreements: HandoverAgreement[] = [
+  {
+    id: "ha-001",
+    inquiryId: "inq-001",
+    propertyId: "prop-001",
+    items: [
+      {
+        id: "item-001",
+        name: "冷蔵庫",
+        category: "appliance",
+        condition: "good",
+        photos: [],
+        included: true,
+      },
+      {
+        id: "item-002",
+        name: "洗濯機",
+        category: "appliance",
+        condition: "excellent",
+        photos: [],
+        included: true,
+      },
+      {
+        id: "item-003",
+        name: "ダイニングテーブル",
+        category: "furniture",
+        condition: "good",
+        photos: [],
+        notes: "4人掛け、IKEAで購入",
+        included: true,
+      },
+    ],
+    adjustedHandoverFee: 50000,
+    originalHandoverFee: 60000,
+    status: "draft",
+    createdAt: new Date().toISOString(),
+    sellerName: "山田太郎",
+    sellerEmail: "yamada@example.com",
+    buyerName: "佐藤花子",
+    buyerEmail: "sato@example.com",
+    propertyTitle: "目黒の緑に囲まれた部屋",
+    propertyAddress: "東京都目黒区中目黒1-1-1",
+  },
+]
+
 // Inquiry functions
 export function getAllInquiries(): Inquiry[] {
   return inquiries.sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())
