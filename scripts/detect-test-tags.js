@@ -106,9 +106,15 @@ async function main() {
   console.log('Detected tags:', tags);
   console.log('Generated filter:', filter);
 
-  // Output for GitHub Actions
-  console.log('::set-output name=filter::' + filter);
-  console.log('::set-output name=tags::' + tags.join(','));
+  // Output for GitHub Actions (using modern GITHUB_OUTPUT syntax)
+  if (process.env.GITHUB_OUTPUT) {
+    fs.appendFileSync(process.env.GITHUB_OUTPUT, `filter=${filter}\n`);
+    fs.appendFileSync(process.env.GITHUB_OUTPUT, `tags=${tags.join(',')}\n`);
+  } else {
+    // Fallback for local testing
+    console.log('Filter:', filter);
+    console.log('Tags:', tags.join(','));
+  }
 }
 
 if (require.main === module) {
