@@ -163,6 +163,7 @@ jobs:
 
               if (report.error) {
                 comment += `⚠️ Error generating report: ${report.error}\n\n`;
+                comment += `Check the [workflow run](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.\n`;
               } else {
                 const passRate = report.total > 0 ? Math.round((report.passed / report.total) * 100) : 0;
                 const statusIcon = report.failed === 0 ? '✅' : '❌';
@@ -234,16 +235,42 @@ jobs:
                   comment += '</details>\n\n';
                 }
 
-                comment += '### 📦 Download Artifacts\n\n';
-                comment += `[Download all artifacts](${context.payload.repository.html_url}/actions/runs/${context.runId}) including videos, traces, and screenshots.\n\n`;
+                // Artifacts section
+                comment += '### 📦 Artifacts & Recordings\n\n';
+                comment += `Download the artifacts to view:\n`;
+                comment += `- 🎥 **Video recordings** of all failed tests (.webm)\n`;
+                comment += `- 📸 **Screenshots** captured at failure points (.png)\n`;
+                comment += `- 🔍 **Trace files** for step-by-step debugging (.zip)\n`;
+                comment += `- 📊 **Interactive HTML report** with embedded media\n\n`;
+
+                comment += `**How to view:**\n`;
+                comment += `1. Go to the [workflow run](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})\n`;
+                comment += `2. Scroll to **Artifacts** section at the bottom\n`;
+                comment += `3. Download \`playwright-artifacts\` (contains all recordings)\n`;
+                comment += `4. Extract the zip file\n`;
+                comment += `5. Open \`playwright-report/index.html\` in your browser\n\n`;
+
+                comment += '<details>\n<summary>📖 Viewing trace files (interactive debugger)</summary>\n\n';
+                comment += '```bash\n';
+                comment += '# After extracting artifacts:\n';
+                comment += 'npx playwright show-trace test-results/[test-name]/trace.zip\n';
+                comment += '```\n\n';
+                comment += 'The trace viewer shows:\n';
+                comment += '- Every action taken during the test\n';
+                comment += '- DOM snapshots at each step\n';
+                comment += '- Network requests/responses\n';
+                comment += '- Console logs\n';
+                comment += '- Screenshots at each step\n\n';
+                comment += '</details>\n\n';
 
                 if (report.failed === 0) {
-                  comment += '---\n\n✨ **All tests passed!** Great work!\n';
+                  comment += '---\n\n';
+                  comment += '✨ **All tests passed!** Great work!\n';
                 }
               }
             } catch (error) {
               comment += `⚠️ Could not parse test results: ${error.message}\n\n`;
-              comment += `Check the [workflow run](${context.payload.repository.html_url}/actions/runs/${context.runId}) for details.\n`;
+              comment += `Check the [workflow run](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.\n`;
             }
 
             github.rest.issues.createComment({
