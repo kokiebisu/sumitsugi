@@ -3,7 +3,7 @@ import { STRIPE_CONFIG } from './config';
 
 export const stripe = STRIPE_CONFIG.secretKey
   ? new Stripe(STRIPE_CONFIG.secretKey, {
-      apiVersion: '2024-12-18.acacia',
+      apiVersion: '2026-01-28.clover',
       typescript: true,
     })
   : ({} as Stripe); // Mock for tests

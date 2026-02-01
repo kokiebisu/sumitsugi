@@ -45,7 +45,7 @@ vi.mock('@/db', () => ({
 }));
 
 vi.mock('drizzle-orm', async (importOriginal) => {
-  const actual = await importOriginal();
+  const actual = await importOriginal<typeof import('drizzle-orm')>();
   return {
     ...actual,
     eq: vi.fn((field: unknown, value: unknown) => ({ field, value })),
