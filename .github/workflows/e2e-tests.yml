@@ -7,6 +7,12 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  pull-requests: write
+  pages: write
+  id-token: write
+
 jobs:
   e2e-tests:
     runs-on: ubuntu-latest
@@ -39,6 +45,90 @@ jobs:
           CI: true
           BASE_URL: http://localhost:3000
 
+      - name: Generate detailed test report
+        if: always()
+        run: |
+          node -e "
+          const fs = require('fs');
+          const path = require('path');
+
+          try {
+            const results = JSON.parse(fs.readFileSync('playwright-results.json', 'utf8'));
+            const stats = results.stats || {};
+
+            let report = {
+              passed: stats.expected || 0,
+              failed: stats.unexpected || 0,
+              flaky: stats.flaky || 0,
+              skipped: stats.skipped || 0,
+              total: (stats.expected || 0) + (stats.unexpected || 0) + (stats.flaky || 0) + (stats.skipped || 0),
+              duration: (stats.duration || 0) / 1000,
+              failedTests: [],
+              screenshots: []
+            };
+
+            // Extract failed test details and screenshots
+            results.suites?.forEach(suite => {
+              suite.specs?.forEach(spec => {
+                spec.tests?.forEach(test => {
+                  const result = test.results?.[0];
+                  if (result?.status === 'unexpected') {
+                    // Get screenshot path if exists
+                    const testDir = result.attachments?.find(a => a.name === 'screenshot')?.path;
+                    let screenshotPath = null;
+
+                    if (testDir) {
+                      screenshotPath = testDir;
+                    } else {
+                      // Try to find screenshot in test-results
+                      const testId = spec.id || '';
+                      const screenshotGlob = \`test-results/**/test-failed-1.png\`;
+                      try {
+                        const { execSync } = require('child_process');
+                        const found = execSync(\`find test-results -name 'test-failed-1.png' | head -1\`).toString().trim();
+                        if (found) screenshotPath = found;
+                      } catch (e) {}
+                    }
+
+                    report.failedTests.push({
+                      title: spec.title,
+                      file: spec.file,
+                      error: result.error?.message || 'Unknown error',
+                      screenshot: screenshotPath
+                    });
+
+                    if (screenshotPath && report.screenshots.length < 5) {
+                      report.screenshots.push(screenshotPath);
+                    }
+                  }
+                });
+              });
+            });
+
+            fs.writeFileSync('test-report-summary.json', JSON.stringify(report, null, 2));
+          } catch (error) {
+            console.error('Error generating report:', error);
+            fs.writeFileSync('test-report-summary.json', JSON.stringify({
+              error: error.message,
+              passed: 0,
+              failed: 0,
+              total: 0,
+              screenshots: []
+            }, null, 2));
+          }
+          "
+
+      - name: Copy screenshots to report directory
+        if: always()
+        run: |
+          mkdir -p playwright-report/screenshots
+          # Find and copy screenshots from failed tests to report directory
+          find test-results -name "test-failed-*.png" 2>/dev/null | head -10 | while IFS= read -r screenshot; do
+            filename=$(basename "$(dirname "$screenshot")")-$(basename "$screenshot")
+            cp "$screenshot" "playwright-report/screenshots/$filename" 2>/dev/null || true
+          done
+          ls -la playwright-report/screenshots/ || echo "No screenshots found"
+
       - name: Upload Playwright artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -49,54 +139,111 @@ jobs:
             test-results/
           retention-days: 7
 
-      - name: Upload test results
+      - name: Deploy Playwright Report to GitHub Pages
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          name: test-results
-          path: |
-            playwright-results.xml
-            playwright-results.json
-          retention-days: 7
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./playwright-report
+          destination_dir: e2e-reports/${{ github.run_number }}
+          keep_files: false
 
-      - name: Comment PR with test results
+      - name: Comment PR with results and embedded screenshots
         if: always() && github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
+            const path = require('path');
 
             let comment = '## 🎭 E2E Test Results\n\n';
 
             try {
-              const resultsJson = JSON.parse(fs.readFileSync('playwright-results.json', 'utf8'));
-              const stats = resultsJson.stats || {};
+              const report = JSON.parse(fs.readFileSync('test-report-summary.json', 'utf8'));
 
-              const passed = stats.expected || 0;
-              const failed = stats.unexpected || 0;
-              const flaky = stats.flaky || 0;
-              const skipped = stats.skipped || 0;
-              const total = passed + failed + flaky + skipped;
-
-              comment += `📊 **Summary:**\n`;
-              comment += `- Total tests: ${total}\n`;
-              comment += `- ✅ Passed: ${passed}\n`;
-              if (failed > 0) comment += `- ❌ Failed: ${failed}\n`;
-              if (flaky > 0) comment += `- ⚠️ Flaky: ${flaky}\n`;
-              if (skipped > 0) comment += `- ⏭️ Skipped: ${skipped}\n`;
-
-              comment += `\n📦 **Artifacts:**\n`;
-              comment += `- Download [Playwright Report](../actions/runs/${context.runId}) to view detailed results\n`;
-              comment += `- Videos, screenshots, and traces are available in the artifacts\n`;
-
-              if (failed === 0) {
-                comment += `\n✨ All tests passed!`;
+              if (report.error) {
+                comment += `⚠️ Error generating report: ${report.error}\n\n`;
               } else {
-                comment += `\n⚠️ Some tests failed. Check the artifacts for details.`;
+                const passRate = report.total > 0 ? Math.round((report.passed / report.total) * 100) : 0;
+                const statusIcon = report.failed === 0 ? '✅' : '❌';
+
+                comment += `${statusIcon} **Status:** ${report.failed === 0 ? 'All tests passed!' : `${report.failed} test(s) failed`}\n\n`;
+
+                comment += '| Metric | Value |\n';
+                comment += '|--------|-------|\n';
+                comment += `| Total Tests | ${report.total} |\n`;
+                comment += `| ✅ Passed | ${report.passed} (${passRate}%) |\n`;
+                if (report.failed > 0) comment += `| ❌ Failed | ${report.failed} |\n`;
+                if (report.flaky > 0) comment += `| ⚠️ Flaky | ${report.flaky} |\n`;
+                if (report.skipped > 0) comment += `| ⏭️ Skipped | ${report.skipped} |\n`;
+                comment += `| ⏱️ Duration | ${report.duration.toFixed(1)}s |\n\n`;
+
+                // Link to GitHub Pages report
+                const repoUrl = `https://${context.repo.owner}.github.io/${context.repo.repo}`;
+                const reportUrl = `${repoUrl}/e2e-reports/${context.runNumber}`;
+
+                comment += `### 🌐 [View Full Report with Videos](${reportUrl})\n\n`;
+                comment += `👆 Click above to view the interactive report with:\n`;
+                comment += `- 🎥 Video playback of all failed tests\n`;
+                comment += `- 🔍 Interactive trace viewer\n`;
+                comment += `- 📊 Detailed timeline and metrics\n\n`;
+
+                // Embedded screenshots from GitHub Pages
+                if (report.failed > 0) {
+                  comment += '### 📸 Failed Test Screenshots\n\n';
+
+                  const screenshotDir = 'playwright-report/screenshots';
+                  let screenshots = [];
+
+                  try {
+                    screenshots = fs.readdirSync(screenshotDir).filter(f => f.endsWith('.png'));
+                  } catch (e) {
+                    console.log('No screenshot directory found');
+                  }
+
+                  if (screenshots.length > 0) {
+                    comment += '<details>\n<summary>Click to view screenshots from failed tests</summary>\n\n';
+
+                    for (let i = 0; i < Math.min(screenshots.length, 10); i++) {
+                      const screenshot = screenshots[i];
+                      const screenshotUrl = `${reportUrl}/screenshots/${screenshot}`;
+
+                      comment += `#### Screenshot ${i + 1}\n`;
+                      comment += `![Failed test screenshot](${screenshotUrl})\n\n`;
+                    }
+
+                    comment += '</details>\n\n';
+                  } else {
+                    comment += `*Screenshots will be available in the [full report](${reportUrl})*\n\n`;
+                  }
+
+                  // Failed test details
+                  comment += '<details>\n<summary>📋 Click to view failure details</summary>\n\n';
+
+                  report.failedTests.slice(0, 10).forEach((test, idx) => {
+                    comment += `#### ${idx + 1}. ${test.title}\n`;
+                    comment += `📁 **File:** \`${test.file}\`\n\n`;
+                    const errorLines = test.error.split('\n').slice(0, 3).join('\n');
+                    comment += '```\n' + errorLines + '\n```\n\n';
+                  });
+
+                  if (report.failedTests.length > 10) {
+                    comment += `*...and ${report.failedTests.length - 10} more failures*\n\n`;
+                  }
+
+                  comment += '</details>\n\n';
+                }
+
+                comment += '### 📦 Download Artifacts\n\n';
+                comment += `[Download all artifacts](${context.payload.repository.html_url}/actions/runs/${context.runId}) including videos, traces, and screenshots.\n\n`;
+
+                if (report.failed === 0) {
+                  comment += '---\n\n✨ **All tests passed!** Great work!\n';
+                }
               }
             } catch (error) {
-              comment += `⚠️ Could not parse test results: ${error.message}\n`;
-              comment += `Check the [workflow run](../actions/runs/${context.runId}) for details.`;
+              comment += `⚠️ Could not parse test results: ${error.message}\n\n`;
+              comment += `Check the [workflow run](${context.payload.repository.html_url}/actions/runs/${context.runId}) for details.\n`;
             }
 
             github.rest.issues.createComment({
