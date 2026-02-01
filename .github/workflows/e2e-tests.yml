@@ -7,6 +7,12 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  pull-requests: write
+  pages: write
+  id-token: write
+
 jobs:
   e2e-tests:
     runs-on: ubuntu-latest
@@ -39,26 +45,6 @@ jobs:
           CI: true
           BASE_URL: http://localhost:3000
 
-      - name: Upload Playwright artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-artifacts
-          path: |
-            playwright-report/
-            test-results/
-          retention-days: 7
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: |
-            playwright-results.xml
-            playwright-results.json
-          retention-days: 7
-
       - name: Generate detailed test report
         if: always()
         run: |
@@ -77,20 +63,43 @@ jobs:
               skipped: stats.skipped || 0,
               total: (stats.expected || 0) + (stats.unexpected || 0) + (stats.flaky || 0) + (stats.skipped || 0),
               duration: (stats.duration || 0) / 1000,
-              failedTests: []
+              failedTests: [],
+              screenshots: []
             };
 
-            // Extract failed test details
+            // Extract failed test details and screenshots
             results.suites?.forEach(suite => {
               suite.specs?.forEach(spec => {
                 spec.tests?.forEach(test => {
                   const result = test.results?.[0];
                   if (result?.status === 'unexpected') {
+                    // Get screenshot path if exists
+                    const testDir = result.attachments?.find(a => a.name === 'screenshot')?.path;
+                    let screenshotPath = null;
+
+                    if (testDir) {
+                      screenshotPath = testDir;
+                    } else {
+                      // Try to find screenshot in test-results
+                      const testId = spec.id || '';
+                      const screenshotGlob = \`test-results/**/test-failed-1.png\`;
+                      try {
+                        const { execSync } = require('child_process');
+                        const found = execSync(\`find test-results -name 'test-failed-1.png' | head -1\`).toString().trim();
+                        if (found) screenshotPath = found;
+                      } catch (e) {}
+                    }
+
                     report.failedTests.push({
                       title: spec.title,
                       file: spec.file,
-                      error: result.error?.message || 'Unknown error'
+                      error: result.error?.message || 'Unknown error',
+                      screenshot: screenshotPath
                     });
+
+                    if (screenshotPath && report.screenshots.length < 5) {
+                      report.screenshots.push(screenshotPath);
+                    }
                   }
                 });
               });
@@ -99,11 +108,47 @@ jobs:
             fs.writeFileSync('test-report-summary.json', JSON.stringify(report, null, 2));
           } catch (error) {
             console.error('Error generating report:', error);
-            fs.writeFileSync('test-report-summary.json', JSON.stringify({ error: error.message }, null, 2));
+            fs.writeFileSync('test-report-summary.json', JSON.stringify({
+              error: error.message,
+              passed: 0,
+              failed: 0,
+              total: 0,
+              screenshots: []
+            }, null, 2));
           }
           "
 
-      - name: Comment PR with detailed results
+      - name: Copy screenshots to report directory
+        if: always()
+        run: |
+          mkdir -p playwright-report/screenshots
+          # Find and copy screenshots from failed tests to report directory
+          find test-results -name "test-failed-*.png" 2>/dev/null | head -10 | while IFS= read -r screenshot; do
+            filename=$(basename "$(dirname "$screenshot")")-$(basename "$screenshot")
+            cp "$screenshot" "playwright-report/screenshots/$filename" 2>/dev/null || true
+          done
+          ls -la playwright-report/screenshots/ || echo "No screenshots found"
+
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+      - name: Deploy Playwright Report to GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./playwright-report
+          destination_dir: e2e-reports/${{ github.run_number }}
+          keep_files: false
+
+      - name: Comment PR with results and embedded screenshots
         if: always() && github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
@@ -120,7 +165,6 @@ jobs:
                 comment += `⚠️ Error generating report: ${report.error}\n\n`;
                 comment += `Check the [workflow run](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.\n`;
               } else {
-                // Summary section
                 const passRate = report.total > 0 ? Math.round((report.passed / report.total) * 100) : 0;
                 const statusIcon = report.failed === 0 ? '✅' : '❌';
 
@@ -135,15 +179,51 @@ jobs:
                 if (report.skipped > 0) comment += `| ⏭️ Skipped | ${report.skipped} |\n`;
                 comment += `| ⏱️ Duration | ${report.duration.toFixed(1)}s |\n\n`;
 
-                // Failed tests details
-                if (report.failed > 0 && report.failedTests.length > 0) {
-                  comment += '### ❌ Failed Tests\n\n';
-                  comment += '<details>\n<summary>Click to expand failure details</summary>\n\n';
+                // Link to GitHub Pages report
+                const repoUrl = `https://${context.repo.owner}.github.io/${context.repo.repo}`;
+                const reportUrl = `${repoUrl}/e2e-reports/${context.runNumber}`;
+
+                comment += `### 🌐 [View Full Report with Videos](${reportUrl})\n\n`;
+                comment += `👆 Click above to view the interactive report with:\n`;
+                comment += `- 🎥 Video playback of all failed tests\n`;
+                comment += `- 🔍 Interactive trace viewer\n`;
+                comment += `- 📊 Detailed timeline and metrics\n\n`;
+
+                // Embedded screenshots from GitHub Pages
+                if (report.failed > 0) {
+                  comment += '### 📸 Failed Test Screenshots\n\n';
+
+                  const screenshotDir = 'playwright-report/screenshots';
+                  let screenshots = [];
+
+                  try {
+                    screenshots = fs.readdirSync(screenshotDir).filter(f => f.endsWith('.png'));
+                  } catch (e) {
+                    console.log('No screenshot directory found');
+                  }
+
+                  if (screenshots.length > 0) {
+                    comment += '<details>\n<summary>Click to view screenshots from failed tests</summary>\n\n';
+
+                    for (let i = 0; i < Math.min(screenshots.length, 10); i++) {
+                      const screenshot = screenshots[i];
+                      const screenshotUrl = `${reportUrl}/screenshots/${screenshot}`;
+
+                      comment += `#### Screenshot ${i + 1}\n`;
+                      comment += `![Failed test screenshot](${screenshotUrl})\n\n`;
+                    }
+
+                    comment += '</details>\n\n';
+                  } else {
+                    comment += `*Screenshots will be available in the [full report](${reportUrl})*\n\n`;
+                  }
+
+                  // Failed test details
+                  comment += '<details>\n<summary>📋 Click to view failure details</summary>\n\n';
 
                   report.failedTests.slice(0, 10).forEach((test, idx) => {
                     comment += `#### ${idx + 1}. ${test.title}\n`;
                     comment += `📁 **File:** \`${test.file}\`\n\n`;
-
                     const errorLines = test.error.split('\n').slice(0, 3).join('\n');
                     comment += '```\n' + errorLines + '\n```\n\n';
                   });
