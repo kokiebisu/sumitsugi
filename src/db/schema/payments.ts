@@ -80,7 +80,7 @@ export const stripeAccounts = pgTable("stripe_accounts", {
   accountType: varchar("account_type", { length: 50 }).notNull().default("express"),
 
   // Onboarding and capability flags
-  onboardingComplete: boolean("onboarding_complete").default(false).notNull(),
+  onboardingCompleted: boolean("onboarding_completed").default(false).notNull(),
   detailsSubmitted: boolean("details_submitted").default(false).notNull(),
   chargesEnabled: boolean("charges_enabled").default(false).notNull(),
   payoutsEnabled: boolean("payouts_enabled").default(false).notNull(),
