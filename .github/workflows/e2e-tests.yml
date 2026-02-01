@@ -14,7 +14,88 @@ permissions:
   id-token: write
 
 jobs:
+  determine-tests:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    outputs:
+      test-filter: ${{ steps.set-filter.outputs.filter }}
+      detected-tags: ${{ steps.set-filter.outputs.tags }}
+      skip-tests: ${{ steps.check-labels.outputs.skip }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check PR labels
+        id: check-labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = context.payload.pull_request.labels.map(l => l.name);
+
+            if (labels.includes('e2e:skip')) {
+              core.setOutput('skip', 'true');
+              return;
+            }
+
+            if (labels.includes('e2e:full-suite')) {
+              core.setOutput('full-suite', 'true');
+              return;
+            }
+
+            if (labels.includes('e2e:critical-only')) {
+              core.setOutput('critical-only', 'true');
+              return;
+            }
+
+            core.setOutput('skip', 'false');
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Detect tags with fallback script
+        id: fallback-detection
+        run: node scripts/detect-test-tags.js
+
+      - name: Set filter output
+        id: set-filter
+        run: |
+          if [[ "${{ steps.check-labels.outputs.skip }}" == "true" ]]; then
+            echo "filter=@skip-all-tests" >> $GITHUB_OUTPUT
+            echo "tags=skip" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          if [[ "${{ steps.check-labels.outputs.critical-only }}" == "true" ]]; then
+            echo "filter=@critical" >> $GITHUB_OUTPUT
+            echo "tags=critical" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          if [[ "${{ steps.check-labels.outputs.full-suite }}" == "true" ]]; then
+            echo "filter=" >> $GITHUB_OUTPUT
+            echo "tags=all" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # No labels set - use fallback script output
+          FILTER="${{ steps.fallback-detection.outputs.filter }}"
+          TAGS="${{ steps.fallback-detection.outputs.tags }}"
+
+          echo "filter=$FILTER" >> $GITHUB_OUTPUT
+          echo "tags=$TAGS" >> $GITHUB_OUTPUT
+          echo "Using fallback detection: filter=$FILTER, tags=$TAGS"
+
   e2e-tests:
+    needs: [determine-tests]
+    if: |
+      always() &&
+      (github.event_name == 'push' ||
+       (github.event_name == 'pull_request' && needs.determine-tests.outputs.skip-tests != 'true'))
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -43,7 +124,15 @@ jobs:
           NEXTAUTH_SECRET: test-secret-for-ci-builds-only
 
       - name: Run E2E tests
-        run: npm run test:e2e
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]] || [[ "${{ needs.determine-tests.outputs.test-filter }}" == "" ]]; then
+            echo "Running full test suite"
+            npm run test:e2e
+          else
+            FILTER="${{ needs.determine-tests.outputs.test-filter }}"
+            echo "Running filtered tests: $FILTER"
+            npm run test:e2e -- --grep "$FILTER"
+          fi
         env:
           CI: true
           BASE_URL: http://localhost:3000
@@ -173,6 +262,37 @@ jobs:
 
                 comment += `${statusIcon} **Status:** ${report.failed === 0 ? 'All tests passed!' : `${report.failed} test(s) failed`}\n\n`;
 
+                // Add test selection info for PRs
+                const testFilter = '${{ needs.determine-tests.outputs.test-filter }}';
+                const detectedTags = '${{ needs.determine-tests.outputs.detected-tags }}';
+
+                if (testFilter && testFilter !== '' && testFilter !== '@skip-all-tests') {
+                  comment += '### 🎯 Test Selection\n\n';
+                  comment += `**Filter:** \`${testFilter}\`\n\n`;
+
+                  const tags = testFilter.match(/@\w+/g) || [];
+                  if (tags.length > 0) {
+                    comment += '**Tags included:**\n';
+                    tags.forEach(tag => {
+                      const tagName = tag.substring(1);
+                      const tagDescriptions = {
+                        'critical': 'Core user journeys',
+                        'smoke': 'Quick sanity checks',
+                        'auth': 'Authentication flows',
+                        'listing': 'Listing management',
+                        'properties': 'Property browsing',
+                        'extended': 'Edge case tests'
+                      };
+                      const description = tagDescriptions[tagName] || 'Unknown tag';
+                      comment += `- \`${tag}\` - ${description}\n`;
+                    });
+                    comment += '\n';
+                  }
+
+                  comment += '💡 **Note:** Full suite will run when merged to main\n\n';
+                }
+
+                comment += '### 📊 Test Results\n\n';
                 comment += '| Metric | Value |\n';
                 comment += '|--------|-------|\n';
                 comment += `| Total Tests | ${report.total} |\n`;

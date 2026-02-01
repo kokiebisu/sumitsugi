@@ -12,7 +12,7 @@ import { test, expect, testData, clearLocalStorage, setupAuthenticatedUser, setu
  * - Edit/delete existing listings
  */
 
-test.describe('Listing Page - Access Control', () => {
+test.describe('Listing Page - Access Control @listing @auth @critical', () => {
   test('should redirect to home when not logged in', async ({ listingPage, page }) => {
     await page.goto('/')
     await clearLocalStorage(page)
@@ -38,7 +38,7 @@ test.describe('Listing Page - Access Control', () => {
   })
 })
 
-test.describe('Listing Page - Empty State', () => {
+test.describe('Listing Page - Empty State @listing @smoke', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await setupAuthenticatedUser(page)
@@ -84,7 +84,7 @@ test.describe('Listing Page - Empty State', () => {
   })
 })
 
-test.describe('Listing Page - With Existing Listings', () => {
+test.describe('Listing Page - With Existing Listings @listing @quarantine', () => {
   test.beforeEach(async ({ page }) => {
     // Set up user with mock listings using addInitScript to ensure persistence
     await page.goto('/')
