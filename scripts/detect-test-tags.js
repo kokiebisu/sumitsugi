@@ -80,9 +80,10 @@ function detectFeatureTags(changedFiles) {
 
 /**
  * Generate Playwright grep filter from tags
+ * Uses regex OR (|) for Playwright --grep compatibility
  */
 function generateGrepFilter(tags) {
-  return tags.join(' or ');
+  return tags.join('|');
 }
 
 /**
