@@ -1,0 +1,107 @@
+name: E2E Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Build Next.js app
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+        env:
+          CI: true
+          BASE_URL: http://localhost:3000
+
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            playwright-results.xml
+            playwright-results.json
+          retention-days: 7
+
+      - name: Comment PR with test results
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            let comment = '## 🎭 E2E Test Results\n\n';
+
+            try {
+              const resultsJson = JSON.parse(fs.readFileSync('playwright-results.json', 'utf8'));
+              const stats = resultsJson.stats || {};
+
+              const passed = stats.expected || 0;
+              const failed = stats.unexpected || 0;
+              const flaky = stats.flaky || 0;
+              const skipped = stats.skipped || 0;
+              const total = passed + failed + flaky + skipped;
+
+              comment += `📊 **Summary:**\n`;
+              comment += `- Total tests: ${total}\n`;
+              comment += `- ✅ Passed: ${passed}\n`;
+              if (failed > 0) comment += `- ❌ Failed: ${failed}\n`;
+              if (flaky > 0) comment += `- ⚠️ Flaky: ${flaky}\n`;
+              if (skipped > 0) comment += `- ⏭️ Skipped: ${skipped}\n`;
+
+              comment += `\n📦 **Artifacts:**\n`;
+              comment += `- Download [Playwright Report](../actions/runs/${context.runId}) to view detailed results\n`;
+              comment += `- Videos, screenshots, and traces are available in the artifacts\n`;
+
+              if (failed === 0) {
+                comment += `\n✨ All tests passed!`;
+              } else {
+                comment += `\n⚠️ Some tests failed. Check the artifacts for details.`;
+              }
+            } catch (error) {
+              comment += `⚠️ Could not parse test results: ${error.message}\n`;
+              comment += `Check the [workflow run](../actions/runs/${context.runId}) for details.`;
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
