@@ -130,11 +130,15 @@ jobs:
           # Push and PR (force to handle re-runs on same day)
           git push -u origin "$BRANCH" --force
 
-          gh pr create \
+          PR_URL=$(gh pr create \
             --title "$AUDIT_DATE Daily Audit" \
             --body "## Summary
           $SUMMARY
 
           **Gaps Found:** $GAP_COUNT" \
             --base main \
-            --head "$BRANCH"
+            --head "$BRANCH")
+
+          # Auto-merge the audit PR
+          PR_NUM=$(echo "$PR_URL" | grep -oE '[0-9]+$')
+          gh pr merge "$PR_NUM" --squash --delete-branch

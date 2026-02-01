@@ -183,7 +183,8 @@ GitHub Actionsで毎日午前9時(JST)に自動実行。REQUIREMENTS.mdとコー
 2. 実際のコードと比較（Claude API使用）
 3. 差分（ギャップ）があればBeadsタスクとして登録
 4. ギャップがある場合のみPRを作成（`YYYY-MM-DD Daily Audit`）
-5. ギャップがなければPR作成をスキップ
+5. PRを自動マージ
+6. ギャップがなければPR作成をスキップ
 
 **手動実行:**
 ```bash
