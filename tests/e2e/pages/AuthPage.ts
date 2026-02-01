@@ -9,9 +9,10 @@ export class AuthPage extends BasePage {
   readonly signupDialog: Locator
   readonly dialogTitle: Locator
   readonly emailInput: Locator
+  readonly phoneInput: Locator
   readonly continueButton: Locator
-  readonly phoneButton: Locator
-  readonly socialButtons: {
+  readonly phoneButton: Locator // Deprecated: UI no longer has this button
+  readonly socialButtons: { // Deprecated: UI no longer has social login
     facebook: Locator
     google: Locator
     apple: Locator
@@ -27,6 +28,7 @@ export class AuthPage extends BasePage {
     this.signupDialog = page.locator('.fixed.inset-0.z-50')
     this.dialogTitle = this.signupDialog.locator('h2')
     this.emailInput = this.signupDialog.locator('input[type="email"]')
+    this.phoneInput = this.signupDialog.locator('input[type="tel"]')
     this.continueButton = this.signupDialog.locator('button[type="submit"]')
     this.phoneButton = this.signupDialog.locator('button:has-text("電話番号で続行")')
     this.socialButtons = {
@@ -51,10 +53,11 @@ export class AuthPage extends BasePage {
   }
 
   /**
-   * Login with email
+   * Login with email and phone
    */
-  async loginWithEmail(email: string) {
+  async loginWithEmail(email: string, phone: string = '09012345678') {
     await this.emailInput.fill(email)
+    await this.phoneInput.fill(phone)
     await this.continueButton.click()
     // Wait for processing to complete
     await this.processingIndicator.waitFor({ state: 'visible' }).catch(() => {})
@@ -106,13 +109,14 @@ export class AuthPage extends BasePage {
    */
   async clickBecomeSeller() {
     // First check if it's in header (not logged in, not a seller)
-    const headerButton = this.page.locator('button:has-text("暮らしを譲る")').first()
+    const headerButton = this.page.locator('header button:has-text("暮らしを譲る")')
     if (await headerButton.isVisible()) {
       await headerButton.click()
     } else {
       // Try via menu
       await this.openMenu()
-      await this.becomeSellerButton.click()
+      const menuItem = this.page.locator('[role="menuitem"]:has-text("暮らしを譲る")')
+      await menuItem.click()
     }
   }
 

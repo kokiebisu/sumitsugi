@@ -1,4 +1,4 @@
-import { Page, Locator, expect } from '@playwright/test'
+import { Page, Locator } from '@playwright/test'
 import { BasePage } from './BasePage'
 
 /**
@@ -18,7 +18,8 @@ export class ListingPage extends BasePage {
     this.createButton = page.locator('a[href="/listing/new"] button, a:has-text("リスティングを作成")')
     this.emptyStateTitle = page.locator('h1:has-text("最初のリスティングをはじめよう")')
     this.listingCards = page.locator('.group.relative.bg-white.rounded-2xl')
-    this.listingCount = page.locator('p:has-text("件のリスティング")')
+    // Listing count is shown in a badge next to "リスティング" tab
+    this.listingCount = page.locator('button:has-text("リスティング") span.rounded-full')
     this.newListingButton = page.locator('a[href="/listing/new"]')
     this.scrollingImages = page.locator('[style*="animation: scrollLeft"], [style*="animation: scrollRight"]')
   }
@@ -39,13 +40,13 @@ export class ListingPage extends BasePage {
   }
 
   /**
-   * Get the number of listings
+   * Get the number of listings from the badge in the tab
    */
   async getListingCount(): Promise<number> {
     const countText = await this.listingCount.textContent()
     if (!countText) return 0
-    const match = countText.match(/(\d+)/)
-    return match ? parseInt(match[1], 10) : 0
+    // Count is just a number in the badge, e.g. "2"
+    return parseInt(countText.trim(), 10) || 0
   }
 
   /**
