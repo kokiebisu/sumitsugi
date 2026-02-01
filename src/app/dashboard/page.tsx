@@ -91,6 +91,33 @@ export default function DashboardPage() {
     }
   };
 
+  const getActionButton = (status: string, inquiryId: string) => {
+    switch (status) {
+      case "viewing_scheduled":
+        return (
+          <Link
+            href={`/inquiry/${inquiryId}/viewing-complete`}
+            className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            内見完了を報告
+            <ArrowRight className="ml-1 h-4 w-4" />
+          </Link>
+        );
+      case "agreement_pending":
+        return (
+          <Link
+            href={`/inquiry/${inquiryId}/agreement`}
+            className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            引き継ぎ内容を確認
+            <ArrowRight className="ml-1 h-4 w-4" />
+          </Link>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <Header />
@@ -256,6 +283,13 @@ export default function DashboardPage() {
                         {getNextAction(inquiry.status)}
                       </p>
                     </div>
+
+                    {/* アクションボタン */}
+                    {getActionButton(inquiry.status, inquiry.id) && (
+                      <div className="mt-4">
+                        {getActionButton(inquiry.status, inquiry.id)}
+                      </div>
+                    )}
                   </div>
                 );
               })}
