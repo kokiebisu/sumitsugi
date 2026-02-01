@@ -87,7 +87,7 @@ describe("Payment Database Schema", () => {
       expect(columns.accountType).toBeDefined();
 
       // Onboarding and capability flags
-      expect(columns.onboardingComplete).toBeDefined();
+      expect(columns.onboardingCompleted).toBeDefined();
       expect(columns.detailsSubmitted).toBeDefined();
       expect(columns.chargesEnabled).toBeDefined();
       expect(columns.payoutsEnabled).toBeDefined();
