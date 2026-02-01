@@ -65,37 +65,41 @@ test.describe('Inquiry Flow - Unauthenticated User @inquiry @critical', () => {
   test('should show all required form fields', async ({ page }) => {
     await page.goto(`/listings/${testData.properties.dj}/inquiry`)
 
+    // Scope to main inquiry form
+    const mainForm = page.locator('main form').first()
+
     // Name field
-    const nameInput = page.locator('input#name')
+    const nameInput = mainForm.locator('input#name')
     await expect(nameInput).toBeVisible()
     await expect(nameInput).toHaveAttribute('required')
 
     // Email field
-    const emailInput = page.locator('input#email')
+    const emailInput = mainForm.locator('input#email')
     await expect(emailInput).toBeVisible()
     await expect(emailInput).toHaveAttribute('type', 'email')
     await expect(emailInput).toHaveAttribute('required')
 
     // Reason field (main field)
-    const reasonField = page.locator('textarea#reason')
+    const reasonField = mainForm.locator('textarea#reason')
     await expect(reasonField).toBeVisible()
     await expect(reasonField).toHaveAttribute('required')
 
     // Questions field (optional)
-    const questionsField = page.locator('textarea#questions')
+    const questionsField = mainForm.locator('textarea#questions')
     await expect(questionsField).toBeVisible()
   })
 
   test('should trigger signup dialog when submitting without authentication', async ({ page, authPage }) => {
     await page.goto(`/listings/${testData.properties.dj}/inquiry`)
 
-    // Fill form
-    await page.locator('input#name').fill('テスト太郎')
-    await page.locator('input#email').fill('test@example.com')
-    await page.locator('textarea#reason').fill('この暮らしに興味があります')
+    // Fill form - scope to main content form (not signup dialog)
+    const mainForm = page.locator('main form').first()
+    await mainForm.locator('input#name').fill('テスト太郎')
+    await mainForm.locator('input#email').fill('test@example.com')
+    await mainForm.locator('textarea#reason').fill('この暮らしに興味があります')
 
     // Submit form - should trigger signup dialog
-    await page.locator('button[type="submit"]').click()
+    await mainForm.locator('button[type="submit"]').click()
 
     // Should show signup dialog
     await expect(authPage.signupDialog).toBeVisible()
@@ -220,16 +224,17 @@ test.describe('Inquiry Flow - Form Validation @inquiry @extended', () => {
   test('should validate email format', async ({ page }) => {
     await page.goto(`/listings/${testData.properties.dj}/inquiry`)
 
-    // Enter invalid email
-    await page.locator('input#email').fill('invalid-email')
-    await page.locator('input#name').fill('テスト太郎')
-    await page.locator('textarea#reason').fill('興味があります')
+    // Enter invalid email - scope to main form
+    const mainForm = page.locator('main form').first()
+    await mainForm.locator('input#email').fill('invalid-email')
+    await mainForm.locator('input#name').fill('テスト太郎')
+    await mainForm.locator('textarea#reason').fill('興味があります')
 
     // Try to submit
-    await page.locator('button[type="submit"]').click()
+    await mainForm.locator('button[type="submit"]').click()
 
     // Email field should show validation error
-    const emailInput = page.locator('input#email')
+    const emailInput = mainForm.locator('input#email')
     await expect(emailInput).toBeFocused()
   })
 
