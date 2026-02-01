@@ -1,0 +1,134 @@
+name: Requirements Audit
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    env:
+      AUDIT_DATE: ""
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set date
+        run: echo "AUDIT_DATE=$(date +%Y-%m-%d)" >> $GITHUB_ENV
+
+      - name: Collect context
+        run: |
+          echo "Collecting requirements and code..."
+
+          # Requirements files
+          cat .claude/REQUIREMENTS.md > /tmp/requirements.md 2>/dev/null || echo "No REQUIREMENTS.md" > /tmp/requirements.md
+          cat .claude/BUSINESS.md > /tmp/business.md 2>/dev/null || echo "No BUSINESS.md" > /tmp/business.md
+
+          # Code structure
+          find src -name "*.ts" -o -name "*.tsx" 2>/dev/null | head -30 | xargs -I {} sh -c 'echo "=== {} ===" && head -20 {}' > /tmp/code.txt 2>/dev/null || echo "No src" > /tmp/code.txt
+
+          # Existing tasks
+          cat .beads/issues.jsonl 2>/dev/null | jq -s '[.[] | {id, title, status}]' > /tmp/tasks.json 2>/dev/null || echo "[]" > /tmp/tasks.json
+
+      - name: Run Claude Audit
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          REQUIREMENTS=$(cat /tmp/requirements.md)
+          BUSINESS=$(cat /tmp/business.md)
+          CODE=$(cat /tmp/code.txt)
+          TASKS=$(cat /tmp/tasks.json)
+
+          PROMPT="Audit this codebase against requirements. Find gaps between REQUIREMENTS.md and actual code.
+
+          Output JSON only:
+          {\"summary\": \"...\", \"gaps\": [{\"title\": \"...\", \"description\": \"...\", \"priority\": 1, \"source\": \"...\"}], \"no_gaps_found\": false}
+
+          REQUIREMENTS.md:
+          $REQUIREMENTS
+
+          BUSINESS.md:
+          $BUSINESS
+
+          Code:
+          $CODE
+
+          Existing tasks (avoid duplicates):
+          $TASKS"
+
+          RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
+            -H "Content-Type: application/json" \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            -d "{\"model\": \"claude-sonnet-4-20250514\", \"max_tokens\": 4096, \"messages\": [{\"role\": \"user\", \"content\": $(echo "$PROMPT" | jq -Rs .)}]}")
+
+          echo "$RESPONSE" | jq -r '.content[0].text // "{\"error\": \"failed\"}"' > /tmp/audit.json
+          cat /tmp/audit.json
+
+      - name: Create tasks and PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          AUDIT=$(cat /tmp/audit.json)
+
+          if ! echo "$AUDIT" | jq empty 2>/dev/null; then
+            echo "Invalid JSON, skipping"
+            exit 0
+          fi
+
+          SUMMARY=$(echo "$AUDIT" | jq -r '.summary // "Audit done"')
+          GAP_COUNT=$(echo "$AUDIT" | jq -r '.gaps | length // 0')
+
+          # Add tasks to beads
+          echo "$AUDIT" | jq -c '.gaps[]?' | while read -r gap; do
+            TITLE=$(echo "$gap" | jq -r '.title')
+            DESC=$(echo "$gap" | jq -r '.description')
+            PRIORITY=$(echo "$gap" | jq -r '.priority // 2')
+            NEW_ID="tsumugi-$(openssl rand -hex 3)"
+            TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+            echo "{\"id\":\"$NEW_ID\",\"title\":\"$TITLE\",\"description\":\"$DESC\",\"status\":\"open\",\"priority\":$PRIORITY,\"issue_type\":\"task\",\"created_at\":\"$TS\",\"created_by\":\"Audit\",\"labels\":[\"audit\"]}" >> .beads/issues.jsonl
+          done
+
+          # Git config
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Create branch
+          BRANCH="audit/$AUDIT_DATE"
+          git checkout -b "$BRANCH"
+
+          # Commit beads
+          git add .beads/issues.jsonl 2>/dev/null || true
+          git diff --staged --quiet || git commit -m "chore(audit): add tasks"
+
+          # Create report
+          mkdir -p .github/audits
+          echo "# Audit $AUDIT_DATE" > ".github/audits/$AUDIT_DATE.md"
+          echo "" >> ".github/audits/$AUDIT_DATE.md"
+          echo "## Summary" >> ".github/audits/$AUDIT_DATE.md"
+          echo "$SUMMARY" >> ".github/audits/$AUDIT_DATE.md"
+          echo "" >> ".github/audits/$AUDIT_DATE.md"
+          echo "## Gaps: $GAP_COUNT" >> ".github/audits/$AUDIT_DATE.md"
+          echo "$AUDIT" | jq -r '.gaps[]? | "- \(.title)"' >> ".github/audits/$AUDIT_DATE.md"
+
+          git add ".github/audits/$AUDIT_DATE.md"
+          git commit -m "docs(audit): report $AUDIT_DATE" || true
+
+          # Push and PR
+          git push -u origin "$BRANCH"
+
+          gh pr create \
+            --title "$AUDIT_DATE Daily Audit" \
+            --body "## Summary
+          $SUMMARY
+
+          **Gaps Found:** $GAP_COUNT" \
+            --base main \
+            --head "$BRANCH"
