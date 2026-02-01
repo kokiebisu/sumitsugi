@@ -14,7 +14,7 @@ import { test, expect, testData, clearLocalStorage, setupAuthenticatedUser } fro
  * - Post-submission redirect
  */
 
-test.describe('Inquiry Flow - Unauthenticated User', () => {
+test.describe('Inquiry Flow - Unauthenticated User @inquiry @critical', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await clearLocalStorage(page)
@@ -111,7 +111,7 @@ test.describe('Inquiry Flow - Unauthenticated User', () => {
   })
 })
 
-test.describe('Inquiry Flow - Authenticated User', () => {
+test.describe('Inquiry Flow - Authenticated User @inquiry @auth @critical', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await setupAuthenticatedUser(page)
@@ -211,7 +211,7 @@ test.describe('Inquiry Flow - Authenticated User', () => {
   })
 })
 
-test.describe('Inquiry Flow - Form Validation', () => {
+test.describe('Inquiry Flow - Form Validation @inquiry @extended', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await clearLocalStorage(page)
@@ -257,7 +257,7 @@ test.describe('Inquiry Flow - Form Validation', () => {
   })
 })
 
-test.describe('Inquiry Flow - Different Properties', () => {
+test.describe('Inquiry Flow - Different Properties @inquiry @extended', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await setupAuthenticatedUser(page)
@@ -281,7 +281,7 @@ test.describe('Inquiry Flow - Different Properties', () => {
   })
 })
 
-test.describe('Inquiry Flow - Edge Cases', () => {
+test.describe('Inquiry Flow - Edge Cases @inquiry @extended', () => {
   test('should show 404 for non-existent property inquiry', async ({ page }) => {
     await page.goto('/listings/non-existent-property/inquiry')
 
