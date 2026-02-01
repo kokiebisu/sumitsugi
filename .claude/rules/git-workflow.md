@@ -129,6 +129,18 @@ When creating PRs:
    git branch -D <feature-branch-name>
    ```
 
+**Keep PR Description Updated (CRITICAL):**
+- **ALWAYS update PR description after making changes to the branch**
+- After each commit/push, use `gh pr edit <pr-number> --body "..."` to update description
+- PR description should reflect ALL changes made, not just initial changes
+- Include:
+  - Summary of what changed since last update
+  - Why changes were needed (e.g., "Fixed CI timeout", "Resolved merge conflict")
+  - Current state of the PR
+  - Test status
+- This keeps reviewers informed and maintains accurate documentation
+- Use comprehensive descriptions like the example in this PR (#103)
+
 ## Creating Multiple PRs from Grouped Changes (CRITICAL)
 
 When you have multiple groups of changes to commit as separate PRs:
