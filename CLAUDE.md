@@ -172,6 +172,26 @@ import { something } from "@/lib/utils"; // → src/lib/utils
 import { Button } from "@/components/ui/button";
 ```
 
+## Automated Workflows
+
+### Daily Requirements Audit
+
+GitHub Actionsで毎日午前9時(JST)に自動実行。REQUIREMENTS.mdとコードを比較し、実装漏れを検出。
+
+**動作:**
+1. REQUIREMENTS.md / BUSINESS.md を読み込み
+2. 実際のコードと比較（Claude API使用）
+3. 差分（ギャップ）があればBeadsタスクとして登録
+4. ギャップがある場合のみPRを作成（`YYYY-MM-DD Daily Audit`）
+5. ギャップがなければPR作成をスキップ
+
+**手動実行:**
+```bash
+gh workflow run "Requirements Audit"
+```
+
+**必要なSecret:** `ANTHROPIC_API_KEY`
+
 ## Related Documentation
 
 詳細な仕様については以下を参照：
