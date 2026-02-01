@@ -71,6 +71,13 @@ Note: Attribution disabled globally via ~/.claude/settings.json.
 
 ## Pull Request Workflow
 
+**PR Size Limit (CRITICAL):**
+- Maximum ~300 lines of code per PR
+- Large features MUST be broken into multiple sequential PRs
+- Each PR should be independently reviewable
+- If a task results in >300 lines, split it into smaller logical chunks
+- Example: Database schema with 3 tables = 3 separate PRs (one per table)
+
 **Single Responsibility Principle (CRITICAL):**
 - Each PR must address ONE specific concern only
 - Do NOT combine unrelated changes (e.g., feature + docs update, bug fix + refactor)
