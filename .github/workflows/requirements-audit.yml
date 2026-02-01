@@ -86,6 +86,12 @@ jobs:
           SUMMARY=$(echo "$AUDIT" | jq -r '.summary // "Audit done"')
           GAP_COUNT=$(echo "$AUDIT" | jq -r '.gaps | length // 0')
 
+          # Skip if no gaps found
+          if [ "$GAP_COUNT" = "0" ] || [ "$GAP_COUNT" = "null" ]; then
+            echo "No gaps found, skipping PR creation"
+            exit 0
+          fi
+
           # Add tasks to beads
           echo "$AUDIT" | jq -c '.gaps[]?' | while read -r gap; do
             TITLE=$(echo "$gap" | jq -r '.title')
