@@ -82,6 +82,14 @@ jobs:
             exit 0
           fi
 
+          # No labels set - use fallback script output
+          FILTER="${{ steps.fallback-detection.outputs.filter }}"
+          TAGS="${{ steps.fallback-detection.outputs.tags }}"
+
+          echo "filter=$FILTER" >> $GITHUB_OUTPUT
+          echo "tags=$TAGS" >> $GITHUB_OUTPUT
+          echo "Using fallback detection: filter=$FILTER, tags=$TAGS"
+
   e2e-tests:
     needs: [determine-tests]
     if: |
