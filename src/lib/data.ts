@@ -55,7 +55,18 @@ export interface Inquiry {
   id: string
   propertyId: string
   propertyTitle: string
-  status: "pending" | "reviewing" | "approved" | "viewing_scheduled" | "contract_in_progress" | "completed" | "rejected" | "cancelled"
+  status:
+    | "pending"
+    | "reviewing"
+    | "approved"
+    | "viewing_scheduled"
+    | "viewing_completed"
+    | "agreement_pending"
+    | "agreement_signed"
+    | "contract_in_progress"
+    | "completed"
+    | "rejected"
+    | "cancelled"
   applicantName: string
   applicantEmail: string
   reason: string // 興味を持った理由
@@ -64,6 +75,68 @@ export interface Inquiry {
   updatedAt: string
   notes?: string // 運営メモ
   viewingConfirmation?: ViewingConfirmation // 内見確認状態
+  handoverAgreementId?: string // 紐づく合意ID
+}
+
+// 引き継ぎ品目の状態
+export type ItemCondition = "excellent" | "good" | "fair" | "poor"
+
+// 引き継ぎ品目
+export interface HandoverItem {
+  id: string
+  name: string
+  category: "furniture" | "appliance" | "other"
+  condition: ItemCondition
+  photos: string[]
+  notes?: string
+  included: boolean
+}
+
+// 署名情報
+export interface BuyerSignature {
+  name: string
+  agreedAt: string // ISO日付
+  ipAddress?: string
+}
+
+// 引き継ぎ合意ステータス
+export type HandoverAgreementStatus =
+  | "draft"
+  | "pending_acceptance"
+  | "accepted"
+  | "signed"
+
+// 引き継ぎ合意
+export interface HandoverAgreement {
+  id: string
+  inquiryId: string
+  propertyId: string
+
+  // 家具リスト（最終調整後）
+  items: HandoverItem[]
+
+  // 引越し費用
+  adjustedHandoverFee: number
+  originalHandoverFee: number
+
+  // ステータス
+  status: HandoverAgreementStatus
+
+  // タイムスタンプ
+  createdAt: string
+  acceptedAt?: string
+  signedAt?: string
+
+  // 署名情報
+  buyerSignature?: BuyerSignature
+
+  // 当事者情報（PDF用）
+  sellerName: string
+  sellerEmail: string
+  buyerName: string
+  buyerEmail: string
+  propertyTitle: string
+  propertyAddress?: string
 }
 
 // Seller Listing (物件掲載申込) データ型
@@ -2250,6 +2323,52 @@ export const hostListings: SellerListing[] = [
     submittedAt: "2026-01-08T14:20:00Z",
     updatedAt: "2026-01-10T10:00:00Z",
     notes: "ヒアリング完了。掲載準備中。",
+  },
+]
+
+// モック引き継ぎ合意データ
+export const mockHandoverAgreements: HandoverAgreement[] = [
+  {
+    id: "ha-001",
+    inquiryId: "inq-001",
+    propertyId: "prop-001",
+    items: [
+      {
+        id: "item-001",
+        name: "冷蔵庫",
+        category: "appliance",
+        condition: "good",
+        photos: [],
+        included: true,
+      },
+      {
+        id: "item-002",
+        name: "洗濯機",
+        category: "appliance",
+        condition: "excellent",
+        photos: [],
+        included: true,
+      },
+      {
+        id: "item-003",
+        name: "ダイニングテーブル",
+        category: "furniture",
+        condition: "good",
+        photos: [],
+        notes: "4人掛け、IKEAで購入",
+        included: true,
+      },
+    ],
+    adjustedHandoverFee: 50000,
+    originalHandoverFee: 60000,
+    status: "draft",
+    createdAt: new Date().toISOString(),
+    sellerName: "山田太郎",
+    sellerEmail: "yamada@example.com",
+    buyerName: "佐藤花子",
+    buyerEmail: "sato@example.com",
+    propertyTitle: "目黒の緑に囲まれた部屋",
+    propertyAddress: "東京都目黒区中目黒1-1-1",
   },
 ]
 
