@@ -22,6 +22,7 @@ A Node.js/TypeScript project with devcontainer support.
 - `npm run start` - Run the compiled JavaScript
 - `npm run dev` - Run in development mode with hot reload
 - `npm test` - Run tests
+- `npm run test:e2e` - Run E2E tests with Playwright
 
 ## Project Structure
 
@@ -36,5 +37,12 @@ A Node.js/TypeScript project with devcontainer support.
 ├── tsconfig.json
 └── README.md
 ```
+
+## E2E Test Reports
+
+View the latest E2E test results and screenshots:
+- GitHub Pages: https://kokiebisu.github.io/tsumugi/e2e-reports/
+
+E2E tests run automatically on every PR and push to main. Test reports include screenshots, videos, and traces for debugging failures.
 
 # tsumugi
