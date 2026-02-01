@@ -20,7 +20,7 @@ export default defineConfig({
     baseURL: process.env.BASE_URL || 'http://localhost:3000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    video: 'on', // Record all tests (success + failure)
     actionTimeout: 15000,
     navigationTimeout: 30000,
     locale: 'ja-JP',
