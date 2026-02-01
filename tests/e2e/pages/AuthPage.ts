@@ -109,13 +109,14 @@ export class AuthPage extends BasePage {
    */
   async clickBecomeSeller() {
     // First check if it's in header (not logged in, not a seller)
-    const headerButton = this.page.locator('button:has-text("暮らしを譲る")').first()
+    const headerButton = this.page.locator('header button:has-text("暮らしを譲る")')
     if (await headerButton.isVisible()) {
       await headerButton.click()
     } else {
       // Try via menu
       await this.openMenu()
-      await this.becomeSellerButton.click()
+      const menuItem = this.page.locator('[role="menuitem"]:has-text("暮らしを譲る")')
+      await menuItem.click()
     }
   }
 
