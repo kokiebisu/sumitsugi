@@ -78,6 +78,67 @@ export interface Inquiry {
   handoverAgreementId?: string // 紐づく合意ID
 }
 
+// 引き継ぎ品目の状態
+export type ItemCondition = "excellent" | "good" | "fair" | "poor"
+
+// 引き継ぎ品目
+export interface HandoverItem {
+  id: string
+  name: string
+  category: "furniture" | "appliance" | "other"
+  condition: ItemCondition
+  photos: string[]
+  notes?: string
+  included: boolean
+}
+
+// 署名情報
+export interface BuyerSignature {
+  name: string
+  agreedAt: string // ISO日付
+  ipAddress?: string
+}
+
+// 引き継ぎ合意ステータス
+export type HandoverAgreementStatus =
+  | "draft"
+  | "pending_acceptance"
+  | "accepted"
+  | "signed"
+
+// 引き継ぎ合意
+export interface HandoverAgreement {
+  id: string
+  inquiryId: string
+  propertyId: string
+
+  // 家具リスト（最終調整後）
+  items: HandoverItem[]
+
+  // 引越し費用
+  adjustedHandoverFee: number
+  originalHandoverFee: number
+
+  // ステータス
+  status: HandoverAgreementStatus
+
+  // タイムスタンプ
+  createdAt: string
+  acceptedAt?: string
+  signedAt?: string
+
+  // 署名情報
+  buyerSignature?: BuyerSignature
+
+  // 当事者情報（PDF用）
+  sellerName: string
+  sellerEmail: string
+  buyerName: string
+  buyerEmail: string
+  propertyTitle: string
+  propertyAddress?: string
+}
+
 // Seller Listing (物件掲載申込) データ型
 export interface SellerListing {
   id: string
