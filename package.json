@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
@@ -86,12 +88,14 @@
     "@types/stripe": "^8.0.416",
     "@typescript-eslint/eslint-plugin": "^8.53.1",
     "@typescript-eslint/parser": "^8.53.1",
+    "@vitest/ui": "^4.0.18",
     "autoprefixer": "^10.4.23",
     "drizzle-kit": "^0.31.8",
     "globals": "^17.1.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.19",
     "tw-animate-css": "1.3.3",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.0.18"
   }
 }
