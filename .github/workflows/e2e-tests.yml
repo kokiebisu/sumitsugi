@@ -38,6 +38,9 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
+          DATABASE_URL: postgresql://user:password@localhost:5432/test_db
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: test-secret-for-ci-builds-only
 
       - name: Run E2E tests
         run: npm run test:e2e
