@@ -22,8 +22,14 @@ fi
 
 # 3. Start container if needed (idempotent)
 echo "Starting devcontainer..."
-devcontainer up --workspace-folder .
+if ! devcontainer up --workspace-folder .; then
+  echo "Error: Failed to start devcontainer. Check Docker is running." >&2
+  exit 1
+fi
 
 # 4. Open shell
 echo "Opening shell..."
-devcontainer exec --workspace-folder . bash
+if ! devcontainer exec --workspace-folder . bash; then
+  echo "Error: Failed to open shell in devcontainer." >&2
+  exit 1
+fi
