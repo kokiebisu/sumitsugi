@@ -60,7 +60,11 @@ bun dev                  # Start development server (localhost:3000)
 bun run build            # Production build
 bun start                # Start production server
 bun lint                 # Run ESLint
-bun test                 # Run tests
+
+# Testing (IMPORTANT: Use "bun run test", NOT "bun test")
+# (bun test uses Bun's built-in test runner instead of Vitest)
+bun run test             # Run unit tests with Vitest (watch mode)
+bun run test:run         # Run unit tests once and exit
 bun run test:e2e         # Run E2E tests with Playwright
 
 # Git Worktrees (for isolated development)

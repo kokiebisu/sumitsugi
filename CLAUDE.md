@@ -47,6 +47,12 @@ bun start                # プロダクションサーバー起動
 bun lint                 # ESLintでコードチェック
 ./dev                    # Open devcontainer with Claude Code (auto-starts)
 
+# Testing (IMPORTANT: Use "bun run test", NOT "bun test")
+bun run test             # Run unit tests with Vitest (watch mode)
+bun run test:run         # Run unit tests once and exit
+bun run test:ui          # Run tests with Vitest UI
+bun run test:e2e         # Run E2E tests with Playwright
+
 # Git Worktrees (with devcontainer support)
 npm run worktree:create  # 新しいworktreeを作成 (still uses npm script runner)
 npm run worktree:list    # worktree一覧を表示
