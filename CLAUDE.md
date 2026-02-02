@@ -6,8 +6,8 @@
 
 **プロジェクト:** tsumugi（紡ぎ）
 **技術スタック:** Next.js 16 (App Router) / TypeScript / Tailwind CSS / shadcn/ui
-**ノードバージョン:** 20
-**パッケージマネージャー:** npm
+**ランタイム:** Bun 1.x
+**パッケージマネージャー:** bun
 
 ## Task Management (CRITICAL)
 
@@ -38,14 +38,14 @@ Available keys in `.env.local`:
 ## Commands
 
 ```bash
-npm run dev              # 開発サーバー起動 (localhost:3000)
-npm run build            # プロダクションビルド
-npm run start            # プロダクションサーバー起動
-npm run lint             # ESLintでコードチェック
+bun dev                  # 開発サーバー起動 (localhost:3000)
+bun run build            # プロダクションビルド
+bun start                # プロダクションサーバー起動
+bun lint                 # ESLintでコードチェック
 ./dev                    # Open devcontainer with Claude Code (auto-starts)
 
 # Git Worktrees (with devcontainer support)
-npm run worktree:create  # 新しいworktreeを作成
+npm run worktree:create  # 新しいworktreeを作成 (still uses npm script runner)
 npm run worktree:list    # worktree一覧を表示
 npm run worktree:prune   # 削除済みworktreeをクリーンアップ
 
@@ -53,6 +53,24 @@ npm run worktree:prune   # 削除済みworktreeをクリーンアップ
 npm run cleanup:branches # マージ済みブランチと削除済みリモートブランチを削除
 npm run cleanup:all      # 完全クリーンアップ（ブランチ + worktree + stash）
 ```
+
+## Prerequisites
+
+**Bun Runtime:** This project uses Bun instead of Node.js for faster performance.
+
+**Local development (outside devcontainer):**
+```bash
+# Install Bun
+curl -fsSL https://bun.sh/install | bash
+
+# Install dependencies
+bun install
+
+# Start dev server
+bun dev
+```
+
+**Devcontainer:** Bun is pre-installed in the devcontainer.
 
 ## Development Tools
 
