@@ -58,14 +58,14 @@ jobs:
             // Has E2E label but not a specific one - run full suite by default
             core.setOutput('skip', 'false');
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: '20'
+          bun-version: latest
 
       - name: Detect tags with fallback script
         id: fallback-detection
-        run: node scripts/detect-test-tags.js
+        run: bun scripts/detect-test-tags.js
 
       - name: Set filter output
         id: set-filter
@@ -109,20 +109,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: '20'
-          cache: 'npm'
+          bun-version: latest
 
       - name: Install dependencies
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: bunx playwright install --with-deps chromium
 
       - name: Build Next.js app
-        run: npm run build
+        run: bun run build
         env:
           NODE_ENV: production
           DATABASE_URL: postgresql://user:password@localhost:5432/test_db
@@ -133,11 +132,11 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "push" ]] || [[ "${{ needs.determine-tests.outputs.test-filter }}" == "" ]]; then
             echo "Running full test suite"
-            npm run test:e2e
+            bun run test:e2e
           else
             FILTER="${{ needs.determine-tests.outputs.test-filter }}"
             echo "Running filtered tests: $FILTER"
-            npm run test:e2e -- --grep "$FILTER"
+            bun run test:e2e -- --grep "$FILTER"
           fi
         env:
           CI: true

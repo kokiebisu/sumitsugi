@@ -1,5 +1,5 @@
 {
-  "name": "Node.js & TypeScript",
+  "name": "Bun & TypeScript",
   // This devcontainer config is shared across git worktrees via symlinks
   // See WORKTREE.md for details on using devcontainers with git worktrees
   "build": {
@@ -23,21 +23,21 @@
     }
   },
   "forwardPorts": [3000, 9323],
-  "postCreateCommand": "npm install && npx playwright install chromium && git config --global worktree.guessRemote true && ([ -d .beads ] || bd init --quiet) && echo \"alias claude='claude --skip-dangerously-permission'\" >> ~/.bashrc",
-  "remoteUser": "node",
+  "postCreateCommand": "bun install && bunx playwright install chromium && git config --global worktree.guessRemote true && ([ -d .beads ] || bd init --quiet) && echo \"alias claude='claude --skip-dangerously-permission'\" >> ~/.bashrc",
+  "remoteUser": "bun",
   "postAttachCommand": ".devcontainer/install-plugins.sh",
   "mounts": [
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached",
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.config/gh,target=/home/node/.config/gh,type=bind,consistency=cached",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/bun/.ssh,type=bind,consistency=cached",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.config/gh,target=/home/bun/.config/gh,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.docker/run/docker.sock,target=/var/run/docker.sock,type=bind",
-    "source=${localEnv:HOME}/.claude,target=/home/node/.claude,type=bind,consistency=cached"
+    "source=${localEnv:HOME}/.claude,target=/home/bun/.claude,type=bind,consistency=cached"
   ],
   "remoteEnv": {
     "SSH_AUTH_SOCK": "${localEnv:SSH_AUTH_SOCK}",
     "GITHUB_PERSONAL_ACCESS_TOKEN": "${localEnv:GITHUB_PERSONAL_ACCESS_TOKEN}"
   },
   "containerEnv": {
-    "CLAUDE_CONFIG_DIR": "/home/node/.claude"
+    "CLAUDE_CONFIG_DIR": "/home/bun/.claude"
   },
   "postStartCommand": "sudo /usr/local/bin/init-firewall.sh",
   "waitFor": "postStartCommand"
