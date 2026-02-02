@@ -33,6 +33,10 @@ npm run lint             # ESLintでコードチェック
 npm run worktree:create  # 新しいworktreeを作成
 npm run worktree:list    # worktree一覧を表示
 npm run worktree:prune   # 削除済みworktreeをクリーンアップ
+
+# Branch Cleanup (automated)
+npm run cleanup:branches # マージ済みブランチと削除済みリモートブランチを削除
+npm run cleanup:all      # 完全クリーンアップ（ブランチ + worktree + stash）
 ```
 
 ## Development Tools
@@ -115,6 +119,33 @@ npm run worktree:prune                # Clean up removed worktrees
 Worktrees are created in `.worktrees/<branch-name>/` with automatic devcontainer symlink setup.
 
 See [.devcontainer/WORKTREE.md](.devcontainer/WORKTREE.md) for detailed documentation.
+
+### Automated Branch Cleanup
+
+**Automatic cleanup is enabled** to keep your repository clean:
+
+**GitHub Auto-Delete:**
+- Branches are automatically deleted on GitHub after PR merge
+- Enabled via repository settings
+
+**GitHub Actions (Daily):**
+- Runs daily at 00:00 UTC
+- Deletes merged branches
+- Removes branches marked as [gone] (deleted on remote)
+- Can be triggered manually: `gh workflow run "Cleanup Merged Branches"`
+
+**Local Cleanup Commands:**
+```bash
+npm run cleanup:branches  # Delete merged and [gone] branches
+npm run cleanup:all       # Full cleanup: branches + worktrees + stashes
+```
+
+**Manual cleanup workflow:**
+```bash
+git fetch --all --prune          # Update remote tracking
+npm run cleanup:branches         # Clean up branches
+git worktree prune               # Clean up worktrees
+```
 
 ## Directory Structure
 
