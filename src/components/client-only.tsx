@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { type ReactNode } from "react";
+import { type ReactNode } from 'react';
 
 export function ClientOnly({ children }: { children: ReactNode }) {
   // Only render on client-side

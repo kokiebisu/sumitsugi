@@ -1,27 +1,22 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
-import Link from "next/link";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/auth-context";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Package,
-  Check,
-} from "lucide-react";
-import { mockHandoverAgreements } from "@/lib/data";
-import type { ItemCondition } from "@/lib/data";
+import { useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
+import { Header } from '@/components/header';
+import { Footer } from '@/components/footer';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/auth-context';
+import { ArrowLeft, ArrowRight, Package, Check } from 'lucide-react';
+import { mockHandoverAgreements } from '@/lib/data';
+import type { ItemCondition } from '@/lib/data';
 
 // 状態のラベル
 const CONDITION_LABELS: Record<ItemCondition, string> = {
-  excellent: "非常に良い",
-  good: "良い",
-  fair: "普通",
-  poor: "使用感あり",
+  excellent: '非常に良い',
+  good: '良い',
+  fair: '普通',
+  poor: '使用感あり',
 };
 
 export default function AgreementPage() {
@@ -37,7 +32,7 @@ export default function AgreementPage() {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/");
+      router.push('/');
     }
   }, [user, isLoading, router]);
 
@@ -93,9 +88,13 @@ export default function AgreementPage() {
 
           {/* 物件・当事者情報 */}
           <div className="mb-8 rounded-lg border border-border bg-muted/30 p-4">
-            <p className="font-medium text-foreground">{agreement.propertyTitle}</p>
+            <p className="font-medium text-foreground">
+              {agreement.propertyTitle}
+            </p>
             {agreement.propertyAddress && (
-              <p className="text-sm text-muted-foreground">{agreement.propertyAddress}</p>
+              <p className="text-sm text-muted-foreground">
+                {agreement.propertyAddress}
+              </p>
             )}
             <div className="mt-3 grid grid-cols-2 gap-4 text-sm">
               <div>
@@ -111,12 +110,15 @@ export default function AgreementPage() {
 
           {/* 引越し費用 */}
           <div className="mb-8">
-            <h2 className="mb-4 text-lg font-semibold text-foreground">引越し費用</h2>
+            <h2 className="mb-4 text-lg font-semibold text-foreground">
+              引越し費用
+            </h2>
             <div className="rounded-lg border border-border bg-background p-4">
               <p className="text-3xl font-bold text-foreground">
                 ¥{agreement.adjustedHandoverFee.toLocaleString()}
               </p>
-              {agreement.adjustedHandoverFee !== agreement.originalHandoverFee && (
+              {agreement.adjustedHandoverFee !==
+                agreement.originalHandoverFee && (
                 <p className="mt-1 text-sm text-muted-foreground">
                   (元の金額: ¥{agreement.originalHandoverFee.toLocaleString()})
                 </p>
@@ -132,7 +134,9 @@ export default function AgreementPage() {
             {includedItems.length === 0 ? (
               <div className="rounded-lg border border-dashed border-border py-8 text-center">
                 <Package className="mx-auto h-8 w-8 text-muted-foreground" />
-                <p className="mt-2 text-muted-foreground">引き継ぎ品目はありません</p>
+                <p className="mt-2 text-muted-foreground">
+                  引き継ぎ品目はありません
+                </p>
               </div>
             ) : (
               <div className="space-y-3">

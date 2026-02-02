@@ -1,17 +1,17 @@
 // Export all schema tables
-export { users, sellerProfiles } from "./users";
-export { properties } from "./properties";
-export { inquiries } from "./inquiries";
-export { sessions, accounts, verificationTokens } from "./sessions";
-export { payments, transactions, stripeAccounts } from "./payments";
+export { users, sellerProfiles } from './users';
+export { properties } from './properties';
+export { inquiries } from './inquiries';
+export { sessions, accounts, verificationTokens } from './sessions';
+export { payments, transactions, stripeAccounts } from './payments';
 
 // Define relations
-import { relations } from "drizzle-orm";
-import { users, sellerProfiles } from "./users";
-import { properties } from "./properties";
-import { inquiries } from "./inquiries";
-import { sessions, accounts } from "./sessions";
-import { payments, transactions, stripeAccounts } from "./payments";
+import { relations } from 'drizzle-orm';
+import { users, sellerProfiles } from './users';
+import { properties } from './properties';
+import { inquiries } from './inquiries';
+import { sessions, accounts } from './sessions';
+import { payments, transactions, stripeAccounts } from './payments';
 
 // User relations
 export const usersRelations = relations(users, ({ one, many }) => ({

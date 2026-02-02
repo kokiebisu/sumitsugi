@@ -1,51 +1,53 @@
-"use client"
+'use client';
 
-import type React from "react"
+import type React from 'react';
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { CheckCircle2, Loader2 } from "lucide-react"
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { CheckCircle2, Loader2 } from 'lucide-react';
 
 export function SellerForm() {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    propertyAddress: "",
-    monthlyRent: "",
-    moveOutDate: "",
-    whyListing: "",
+    name: '',
+    email: '',
+    phone: '',
+    propertyAddress: '',
+    monthlyRent: '',
+    moveOutDate: '',
+    whyListing: '',
     landlordConsent: false,
-  })
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
 
     // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    await new Promise((resolve) => setTimeout(resolve, 1500));
 
     // Log the seller listing data
-    console.log("Seller listing submitted:", {
+    console.log('Seller listing submitted:', {
       ...formData,
       landlordConsent: { hasLandlordConsent: formData.landlordConsent },
       submittedAt: new Date().toISOString(),
-    })
+    });
 
-    setIsSubmitting(false)
-    setIsSubmitted(true)
-  }
+    setIsSubmitting(false);
+    setIsSubmitted(true);
+  };
 
   if (isSubmitted) {
     return (
       <div className="rounded-xl bg-green-50 p-8 text-center">
         <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-green-600" />
-        <h3 className="mb-2 text-lg font-medium text-foreground">お申し込みを受け付けました</h3>
+        <h3 className="mb-2 text-lg font-medium text-foreground">
+          お申し込みを受け付けました
+        </h3>
         <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
           ご登録ありがとうございます。
           <br />
@@ -57,7 +59,7 @@ export function SellerForm() {
           返信が届かない場合は、迷惑メールフォルダもご確認ください。
         </p>
       </div>
-    )
+    );
   }
 
   return (
@@ -91,7 +93,9 @@ export function SellerForm() {
             required
             placeholder="example@email.com"
             value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, email: e.target.value })
+            }
             className="rounded-lg border-border"
           />
         </div>
@@ -106,7 +110,9 @@ export function SellerForm() {
             required
             placeholder="090-1234-5678"
             value={formData.phone}
-            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, phone: e.target.value })
+            }
             className="rounded-lg border-border"
           />
         </div>
@@ -126,10 +132,14 @@ export function SellerForm() {
             required
             placeholder="例：東京都目黒区"
             value={formData.propertyAddress}
-            onChange={(e) => setFormData({ ...formData, propertyAddress: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, propertyAddress: e.target.value })
+            }
             className="rounded-lg border-border"
           />
-          <p className="text-xs text-muted-foreground">詳細な住所は後ほどお伺いします</p>
+          <p className="text-xs text-muted-foreground">
+            詳細な住所は後ほどお伺いします
+          </p>
         </div>
 
         <div className="space-y-2">
@@ -143,7 +153,9 @@ export function SellerForm() {
               required
               placeholder="95000"
               value={formData.monthlyRent}
-              onChange={(e) => setFormData({ ...formData, monthlyRent: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, monthlyRent: e.target.value })
+              }
               className="rounded-lg border-border pr-12"
             />
             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
@@ -161,10 +173,14 @@ export function SellerForm() {
             type="date"
             required
             value={formData.moveOutDate}
-            onChange={(e) => setFormData({ ...formData, moveOutDate: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, moveOutDate: e.target.value })
+            }
             className="rounded-lg border-border"
           />
-          <p className="text-xs text-muted-foreground">おおよその予定で構いません</p>
+          <p className="text-xs text-muted-foreground">
+            おおよその予定で構いません
+          </p>
         </div>
       </div>
 
@@ -182,7 +198,9 @@ export function SellerForm() {
             placeholder="どんな暮らしをしてきましたか？なぜ引き継ぎたいと思いましたか？"
             rows={5}
             value={formData.whyListing}
-            onChange={(e) => setFormData({ ...formData, whyListing: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, whyListing: e.target.value })
+            }
             className="rounded-lg border-border resize-none"
           />
           <p className="text-xs text-muted-foreground">
@@ -199,7 +217,9 @@ export function SellerForm() {
             id="landlordConsent"
             required
             checked={formData.landlordConsent}
-            onChange={(e) => setFormData({ ...formData, landlordConsent: e.target.checked })}
+            onChange={(e) =>
+              setFormData({ ...formData, landlordConsent: e.target.checked })
+            }
             className="mt-1 h-4 w-4 rounded border-border text-coral focus:ring-coral"
           />
           <Label htmlFor="landlordConsent" className="text-sm leading-relaxed">
@@ -221,7 +241,7 @@ export function SellerForm() {
             送信中...
           </>
         ) : (
-          "掲載を申し込む"
+          '掲載を申し込む'
         )}
       </Button>
 
@@ -232,5 +252,5 @@ export function SellerForm() {
         掲載には大家さん・管理会社の承諾が必須となります。
       </p>
     </form>
-  )
+  );
 }

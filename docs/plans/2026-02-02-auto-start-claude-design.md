@@ -35,6 +35,7 @@ node@container:/workspaces/tsumugi$
 ### Behavior: Interactive Mode with Bash Fallback
 
 **What happens:**
+
 1. Enter devcontainer at main repo root (`/workspaces/tsumugi`)
 2. Claude Code starts automatically in interactive mode
 3. User works with Claude (chat, coding, worktree creation)
@@ -42,6 +43,7 @@ node@container:/workspaces/tsumugi$
 5. User can continue working or type `claude` to restart
 
 **Why this design:**
+
 - **Always start at main branch:** Clean starting point, user asks Claude to create worktrees as needed
 - **Separate sessions:** Each terminal gets independent Claude instance (good for worktree isolation)
 - **Bash fallback:** After exiting Claude, user has full shell access for manual work
@@ -68,6 +70,7 @@ fi
 ```
 
 **How it works:**
+
 - `bash -c "claude; exec bash"` runs two commands
 - `claude` starts Claude Code interactively
 - Semicolon (`;`) means "run next command when first completes"
@@ -76,16 +79,19 @@ fi
 ### Error Handling
 
 **If Claude isn't installed:**
+
 - Command fails with "command not found"
 - Semicolon continues to bash anyway
 - User sees error but gets shell
 - Can troubleshoot or manually install
 
 **If Claude crashes:**
+
 - Same behavior - bash still starts
 - User always gets a shell, never stuck
 
 **Already in devcontainer:**
+
 - Existing check prevents double-nesting
 - Script exits with "[OK] Already in devcontainer!" message
 
@@ -100,6 +106,7 @@ fi
 5. User continues working in that worktree or creates more
 
 **Why not worktree-aware:**
+
 - Simpler implementation
 - User explicitly chooses when to create/use worktrees
 - Claude handles worktree creation workflow
@@ -108,12 +115,14 @@ fi
 ### Multiple Terminal Sessions
 
 When running `./dev` in multiple terminals:
+
 - All connect to the SAME devcontainer instance
 - Each gets a separate shell session
 - Each starts its own Claude instance
 - Sessions are independent (different conversations)
 
 This is the desired behavior for:
+
 - Working on multiple tasks simultaneously
 - Keeping separate Claude contexts
 - Terminal independence
@@ -121,9 +130,11 @@ This is the desired behavior for:
 ## Files Modified
 
 **Primary change:**
+
 - `dev` - Lines 31-35: Add Claude auto-start to exec command
 
 **Documentation updates:**
+
 - `CLAUDE.md` - Update `./dev` description to mention Claude auto-start
 - `README.md` - Update Quick Start step 2 to mention Claude starts automatically
 
@@ -138,20 +149,25 @@ This is the desired behavior for:
 ## Alternative Designs Considered
 
 ### 1. Opt-in flag (`./dev --claude`)
+
 **Rejected:** Adds friction. Since Claude is the primary development tool, auto-start makes sense as default.
 
 ### 2. Interactive prompt ("Start Claude? y/n")
+
 **Rejected:** Adds an extra step every time. Can add later if users request it.
 
 ### 3. Directory-aware (start in worktree)
+
 **Rejected:** User prefers starting at main branch and creating worktrees on-demand through Claude.
 
 ### 4. Shared tmux session
+
 **Rejected:** Doesn't work well with worktree isolation. Each terminal needs independent context.
 
 ## Future Enhancements
 
 If needed later:
+
 - Add `./dev --no-claude` flag to skip auto-start
 - Add `./dev --help` to document behavior
 - Consider `CLAUDE_AUTO_START=false` environment variable
@@ -159,6 +175,7 @@ If needed later:
 ## Testing
 
 **Manual testing steps:**
+
 1. Exit devcontainer if currently inside
 2. Run `./dev` from host
 3. Verify Claude starts automatically
@@ -168,6 +185,7 @@ If needed later:
 7. Verify `exit` returns to host
 
 **Expected behavior:**
+
 - Claude starts immediately after container is ready
 - Smooth transition from Claude to bash
 - No errors or warnings
@@ -178,18 +196,21 @@ If needed later:
 This is a quality-of-life improvement that significantly enhances developer experience. Recommended as a follow-up to PR #115 (basic `./dev` script).
 
 **Dependencies:**
+
 - Requires PR #115 to be merged (base `./dev` script)
 - Requires Claude Code installed in devcontainer (already done via postCreateCommand)
 
 ## Trade-offs
 
 **Pros:**
+
 - Immediate access to Claude
 - Reduces repetitive typing
 - Encourages Claude usage
 - Smooth development experience
 
 **Cons:**
+
 - Users who don't want Claude have to exit it (minor)
 - Slightly longer startup time (Claude initialization)
 - Always-on might surprise first-time users (easily exitable)

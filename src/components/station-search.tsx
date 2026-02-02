@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useRef, useEffect } from "react";
-import { Search, X, Train } from "lucide-react";
-import { searchStations, type Station } from "@/lib/station-data";
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { Search, X, Train } from 'lucide-react';
+import { searchStations, type Station } from '@/lib/station-data';
 
 interface StationSearchProps {
   value: string;
@@ -13,7 +13,7 @@ interface StationSearchProps {
 export function StationSearch({
   value,
   onChange,
-  placeholder = "駅名を検索",
+  placeholder = '駅名を検索',
 }: StationSearchProps) {
   const [query, setQuery] = useState(value);
   const [suggestions, setSuggestions] = useState<Station[]>([]);
@@ -33,8 +33,8 @@ export function StationSearch({
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   // value が外部から変更された場合に同期
@@ -55,7 +55,7 @@ export function StationSearch({
       } else {
         setSuggestions([]);
         setIsOpen(false);
-        onChange("");
+        onChange('');
       }
     },
     [onChange]
@@ -78,23 +78,23 @@ export function StationSearch({
       if (!isOpen || suggestions.length === 0) return;
 
       switch (e.key) {
-        case "ArrowDown":
+        case 'ArrowDown':
           e.preventDefault();
           setSelectedIndex((prev) =>
             prev < suggestions.length - 1 ? prev + 1 : prev
           );
           break;
-        case "ArrowUp":
+        case 'ArrowUp':
           e.preventDefault();
           setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
           break;
-        case "Enter":
+        case 'Enter':
           e.preventDefault();
           if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
             handleSelect(suggestions[selectedIndex]);
           }
           break;
-        case "Escape":
+        case 'Escape':
           setIsOpen(false);
           setSelectedIndex(-1);
           break;
@@ -104,8 +104,8 @@ export function StationSearch({
   );
 
   const handleClear = useCallback(() => {
-    setQuery("");
-    onChange("");
+    setQuery('');
+    onChange('');
     setSuggestions([]);
     setIsOpen(false);
     inputRef.current?.focus();
@@ -154,7 +154,7 @@ export function StationSearch({
                   type="button"
                   onClick={() => handleSelect(station)}
                   className={`w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-muted transition-colors ${
-                    index === selectedIndex ? "bg-muted" : ""
+                    index === selectedIndex ? 'bg-muted' : ''
                   }`}
                 >
                   <Train className="w-4 h-4 text-muted-foreground flex-shrink-0" />

@@ -39,7 +39,9 @@ export function calculatePlatformFee(handoverFeeTotal: number): number {
 /**
  * Calculate previous tenant receives amount
  */
-export function calculatePreviousTenantAmount(handoverFeeTotal: number): number {
+export function calculatePreviousTenantAmount(
+  handoverFeeTotal: number
+): number {
   const cleaningFee = STRIPE_CONFIG.ADDITIONAL_CLEANING_FEE;
   const landlordIncentive = calculateLandlordIncentive(handoverFeeTotal);
   const platformFee = calculatePlatformFee(handoverFeeTotal);
@@ -65,7 +67,8 @@ export function calculateFeeBreakdown(handoverFeeTotal: number): FeeBreakdown {
   const additionalCleaningFee = STRIPE_CONFIG.ADDITIONAL_CLEANING_FEE;
   const landlordIncentive = calculateLandlordIncentive(handoverFeeTotal);
   const platformFee = calculatePlatformFee(handoverFeeTotal);
-  const previousTenantReceives = calculatePreviousTenantAmount(handoverFeeTotal);
+  const previousTenantReceives =
+    calculatePreviousTenantAmount(handoverFeeTotal);
   const applicationFee = STRIPE_CONFIG.APPLICATION_FEE;
   const deposit = calculateDeposit(handoverFeeTotal);
   const remaining = handoverFeeTotal - deposit;

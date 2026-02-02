@@ -1,16 +1,20 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
-import Link from "next/link";
-import { useAuth } from "@/contexts/auth-context";
-import type { LargeFurnitureType } from "@/lib/data";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { LocationPicker, type StationInfo, type LocationWithAddress } from "@/components/location-picker";
-import { EstimateCard } from "@/components/estimate-card";
-import { DateRangePicker } from "@/components/date-range-picker";
-import { cn } from "@/lib/utils";
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
+import { useAuth } from '@/contexts/auth-context';
+import type { LargeFurnitureType } from '@/lib/data';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  LocationPicker,
+  type StationInfo,
+  type LocationWithAddress,
+} from '@/components/location-picker';
+import { EstimateCard } from '@/components/estimate-card';
+import { DateRangePicker } from '@/components/date-range-picker';
+import { cn } from '@/lib/utils';
 import {
   Leaf,
   Sparkles,
@@ -36,90 +40,99 @@ import {
   Shirt,
   Tv,
   Refrigerator,
-} from "lucide-react";
+} from 'lucide-react';
 
 // 間取りの選択肢
 const LAYOUT_OPTIONS = [
-  "1R",
-  "1K",
-  "1DK",
-  "1LDK",
-  "2K",
-  "2DK",
-  "2LDK",
-  "3K",
-  "3DK",
-  "3LDK",
-  "4K",
-  "4DK",
-  "4LDK",
+  '1R',
+  '1K',
+  '1DK',
+  '1LDK',
+  '2K',
+  '2DK',
+  '2LDK',
+  '3K',
+  '3DK',
+  '3LDK',
+  '4K',
+  '4DK',
+  '4LDK',
 ];
 
 // 引き継ぎ対象の大型家具
 const FURNITURE_ITEMS = [
-  { id: "bed" as const, label: "ベッド", Icon: BedDouble },
-  { id: "sofa" as const, label: "ソファ", Icon: Sofa },
-  { id: "desk" as const, label: "デスク", Icon: Monitor },
-  { id: "storage" as const, label: "収納", Icon: Archive },
-  { id: "table" as const, label: "テーブル", Icon: Table2 },
-  { id: "wardrobe" as const, label: "ワードローブ", Icon: Shirt },
-  { id: "tv" as const, label: "テレビ台", Icon: Tv },
-  { id: "fridge" as const, label: "冷蔵庫", Icon: Refrigerator },
+  { id: 'bed' as const, label: 'ベッド', Icon: BedDouble },
+  { id: 'sofa' as const, label: 'ソファ', Icon: Sofa },
+  { id: 'desk' as const, label: 'デスク', Icon: Monitor },
+  { id: 'storage' as const, label: '収納', Icon: Archive },
+  { id: 'table' as const, label: 'テーブル', Icon: Table2 },
+  { id: 'wardrobe' as const, label: 'ワードローブ', Icon: Shirt },
+  { id: 'tv' as const, label: 'テレビ台', Icon: Tv },
+  { id: 'fridge' as const, label: '冷蔵庫', Icon: Refrigerator },
 ];
 
 // Alias for backward compatibility
 const LARGE_FURNITURE_ITEMS = FURNITURE_ITEMS;
 
 export default function EditListingPage() {
-  const { user, isLoading, listings, updateListing } = useAuth()
-  const router = useRouter()
-  const params = useParams()
-  const listingId = params.id as string
+  const { user, isLoading, listings, updateListing } = useAuth();
+  const router = useRouter();
+  const params = useParams();
+  const listingId = params.id as string;
 
-  const listing = listings.find(l => l.id === listingId)
+  const listing = listings.find((l) => l.id === listingId);
 
-  const [selectedFurniture, setSelectedFurniture] = useState<LargeFurnitureType[]>([])
-  const [roomPhotos, setRoomPhotos] = useState<string[]>([])
-  const [isSaving, setIsSaving] = useState(false)
-  const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
-  const [isUploading, setIsUploading] = useState(false)
-  const [pendingPhotos, setPendingPhotos] = useState<string[]>([])
-  const [isLoadingFiles, setIsLoadingFiles] = useState(false)
-  const [rent, setRent] = useState("")
-  const [managementFee, setManagementFee] = useState("")
-  const [layout, setLayout] = useState("")
-  const [handoverFee, setHandoverFee] = useState("")
-  const [location, setLocation] = useState<LocationWithAddress | null>(null)
-  const [stations, setStations] = useState<StationInfo[]>([{ name: "", walkingMinutes: "" }])
-  const [viewingStartDate, setViewingStartDate] = useState<Date | null>(null)
-  const [viewingEndDate, setViewingEndDate] = useState<Date | null>(null)
-  const [moveInStartDate, setMoveInStartDate] = useState<Date | null>(null)
-  const [moveInEndDate, setMoveInEndDate] = useState<Date | null>(null)
+  const [selectedFurniture, setSelectedFurniture] = useState<
+    LargeFurnitureType[]
+  >([]);
+  const [roomPhotos, setRoomPhotos] = useState<string[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [pendingPhotos, setPendingPhotos] = useState<string[]>([]);
+  const [isLoadingFiles, setIsLoadingFiles] = useState(false);
+  const [rent, setRent] = useState('');
+  const [managementFee, setManagementFee] = useState('');
+  const [layout, setLayout] = useState('');
+  const [handoverFee, setHandoverFee] = useState('');
+  const [location, setLocation] = useState<LocationWithAddress | null>(null);
+  const [stations, setStations] = useState<StationInfo[]>([
+    { name: '', walkingMinutes: '' },
+  ]);
+  const [viewingStartDate, setViewingStartDate] = useState<Date | null>(null);
+  const [viewingEndDate, setViewingEndDate] = useState<Date | null>(null);
+  const [moveInStartDate, setMoveInStartDate] = useState<Date | null>(null);
+  const [moveInEndDate, setMoveInEndDate] = useState<Date | null>(null);
 
   // リスティングデータを読み込み
   useEffect(() => {
     if (listing) {
-      setSelectedFurniture(listing.furniture || [])
-      setRoomPhotos(listing.roomPhotos || [])
-      setRent(listing.rent?.toString() || "")
-      setManagementFee(listing.managementFee?.toString() || "")
-      setLayout(listing.layout || "")
-      setHandoverFee(listing.handoverFee?.toString() || "")
+      setSelectedFurniture(listing.furniture || []);
+      setRoomPhotos(listing.roomPhotos || []);
+      setRent(listing.rent?.toString() || '');
+      setManagementFee(listing.managementFee?.toString() || '');
+      setLayout(listing.layout || '');
+      setHandoverFee(listing.handoverFee?.toString() || '');
       if (listing.stations && listing.stations.length > 0) {
-        setStations(listing.stations.map(s => ({ name: s.name, walkingMinutes: s.walkingMinutes.toString() })))
+        setStations(
+          listing.stations.map((s) => ({
+            name: s.name,
+            walkingMinutes: s.walkingMinutes.toString(),
+          }))
+        );
       }
     }
   }, [listing]);
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/");
+      router.push('/');
     }
   }, [user, isLoading, router]);
 
   useEffect(() => {
     if (!isLoading && user && listing && listing.userId !== user.id) {
-      router.push("/listing");
+      router.push('/listing');
     }
   }, [user, isLoading, listing, router]);
 
@@ -127,10 +140,10 @@ export default function EditListingPage() {
   const formatDateRange = (start: Date | null, end: Date | null) => {
     if (!start) return undefined;
     const formatDate = (d: Date) =>
-      d.toLocaleDateString("ja-JP", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
+      d.toLocaleDateString('ja-JP', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
       });
     if (end) {
       return `${formatDate(start)} - ${formatDate(end)}`;
@@ -143,13 +156,13 @@ export default function EditListingPage() {
     // 間取りから暮らしタイプを判定
     const getLivingType = () => {
       const targetLayout = layout || listing?.layout;
-      if (!targetLayout) return "";
+      if (!targetLayout) return '';
       // 1R, 1K, 1DK, 1LDK は一人暮らし
-      if (targetLayout.startsWith("1")) return "一人暮らしの";
+      if (targetLayout.startsWith('1')) return '一人暮らしの';
       // 2K, 2DK, 2LDK は二人暮らし
-      if (targetLayout.startsWith("2")) return "二人暮らしの";
+      if (targetLayout.startsWith('2')) return '二人暮らしの';
       // 3K以上はファミリー向け
-      return "ファミリー向けの";
+      return 'ファミリー向けの';
     };
 
     const livingType = getLivingType();
@@ -174,10 +187,10 @@ export default function EditListingPage() {
   };
 
   const handleSave = async () => {
-    if (!listing) return
-    setIsSaving(true)
+    if (!listing) return;
+    setIsSaving(true);
 
-    const title = "私の暮らし"
+    const title = '私の暮らし';
 
     updateListing(listing.id, {
       title,
@@ -199,7 +212,7 @@ export default function EditListingPage() {
     });
 
     setIsSaving(false);
-    router.push("/listing");
+    router.push('/listing');
   };
 
   const openUploadDialog = () => {
@@ -287,7 +300,7 @@ export default function EditListingPage() {
           disabled={isSaving}
           className="rounded-lg bg-[#E61E4D] hover:bg-[#D01346] text-white"
         >
-          {isSaving ? "保存中..." : "保存"}
+          {isSaving ? '保存中...' : '保存'}
         </Button>
       </header>
 
@@ -336,10 +349,10 @@ export default function EditListingPage() {
             </div>
             {roomPhotos.length > 0 && (
               <p
-                className={`text-sm font-medium mt-3 ${roomPhotos.length >= 3 ? "text-green-600" : "text-muted-foreground"}`}
+                className={`text-sm font-medium mt-3 ${roomPhotos.length >= 3 ? 'text-green-600' : 'text-muted-foreground'}`}
               >
                 {roomPhotos.length} / 5 枚
-                {roomPhotos.length < 3 && "（最低3枚必要）"}
+                {roomPhotos.length < 3 && '（最低3枚必要）'}
               </p>
             )}
           </section>
@@ -354,7 +367,9 @@ export default function EditListingPage() {
               onLocationSelect={setLocation}
               stations={stations}
               onStationsChange={setStations}
-              initialLocation={location ? { lat: location.lat, lng: location.lng } : undefined}
+              initialLocation={
+                location ? { lat: location.lat, lng: location.lng } : undefined
+              }
             />
           </section>
 
@@ -402,10 +417,10 @@ export default function EditListingPage() {
                       type="button"
                       onClick={() => setLayout(option)}
                       className={cn(
-                        "px-4 py-2 rounded-full border-2 text-sm font-medium transition-all",
+                        'px-4 py-2 rounded-full border-2 text-sm font-medium transition-all',
                         layout === option
-                          ? "border-foreground bg-foreground text-white"
-                          : "border-border hover:border-foreground/40"
+                          ? 'border-foreground bg-foreground text-white'
+                          : 'border-border hover:border-foreground/40'
                       )}
                     >
                       {option}
@@ -432,8 +447,8 @@ export default function EditListingPage() {
                 }}
                 title={
                   viewingStartDate && viewingEndDate
-                    ? `${viewingStartDate.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })} - ${viewingEndDate.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}`
-                    : "内見可能期間を選択"
+                    ? `${viewingStartDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })} - ${viewingEndDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })}`
+                    : '内見可能期間を選択'
                 }
                 subtitle="内見を受け付ける期間を選択してください"
               />
@@ -446,8 +461,8 @@ export default function EditListingPage() {
                 }}
                 title={
                   moveInStartDate && moveInEndDate
-                    ? `${moveInStartDate.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })} - ${moveInEndDate.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}`
-                    : "引越し希望期間を選択"
+                    ? `${moveInStartDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })} - ${moveInEndDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })}`
+                    : '引越し希望期間を選択'
                 }
                 subtitle="引越しを希望する期間を選択してください"
               />
@@ -464,7 +479,8 @@ export default function EditListingPage() {
               {/* 大型家具チェック */}
               <div>
                 <label className="block text-sm font-medium text-foreground mb-3">
-                  引き継ぐ大型家具（複数選択可） <span className="text-coral">*</span>
+                  引き継ぐ大型家具（複数選択可）{' '}
+                  <span className="text-coral">*</span>
                 </label>
                 <div className="grid grid-cols-4 gap-3">
                   {FURNITURE_ITEMS.map(({ id, label, Icon }) => {
@@ -481,10 +497,10 @@ export default function EditListingPage() {
                           );
                         }}
                         className={cn(
-                          "flex flex-col items-center p-3 rounded-xl border-2 transition-all",
+                          'flex flex-col items-center p-3 rounded-xl border-2 transition-all',
                           isSelected
-                            ? "border-foreground bg-muted"
-                            : "border-border hover:border-foreground/40"
+                            ? 'border-foreground bg-muted'
+                            : 'border-border hover:border-foreground/40'
                         )}
                       >
                         <Icon
@@ -501,7 +517,7 @@ export default function EditListingPage() {
               {/* AI見積もりカード */}
               <EstimateCard
                 furniture={selectedFurniture}
-                area={location?.neighborhood || listing.area || "東京"}
+                area={location?.neighborhood || listing.area || '東京'}
                 rent={rent ? parseInt(rent, 10) : undefined}
                 layout={layout}
                 onEstimateComplete={(suggestedFee) => {
@@ -531,31 +547,40 @@ export default function EditListingPage() {
           {/* 家具 */}
           <section>
             <h2 className="text-xl font-semibold mb-4">引き継ぐ家具</h2>
-            <p className="text-sm text-muted-foreground mb-4">次の入居者に引き継ぎたい大型家具を選んでください</p>
+            <p className="text-sm text-muted-foreground mb-4">
+              次の入居者に引き継ぎたい大型家具を選んでください
+            </p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {LARGE_FURNITURE_ITEMS.map(({ id, label, Icon }) => {
-                const isSelected = selectedFurniture.includes(id)
+                const isSelected = selectedFurniture.includes(id);
                 return (
                   <button
                     key={id}
                     onClick={() => {
                       if (isSelected) {
-                        setSelectedFurniture(selectedFurniture.filter((f) => f !== id))
+                        setSelectedFurniture(
+                          selectedFurniture.filter((f) => f !== id)
+                        );
                       } else {
-                        setSelectedFurniture([...selectedFurniture, id])
+                        setSelectedFurniture([...selectedFurniture, id]);
                       }
                     }}
                     className={cn(
-                      "flex flex-col items-center p-4 rounded-xl border-2 transition-all",
+                      'flex flex-col items-center p-4 rounded-xl border-2 transition-all',
                       isSelected
-                        ? "border-foreground bg-muted"
-                        : "border-border hover:border-foreground/40"
+                        ? 'border-foreground bg-muted'
+                        : 'border-border hover:border-foreground/40'
                     )}
                   >
-                    <Icon className="w-8 h-8 mb-2 text-foreground" strokeWidth={1.5} />
-                    <span className="text-sm font-medium text-center">{label}</span>
+                    <Icon
+                      className="w-8 h-8 mb-2 text-foreground"
+                      strokeWidth={1.5}
+                    />
+                    <span className="text-sm font-medium text-center">
+                      {label}
+                    </span>
                   </button>
-                )
+                );
               })}
             </div>
           </section>
@@ -584,7 +609,7 @@ export default function EditListingPage() {
                 <p className="text-sm text-muted-foreground">
                   {pendingPhotos.length > 0
                     ? `${pendingPhotos.length}枚選択中`
-                    : "アイテムが選択されていません"}
+                    : 'アイテムが選択されていません'}
                 </p>
               </div>
               <label className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted cursor-pointer">
@@ -635,11 +660,11 @@ export default function EditListingPage() {
               ) : pendingPhotos.length > 0 || isLoadingFiles ? (
                 <div
                   className="overflow-x-auto scrollbar-hide"
-                  style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                   <div
                     className="flex gap-3"
-                    style={{ minWidth: "min-content" }}
+                    style={{ minWidth: 'min-content' }}
                   >
                     {pendingPhotos.map((photo, index) => (
                       <div
@@ -783,10 +808,10 @@ export default function EditListingPage() {
                 onClick={handleUploadConfirm}
                 disabled={pendingPhotos.length === 0 || isUploading}
                 className={cn(
-                  "rounded-lg px-6 py-2 text-sm font-medium",
+                  'rounded-lg px-6 py-2 text-sm font-medium',
                   pendingPhotos.length > 0
-                    ? "bg-foreground text-white hover:bg-foreground/90"
-                    : "bg-[#DDDDDD] text-muted-foreground cursor-not-allowed"
+                    ? 'bg-foreground text-white hover:bg-foreground/90'
+                    : 'bg-[#DDDDDD] text-muted-foreground cursor-not-allowed'
                 )}
               >
                 アップロード

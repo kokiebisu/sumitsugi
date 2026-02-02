@@ -1,32 +1,32 @@
-"use client"
+'use client';
 
-import type React from "react"
+import type React from 'react';
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { CheckCircle2, Loader2 } from "lucide-react"
-import type { Property } from "@/lib/data"
-import { SignupDialog } from "@/components/auth/signup-dialog"
-import { useAuth } from "@/contexts/auth-context"
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { CheckCircle2, Loader2 } from 'lucide-react';
+import type { Property } from '@/lib/data';
+import { SignupDialog } from '@/components/auth/signup-dialog';
+import { useAuth } from '@/contexts/auth-context';
 
 interface InquiryFormProps {
-  property: Property
+  property: Property;
 }
 
 export function InquiryForm({ property }: InquiryFormProps) {
-  const { user, login, addInquiry } = useAuth()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  const [showSignupDialog, setShowSignupDialog] = useState(false)
+  const { user, login, addInquiry } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showSignupDialog, setShowSignupDialog] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    reason: "",
-    questions: "",
-  })
+    name: '',
+    email: '',
+    reason: '',
+    questions: '',
+  });
 
   useEffect(() => {
     if (user) {
@@ -34,68 +34,72 @@ export function InquiryForm({ property }: InquiryFormProps) {
         ...prev,
         name: prev.name || user.name,
         email: prev.email || user.email,
-      }))
+      }));
     }
-  }, [user])
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!user) {
-      setShowSignupDialog(true)
-      return
+      setShowSignupDialog(true);
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    await new Promise((resolve) => setTimeout(resolve, 1500));
 
     addInquiry({
       propertyId: property.id,
       propertyTitle: property.title,
-      status: "pending",
+      status: 'pending',
       applicantName: formData.name,
       applicantEmail: formData.email,
       reason: formData.reason,
       questions: formData.questions,
-    })
+    });
 
-    setIsSubmitting(false)
-    setIsSubmitted(true)
-  }
+    setIsSubmitting(false);
+    setIsSubmitted(true);
+  };
 
   const handleSignupComplete = (newUser: Parameters<typeof login>[0]) => {
-    login(newUser)
-    setShowSignupDialog(false)
+    login(newUser);
+    setShowSignupDialog(false);
     setFormData({
       ...formData,
       name: newUser.name,
       email: newUser.email,
-    })
-  }
+    });
+  };
 
   if (isSubmitted) {
     return (
       <div className="rounded-xl bg-green-50 p-8 text-center">
         <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-green-600" />
-        <h3 className="mb-2 text-lg font-medium text-foreground">引き継ぎ申し込みを受け付けました</h3>
+        <h3 className="mb-2 text-lg font-medium text-foreground">
+          引き継ぎ申し込みを受け付けました
+        </h3>
         <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
           ご連絡ありがとうございます。
           <br />
           内容を確認の上、数日以内にメールでご連絡いたします。
         </p>
-        <p className="text-xs text-muted-foreground">返信が届かない場合は、迷惑メールフォルダもご確認ください。</p>
+        <p className="text-xs text-muted-foreground">
+          返信が届かない場合は、迷惑メールフォルダもご確認ください。
+        </p>
 
         <div className="mt-6">
           <Button
-            onClick={() => window.location.href = "/dashboard"}
+            onClick={() => (window.location.href = '/dashboard')}
             className="w-full rounded-lg bg-coral py-3 text-sm font-semibold text-white hover:bg-coral/90"
           >
             ダッシュボードで進捗を確認
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -103,7 +107,8 @@ export function InquiryForm({ property }: InquiryFormProps) {
       {user && (
         <div className="rounded-lg bg-muted/50 p-4">
           <p className="text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">{user.name}</span> として申し込み
+            <span className="font-medium text-foreground">{user.name}</span>{' '}
+            として申し込み
           </p>
         </div>
       )}
@@ -140,7 +145,9 @@ export function InquiryForm({ property }: InquiryFormProps) {
           className="rounded-lg border-border"
           disabled={!!user}
         />
-        <p className="text-xs text-muted-foreground">ご連絡はこちらのメールアドレスに送らせていただきます</p>
+        <p className="text-xs text-muted-foreground">
+          ご連絡はこちらのメールアドレスに送らせていただきます
+        </p>
       </div>
 
       {/* Reason - Most Important Field */}
@@ -157,7 +164,9 @@ export function InquiryForm({ property }: InquiryFormProps) {
           onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
           className="rounded-lg border-border resize-none"
         />
-        <p className="text-xs text-muted-foreground">一番大切な項目です。あなたの想いをお聞かせください</p>
+        <p className="text-xs text-muted-foreground">
+          一番大切な項目です。あなたの想いをお聞かせください
+        </p>
       </div>
 
       {/* Questions - Optional */}
@@ -170,7 +179,9 @@ export function InquiryForm({ property }: InquiryFormProps) {
           placeholder="気になることや、確認したいことがあればお書きください"
           rows={3}
           value={formData.questions}
-          onChange={(e) => setFormData({ ...formData, questions: e.target.value })}
+          onChange={(e) =>
+            setFormData({ ...formData, questions: e.target.value })
+          }
           className="rounded-lg border-border resize-none"
         />
       </div>
@@ -187,9 +198,9 @@ export function InquiryForm({ property }: InquiryFormProps) {
             送信中...
           </>
         ) : user ? (
-          "引き継ぎを申し込む"
+          '引き継ぎを申し込む'
         ) : (
-          "ログインして申し込む"
+          'ログインして申し込む'
         )}
       </Button>
 
@@ -209,5 +220,5 @@ export function InquiryForm({ property }: InquiryFormProps) {
         prefillName={formData.name}
       />
     </form>
-  )
+  );
 }

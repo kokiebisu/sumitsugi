@@ -34,12 +34,14 @@ This skill facilitates a structured product meeting with multiple personas to ev
 ## Meeting Participants
 
 ### 1. **You** (Product Owner)
+
 - Share feedback and concerns
 - Ask clarifying questions
 - Guide discussion
 - Make final decisions
 
 ### 2. **Product Manager**
+
 - Focuses on user experience and business value
 - Asks "Why do users need this?"
 - Proposes UX-focused solutions
@@ -47,6 +49,7 @@ This skill facilitates a structured product meeting with multiple personas to ev
 - **Does NOT** make technical architecture decisions
 
 ### 3. **CTO**
+
 - Focuses on technical feasibility and maintainability
 - Evaluates implementation complexity
 - Proposes technical alternatives
@@ -56,6 +59,7 @@ This skill facilitates a structured product meeting with multiple personas to ev
 ## Meeting Flow
 
 ### Phase 1: Context Setting (2-3 exchanges)
+
 **Goal**: Understand the vague feedback
 
 1. **You**: Share your vague feedback or concern
@@ -69,6 +73,7 @@ This skill facilitates a structured product meeting with multiple personas to ev
    - "Any technical constraints?"
 
 ### Phase 2: Solution Exploration (3-5 exchanges)
+
 **Goal**: Explore different approaches
 
 1. **PM**: Proposes UX-focused solution
@@ -87,6 +92,7 @@ This skill facilitates a structured product meeting with multiple personas to ev
 4. **You**: Guide discussion, ask questions, provide constraints
 
 ### Phase 3: Decision & Documentation (2-3 exchanges)
+
 **Goal**: Finalize approach and document
 
 1. **You**: Make final decision on approach
@@ -105,6 +111,7 @@ This skill facilitates a structured product meeting with multiple personas to ev
 ## Meeting Output Format
 
 ### 1. Decision Summary
+
 ```markdown
 ## Decision: [Topic]
 
@@ -113,18 +120,21 @@ This skill facilitates a structured product meeting with multiple personas to ev
 **Decision**: [What we decided]
 
 **Rationale**:
+
 - PM perspective: [UX reasoning]
 - CTO perspective: [Technical reasoning]
 - Tradeoffs accepted: [What we compromised on]
 ```
 
 ### 2. Requirements Updates
+
 ```markdown
 ## Updates to REQUIREMENTS.md
 
 **Section**: [Which section to update, e.g., "5.3 問い合わせ機能"]
 
 **Changes**:
+
 - [Append new items to existing tables/lists]
 - [Create new subsections if needed]
 
@@ -135,12 +145,14 @@ This skill facilitates a structured product meeting with multiple personas to ev
 ```
 
 ### 3. Linear Tasks
+
 ```markdown
 ## Linear Tasks to Create
 
 **Epic**: [Topic name]
 
 **Tasks**:
+
 1. [Task title] - [Description] - Priority: [High/Medium/Low]
 2. [Task title] - [Description] - Priority: [High/Medium/Low]
 ```
@@ -148,6 +160,7 @@ This skill facilitates a structured product meeting with multiple personas to ev
 ## Role Boundaries
 
 ### PM Territory ✅
+
 - User needs analysis
 - UX design and flows
 - Feature prioritization by business value
@@ -155,6 +168,7 @@ This skill facilitates a structured product meeting with multiple personas to ev
 - Success metrics
 
 ### CTO Territory ✅
+
 - Technical architecture
 - Implementation approach
 - Code patterns and standards
@@ -162,6 +176,7 @@ This skill facilitates a structured product meeting with multiple personas to ev
 - Infrastructure decisions
 
 ### Collaboration Zone 🤝
+
 - Feature feasibility assessment (PM asks, CTO answers)
 - UX vs complexity tradeoffs (both discuss)
 - Implementation timeline (CTO estimates, PM prioritizes)
@@ -170,23 +185,28 @@ This skill facilitates a structured product meeting with multiple personas to ev
 ## Meeting Principles
 
 ### 1. **Healthy Tension**
+
 PM and CTO should challenge each other respectfully:
+
 - PM: "Users need this to be intuitive"
 - CTO: "That requires 3 weeks of work. Can we simplify?"
 - PM: "What if we do a basic version first?"
 - CTO: "Yes, that's 2 days. Let's iterate."
 
 ### 2. **User-First, Reality-Aware**
+
 - Start with ideal user experience (PM)
 - Evaluate technical cost (CTO)
 - Find pragmatic middle ground (both)
 
 ### 3. **Document Decisions**
+
 - Why we chose this approach
 - What we considered and rejected
 - What tradeoffs we accepted
 
 ### 4. **Actionable Output**
+
 - Clear requirements for REQUIREMENTS.md
 - Concrete tasks for Linear
 - No ambiguity
@@ -202,29 +222,33 @@ PM and CTO should challenge each other respectfully:
 **You**: They don't understand why there are 3 payments and when each happens.
 
 **PM**: From a UX perspective, we need to make the payment journey visible. I propose:
+
 1. Payment timeline UI showing all 3 stages
 2. "How payments work" modal explaining the escrow concept
 3. Email reminders before each payment
 
 **CTO**: The timeline is straightforward - we can use a step indicator component from shadcn/ui. For the modal, I suggest:
+
 - Static content (no API calls)
 - Illustrations showing money flow
 - Embedded in the same page (not separate route)
-This is maybe 4-6 hours of work.
+  This is maybe 4-6 hours of work.
 
 **PM**: Perfect! What about payment history? Users might want to see past payments.
 
 **CTO**: That requires:
+
 - New database queries
 - Stripe webhook integration to sync payment status
 - Another UI component
-That's 2-3 days. Do we need it now or can we defer?
+  That's 2-3 days. Do we need it now or can we defer?
 
 **PM**: Let's defer. The timeline + modal solve the immediate confusion.
 
 **You**: Agreed. Let's go with timeline + modal for now.
 
 **Output**:
+
 - New requirement: F-205 "Payment Timeline UI" - Visual step indicator
 - New requirement: F-206 "Payment Explanation Modal" - Education content
 - Linear tasks:
@@ -283,6 +307,7 @@ When you invoke `/meeting:product`, the meeting opens like this:
 ---
 
 **Remember**:
+
 - This is a collaborative discussion. PM and CTO are your teammates helping you make informed product decisions.
 - The goal is to find the best solution that balances user needs with technical reality.
 - **ALWAYS conduct the entire meeting in Japanese** - this is a Japanese product for Japanese users.

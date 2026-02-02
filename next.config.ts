@@ -1,17 +1,17 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "www.mensnonno.jp",
-        pathname: "/wp-content/uploads/**",
+        protocol: 'https',
+        hostname: 'www.mensnonno.jp',
+        pathname: '/wp-content/uploads/**',
       },
       {
-        protocol: "https",
-        hostname: "a0.muscache.com",
-        pathname: "/im/pictures/**",
+        protocol: 'https',
+        hostname: 'a0.muscache.com',
+        pathname: '/im/pictures/**',
       },
     ],
   },

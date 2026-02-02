@@ -1,14 +1,14 @@
-import { describe, it, expect } from "vitest";
-import { payments, transactions, stripeAccounts } from "../payments";
-import { getTableColumns } from "drizzle-orm";
+import { describe, it, expect } from 'vitest';
+import { payments, transactions, stripeAccounts } from '../payments';
+import { getTableColumns } from 'drizzle-orm';
 
-describe("Payment Database Schema", () => {
-  describe("payments table", () => {
-    it("should be defined", () => {
+describe('Payment Database Schema', () => {
+  describe('payments table', () => {
+    it('should be defined', () => {
       expect(payments).toBeDefined();
     });
 
-    it("should have required columns", () => {
+    it('should have required columns', () => {
       const columns = getTableColumns(payments);
 
       // Primary key
@@ -36,12 +36,12 @@ describe("Payment Database Schema", () => {
     });
   });
 
-  describe("transactions table", () => {
-    it("should be defined", () => {
+  describe('transactions table', () => {
+    it('should be defined', () => {
       expect(transactions).toBeDefined();
     });
 
-    it("should have required columns", () => {
+    it('should have required columns', () => {
       const columns = getTableColumns(transactions);
 
       // Primary key
@@ -68,12 +68,12 @@ describe("Payment Database Schema", () => {
     });
   });
 
-  describe("stripeAccounts table", () => {
-    it("should be defined", () => {
+  describe('stripeAccounts table', () => {
+    it('should be defined', () => {
       expect(stripeAccounts).toBeDefined();
     });
 
-    it("should have required columns", () => {
+    it('should have required columns', () => {
       const columns = getTableColumns(stripeAccounts);
 
       // Primary key

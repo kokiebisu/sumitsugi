@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
-import { useAuth } from "@/contexts/auth-context";
-import { mockHandoverAgreements } from "@/lib/data";
-import type { ItemCondition } from "@/lib/data";
+import { useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import { useAuth } from '@/contexts/auth-context';
+import { mockHandoverAgreements } from '@/lib/data';
+import type { ItemCondition } from '@/lib/data';
 
 const CONDITION_LABELS: Record<ItemCondition, string> = {
-  excellent: "非常に良い",
-  good: "良い",
-  fair: "普通",
-  poor: "使用感あり",
+  excellent: '非常に良い',
+  good: '良い',
+  fair: '普通',
+  poor: '使用感あり',
 };
 
 export default function AgreementPDFPage() {
@@ -23,7 +23,7 @@ export default function AgreementPDFPage() {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/");
+      router.push('/');
     }
   }, [user, isLoading, router]);
 
@@ -44,10 +44,10 @@ export default function AgreementPDFPage() {
   }
 
   const includedItems = agreement.items.filter((item) => item.included);
-  const today = new Date().toLocaleDateString("ja-JP", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+  const today = new Date().toLocaleDateString('ja-JP', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
   });
 
   return (
@@ -80,7 +80,7 @@ export default function AgreementPDFPage() {
         <button
           onClick={() => window.print()}
           className="rounded-lg bg-coral-500 px-4 py-2 text-sm font-medium text-white hover:bg-coral-600"
-          style={{ backgroundColor: "#FF5A5F" }}
+          style={{ backgroundColor: '#FF5A5F' }}
         >
           印刷 / PDF保存
         </button>
@@ -91,9 +91,7 @@ export default function AgreementPDFPage() {
         {/* タイトル */}
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-bold text-gray-900">残置物同意書</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            作成日: {today}
-          </p>
+          <p className="mt-2 text-sm text-gray-600">作成日: {today}</p>
         </div>
 
         {/* 物件情報 */}
@@ -144,22 +142,34 @@ export default function AgreementPDFPage() {
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="bg-gray-100">
-                <th className="border border-gray-300 px-3 py-2 text-left">No.</th>
-                <th className="border border-gray-300 px-3 py-2 text-left">品目名</th>
-                <th className="border border-gray-300 px-3 py-2 text-left">状態</th>
-                <th className="border border-gray-300 px-3 py-2 text-left">備考</th>
+                <th className="border border-gray-300 px-3 py-2 text-left">
+                  No.
+                </th>
+                <th className="border border-gray-300 px-3 py-2 text-left">
+                  品目名
+                </th>
+                <th className="border border-gray-300 px-3 py-2 text-left">
+                  状態
+                </th>
+                <th className="border border-gray-300 px-3 py-2 text-left">
+                  備考
+                </th>
               </tr>
             </thead>
             <tbody>
               {includedItems.map((item, index) => (
                 <tr key={item.id}>
-                  <td className="border border-gray-300 px-3 py-2">{index + 1}</td>
-                  <td className="border border-gray-300 px-3 py-2">{item.name}</td>
+                  <td className="border border-gray-300 px-3 py-2">
+                    {index + 1}
+                  </td>
+                  <td className="border border-gray-300 px-3 py-2">
+                    {item.name}
+                  </td>
                   <td className="border border-gray-300 px-3 py-2">
                     {CONDITION_LABELS[item.condition]}
                   </td>
                   <td className="border border-gray-300 px-3 py-2">
-                    {item.notes || "-"}
+                    {item.notes || '-'}
                   </td>
                 </tr>
               ))}
@@ -213,9 +223,9 @@ export default function AgreementPDFPage() {
                       {agreement.buyerSignature.name}
                     </p>
                     <p className="text-xs text-gray-500">
-                      {new Date(agreement.buyerSignature.agreedAt).toLocaleString(
-                        "ja-JP"
-                      )}
+                      {new Date(
+                        agreement.buyerSignature.agreedAt
+                      ).toLocaleString('ja-JP')}
                     </p>
                   </div>
                 ) : (

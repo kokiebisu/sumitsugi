@@ -24,7 +24,7 @@ vi.mock('@/lib/stripe/config', () => ({
     LANDLORD_INCENTIVE_RATE: 0.01,
     LANDLORD_INCENTIVE_MIN: 3000,
     PLATFORM_FEE_RATE: 0.15,
-    DEPOSIT_RATE: 0.30,
+    DEPOSIT_RATE: 0.3,
     DEPOSIT_MIN: 30000,
     DEPOSIT_MAX: 50000,
     ESCROW_HOLD_HOURS: 48,
@@ -123,10 +123,15 @@ describe('POST /api/webhooks/stripe', () => {
         },
       };
 
-      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(mockEvent as any);
-      vi.mocked(db.query.payments.findFirst).mockResolvedValue(mockPayment as any);
+      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
+        mockEvent as any
+      );
+      vi.mocked(db.query.payments.findFirst).mockResolvedValue(
+        mockPayment as any
+      );
 
-      const { processApplicationFeeTransfer } = await import('@/app/actions/payment');
+      const { processApplicationFeeTransfer } =
+        await import('@/app/actions/payment');
       vi.mocked(processApplicationFeeTransfer).mockResolvedValue({
         success: true,
         transferId: 'tr_123',
@@ -168,8 +173,12 @@ describe('POST /api/webhooks/stripe', () => {
         },
       };
 
-      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(mockEvent as any);
-      vi.mocked(db.query.payments.findFirst).mockResolvedValue(mockPayment as any);
+      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
+        mockEvent as any
+      );
+      vi.mocked(db.query.payments.findFirst).mockResolvedValue(
+        mockPayment as any
+      );
 
       const request = new Request('http://localhost:3000/api/webhooks/stripe', {
         method: 'POST',
@@ -201,7 +210,9 @@ describe('POST /api/webhooks/stripe', () => {
         },
       };
 
-      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(mockEvent as any);
+      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
+        mockEvent as any
+      );
       vi.mocked(db.query.payments.findFirst).mockResolvedValue(undefined);
 
       const request = new Request('http://localhost:3000/api/webhooks/stripe', {
@@ -243,8 +254,12 @@ describe('POST /api/webhooks/stripe', () => {
         },
       };
 
-      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(mockEvent as any);
-      vi.mocked(db.query.payments.findFirst).mockResolvedValue(mockPayment as any);
+      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
+        mockEvent as any
+      );
+      vi.mocked(db.query.payments.findFirst).mockResolvedValue(
+        mockPayment as any
+      );
 
       const request = new Request('http://localhost:3000/api/webhooks/stripe', {
         method: 'POST',
@@ -276,7 +291,9 @@ describe('POST /api/webhooks/stripe', () => {
         },
       };
 
-      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(mockEvent as any);
+      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
+        mockEvent as any
+      );
 
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
@@ -313,7 +330,9 @@ describe('POST /api/webhooks/stripe', () => {
         },
       };
 
-      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(mockEvent as any);
+      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
+        mockEvent as any
+      );
 
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
@@ -351,7 +370,9 @@ describe('POST /api/webhooks/stripe', () => {
         },
       };
 
-      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(mockEvent as any);
+      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
+        mockEvent as any
+      );
 
       const request = new Request('http://localhost:3000/api/webhooks/stripe', {
         method: 'POST',
@@ -381,7 +402,9 @@ describe('POST /api/webhooks/stripe', () => {
         },
       };
 
-      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(mockEvent as any);
+      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
+        mockEvent as any
+      );
       vi.mocked(db.query.payments.findFirst).mockRejectedValue(
         new Error('Database connection error')
       );

@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { X, Loader2 } from "lucide-react";
-import type { User } from "@/lib/data";
+import { useState } from 'react';
+import { X, Loader2 } from 'lucide-react';
+import type { User } from '@/lib/data';
 
 interface CustomSignupDialogProps {
   open: boolean;
@@ -16,16 +16,16 @@ export function CustomSignupDialog({
   open,
   onOpenChange,
   onSignupComplete,
-  prefillEmail = "",
+  prefillEmail = '',
 }: CustomSignupDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [email, setEmail] = useState(prefillEmail);
-  const [phone, setPhone] = useState("");
-  const [phoneError, setPhoneError] = useState("");
+  const [phone, setPhone] = useState('');
+  const [phoneError, setPhoneError] = useState('');
 
   const validatePhone = (value: string): boolean => {
     const phoneRegex = /^[0-9]{10,11}$/;
-    const cleanedPhone = value.replace(/[-\s]/g, "");
+    const cleanedPhone = value.replace(/[-\s]/g, '');
     return phoneRegex.test(cleanedPhone);
   };
 
@@ -33,21 +33,21 @@ export function CustomSignupDialog({
     if (!email || !phone) return;
 
     if (!validatePhone(phone)) {
-      setPhoneError("正しい電話番号を入力してください");
+      setPhoneError('正しい電話番号を入力してください');
       return;
     }
 
-    setPhoneError("");
+    setPhoneError('');
     setIsSubmitting(true);
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     const newUser: User = {
       id: crypto.randomUUID(),
       email: email,
-      name: "ゲスト",
-      phone: phone.replace(/[-\s]/g, ""),
+      name: 'ゲスト',
+      phone: phone.replace(/[-\s]/g, ''),
       createdAt: new Date().toISOString(),
-      authProvider: "email",
+      authProvider: 'email',
       isSeller: false,
     };
 
@@ -68,7 +68,7 @@ export function CustomSignupDialog({
       {/* Dialog */}
       <div
         className="relative z-50 w-full max-w-[568px] bg-white shadow-xl"
-        style={{ borderRadius: "32px" }}
+        style={{ borderRadius: '32px' }}
       >
         {/* Header */}
         <div className="relative border-b border-gray-200 px-6 py-5">
@@ -114,13 +114,13 @@ export function CustomSignupDialog({
                   value={phone}
                   onChange={(e) => {
                     setPhone(e.target.value);
-                    if (phoneError) setPhoneError("");
+                    if (phoneError) setPhoneError('');
                   }}
                   required
                   className={`h-14 w-full rounded-lg border px-3 text-base focus:outline-none focus:ring-2 ${
                     phoneError
-                      ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                      : "border-gray-300 focus:border-gray-900 focus:ring-gray-900"
+                      ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                      : 'border-gray-300 focus:border-gray-900 focus:ring-gray-900'
                   }`}
                 />
                 {phoneError && (
@@ -143,7 +143,7 @@ export function CustomSignupDialog({
                     処理中...
                   </div>
                 ) : (
-                  "続行"
+                  '続行'
                 )}
               </button>
 

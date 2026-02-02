@@ -69,7 +69,8 @@ describe('Stripe Server Utilities', () => {
       const cleaningFee = 8000;
       const landlordIncentive = 3000; // max(150000 * 0.01, 3000) = 3000
       const platformFee = 22500; // 150000 * 0.15
-      const expected = handoverFee - cleaningFee - landlordIncentive - platformFee;
+      const expected =
+        handoverFee - cleaningFee - landlordIncentive - platformFee;
 
       expect(calculatePreviousTenantAmount(150000)).toBe(expected);
       expect(calculatePreviousTenantAmount(150000)).toBe(116500);
@@ -80,7 +81,8 @@ describe('Stripe Server Utilities', () => {
       const cleaningFee = 8000;
       const landlordIncentive = 3000;
       const platformFee = 12000; // 80000 * 0.15
-      const expected = handoverFee - cleaningFee - landlordIncentive - platformFee;
+      const expected =
+        handoverFee - cleaningFee - landlordIncentive - platformFee;
 
       expect(calculatePreviousTenantAmount(80000)).toBe(expected);
       expect(calculatePreviousTenantAmount(80000)).toBe(57000);
@@ -91,7 +93,8 @@ describe('Stripe Server Utilities', () => {
       const cleaningFee = 8000;
       const landlordIncentive = 4000; // max(400000 * 0.01, 3000) = 4000
       const platformFee = 60000; // 400000 * 0.15
-      const expected = handoverFee - cleaningFee - landlordIncentive - platformFee;
+      const expected =
+        handoverFee - cleaningFee - landlordIncentive - platformFee;
 
       expect(calculatePreviousTenantAmount(400000)).toBe(expected);
       expect(calculatePreviousTenantAmount(400000)).toBe(328000);

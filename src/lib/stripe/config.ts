@@ -11,7 +11,7 @@ export const STRIPE_CONFIG = {
   APPLICATION_FEE: 20000, // ¥20,000 non-refundable
 
   // Deposit calculation
-  DEPOSIT_RATE: 0.30, // 30%
+  DEPOSIT_RATE: 0.3, // 30%
   DEPOSIT_MIN: 30000, // ¥30,000
   DEPOSIT_MAX: 50000, // ¥50,000
 
@@ -20,13 +20,23 @@ export const STRIPE_CONFIG = {
 } as const;
 
 // Only validate in production/development, not in tests
-if (typeof window === 'undefined' && process.env.NODE_ENV !== 'test' && !process.env.VITEST) {
+if (
+  typeof window === 'undefined' &&
+  process.env.NODE_ENV !== 'test' &&
+  !process.env.VITEST
+) {
   // Server-side validation only
   if (!STRIPE_CONFIG.secretKey) {
     throw new Error('Missing STRIPE_SECRET_KEY environment variable');
   }
 }
 
-if (process.env.NODE_ENV !== 'test' && !process.env.VITEST && !STRIPE_CONFIG.publishableKey) {
-  throw new Error('Missing NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY environment variable');
+if (
+  process.env.NODE_ENV !== 'test' &&
+  !process.env.VITEST &&
+  !STRIPE_CONFIG.publishableKey
+) {
+  throw new Error(
+    'Missing NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY environment variable'
+  );
 }

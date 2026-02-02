@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test'
+import { defineConfig, devices } from '@playwright/test';
 
 /**
  * Playwright configuration for tsumugi E2E tests
@@ -89,4 +89,4 @@ export default defineConfig({
 
   /* Output folder for artifacts */
   outputDir: 'tests/e2e/artifacts',
-})
+});

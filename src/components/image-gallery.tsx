@@ -1,33 +1,33 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import Image from "next/image"
-import { ChevronLeft, ChevronRight, X } from "lucide-react"
+import { useState } from 'react';
+import Image from 'next/image';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 interface ImageGalleryProps {
-  images: string[]
-  title: string
+  images: string[];
+  title: string;
 }
 
 export function ImageGallery({ images, title }: ImageGalleryProps) {
-  const [selectedIndex, setSelectedIndex] = useState(0)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set())
-  const [modalImageLoaded, setModalImageLoaded] = useState(false)
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+  const [modalImageLoaded, setModalImageLoaded] = useState(false);
 
   const handleImageLoad = (index: number) => {
-    setLoadedImages((prev) => new Set(prev).add(index))
-  }
+    setLoadedImages((prev) => new Set(prev).add(index));
+  };
 
   const goToPrevious = () => {
-    setSelectedIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))
-    setModalImageLoaded(false)
-  }
+    setSelectedIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    setModalImageLoaded(false);
+  };
 
   const goToNext = () => {
-    setSelectedIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
-    setModalImageLoaded(false)
-  }
+    setSelectedIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    setModalImageLoaded(false);
+  };
 
   return (
     <>
@@ -38,21 +38,21 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
           <div
             className="relative col-span-1 row-span-2 cursor-pointer overflow-hidden rounded-l-xl md:col-span-2 h-[400px] md:h-full"
             onClick={() => {
-              setSelectedIndex(0)
-              setIsModalOpen(true)
-              setModalImageLoaded(false)
+              setSelectedIndex(0);
+              setIsModalOpen(true);
+              setModalImageLoaded(false);
             }}
           >
             {!loadedImages.has(0) && (
               <div className="absolute inset-0 animate-pulse bg-muted" />
             )}
             <Image
-              src={images[0] || "/placeholder.svg"}
+              src={images[0] || '/placeholder.svg'}
               alt={`${title} - メイン写真`}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               className={`object-cover transition-transform duration-200 hover:brightness-90 ${
-                loadedImages.has(0) ? "opacity-100" : "opacity-0"
+                loadedImages.has(0) ? 'opacity-100' : 'opacity-0'
               }`}
               onLoad={() => handleImageLoad(0)}
               priority
@@ -61,71 +61,73 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
 
           {/* Top Right Images */}
           {images.slice(1, 3).map((image, index) => {
-            const imageIndex = index + 1
+            const imageIndex = index + 1;
             return (
               <div
                 key={index}
                 className={`relative hidden h-full cursor-pointer overflow-hidden md:block ${
-                  index === 1 ? "rounded-tr-xl" : ""
+                  index === 1 ? 'rounded-tr-xl' : ''
                 }`}
                 onClick={() => {
-                  setSelectedIndex(imageIndex)
-                  setIsModalOpen(true)
-                  setModalImageLoaded(false)
+                  setSelectedIndex(imageIndex);
+                  setIsModalOpen(true);
+                  setModalImageLoaded(false);
                 }}
               >
                 {!loadedImages.has(imageIndex) && (
                   <div className="absolute inset-0 animate-pulse bg-muted" />
                 )}
                 <Image
-                  src={image || "/placeholder.svg"}
+                  src={image || '/placeholder.svg'}
                   alt={`${title} - 写真${imageIndex + 1}`}
                   fill
                   sizes="25vw"
                   className={`object-cover transition-transform duration-200 hover:brightness-90 ${
-                    loadedImages.has(imageIndex) ? "opacity-100" : "opacity-0"
+                    loadedImages.has(imageIndex) ? 'opacity-100' : 'opacity-0'
                   }`}
                   onLoad={() => handleImageLoad(imageIndex)}
                 />
               </div>
-            )
+            );
           })}
 
           {/* Bottom Right Images */}
           {images.slice(3, 5).map((image, index) => {
-            const imageIndex = index + 3
+            const imageIndex = index + 3;
             return (
               <div
                 key={index}
                 className={`relative hidden h-full cursor-pointer overflow-hidden md:block ${
-                  index === 1 ? "rounded-br-xl" : ""
+                  index === 1 ? 'rounded-br-xl' : ''
                 }`}
                 onClick={() => {
-                  setSelectedIndex(imageIndex)
-                  setIsModalOpen(true)
-                  setModalImageLoaded(false)
+                  setSelectedIndex(imageIndex);
+                  setIsModalOpen(true);
+                  setModalImageLoaded(false);
                 }}
               >
                 {!loadedImages.has(imageIndex) && (
                   <div className="absolute inset-0 animate-pulse bg-muted" />
                 )}
                 <Image
-                  src={image || "/placeholder.svg"}
+                  src={image || '/placeholder.svg'}
                   alt={`${title} - 写真${imageIndex + 1}`}
                   fill
                   sizes="25vw"
                   className={`object-cover transition-transform duration-200 hover:brightness-90 ${
-                    loadedImages.has(imageIndex) ? "opacity-100" : "opacity-0"
+                    loadedImages.has(imageIndex) ? 'opacity-100' : 'opacity-0'
                   }`}
                   onLoad={() => handleImageLoad(imageIndex)}
                 />
                 {index === 1 && images.length > 5 && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                    <span className="text-sm font-semibold text-white">+{images.length - 5} 枚</span>
+                    <span className="text-sm font-semibold text-white">
+                      +{images.length - 5} 枚
+                    </span>
                   </div>
                 )}
               </div>
-            )
+            );
           })}
         </div>
 
@@ -134,8 +136,18 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
           onClick={() => setIsModalOpen(true)}
           className="absolute bottom-6 right-6 hidden md:flex items-center gap-2 rounded-lg bg-white border border-gray-800 px-4 py-2 text-sm font-semibold text-gray-800 shadow-md hover:bg-gray-50 transition-colors"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+            />
           </svg>
           写真をすべて表示
         </button>
@@ -183,12 +195,12 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
               </div>
             )}
             <Image
-              src={images[selectedIndex] || "/placeholder.svg"}
+              src={images[selectedIndex] || '/placeholder.svg'}
               alt={`${title} - 写真${selectedIndex + 1}`}
               fill
               sizes="100vw"
               className={`object-contain rounded-lg ${
-                modalImageLoaded ? "opacity-100" : "opacity-0"
+                modalImageLoaded ? 'opacity-100' : 'opacity-0'
               }`}
               onLoad={() => setModalImageLoaded(true)}
               priority
@@ -201,5 +213,5 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
         </div>
       )}
     </>
-  )
+  );
 }

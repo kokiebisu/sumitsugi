@@ -1,64 +1,74 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Loader2, Check, User, Link2, CheckCircle, ArrowRight } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { siteConfig } from "@/lib/site-config";
-import type { SellerProfile } from "@/lib/data";
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import {
+  Loader2,
+  Check,
+  User,
+  Link2,
+  CheckCircle,
+  ArrowRight,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { siteConfig } from '@/lib/site-config';
+import type { SellerProfile } from '@/lib/data';
 
 interface BecomeSellerFlowProps {
   onComplete: (sellerProfile: SellerProfile) => void;
   onClose: () => void;
 }
 
-type Step = "intro" | "profile" | "social" | "confirm";
+type Step = 'intro' | 'profile' | 'social' | 'confirm';
 
-const steps: Step[] = ["intro", "profile", "social", "confirm"];
+const steps: Step[] = ['intro', 'profile', 'social', 'confirm'];
 
 // 職業リスト
 const occupations = [
-  { id: "designer", label: "デザイナー" },
-  { id: "engineer", label: "エンジニア" },
-  { id: "photographer", label: "フォトグラファー" },
-  { id: "writer", label: "ライター・編集者" },
-  { id: "musician", label: "ミュージシャン" },
-  { id: "artist", label: "アーティスト" },
-  { id: "architect", label: "建築家" },
-  { id: "consultant", label: "コンサルタント" },
-  { id: "marketer", label: "マーケター" },
-  { id: "entrepreneur", label: "起業家" },
-  { id: "freelance", label: "フリーランス" },
-  { id: "remote", label: "リモートワーカー" },
-  { id: "creator", label: "クリエイター" },
-  { id: "teacher", label: "教師・講師" },
-  { id: "researcher", label: "研究者" },
-  { id: "medical", label: "医療従事者" },
-  { id: "finance", label: "金融" },
-  { id: "legal", label: "法律" },
-  { id: "sales", label: "営業" },
-  { id: "hr", label: "人事" },
-  { id: "student", label: "学生" },
-  { id: "other", label: "その他" },
+  { id: 'designer', label: 'デザイナー' },
+  { id: 'engineer', label: 'エンジニア' },
+  { id: 'photographer', label: 'フォトグラファー' },
+  { id: 'writer', label: 'ライター・編集者' },
+  { id: 'musician', label: 'ミュージシャン' },
+  { id: 'artist', label: 'アーティスト' },
+  { id: 'architect', label: '建築家' },
+  { id: 'consultant', label: 'コンサルタント' },
+  { id: 'marketer', label: 'マーケター' },
+  { id: 'entrepreneur', label: '起業家' },
+  { id: 'freelance', label: 'フリーランス' },
+  { id: 'remote', label: 'リモートワーカー' },
+  { id: 'creator', label: 'クリエイター' },
+  { id: 'teacher', label: '教師・講師' },
+  { id: 'researcher', label: '研究者' },
+  { id: 'medical', label: '医療従事者' },
+  { id: 'finance', label: '金融' },
+  { id: 'legal', label: '法律' },
+  { id: 'sales', label: '営業' },
+  { id: 'hr', label: '人事' },
+  { id: 'student', label: '学生' },
+  { id: 'other', label: 'その他' },
 ];
 
-export function BecomeSellerFlow({ onComplete, onClose }: BecomeSellerFlowProps) {
-  const [step, setStep] = useState<Step>("intro");
+export function BecomeSellerFlow({
+  onComplete,
+  onClose,
+}: BecomeSellerFlowProps) {
+  const [step, setStep] = useState<Step>('intro');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Occupation selection (単一選択)
   const [selectedOccupations, setSelectedOccupations] = useState<string[]>([]);
 
   // Profile fields
-  const [bio, setBio] = useState("");
+  const [bio, setBio] = useState('');
 
   // Social links
-  const [instagram, setInstagram] = useState("");
-  const [twitter, setTwitter] = useState("");
-  const [website, setWebsite] = useState("");
+  const [instagram, setInstagram] = useState('');
+  const [twitter, setTwitter] = useState('');
+  const [website, setWebsite] = useState('');
 
   const currentStepIndex = steps.indexOf(step);
 
@@ -84,7 +94,7 @@ export function BecomeSellerFlow({ onComplete, onClose }: BecomeSellerFlowProps)
       occupation: selectedOccupations
         .map((id) => occupations.find((o) => o.id === id)?.label)
         .filter(Boolean)
-        .join("、"),
+        .join('、'),
       bio,
       socialLinks: {
         instagram: instagram || undefined,
@@ -100,13 +110,13 @@ export function BecomeSellerFlow({ onComplete, onClose }: BecomeSellerFlowProps)
 
   const canProceed = useCallback(() => {
     switch (step) {
-      case "intro":
+      case 'intro':
         return true;
-      case "profile":
-        return selectedOccupations.length > 0 && bio.trim() !== "";
-      case "social":
+      case 'profile':
+        return selectedOccupations.length > 0 && bio.trim() !== '';
+      case 'social':
         return true;
-      case "confirm":
+      case 'confirm':
         return true;
       default:
         return false;
@@ -129,7 +139,7 @@ export function BecomeSellerFlow({ onComplete, onClose }: BecomeSellerFlowProps)
 
   // ドラッグとホイールでスクロール、transformでシームレスにループ
   useEffect(() => {
-    if (step !== "profile") return;
+    if (step !== 'profile') return;
     const container = scrollContainerRef.current;
     const row1 = row1Ref.current;
     const row2 = row2Ref.current;
@@ -149,7 +159,7 @@ export function BecomeSellerFlow({ onComplete, onClose }: BecomeSellerFlowProps)
     };
 
     calculateRowWidth();
-    window.addEventListener("resize", calculateRowWidth);
+    window.addEventListener('resize', calculateRowWidth);
 
     const updateTransform = (offset: number) => {
       const rowWidth = rowWidthRef.current;
@@ -173,7 +183,7 @@ export function BecomeSellerFlow({ onComplete, onClose }: BecomeSellerFlowProps)
       lastTimeRef.current = performance.now();
       velocityRef.current = 0;
       cancelAnimationFrame(animationFrameRef.current);
-      container.style.cursor = "grabbing";
+      container.style.cursor = 'grabbing';
     };
 
     const handleMove = (clientX: number) => {
@@ -194,7 +204,7 @@ export function BecomeSellerFlow({ onComplete, onClose }: BecomeSellerFlowProps)
     const handleEnd = () => {
       if (!isDraggingRef.current) return;
       isDraggingRef.current = false;
-      container.style.cursor = "grab";
+      container.style.cursor = 'grab';
 
       // 慣性スクロール
       const startVelocity = velocityRef.current * 15;
@@ -226,24 +236,24 @@ export function BecomeSellerFlow({ onComplete, onClose }: BecomeSellerFlowProps)
       updateTransform(offsetRef.current - delta);
     };
 
-    container.style.cursor = "grab";
-    container.addEventListener("mousedown", onMouseDown);
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-    container.addEventListener("touchstart", onTouchStart, { passive: true });
-    container.addEventListener("touchmove", onTouchMove, { passive: true });
-    container.addEventListener("touchend", onTouchEnd);
-    container.addEventListener("wheel", onWheel, { passive: false });
+    container.style.cursor = 'grab';
+    container.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    container.addEventListener('touchstart', onTouchStart, { passive: true });
+    container.addEventListener('touchmove', onTouchMove, { passive: true });
+    container.addEventListener('touchend', onTouchEnd);
+    container.addEventListener('wheel', onWheel, { passive: false });
 
     return () => {
-      window.removeEventListener("resize", calculateRowWidth);
-      container.removeEventListener("mousedown", onMouseDown);
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
-      container.removeEventListener("touchstart", onTouchStart);
-      container.removeEventListener("touchmove", onTouchMove);
-      container.removeEventListener("touchend", onTouchEnd);
-      container.removeEventListener("wheel", onWheel);
+      window.removeEventListener('resize', calculateRowWidth);
+      container.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+      container.removeEventListener('touchstart', onTouchStart);
+      container.removeEventListener('touchmove', onTouchMove);
+      container.removeEventListener('touchend', onTouchEnd);
+      container.removeEventListener('wheel', onWheel);
       cancelAnimationFrame(animationFrameRef.current);
     };
   }, [step]);
@@ -251,13 +261,13 @@ export function BecomeSellerFlow({ onComplete, onClose }: BecomeSellerFlowProps)
   // Enterキーで次へ進む
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Enter" && !e.shiftKey && canProceed()) {
+      if (e.key === 'Enter' && !e.shiftKey && canProceed()) {
         // Textareaでは無視（改行を許可）
-        if ((e.target as HTMLElement)?.tagName === "TEXTAREA") {
+        if ((e.target as HTMLElement)?.tagName === 'TEXTAREA') {
           return;
         }
         e.preventDefault();
-        if (step === "confirm") {
+        if (step === 'confirm') {
           handleSubmit();
         } else {
           handleNext();
@@ -265,8 +275,8 @@ export function BecomeSellerFlow({ onComplete, onClose }: BecomeSellerFlowProps)
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [canProceed, step]);
 
   return (
@@ -282,7 +292,7 @@ export function BecomeSellerFlow({ onComplete, onClose }: BecomeSellerFlowProps)
       {/* Main Content */}
       <main className="flex-1 overflow-hidden">
         {/* Step: Intro */}
-        {step === "intro" && (
+        {step === 'intro' && (
           <div className="flex min-h-full">
             <div className="flex flex-1 flex-col justify-center px-12 py-16 lg:px-24">
               <p className="text-sm text-muted-foreground mb-2">ステップ1</p>
@@ -307,7 +317,7 @@ export function BecomeSellerFlow({ onComplete, onClose }: BecomeSellerFlowProps)
         )}
 
         {/* Step: Profile */}
-        {step === "profile" && (
+        {step === 'profile' && (
           <div className="flex h-full overflow-hidden">
             <div className="flex flex-1 flex-col justify-center py-8 overflow-hidden">
               <div className="px-12 lg:px-24 mb-6">
@@ -335,8 +345,8 @@ export function BecomeSellerFlow({ onComplete, onClose }: BecomeSellerFlowProps)
                         const rowOccupations = occupations.filter(
                           (_, idx) =>
                             Math.floor(
-                              idx / Math.ceil(occupations.length / 2),
-                            ) === rowIndex,
+                              idx / Math.ceil(occupations.length / 2)
+                            ) === rowIndex
                         );
                         // 3回繰り返して無限ループを実現
                         const repeatedOccupations = [
@@ -349,25 +359,25 @@ export function BecomeSellerFlow({ onComplete, onClose }: BecomeSellerFlowProps)
                             key={rowIndex}
                             ref={rowIndex === 0 ? row1Ref : row2Ref}
                             className="flex gap-2 w-max"
-                            style={{ willChange: "transform" }}
+                            style={{ willChange: 'transform' }}
                           >
                             {repeatedOccupations.map((occ, idx) => {
                               const isSelected = selectedOccupations.includes(
-                                occ.id,
+                                occ.id
                               );
                               return (
                                 <button
                                   key={`${occ.id}-${idx}`}
                                   onClick={() =>
                                     setSelectedOccupations(
-                                      isSelected ? [] : [occ.id],
+                                      isSelected ? [] : [occ.id]
                                     )
                                   }
                                   className={cn(
-                                    "px-4 py-2 rounded-full border text-sm font-medium transition-all whitespace-nowrap flex-shrink-0",
+                                    'px-4 py-2 rounded-full border text-sm font-medium transition-all whitespace-nowrap flex-shrink-0',
                                     isSelected
-                                      ? "border-foreground bg-foreground text-background"
-                                      : "border-border hover:border-foreground/40",
+                                      ? 'border-foreground bg-foreground text-background'
+                                      : 'border-border hover:border-foreground/40'
                                   )}
                                 >
                                   {occ.label}
@@ -411,7 +421,7 @@ export function BecomeSellerFlow({ onComplete, onClose }: BecomeSellerFlowProps)
         )}
 
         {/* Step: Social Links */}
-        {step === "social" && (
+        {step === 'social' && (
           <div className="flex min-h-full">
             <div className="flex flex-1 flex-col justify-center px-12 py-16 lg:px-24">
               <p className="text-sm text-muted-foreground mb-2">ステップ2</p>
@@ -463,7 +473,7 @@ export function BecomeSellerFlow({ onComplete, onClose }: BecomeSellerFlowProps)
         )}
 
         {/* Step: Confirm */}
-        {step === "confirm" && (
+        {step === 'confirm' && (
           <div className="flex min-h-full">
             <div className="flex flex-1 flex-col justify-center px-12 py-16 lg:px-24">
               <p className="text-sm text-muted-foreground mb-2">ステップ3</p>
@@ -478,7 +488,7 @@ export function BecomeSellerFlow({ onComplete, onClose }: BecomeSellerFlowProps)
                     {selectedOccupations
                       .map((id) => occupations.find((o) => o.id === id)?.label)
                       .filter(Boolean)
-                      .join("、")}
+                      .join('、')}
                   </p>
                 </div>
                 <div>
@@ -518,8 +528,8 @@ export function BecomeSellerFlow({ onComplete, onClose }: BecomeSellerFlowProps)
             <div
               key={s}
               className={cn(
-                "h-1 flex-1",
-                index <= currentStepIndex ? "bg-foreground" : "bg-border",
+                'h-1 flex-1',
+                index <= currentStepIndex ? 'bg-foreground' : 'bg-border'
               )}
             />
           ))}
@@ -535,7 +545,7 @@ export function BecomeSellerFlow({ onComplete, onClose }: BecomeSellerFlowProps)
             戻る
           </Button>
 
-          {step === "confirm" ? (
+          {step === 'confirm' ? (
             <Button
               onClick={handleSubmit}
               disabled={isSubmitting}

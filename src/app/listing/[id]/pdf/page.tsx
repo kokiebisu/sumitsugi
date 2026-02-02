@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
-import { useAuth } from "@/contexts/auth-context";
-import { furnitureLabels } from "@/lib/data";
-import type { LargeFurnitureType } from "@/lib/data";
+import { useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import { useAuth } from '@/contexts/auth-context';
+import { furnitureLabels } from '@/lib/data';
+import type { LargeFurnitureType } from '@/lib/data';
 
 export default function LandlordPDFPage() {
   const { user, isLoading, listings } = useAuth();
@@ -16,13 +16,13 @@ export default function LandlordPDFPage() {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/");
+      router.push('/');
     }
   }, [user, isLoading, router]);
 
   useEffect(() => {
     if (!isLoading && user && listing && listing.userId !== user.id) {
-      router.push("/listing");
+      router.push('/listing');
     }
   }, [user, isLoading, listing, router]);
 
@@ -42,19 +42,20 @@ export default function LandlordPDFPage() {
     );
   }
 
-  const today = new Date().toLocaleDateString("ja-JP", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+  const today = new Date().toLocaleDateString('ja-JP', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
   });
 
   // 家具リスト
-  const furnitureList = listing.furniture
-    ?.map((f) => furnitureLabels[f as LargeFurnitureType] || f)
-    .join("、") || "なし";
+  const furnitureList =
+    listing.furniture
+      ?.map((f) => furnitureLabels[f as LargeFurnitureType] || f)
+      .join('、') || 'なし';
 
   // UserListingには appliances がないので空文字
-  const applianceList = "なし";
+  const applianceList = 'なし';
 
   return (
     <div className="min-h-screen bg-white">
@@ -108,9 +109,7 @@ export default function LandlordPDFPage() {
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               残置物引き継ぎ概要書
             </h1>
-            <p className="text-sm text-gray-500">
-              作成日: {today}
-            </p>
+            <p className="text-sm text-gray-500">作成日: {today}</p>
           </div>
 
           {/* サービス説明 */}
@@ -134,22 +133,30 @@ export default function LandlordPDFPage() {
               <tbody>
                 <tr className="border-b border-gray-100">
                   <td className="py-3 text-gray-500 w-1/3">物件名/エリア</td>
-                  <td className="py-3 text-gray-900 font-medium">{listing.area || "未設定"}</td>
+                  <td className="py-3 text-gray-900 font-medium">
+                    {listing.area || '未設定'}
+                  </td>
                 </tr>
                 <tr className="border-b border-gray-100">
                   <td className="py-3 text-gray-500">間取り</td>
-                  <td className="py-3 text-gray-900">{listing.layout || "未設定"}</td>
+                  <td className="py-3 text-gray-900">
+                    {listing.layout || '未設定'}
+                  </td>
                 </tr>
                 <tr className="border-b border-gray-100">
                   <td className="py-3 text-gray-500">家賃</td>
                   <td className="py-3 text-gray-900">
-                    {listing.rent ? `${listing.rent.toLocaleString()}円/月` : "未設定"}
+                    {listing.rent
+                      ? `${listing.rent.toLocaleString()}円/月`
+                      : '未設定'}
                   </td>
                 </tr>
                 <tr className="border-b border-gray-100">
                   <td className="py-3 text-gray-500">管理費</td>
                   <td className="py-3 text-gray-900">
-                    {listing.managementFee ? `${listing.managementFee.toLocaleString()}円/月` : "なし"}
+                    {listing.managementFee
+                      ? `${listing.managementFee.toLocaleString()}円/月`
+                      : 'なし'}
                   </td>
                 </tr>
               </tbody>
@@ -174,7 +181,9 @@ export default function LandlordPDFPage() {
                 <tr className="border-b border-gray-100">
                   <td className="py-3 text-gray-500">引き継ぎ費用</td>
                   <td className="py-3 text-gray-900 font-medium">
-                    {listing.handoverFee ? `${listing.handoverFee.toLocaleString()}円` : "未設定"}
+                    {listing.handoverFee
+                      ? `${listing.handoverFee.toLocaleString()}円`
+                      : '未設定'}
                   </td>
                 </tr>
               </tbody>
@@ -191,13 +200,15 @@ export default function LandlordPDFPage() {
                 <tr className="border-b border-gray-100">
                   <td className="py-3 text-gray-500 w-1/3">内見可能日</td>
                   <td className="py-3 text-gray-900">
-                    {listing.viewingAvailableFrom || "調整中"}
+                    {listing.viewingAvailableFrom || '調整中'}
                   </td>
                 </tr>
                 <tr className="border-b border-gray-100">
-                  <td className="py-3 text-gray-500">退去（引き渡し）希望時期</td>
+                  <td className="py-3 text-gray-500">
+                    退去（引き渡し）希望時期
+                  </td>
                   <td className="py-3 text-gray-900">
-                    {listing.moveInAvailableFrom || "調整中"}
+                    {listing.moveInAvailableFrom || '調整中'}
                     <span className="block text-xs text-gray-400 mt-1">
                       ※実際の日程はクリーニング等により前後する場合があります
                     </span>
@@ -222,7 +233,9 @@ export default function LandlordPDFPage() {
           {/* 問い合わせ */}
           <div className="text-center text-sm text-gray-500">
             <p>本サービスに関するお問い合わせ</p>
-            <p className="font-medium text-gray-700">tsumugi サポート: support@tsumugi.jp</p>
+            <p className="font-medium text-gray-700">
+              tsumugi サポート: support@tsumugi.jp
+            </p>
           </div>
         </section>
 
@@ -233,9 +246,7 @@ export default function LandlordPDFPage() {
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               残置物引き継ぎ同意書
             </h1>
-            <p className="text-sm text-gray-500">
-              大家・管理会社様用
-            </p>
+            <p className="text-sm text-gray-500">大家・管理会社様用</p>
           </div>
 
           {/* 同意内容 */}
@@ -246,8 +257,12 @@ export default function LandlordPDFPage() {
             </p>
 
             <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-              <h3 className="text-sm font-semibold text-gray-700 mb-2">対象物件</h3>
-              <p className="text-sm text-gray-900">{listing.area || "未設定"}</p>
+              <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                対象物件
+              </h3>
+              <p className="text-sm text-gray-900">
+                {listing.area || '未設定'}
+              </p>
             </div>
 
             <div className="space-y-4 mb-8">
@@ -283,7 +298,9 @@ export default function LandlordPDFPage() {
 
           {/* 引き継ぎ対象物リスト */}
           <div className="mb-10">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">引き継ぎ対象物</h3>
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">
+              引き継ぎ対象物
+            </h3>
             <div className="border border-gray-200 rounded-lg p-4">
               <table className="w-full text-sm">
                 <tbody>
@@ -309,13 +326,11 @@ export default function LandlordPDFPage() {
               <div>
                 <p className="text-sm text-gray-500 mb-2">同意日</p>
                 <div className="border-b border-gray-400 pb-1 h-8">
-                  <span className="text-sm text-gray-400">    年   月   日</span>
+                  <span className="text-sm text-gray-400"> 年 月 日</span>
                 </div>
               </div>
               <div>
-                <p className="text-sm text-gray-500 mb-2">
-                  大家・管理会社名
-                </p>
+                <p className="text-sm text-gray-500 mb-2">大家・管理会社名</p>
                 <div className="border-b border-gray-400 pb-1 h-8" />
               </div>
             </div>

@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { AuthProvider } from "@/contexts/auth-context";
-import type { ReactNode } from "react";
-import { useState, useEffect } from "react";
+import { AuthProvider } from '@/contexts/auth-context';
+import type { ReactNode } from 'react';
+import { useState, useEffect } from 'react';
 
 export function Providers({ children }: { children: ReactNode }) {
   const [isClient, setIsClient] = useState(false);
