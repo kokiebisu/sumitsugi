@@ -49,11 +49,22 @@ Claude MUST automatically invoke these agents based on task context. NO user pro
 
 **This is MANDATORY - always review code you write**
 
+### E2E Testing Agent
+**Use e2e skill or e2e-runner agent when:**
+- Implementing user-facing features (new pages, forms, user flows)
+- Adding interactive UI components (modals, dropdowns, wizards)
+- Modifying critical user journeys (auth, checkout, booking, payment)
+- Creating features with multi-step processes
+- After completing feature implementation (before committing)
+
+**Example triggers:** "add payment flow", "implement booking wizard", "create user dashboard"
+
+**This is PROACTIVE - set up E2E tests as part of feature development, not after**
+
 ### Other Agents
 - **architect** - System design, scalability decisions
 - **security-reviewer** - Authentication, user input, sensitive data
 - **build-error-resolver** - When build fails
-- **e2e-runner** - Critical user flows testing
 
 ## Parallel Task Execution
 
