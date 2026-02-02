@@ -33,7 +33,7 @@
 
 ### 1. 設定ファイルの構造
 
-**ローカル設定 (`.claude/settings.local.json`)** に追加:
+**プロジェクトMCP設定 (`.mcp.json`)** に追加:
 
 ```json
 {
@@ -51,11 +51,21 @@
 }
 ```
 
+**ローカル設定 (`.claude/settings.local.json`)** で有効化:
+
+```json
+{
+  "enabledMcpjsonServers": ["filesystem"]
+}
+```
+
 **構成の意味:**
+- `.mcp.json` - プロジェクト固有のMCPサーバー定義
 - `command: "npx"` - Node.jsパッケージランナーを使用
 - `args[1]` - 公式filesystem MCPサーバーを指定
 - `args[2]` - アクセス可能なルートディレクトリ（tsumugiプロジェクト全体）
 - `-y` フラグ - 確認なしでインストール
+- `enabledMcpjsonServers` - 使用するMCPサーバーのリスト
 
 ### 2. アクセス範囲とセキュリティ
 
@@ -75,12 +85,12 @@
 
 ### 3. インストールと設定手順
 
-**ステップ1: 設定ファイルの更新**
-- `.claude/settings.local.json` に MCP サーバー設定を追加
-- 既存の設定を保持しながら `mcpServers` セクションを追加
+**ステップ1: プロジェクトMCP設定を追加**
+- `.mcp.json` にfilesystem MCPサーバー設定を追加
+- 既存のGitHub MCPサーバー設定を保持
 
-**ステップ2: 設定の配置**
-- 既存の構造を確認し、ルートレベルに追加
+**ステップ2: ローカル設定で有効化**
+- `.claude/settings.local.json` の `enabledMcpjsonServers` に `"filesystem"` を追加
 
 **ステップ3: Claude Code再起動**
 ```bash
@@ -119,7 +129,8 @@ exit
 
 ## 次のステップ
 
-1. `.claude/settings.local.json` を更新
-2. Claude Code再起動
-3. 動作確認とテスト
-4. 学習結果を記録（必要に応じて）
+1. ✅ `.mcp.json` にfilesystem MCPサーバーを追加
+2. ✅ `.claude/settings.local.json` で有効化
+3. Claude Code再起動して動作確認
+4. 動作テスト
+5. 学習結果を記録（必要に応じて）
