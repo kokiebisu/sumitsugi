@@ -9,6 +9,20 @@
 **ノードバージョン:** 20
 **パッケージマネージャー:** npm
 
+## Task Management (CRITICAL)
+
+**タスク完了時は必ずLinearも更新すること。**
+
+詳細は `.claude/rules/task-management.md` を参照。
+
+**クイックワークフロー:**
+1. タスクを完了
+2. DASHBOARDを更新
+3. **LinearでタスクをDoneに更新**
+4. ユーザーに報告
+
+---
+
 ## Environment Variables
 
 **Always load `.env.local` before running commands that need API keys:**
@@ -18,7 +32,7 @@ source .env.local
 ```
 
 Available keys in `.env.local`:
-- `LINEAR_API_KEY` - Linear API for issue tracking sync
+- `LINEAR_API_KEY` - Linear API for issue tracking sync (タスク完了時に使用)
 - Other project-specific secrets
 
 ## Commands
