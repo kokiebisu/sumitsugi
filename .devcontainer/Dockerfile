@@ -1,4 +1,4 @@
-FROM node:20-bullseye
+FROM oven/bun:1-debian
 
 ARG TZ
 ENV TZ="$TZ"
@@ -46,20 +46,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   python3-pip \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install global npm packages
-RUN npm install -g nodemon typescript typescript-language-server ts-node
+# Install Playwright system dependencies (using bunx instead of npx)
+RUN bunx -y playwright@1.58.0 install-deps chromium
 
-# Install Playwright system dependencies
-RUN npx -y playwright@1.58.0 install-deps chromium
+# Add bun user to docker group for Docker socket access
+RUN groupadd -f docker && usermod -aG docker bun
 
-# Add node user to docker group for Docker socket access
-RUN groupadd -f docker && usermod -aG docker node
+# Ensure default bun user has access to /usr/local/share
+RUN mkdir -p /usr/local/share/bun-global && \
+  chown -R bun:bun /usr/local/share
 
-# Ensure default node user has access to /usr/local/share
-RUN mkdir -p /usr/local/share/npm-global && \
-  chown -R node:node /usr/local/share
-
-ARG USERNAME=node
+ARG USERNAME=bun
 
 # Persist bash history
 RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhistory/.bash_history" \
@@ -71,8 +68,8 @@ RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhisto
 ENV DEVCONTAINER=true
 
 # Create workspace and config directories and set permissions
-RUN mkdir -p /workspace /home/node/.claude && \
-  chown -R node:node /workspace /home/node/.claude
+RUN mkdir -p /workspace /home/bun/.claude && \
+  chown -R bun:bun /workspace /home/bun/.claude
 
 WORKDIR /workspace
 
@@ -84,11 +81,7 @@ RUN ARCH=$(dpkg --print-architecture) && \
   rm "git-delta_${GIT_DELTA_VERSION}_${ARCH}.deb"
 
 # Set up non-root user
-USER node
-
-# Install global packages
-ENV NPM_CONFIG_PREFIX=/usr/local/share/npm-global
-ENV PATH=$PATH:/usr/local/share/npm-global/bin
+USER bun
 
 # Set the default shell to zsh rather than sh
 ENV SHELL=/bin/zsh
@@ -104,22 +97,22 @@ RUN curl -fsSL https://claude.ai/install.sh | bash
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Install Starship prompt
-RUN curl -fsSL https://starship.rs/install.sh | sh -s -- -y --bin-dir /home/node/.local/bin
+RUN curl -fsSL https://starship.rs/install.sh | sh -s -- -y --bin-dir /home/bun/.local/bin
 
 # Add ~/.local/bin to PATH for Claude CLI
-ENV PATH=/home/node/.local/bin:$PATH
-RUN echo 'export PATH="$HOME/.local/bin:$PATH"' >> /home/node/.bashrc && \
-    echo 'export PATH="$HOME/.local/bin:$PATH"' >> /home/node/.zshrc && \
-    echo 'eval "$(starship init bash)"' >> /home/node/.bashrc && \
-    echo 'eval "$(starship init zsh)"' >> /home/node/.zshrc
+ENV PATH=/home/bun/.local/bin:$PATH
+RUN echo 'export PATH="$HOME/.local/bin:$PATH"' >> /home/bun/.bashrc && \
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> /home/bun/.zshrc && \
+    echo 'eval "$(starship init bash)"' >> /home/bun/.bashrc && \
+    echo 'eval "$(starship init zsh)"' >> /home/bun/.zshrc
 
 # Copy and set up firewall script
 COPY init-firewall.sh /usr/local/bin/
 USER root
 RUN chmod +x /usr/local/bin/init-firewall.sh && \
-  echo "node ALL=(root) NOPASSWD: /usr/local/bin/init-firewall.sh" > /etc/sudoers.d/node-firewall && \
-  chmod 0440 /etc/sudoers.d/node-firewall
-USER node
+  echo "bun ALL=(root) NOPASSWD: /usr/local/bin/init-firewall.sh" > /etc/sudoers.d/bun-firewall && \
+  chmod 0440 /etc/sudoers.d/bun-firewall
+USER bun
 
 # Install Beads CLI (bd) for AI-friendly task tracking
 ARG BEADS_VERSION=0.49.1
@@ -129,11 +122,11 @@ RUN ARCH=$(uname -m) && \
     aarch64) BEADS_ARCH="linux_arm64" ;; \
     *) echo "Unsupported architecture: $ARCH" && exit 1 ;; \
   esac && \
-  curl -fsSL "https://github.com/steveyegge/beads/releases/download/v${BEADS_VERSION}/beads_${BEADS_VERSION}_${BEADS_ARCH}.tar.gz" | tar -xz -C /home/node/.local/bin bd && \
-  chmod +x /home/node/.local/bin/bd && \
+  curl -fsSL "https://github.com/steveyegge/beads/releases/download/v${BEADS_VERSION}/beads_${BEADS_VERSION}_${BEADS_ARCH}.tar.gz" | tar -xz -C /home/bun/.local/bin bd && \
+  chmod +x /home/bun/.local/bin/bd && \
   # Install shell completions (bash and zsh only)
-  mkdir -p /home/node/.local/share/bash-completion/completions && \
-  /home/node/.local/bin/bd completion bash > /home/node/.local/share/bash-completion/completions/bd && \
-  mkdir -p /home/node/.zsh/completions && \
-  /home/node/.local/bin/bd completion zsh > /home/node/.zsh/completions/_bd && \
-  echo 'fpath=(~/.zsh/completions $fpath)' >> /home/node/.zshrc
+  mkdir -p /home/bun/.local/share/bash-completion/completions && \
+  /home/bun/.local/bin/bd completion bash > /home/bun/.local/share/bash-completion/completions/bd && \
+  mkdir -p /home/bun/.zsh/completions && \
+  /home/bun/.local/bin/bd completion zsh > /home/bun/.zsh/completions/_bd && \
+  echo 'fpath=(~/.zsh/completions $fpath)' >> /home/bun/.zshrc
