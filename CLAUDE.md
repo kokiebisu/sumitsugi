@@ -269,6 +269,34 @@ gh workflow run "Requirements Audit"
 
 **必要なSecret:** `ANTHROPIC_API_KEY`
 
+### Autonomous Development System
+
+リポジトリは自律的に開発を進めます。人間の介入なしで、タスクの選択→実装→PR作成→マージを自動実行。
+
+**ワークフロー:**
+1. `autonomous-developer.yml` - 4時間ごとにBeadsタスクを実装
+2. `daily-standup.yml` - 毎日09:00 JSTにCTOへ進捗報告
+3. `weekly-retrospective.yml` - 毎週日曜に振り返りレポート
+
+**動作:**
+1. Beadsからオープンタスクを取得
+2. 優先度順にタスクを選択
+3. Claude Codeで実装
+4. PRを作成してCIを待つ
+5. CI通過後に自動マージ
+6. CTOにレポート作成
+
+**一時停止する方法:**
+```bash
+# ファイルで停止
+touch .github/PAUSE_AUTONOMOUS && git add -A && git commit -m "pause" && git push
+
+# ラベルで停止
+gh issue create --title "Pause" --label "autonomous:pause"
+```
+
+**詳細:** `.github/AUTONOMOUS_DEVELOPMENT.md`
+
 ## Related Documentation
 
 詳細な仕様については以下を参照：
