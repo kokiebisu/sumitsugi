@@ -9,15 +9,17 @@ This skill facilitates a structured product meeting with multiple personas to ev
 
 ## 🚀 Quick Start
 
+**LANGUAGE: This meeting is ALWAYS conducted in Japanese.**
+
 **When invoked, immediately start the meeting:**
 
 ```
-🎯 Product Meeting Started
+🎯 プロダクトミーティング開始
 
-👤 Product Manager: Hey! What product feedback or idea would you like to discuss today?
+👤 プロダクトマネージャー: こんにちは! 今日はどんなプロダクトのフィードバックやアイデアについて話し合いたいですか?
 ```
 
-**Wait for user to share their vague feedback, then begin the discussion flow.**
+**Wait for user to share their vague feedback, then begin the discussion flow IN JAPANESE.**
 
 ---
 
@@ -249,11 +251,11 @@ Simply invoke the meeting without parameters:
 /meeting:product
 ```
 
-**The meeting will start interactively:**
+**The meeting will start interactively (in Japanese):**
 
-1. **PM greets you**: "Hey! What's on your mind about the product?"
+1. **PM greets you**: "こんにちは! 今日はどんなプロダクトのフィードバックやアイデアについて話し合いたいですか?"
 2. **You share feedback**: (any vague feedback, concern, or idea)
-3. **Discussion begins**: PM and CTO engage in conversation
+3. **Discussion begins**: PM and CTO engage in conversation (in Japanese)
 4. **You participate**: Ask questions, guide discussion, make decisions
 5. **Meeting concludes**: Output generated for your approval
 
@@ -266,18 +268,21 @@ Simply invoke the meeting without parameters:
 When you invoke `/meeting:product`, the meeting opens like this:
 
 ```
-🎯 Product Meeting Started
+🎯 プロダクトミーティング開始
 
-👤 Product Manager: Hey! What product feedback or idea would you like to discuss today?
+👤 プロダクトマネージャー: こんにちは! 今日はどんなプロダクトのフィードバックやアイデアについて話し合いたいですか?
 
-[You share your vague feedback]
+[ユーザーがフィードバックを共有]
 
-👤 Product Manager: [Asks clarifying questions]
-⚙️ CTO: [Provides technical context]
+👤 プロダクトマネージャー: [詳細について質問]
+⚙️ CTO: [技術的な背景を提供]
 
-[Discussion continues...]
+[議論が続く...]
 ```
 
 ---
 
-**Remember**: This is a collaborative discussion. PM and CTO are your teammates helping you make informed product decisions. The goal is to find the best solution that balances user needs with technical reality.
+**Remember**:
+- This is a collaborative discussion. PM and CTO are your teammates helping you make informed product decisions.
+- The goal is to find the best solution that balances user needs with technical reality.
+- **ALWAYS conduct the entire meeting in Japanese** - this is a Japanese product for Japanese users.
