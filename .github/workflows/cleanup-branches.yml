@@ -1,0 +1,58 @@
+name: Cleanup Merged Branches
+
+on:
+  schedule:
+    # Run daily at 00:00 UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for all branches
+
+      - name: Fetch all branches
+        run: |
+          git fetch --all --prune
+
+      - name: List branches before cleanup
+        run: |
+          echo "=== Local branches ==="
+          git branch -v
+          echo ""
+          echo "=== Branches marked as [gone] ==="
+          git branch -vv | grep '\[gone\]' || echo "No [gone] branches found"
+
+      - name: Delete merged branches
+        run: |
+          # Delete branches that have been merged to main
+          echo "=== Deleting merged branches ==="
+          git branch --merged main | grep -v '^\*' | grep -v 'main$' | grep -v 'gh-pages' | while read branch; do
+            echo "Deleting merged branch: $branch"
+            git branch -d "$branch" || true
+          done
+
+          # Delete branches marked as [gone] (deleted on remote)
+          echo ""
+          echo "=== Deleting [gone] branches ==="
+          git branch -vv | grep '\[gone\]' | awk '{print $1}' | sed 's/^[+* ]//' | while read branch; do
+            echo "Deleting gone branch: $branch"
+            git branch -D "$branch" || true
+          done
+
+      - name: List remaining branches
+        run: |
+          echo "=== Remaining branches ==="
+          git branch -v
+
+      - name: Summary
+        run: |
+          total_branches=$(git branch | wc -l)
+          echo "Total remaining branches: $total_branches"
