@@ -142,6 +142,8 @@ jobs:
         env:
           CI: true
           BASE_URL: http://localhost:3000
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_TEST_PUBLISHABLE_KEY }}
 
       - name: Generate detailed test report
         if: always()
@@ -287,6 +289,7 @@ jobs:
                         'auth': 'Authentication flows',
                         'listing': 'Listing management',
                         'properties': 'Property browsing',
+                        'payment': 'Payment and Stripe flows',
                         'extended': 'Edge case tests'
                       };
                       const description = tagDescriptions[tagName] || 'Unknown tag';

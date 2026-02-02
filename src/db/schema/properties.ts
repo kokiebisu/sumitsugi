@@ -13,6 +13,7 @@ export const properties = pgTable("properties", {
 
   // Pricing
   handoverFee: integer("handover_fee"),
+  additionalCleaningFee: integer("additional_cleaning_fee").default(8000).notNull(), // Fixed ¥8,000
   rent: integer("rent"),
   managementFee: integer("management_fee"),
   deposit: decimal("deposit", { precision: 3, scale: 1 }), // Months

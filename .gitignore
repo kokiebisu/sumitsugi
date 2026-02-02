@@ -20,4 +20,5 @@ playwright-report/
 playwright-results.xml
 playwright-results.json
 test-results/
-tests/e2e/artifacts/.worktrees/
+tests/e2e/artifacts/
+!tests/e2e/artifacts/.gitkeep

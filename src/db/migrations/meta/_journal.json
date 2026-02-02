@@ -22,6 +22,20 @@
       "when": 1769765972903,
       "tag": "0002_steep_franklin_richards",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1769915094546,
+      "tag": "0003_rename_onboarding_complete_to_onboarding_completed",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1738379400000,
+      "tag": "0004_add_additional_cleaning_fee",
+      "breakpoints": true
     }
   ]
 }
