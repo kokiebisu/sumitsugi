@@ -16,7 +16,7 @@ import { test, expect, testData, setupAuthenticatedUser, setupAuthenticatedSelle
  * - Step 7: Preview & Publish
  */
 
-test.describe('Create Listing - Step Navigation', () => {
+test.describe('Create Listing - Step Navigation @listing @critical', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await setupAuthenticatedUser(page)
@@ -78,7 +78,7 @@ test.describe('Create Listing - Step Navigation', () => {
   })
 })
 
-test.describe('Create Listing - Step 2: Photos', () => {
+test.describe('Create Listing - Step 2: Photos @listing @extended', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await setupAuthenticatedUser(page)
@@ -118,7 +118,7 @@ test.describe('Create Listing - Step 2: Photos', () => {
   })
 })
 
-test.describe('Create Listing - Step 4: Property Info', () => {
+test.describe('Create Listing - Step 4: Property Info @listing @extended', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await setupAuthenticatedUser(page)
@@ -159,7 +159,7 @@ test.describe('Create Listing - Step 4: Property Info', () => {
   })
 })
 
-test.describe('Create Listing - Step 6: Furniture & Fee', () => {
+test.describe('Create Listing - Step 6: Furniture & Fee @listing @extended', () => {
   test('should have furniture selection options', async ({ newListingPage, page }) => {
     await page.goto('/')
     await setupAuthenticatedUser(page)
@@ -172,7 +172,7 @@ test.describe('Create Listing - Step 6: Furniture & Fee', () => {
   })
 })
 
-test.describe('Create Listing - Step 7: Preview', () => {
+test.describe('Create Listing - Step 7: Preview @listing @extended', () => {
   test('preview step should show address warning if address not complete', async ({ newListingPage, page }) => {
     await page.goto('/')
     await setupAuthenticatedUser(page)
@@ -182,7 +182,7 @@ test.describe('Create Listing - Step 7: Preview', () => {
   })
 })
 
-test.describe('Create Listing - Save and Exit', () => {
+test.describe('Create Listing - Save and Exit @listing @critical', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await setupAuthenticatedUser(page)
@@ -202,7 +202,7 @@ test.describe('Create Listing - Save and Exit', () => {
   })
 })
 
-test.describe('Create Listing - Logo Navigation', () => {
+test.describe('Create Listing - Logo Navigation @listing @smoke', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await setupAuthenticatedUser(page)
@@ -219,7 +219,7 @@ test.describe('Create Listing - Logo Navigation', () => {
   })
 })
 
-test.describe('Create Listing - Authentication Guard', () => {
+test.describe('Create Listing - Authentication Guard @listing @auth @critical', () => {
   test('should redirect to home if not logged in', async ({ page }) => {
     // Clear any auth state
     await page.goto('/')

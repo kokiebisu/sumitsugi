@@ -13,7 +13,8 @@
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
         "ms-vscode.vscode-typescript-next",
-        "eamodio.gitlens"
+        "eamodio.gitlens",
+        "GitHub.vscode-github-actions"
       ],
       "settings": {
         "editor.formatOnSave": true,

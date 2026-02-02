@@ -9,6 +9,32 @@
 **ノードバージョン:** 20
 **パッケージマネージャー:** npm
 
+## Task Management (CRITICAL)
+
+**タスク完了時は必ずLinearも更新すること。**
+
+詳細は `.claude/rules/task-management.md` を参照。
+
+**クイックワークフロー:**
+1. タスクを完了
+2. DASHBOARDを更新
+3. **LinearでタスクをDoneに更新**
+4. ユーザーに報告
+
+---
+
+## Environment Variables
+
+**Always load `.env.local` before running commands that need API keys:**
+
+```bash
+source .env.local
+```
+
+Available keys in `.env.local`:
+- `LINEAR_API_KEY` - Linear API for issue tracking sync (タスク完了時に使用)
+- Other project-specific secrets
+
 ## Commands
 
 ```bash
@@ -16,11 +42,16 @@ npm run dev              # 開発サーバー起動 (localhost:3000)
 npm run build            # プロダクションビルド
 npm run start            # プロダクションサーバー起動
 npm run lint             # ESLintでコードチェック
+./dev                    # Open devcontainer with Claude Code (auto-starts)
 
 # Git Worktrees (with devcontainer support)
 npm run worktree:create  # 新しいworktreeを作成
 npm run worktree:list    # worktree一覧を表示
 npm run worktree:prune   # 削除済みworktreeをクリーンアップ
+
+# Branch Cleanup (automated)
+npm run cleanup:branches # マージ済みブランチと削除済みリモートブランチを削除
+npm run cleanup:all      # 完全クリーンアップ（ブランチ + worktree + stash）
 ```
 
 ## Development Tools
@@ -104,6 +135,33 @@ Worktrees are created in `.worktrees/<branch-name>/` with automatic devcontainer
 
 See [.devcontainer/WORKTREE.md](.devcontainer/WORKTREE.md) for detailed documentation.
 
+### Automated Branch Cleanup
+
+**Automatic cleanup is enabled** to keep your repository clean:
+
+**GitHub Auto-Delete:**
+- Branches are automatically deleted on GitHub after PR merge
+- Enabled via repository settings
+
+**GitHub Actions (Daily):**
+- Runs daily at 00:00 UTC
+- Deletes merged branches
+- Removes branches marked as [gone] (deleted on remote)
+- Can be triggered manually: `gh workflow run "Cleanup Merged Branches"`
+
+**Local Cleanup Commands:**
+```bash
+npm run cleanup:branches  # Delete merged and [gone] branches
+npm run cleanup:all       # Full cleanup: branches + worktrees + stashes
+```
+
+**Manual cleanup workflow:**
+```bash
+git fetch --all --prune          # Update remote tracking
+npm run cleanup:branches         # Clean up branches
+git worktree prune               # Clean up worktrees
+```
+
 ## Directory Structure
 
 ```
@@ -171,6 +229,27 @@ status: "draft" | "public";
 import { something } from "@/lib/utils"; // → src/lib/utils
 import { Button } from "@/components/ui/button";
 ```
+
+## Automated Workflows
+
+### Daily Requirements Audit
+
+GitHub Actionsで毎日午前9時(JST)に自動実行。REQUIREMENTS.mdとコードを比較し、実装漏れを検出。
+
+**動作:**
+1. REQUIREMENTS.md / BUSINESS.md を読み込み
+2. 実際のコードと比較（Claude API使用）
+3. 差分（ギャップ）があればBeadsタスクとして登録
+4. ギャップがある場合のみPRを作成（`YYYY-MM-DD Daily Audit`）
+5. PRを自動マージ
+6. ギャップがなければPR作成をスキップ
+
+**手動実行:**
+```bash
+gh workflow run "Requirements Audit"
+```
+
+**必要なSecret:** `ANTHROPIC_API_KEY`
 
 ## Related Documentation
 

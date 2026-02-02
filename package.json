@@ -9,14 +9,22 @@
     "lint": "eslint .",
     "test": "vitest",
     "test:ui": "vitest --ui",
+    "shell": "./dev",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:report": "playwright show-report",
+    "test:e2e:critical": "playwright test --grep '@critical'",
+    "test:e2e:smoke": "playwright test --grep '@smoke'",
+    "test:e2e:auth": "playwright test --grep '@auth'",
+    "test:e2e:listing": "playwright test --grep '@listing'",
+    "test:e2e:properties": "playwright test --grep '@properties'",
     "worktree:create": "bash scripts/create-worktree.sh",
     "worktree:list": "git worktree list",
-    "worktree:prune": "git worktree prune"
+    "worktree:prune": "git worktree prune",
+    "cleanup:branches": "bash scripts/cleanup-branches.sh",
+    "cleanup:all": "npm run cleanup:branches && git worktree prune && git stash clear"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.72.1",

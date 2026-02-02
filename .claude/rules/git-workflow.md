@@ -41,16 +41,19 @@ git add <specific-file>
 # 5. Verify (CRITICAL - must show only your intended changes)
 git status
 
-# 6. Commit, push, create PR, merge
+# 6. Commit, push, create PR
 git commit -m "..."
 git push -u origin HEAD
 gh pr create --title "..." --body "..."
-gh pr merge <number> --squash --delete-branch
 
-# 7. Return to main workspace
+# 7. Wait for CI to pass, then merge
+gh pr checks  # Monitor CI status
+gh pr merge <number> --squash --delete-branch  # Only after CI passes
+
+# 8. Return to main workspace
 cd /workspaces/tsumugi
 
-# 8. Clean up worktree
+# 9. Clean up worktree
 git worktree remove /workspaces/tsumugi/.worktrees/<branch-name>
 git pull origin main
 ```
@@ -71,15 +74,27 @@ Note: Attribution disabled globally via ~/.claude/settings.json.
 
 ## Pull Request Workflow
 
+**PR Size Limit (CRITICAL):**
+- Maximum ~300 lines of code per PR
+- Large features MUST be broken into multiple sequential PRs
+- Each PR should be independently reviewable
+- If a task results in >300 lines, split it into smaller logical chunks
+- Example: Database schema with 3 tables = 3 separate PRs (one per table)
+
 **Single Responsibility Principle (CRITICAL):**
 - Each PR must address ONE specific concern only
 - Do NOT combine unrelated changes (e.g., feature + docs update, bug fix + refactor)
 - If changes are unrelated, create separate PRs
 - Example: Stop tracking a file should not include documentation updates
 
-**Auto-Merge Requirement (CRITICAL):**
-- You MUST merge PRs automatically after creation using `gh pr merge <number> --squash --delete-branch`
-- This is NOT optional - merge immediately after PR creation
+**CI Check Requirement (CRITICAL):**
+- **WAIT FOR CI CHECKS TO PASS** before merging any PR
+- Use `gh pr checks` or check GitHub UI to verify all checks are green
+- NEVER merge a PR with failing CI checks
+
+**Auto-Merge After CI (CRITICAL):**
+- After CI passes, you MUST merge PRs automatically using `gh pr merge <number> --squash --delete-branch`
+- This is NOT optional - merge immediately after CI passes
 
 **When to merge automatically:**
 - Docs updates (README, CLAUDE.md, comments, etc.)
@@ -105,13 +120,26 @@ When creating PRs:
 4. Include test plan with TODOs
 5. Push with `-u` flag if new branch
 6. Verify PR contains only related changes
-7. **IMMEDIATELY merge PR with `gh pr merge <number> --squash --delete-branch`**
-8. **Switch back to main and delete local branch:**
+7. **WAIT FOR CI CHECKS TO PASS** - Use `gh pr checks` to monitor status
+8. **After CI passes, merge PR with `gh pr merge <number> --squash --delete-branch`**
+9. **Switch back to main and delete local branch:**
    ```bash
    git checkout main
    git pull origin main
    git branch -D <feature-branch-name>
    ```
+
+**Keep PR Description Updated (CRITICAL):**
+- **ALWAYS update PR description after making changes to the branch**
+- After each commit/push, use `gh pr edit <pr-number> --body "..."` to update description
+- PR description should reflect ALL changes made, not just initial changes
+- Include:
+  - Summary of what changed since last update
+  - Why changes were needed (e.g., "Fixed CI timeout", "Resolved merge conflict")
+  - Current state of the PR
+  - Test status
+- This keeps reviewers informed and maintains accurate documentation
+- Use comprehensive descriptions like the example in this PR (#103)
 
 ## Creating Multiple PRs from Grouped Changes (CRITICAL)
 
@@ -156,9 +184,10 @@ For each PR group, follow this exact sequence:
    gh pr create --title "..." --body "..."
    ```
 
-6. **Merge immediately:**
+6. **Wait for CI, then merge:**
    ```bash
-   gh pr merge <number> --squash --delete-branch
+   gh pr checks  # Monitor CI status
+   gh pr merge <number> --squash --delete-branch  # Only after CI passes
    ```
 
 7. **Return to main and pull:**

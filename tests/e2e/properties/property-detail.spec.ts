@@ -10,7 +10,7 @@ import { test, expect, testData } from '../fixtures/test-fixtures'
  * image gallery, furniture list, map, and sidebar with pricing.
  */
 
-test.describe('Property Detail Page', () => {
+test.describe('Property Detail Page @properties @critical', () => {
   test('should display property detail page with all sections', async ({ propertyDetailPage }) => {
     // Navigate to a known property
     await propertyDetailPage.goto(testData.properties.bohemian)
@@ -107,7 +107,7 @@ test.describe('Property Detail Page', () => {
   })
 })
 
-test.describe('Property Detail - Different Property Types', () => {
+test.describe('Property Detail - Different Property Types @properties @extended', () => {
   test('should display DJ/Producer property correctly', async ({ propertyDetailPage }) => {
     await propertyDetailPage.goto(testData.properties.dj)
 
@@ -129,7 +129,7 @@ test.describe('Property Detail - Different Property Types', () => {
   })
 })
 
-test.describe('Property Detail - Navigation Flow', () => {
+test.describe('Property Detail - Navigation Flow @properties @quarantine', () => {
   test('should navigate from home to detail and back', async ({ homePage, page }) => {
     // Start at home
     await homePage.goto()

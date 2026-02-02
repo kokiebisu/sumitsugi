@@ -13,13 +13,13 @@ import { test, expect, testData, clearLocalStorage, setupAuthenticatedUser } fro
  * - Logout flow
  */
 
-test.describe('Authentication - Login Dialog', () => {
+test.describe('Authentication - Login Dialog @auth @quarantine', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await clearLocalStorage(page)
   })
 
-  test('should open login dialog from header menu', async ({ authPage, page }) => {
+  test('should open login dialog from header menu', async ({ authPage }) => {
     // Open menu and click login
     await authPage.openLoginDialog()
 
@@ -43,21 +43,21 @@ test.describe('Authentication - Login Dialog', () => {
     await expect(authPage.continueButton).toContainText('続行')
   })
 
-  test('should display social login buttons', async ({ authPage }) => {
+  test('should display phone input field', async ({ authPage, page }) => {
     await authPage.openLoginDialog()
 
-    // Verify social buttons exist
+    // Verify phone input exists (required field in the form)
+    const phoneInput = page.locator('input[type="tel"]')
+    await expect(phoneInput).toBeVisible()
+    await expect(phoneInput).toHaveAttribute('placeholder', '電話番号（必須）')
+  })
+
+  test.skip('should display social login buttons', async ({ authPage }) => {
+    // Skipped: Current UI uses simple email+phone form without social login
+    await authPage.openLoginDialog()
     await expect(authPage.socialButtons.facebook).toBeVisible()
     await expect(authPage.socialButtons.google).toBeVisible()
     await expect(authPage.socialButtons.apple).toBeVisible()
-  })
-
-  test('should display phone login option', async ({ authPage }) => {
-    await authPage.openLoginDialog()
-
-    // Verify phone button exists
-    await expect(authPage.phoneButton).toBeVisible()
-    await expect(authPage.phoneButton).toContainText('電話番号で続行')
   })
 
   test('should close dialog when clicking close button', async ({ authPage }) => {
@@ -81,22 +81,29 @@ test.describe('Authentication - Login Dialog', () => {
   })
 })
 
-test.describe('Authentication - Email Login Flow', () => {
+test.describe('Authentication - Email Login Flow @auth @quarantine', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await clearLocalStorage(page)
   })
 
-  test('should require email before continuing', async ({ authPage }) => {
+  test('should require email and phone before continuing', async ({ authPage, page }) => {
     await authPage.openLoginDialog()
 
-    // Button should be disabled when email is empty
+    // Button should be disabled when fields are empty
     await expect(authPage.continueButton).toBeDisabled()
 
-    // Enter valid email
+    // Enter valid email only
     await authPage.emailInput.fill('test@example.com')
 
-    // Button should be enabled
+    // Button should still be disabled (phone required)
+    await expect(authPage.continueButton).toBeDisabled()
+
+    // Enter phone number
+    const phoneInput = page.locator('input[type="tel"]')
+    await phoneInput.fill('09012345678')
+
+    // Button should now be enabled
     await expect(authPage.continueButton).toBeEnabled()
   })
 
@@ -117,7 +124,8 @@ test.describe('Authentication - Email Login Flow', () => {
   })
 })
 
-test.describe('Authentication - Social Login Flow', () => {
+test.describe('Authentication - Social Login Flow @auth @quarantine', () => {
+  // Quarantined: Current UI uses simple email+phone form without social login buttons
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await clearLocalStorage(page)
@@ -161,13 +169,13 @@ test.describe('Authentication - Social Login Flow', () => {
   })
 })
 
-test.describe('Authentication - Logged In State', () => {
+test.describe('Authentication - Logged In State @auth @critical', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await setupAuthenticatedUser(page)
   })
 
-  test('should show user avatar in header when logged in', async ({ authPage, page }) => {
+  test('should show user avatar in header when logged in', async ({ page }) => {
     // Menu button should show avatar instead of default icon
     const avatarInMenu = page.locator('header button .rounded-full')
     await expect(avatarInMenu).toBeVisible()
@@ -193,7 +201,7 @@ test.describe('Authentication - Logged In State', () => {
   })
 })
 
-test.describe('Authentication - Logout Flow', () => {
+test.describe('Authentication - Logout Flow @auth @critical', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await setupAuthenticatedUser(page)
@@ -222,7 +230,7 @@ test.describe('Authentication - Logout Flow', () => {
   })
 })
 
-test.describe('Authentication - Become Seller Flow', () => {
+test.describe('Authentication - Become Seller Flow @auth @listing @quarantine', () => {
   test('should trigger login dialog when clicking "暮らしを譲る" while not logged in', async ({ authPage, page }) => {
     await page.goto('/')
     await clearLocalStorage(page)
