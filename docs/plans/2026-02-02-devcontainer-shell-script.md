@@ -13,6 +13,7 @@
 ## Task 1: Create Shell Script
 
 **Files:**
+
 - Create: `dev` (project root)
 
 **Step 1: Create the shell script file**
@@ -80,6 +81,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ## Task 2: Add npm Script Alias
 
 **Files:**
+
 - Modify: `package.json` (scripts section)
 
 **Step 1: Add shell script to package.json**
@@ -125,6 +127,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ## Task 3: Update CLAUDE.md Documentation
 
 **Files:**
+
 - Modify: `CLAUDE.md` (Commands section, line ~24-40)
 
 **Step 1: Add command to CLAUDE.md**
@@ -132,12 +135,12 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 In the Commands section after line 30 (after `npm run lint`), add:
 
 ```markdown
-./dev                    # Open devcontainer shell (auto-installs CLI if needed)
+./dev # Open devcontainer shell (auto-installs CLI if needed)
 ```
 
 The Commands section should look like:
 
-```markdown
+````markdown
 ## Commands
 
 ```bash
@@ -150,7 +153,9 @@ npm run lint             # ESLintでコードチェック
 # Git Worktrees (with devcontainer support)
 ...
 ```
-```
+````
+
+````
 
 **Step 2: Verify the documentation update**
 
@@ -167,13 +172,14 @@ git commit -m "docs: add ./dev command to CLAUDE.md
 Document new devcontainer shell script in Commands section.
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
-```
+````
 
 ---
 
 ## Task 4: Update README (Optional Quick Start)
 
 **Files:**
+
 - Modify: `README.md` (add Quick Start section near top)
 
 **Step 1: Read current README structure**
@@ -217,9 +223,11 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ## Summary
 
 **Files Created:**
+
 - `dev` - Shell script for entering devcontainer
 
 **Files Modified:**
+
 - `package.json` - Added `shell` script alias
 - `CLAUDE.md` - Documented `./dev` command
 - `README.md` - Added Quick Start section (optional)
@@ -229,6 +237,7 @@ Users can now run `./dev` from project root to instantly enter the devcontainer,
 
 **Testing:**
 The script can be fully tested by:
+
 1. Exiting devcontainer if currently inside
 2. Running `./dev` from host machine
 3. Verifying it starts container and opens shell

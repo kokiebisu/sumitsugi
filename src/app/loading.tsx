@@ -1,6 +1,6 @@
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { PropertyCardSkeleton } from "@/components/property-card-skeleton"
+import { Header } from '@/components/header';
+import { Footer } from '@/components/footer';
+import { PropertyCardSkeleton } from '@/components/property-card-skeleton';
 
 export default function Loading() {
   return (
@@ -27,5 +27,5 @@ export default function Loading() {
 
       <Footer />
     </div>
-  )
+  );
 }

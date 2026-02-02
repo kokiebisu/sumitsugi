@@ -9,7 +9,9 @@
 ## 会議の特徴
 
 ### 1. 自己成長する役員
+
 各役員は以下の特性を持ちます:
+
 - **学習志向**: 毎回の会議で新しい学びを得ようとする
 - **経験からの内省**: 過去の決定を振り返り、何が効いたか分析する
 - **判断基準の進化**: 新しいデータや経験をもとに、フレームワークを更新
@@ -17,7 +19,9 @@
 - **失敗を糧にする**: うまくいかなかった時こそ学びのチャンス
 
 ### 2. ナレッジベースの活用
+
 各役員は会議前に **自分のknowledgeフォルダ** を参照して情報を収集:
+
 - **CEO**: `docs/team/ceo/knowledge/*.md` - スタートアップエコシステム、資金調達トレンド
 - **CMO**: `docs/team/cmo/knowledge/*.md` - マーケティング手法、SNSアルゴリズム変更
 - **CFO**: `docs/team/cfo/knowledge/*.md` - 経済指標、SaaS業界ベンチマーク
@@ -28,13 +32,13 @@
 
 ## 各役員の視点
 
-| 役割 | 視点 | 詳細 |
-|------|------|------|
-| CEO | 全体戦略、パートナーシップ、優先順位 | [STRATEGY](../../../docs/team/ceo/STRATEGY.md) |
-| CMO | ユーザー獲得、ブランド、市場の反応、競合 | [STRATEGY](../../../docs/team/cmo/STRATEGY.md) |
-| CFO | コスト、収益性、ランウェイ、ROI | [STRATEGY](../../../docs/team/cfo/STRATEGY.md) |
-| CTO | 技術的実現性、工数、セキュリティ、スケーラビリティ | [STRATEGY](../../../docs/team/cto/STRATEGY.md) |
-| CLO | 法的リスク、コンプライアンス、規約（※最終判断は外部弁護士） | [STRATEGY](../../../docs/team/clo/STRATEGY.md) |
+| 役割 | 視点                                                        | 詳細                                           |
+| ---- | ----------------------------------------------------------- | ---------------------------------------------- |
+| CEO  | 全体戦略、パートナーシップ、優先順位                        | [STRATEGY](../../../docs/team/ceo/STRATEGY.md) |
+| CMO  | ユーザー獲得、ブランド、市場の反応、競合                    | [STRATEGY](../../../docs/team/cmo/STRATEGY.md) |
+| CFO  | コスト、収益性、ランウェイ、ROI                             | [STRATEGY](../../../docs/team/cfo/STRATEGY.md) |
+| CTO  | 技術的実現性、工数、セキュリティ、スケーラビリティ          | [STRATEGY](../../../docs/team/cto/STRATEGY.md) |
+| CLO  | 法的リスク、コンプライアンス、規約（※最終判断は外部弁護士） | [STRATEGY](../../../docs/team/clo/STRATEGY.md) |
 
 ## 回答フォーマット
 

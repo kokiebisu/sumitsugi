@@ -10,11 +10,13 @@
 ### 導入するツール
 
 **Prettier v3.x**
+
 - コードフォーマッターとして、すべてのJS/TS/TSX/CSS/JSON/MDファイルを自動整形
 - 設定: セミコロンあり、シングルクォート、printWidth 80
 - ESLintとの競合を避けるため `eslint-config-prettier` で統合
 
 **@total-typescript/ts-reset**
+
 - TypeScriptの型定義を改善するライブラリ
 - 推奨セットを適用（`Array.includes`、`JSON.parse`、`fetch` APIなど）
 - グローバル型定義として `src/types/ts-reset.d.ts` に配置
@@ -33,6 +35,7 @@
 ### インストールするパッケージ
 
 **devDependencies:**
+
 ```json
 {
   "prettier": "^3.2.5",
@@ -43,6 +46,7 @@
 ```
 
 **huskyは使わない理由:**
+
 - devcontainer環境での複雑さを避ける
 - package.json の `prepare` スクリプトで代替実装
 
@@ -86,6 +90,7 @@
 ### Git Hooks実装（huskyなし）
 
 **`.githooks/pre-commit`** (実行可能ファイル):
+
 ```bash
 #!/bin/bash
 # Staged filesに対してPrettier + ESLintを実行
@@ -146,15 +151,18 @@ exit 0
 ### 開発ワークフロー
 
 **保存時:**
+
 1. Prettierが自動フォーマット
 2. ESLintが自動修正可能な問題を修正
 
 **コミット時:**
+
 1. pre-commitフックが起動
 2. ステージされたファイルをPrettierでフォーマット
 3. ESLintでチェック（エラーがあればコミット中断）
 
 **CI/CD（将来）:**
+
 - `bun run format:check` でフォーマット違反を検出
 - `bun lint` でコード品質チェック
 
@@ -165,16 +173,19 @@ exit 0
 ### 既存コードへの適用手順
 
 **Phase 1: セットアップ（影響なし）**
+
 1. パッケージインストール
 2. 設定ファイル作成
 3. Gitフック設定
 
 **Phase 2: 既存コードのフォーマット（1回限り）**
+
 1. `bun run format` で全ファイルを一括フォーマット
 2. 差分を確認（機能変更なし、フォーマットのみ）
 3. 単一コミット: `chore: apply prettier formatting`
 
 **Phase 3: 型改善の確認**
+
 1. ts-reset適用後、型エラーが出る箇所を確認
 2. 必要に応じて型アノテーション追加
 3. `bun run build` で型チェック
@@ -188,6 +199,7 @@ exit 0
 ### ロールバック方法
 
 問題が発生した場合:
+
 1. パッケージアンインストール: `bun remove prettier @total-typescript/ts-reset eslint-config-prettier`
 2. 設定ファイル削除: `.prettierrc.json`, `.prettierignore`, `src/types/ts-reset.d.ts`
 3. Gitフック無効化: `git config --unset core.hooksPath`

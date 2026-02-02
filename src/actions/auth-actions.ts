@@ -1,18 +1,18 @@
-"use server";
+'use server';
 
-import { signIn, signOut, auth } from "@/lib/auth";
-import { db } from "@/db";
-import { users, sellerProfiles } from "@/db/schema";
-import { hash } from "bcryptjs";
-import { z } from "zod";
-import { eq } from "drizzle-orm";
-import { AuthError } from "next-auth";
+import { signIn, signOut, auth } from '@/lib/auth';
+import { db } from '@/db';
+import { users, sellerProfiles } from '@/db/schema';
+import { hash } from 'bcryptjs';
+import { z } from 'zod';
+import { eq } from 'drizzle-orm';
+import { AuthError } from 'next-auth';
 
 // Sign Up Schema
 const signUpSchema = z.object({
-  name: z.string().min(1, "名前を入力してください"),
-  email: z.string().email("有効なメールアドレスを入力してください"),
-  password: z.string().min(8, "パスワードは8文字以上で入力してください"),
+  name: z.string().min(1, '名前を入力してください'),
+  email: z.string().email('有効なメールアドレスを入力してください'),
+  password: z.string().min(8, 'パスワードは8文字以上で入力してください'),
   phone: z.string().optional(),
 });
 
@@ -28,7 +28,7 @@ export async function signUpAction(data: z.infer<typeof signUpSchema>) {
     if (existingUser) {
       return {
         success: false,
-        error: "このメールアドレスは既に登録されています",
+        error: 'このメールアドレスは既に登録されています',
       };
     }
 
@@ -43,7 +43,7 @@ export async function signUpAction(data: z.infer<typeof signUpSchema>) {
         email: validated.email,
         phone: validated.phone,
         passwordHash,
-        authProvider: "email",
+        authProvider: 'email',
         emailVerified: null, // NextAuth uses timestamp for email verification
         isSeller: false,
       })
@@ -51,14 +51,14 @@ export async function signUpAction(data: z.infer<typeof signUpSchema>) {
 
     // Auto sign in
     try {
-      await signIn("credentials", {
+      await signIn('credentials', {
         email: validated.email,
         password: validated.password,
         redirect: false,
       });
     } catch (error) {
       // Sign in failed, but user was created
-      console.error("Auto sign-in failed:", error);
+      console.error('Auto sign-in failed:', error);
     }
 
     return {
@@ -73,15 +73,15 @@ export async function signUpAction(data: z.infer<typeof signUpSchema>) {
     if (error instanceof z.ZodError) {
       return { success: false, error: error.errors[0].message };
     }
-    console.error("Sign up error:", error);
-    return { success: false, error: "登録に失敗しました" };
+    console.error('Sign up error:', error);
+    return { success: false, error: '登録に失敗しました' };
   }
 }
 
 // Sign In Action
 export async function signInAction(email: string, password: string) {
   try {
-    await signIn("credentials", {
+    await signIn('credentials', {
       email,
       password,
       redirect: false,
@@ -89,10 +89,13 @@ export async function signInAction(email: string, password: string) {
     return { success: true };
   } catch (error) {
     if (error instanceof AuthError) {
-      return { success: false, error: "メールアドレスまたはパスワードが正しくありません" };
+      return {
+        success: false,
+        error: 'メールアドレスまたはパスワードが正しくありません',
+      };
     }
-    console.error("Sign in error:", error);
-    return { success: false, error: "ログインに失敗しました" };
+    console.error('Sign in error:', error);
+    return { success: false, error: 'ログインに失敗しました' };
   }
 }
 
@@ -102,15 +105,15 @@ export async function signOutAction() {
     await signOut({ redirect: false });
     return { success: true };
   } catch (error) {
-    console.error("Sign out error:", error);
-    return { success: false, error: "ログアウトに失敗しました" };
+    console.error('Sign out error:', error);
+    return { success: false, error: 'ログアウトに失敗しました' };
   }
 }
 
 // Become Seller Action
 const becomeSellerSchema = z.object({
-  occupation: z.string().min(1, "職業を入力してください"),
-  bio: z.string().min(10, "自己紹介は10文字以上で入力してください"),
+  occupation: z.string().min(1, '職業を入力してください'),
+  bio: z.string().min(10, '自己紹介は10文字以上で入力してください'),
   socialLinks: z
     .object({
       instagram: z.string().optional(),
@@ -128,7 +131,7 @@ export async function becomeSellerAction(
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return { success: false, error: "ログインが必要です" };
+      return { success: false, error: 'ログインが必要です' };
     }
 
     const validated = becomeSellerSchema.parse(data);
@@ -142,11 +145,11 @@ export async function becomeSellerAction(
     });
 
     if (!user) {
-      return { success: false, error: "ユーザーが見つかりません" };
+      return { success: false, error: 'ユーザーが見つかりません' };
     }
 
     if (user.isSeller) {
-      return { success: false, error: "既に前の住人として登録されています" };
+      return { success: false, error: '既に前の住人として登録されています' };
     }
 
     // Update user to seller
@@ -168,16 +171,16 @@ export async function becomeSellerAction(
     if (error instanceof z.ZodError) {
       return { success: false, error: error.errors[0].message };
     }
-    console.error("Become seller error:", error);
-    return { success: false, error: "前の住人登録に失敗しました" };
+    console.error('Become seller error:', error);
+    return { success: false, error: '前の住人登録に失敗しました' };
   }
 }
 
 // Update User Profile Action
 const updateProfileSchema = z.object({
-  name: z.string().min(1, "名前を入力してください").optional(),
+  name: z.string().min(1, '名前を入力してください').optional(),
   phone: z.string().optional(),
-  avatarUrl: z.string().url("有効なURLを入力してください").optional(),
+  avatarUrl: z.string().url('有効なURLを入力してください').optional(),
 });
 
 export async function updateProfileAction(
@@ -186,7 +189,7 @@ export async function updateProfileAction(
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return { success: false, error: "ログインが必要です" };
+      return { success: false, error: 'ログインが必要です' };
     }
 
     const validated = updateProfileSchema.parse(data);
@@ -214,15 +217,15 @@ export async function updateProfileAction(
     if (error instanceof z.ZodError) {
       return { success: false, error: error.errors[0].message };
     }
-    console.error("Update profile error:", error);
-    return { success: false, error: "プロフィール更新に失敗しました" };
+    console.error('Update profile error:', error);
+    return { success: false, error: 'プロフィール更新に失敗しました' };
   }
 }
 
 // Update Seller Profile Action
 const updateSellerProfileSchema = z.object({
-  occupation: z.string().min(1, "職業を入力してください"),
-  bio: z.string().min(10, "自己紹介は10文字以上で入力してください"),
+  occupation: z.string().min(1, '職業を入力してください'),
+  bio: z.string().min(10, '自己紹介は10文字以上で入力してください'),
   socialLinks: z
     .object({
       instagram: z.string().optional(),
@@ -240,7 +243,7 @@ export async function updateSellerProfileAction(
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return { success: false, error: "ログインが必要です" };
+      return { success: false, error: 'ログインが必要です' };
     }
 
     const validated = updateSellerProfileSchema.parse(data);
@@ -254,7 +257,7 @@ export async function updateSellerProfileAction(
     });
 
     if (!user?.isSeller || !user.sellerProfile) {
-      return { success: false, error: "前の住人として登録されていません" };
+      return { success: false, error: '前の住人として登録されていません' };
     }
 
     await db
@@ -272,8 +275,8 @@ export async function updateSellerProfileAction(
     if (error instanceof z.ZodError) {
       return { success: false, error: error.errors[0].message };
     }
-    console.error("Update seller profile error:", error);
-    return { success: false, error: "プロフィール更新に失敗しました" };
+    console.error('Update seller profile error:', error);
+    return { success: false, error: 'プロフィール更新に失敗しました' };
   }
 }
 
@@ -282,7 +285,7 @@ export async function getCurrentUserAction() {
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return { success: false, error: "ログインしていません" };
+      return { success: false, error: 'ログインしていません' };
     }
 
     const user = await db.query.users.findFirst({
@@ -296,12 +299,12 @@ export async function getCurrentUserAction() {
     });
 
     if (!user) {
-      return { success: false, error: "ユーザーが見つかりません" };
+      return { success: false, error: 'ユーザーが見つかりません' };
     }
 
     return { success: true, data: user };
   } catch (error) {
-    console.error("Get current user error:", error);
-    return { success: false, error: "ユーザー情報の取得に失敗しました" };
+    console.error('Get current user error:', error);
+    return { success: false, error: 'ユーザー情報の取得に失敗しました' };
   }
 }

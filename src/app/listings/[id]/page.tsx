@@ -1,15 +1,15 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { ImageGallery } from "@/components/image-gallery";
-import { PropertySidebar } from "@/components/property-sidebar";
-import { PropertyMap } from "@/components/property-map";
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import { Header } from '@/components/header';
+import { Footer } from '@/components/footer';
+import { ImageGallery } from '@/components/image-gallery';
+import { PropertySidebar } from '@/components/property-sidebar';
+import { PropertyMap } from '@/components/property-map';
 import {
   getPropertyById,
   getPublicProperties,
   furnitureLabels,
-} from "@/lib/data";
+} from '@/lib/data';
 import {
   ArrowLeft,
   Home,
@@ -25,7 +25,7 @@ import {
   Refrigerator,
   Coffee,
   Users,
-} from "lucide-react";
+} from 'lucide-react';
 
 const FURNITURE_ICONS: Record<string, typeof BedDouble> = {
   bed: BedDouble,
@@ -56,7 +56,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PropertyDetailPageProps) {
   const { id } = await params;
   const property = getPropertyById(id);
-  if (!property) return { title: "物件が見つかりません" };
+  if (!property) return { title: '物件が見つかりません' };
 
   return {
     title: `${property.title} | tsumugi`,
@@ -70,7 +70,7 @@ export default async function PropertyDetailPage({
   const { id } = await params;
   const property = getPropertyById(id);
 
-  if (!property || property.status !== "public") {
+  if (!property || property.status !== 'public') {
     notFound();
   }
 
@@ -111,7 +111,7 @@ export default async function PropertyDetailPage({
                     property.layout,
                   ]
                     .filter(Boolean)
-                    .join(" / ")}
+                    .join(' / ')}
                 </p>
               </div>
 
@@ -202,7 +202,7 @@ export default async function PropertyDetailPage({
                 </h2>
                 <p className="mb-4 text-base text-foreground">
                   {property.location.neighborhood
-                    ? `日本東京都${property.location.neighborhood.replace("区", "区 ")}`
+                    ? `日本東京都${property.location.neighborhood.replace('区', '区 ')}`
                     : property.area}
                 </p>
                 <PropertyMap

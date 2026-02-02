@@ -84,11 +84,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ received: true });
     } catch (error) {
       // Handle payment not found errors with 404
-      if (error instanceof Error && error.message.includes('Payment not found')) {
-        return NextResponse.json(
-          { error: error.message },
-          { status: 404 }
-        );
+      if (
+        error instanceof Error &&
+        error.message.includes('Payment not found')
+      ) {
+        return NextResponse.json({ error: error.message }, { status: 404 });
       }
 
       // All other errors return 500
@@ -158,7 +158,8 @@ async function handlePaymentIntentFailed(
       status: 'failed',
       metadata: {
         ...payment.metadata,
-        failureReason: paymentIntent.last_payment_error?.message || 'Unknown error',
+        failureReason:
+          paymentIntent.last_payment_error?.message || 'Unknown error',
       },
       updatedAt: new Date(),
     })

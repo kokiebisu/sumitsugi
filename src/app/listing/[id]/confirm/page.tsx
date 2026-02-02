@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
-import Link from "next/link";
-import { useAuth } from "@/contexts/auth-context";
-import { Button } from "@/components/ui/button";
-import { furnitureLabels } from "@/lib/data";
-import type { LargeFurnitureType } from "@/lib/data";
-import { cn } from "@/lib/utils";
+import { useEffect, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
+import { useAuth } from '@/contexts/auth-context';
+import { Button } from '@/components/ui/button';
+import { furnitureLabels } from '@/lib/data';
+import type { LargeFurnitureType } from '@/lib/data';
+import { cn } from '@/lib/utils';
 import {
   ArrowLeft,
   Calendar,
@@ -17,7 +17,7 @@ import {
   Download,
   Home,
   Sofa,
-} from "lucide-react";
+} from 'lucide-react';
 
 export default function ConfirmListingPage() {
   const { user, isLoading, listings, updateListing } = useAuth();
@@ -33,8 +33,8 @@ export default function ConfirmListingPage() {
     noLandlordWarranty: false,
     selfResponsibility: false,
   });
-  const [viewingAvailableFrom, setViewingAvailableFrom] = useState("");
-  const [moveInAvailableFrom, setMoveInAvailableFrom] = useState("");
+  const [viewingAvailableFrom, setViewingAvailableFrom] = useState('');
+  const [moveInAvailableFrom, setMoveInAvailableFrom] = useState('');
 
   const listing = listings.find((l) => l.id === listingId);
 
@@ -49,13 +49,13 @@ export default function ConfirmListingPage() {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/");
+      router.push('/');
     }
   }, [user, isLoading, router]);
 
   useEffect(() => {
     if (!isLoading && user && listing && listing.userId !== user.id) {
-      router.push("/listing");
+      router.push('/listing');
     }
   }, [user, isLoading, listing, router]);
 
@@ -68,27 +68,37 @@ export default function ConfirmListingPage() {
       if (listing.liabilityTerms) {
         setLiabilityTerms({
           isPrivateTransfer: listing.liabilityTerms.isPrivateTransfer || false,
-          noLandlordWarranty: listing.liabilityTerms.noLandlordWarranty || false,
-          selfResponsibility: listing.liabilityTerms.selfResponsibility || false,
+          noLandlordWarranty:
+            listing.liabilityTerms.noLandlordWarranty || false,
+          selfResponsibility:
+            listing.liabilityTerms.selfResponsibility || false,
         });
       }
       if (listing.viewingAvailableFrom) {
         // 日本語形式から date input 形式に変換を試みる
-        const match = listing.viewingAvailableFrom.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+        const match = listing.viewingAvailableFrom.match(
+          /(\d{4})年(\d{1,2})月(\d{1,2})日/
+        );
         if (match) {
           const [, year, month, day] = match;
-          setViewingAvailableFrom(`${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`);
+          setViewingAvailableFrom(
+            `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+          );
         } else if (listing.viewingAvailableFrom.match(/^\d{4}-\d{2}-\d{2}/)) {
-          setViewingAvailableFrom(listing.viewingAvailableFrom.split("T")[0]);
+          setViewingAvailableFrom(listing.viewingAvailableFrom.split('T')[0]);
         }
       }
       if (listing.moveInAvailableFrom) {
-        const match = listing.moveInAvailableFrom.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+        const match = listing.moveInAvailableFrom.match(
+          /(\d{4})年(\d{1,2})月(\d{1,2})日/
+        );
         if (match) {
           const [, year, month, day] = match;
-          setMoveInAvailableFrom(`${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`);
+          setMoveInAvailableFrom(
+            `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+          );
         } else if (listing.moveInAvailableFrom.match(/^\d{4}-\d{2}-\d{2}/)) {
-          setMoveInAvailableFrom(listing.moveInAvailableFrom.split("T")[0]);
+          setMoveInAvailableFrom(listing.moveInAvailableFrom.split('T')[0]);
         }
       }
     }
@@ -99,7 +109,7 @@ export default function ConfirmListingPage() {
 
     setIsPublishing(true);
     updateListing(listingId, {
-      status: "published",
+      status: 'published',
       publishedAt: new Date().toISOString(),
       landlordConsent: {
         hasLandlordConsent: landlordConsent,
@@ -113,13 +123,13 @@ export default function ConfirmListingPage() {
       moveInAvailableFrom,
     });
     setTimeout(() => {
-      router.push("/listing");
+      router.push('/listing');
     }, 500);
   };
 
   const handleDownloadPDF = () => {
     // PDF生成のためにPDFページに遷移
-    window.open(`/listing/${listingId}/pdf`, "_blank");
+    window.open(`/listing/${listingId}/pdf`, '_blank');
   };
 
   if (isLoading || !user) {
@@ -133,15 +143,18 @@ export default function ConfirmListingPage() {
   if (!listing) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="text-muted-foreground">リスティングが見つかりません</div>
+        <div className="text-muted-foreground">
+          リスティングが見つかりません
+        </div>
       </div>
     );
   }
 
   // 家具リスト
-  const furnitureList = listing.furniture
-    ?.map((f) => furnitureLabels[f as LargeFurnitureType] || f)
-    .join("、") || "なし";
+  const furnitureList =
+    listing.furniture
+      ?.map((f) => furnitureLabels[f as LargeFurnitureType] || f)
+      .join('、') || 'なし';
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
@@ -277,7 +290,8 @@ export default function ConfirmListingPage() {
                       className="mt-0.5 h-5 w-5 rounded border-border"
                     />
                     <span className="text-sm text-foreground">
-                      残置物は「前入居者 → 次入居者間の私的譲渡物」であることを理解しています
+                      残置物は「前入居者 →
+                      次入居者間の私的譲渡物」であることを理解しています
                     </span>
                   </label>
                   <label className="flex items-start gap-3 cursor-pointer p-3 border border-border rounded-xl hover:bg-muted/30 transition-colors">
@@ -340,7 +354,7 @@ export default function ConfirmListingPage() {
                       type="date"
                       value={viewingAvailableFrom}
                       onChange={(e) => setViewingAvailableFrom(e.target.value)}
-                      min={new Date().toISOString().split("T")[0]}
+                      min={new Date().toISOString().split('T')[0]}
                       className="w-full px-4 py-3 border border-border rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-foreground"
                     />
                   </div>
@@ -353,7 +367,10 @@ export default function ConfirmListingPage() {
                       type="date"
                       value={moveInAvailableFrom}
                       onChange={(e) => setMoveInAvailableFrom(e.target.value)}
-                      min={viewingAvailableFrom || new Date().toISOString().split("T")[0]}
+                      min={
+                        viewingAvailableFrom ||
+                        new Date().toISOString().split('T')[0]
+                      }
                       className="w-full px-4 py-3 border border-border rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-foreground"
                     />
                     <p className="text-xs text-muted-foreground mt-1">
@@ -388,21 +405,21 @@ export default function ConfirmListingPage() {
           <div>
             <p className="text-sm text-muted-foreground">
               {allChecked
-                ? "準備完了！公開しましょう"
-                : "すべての項目を確認してください"}
+                ? '準備完了！公開しましょう'
+                : 'すべての項目を確認してください'}
             </p>
           </div>
           <Button
             onClick={handlePublish}
             disabled={!allChecked || isPublishing}
             className={cn(
-              "rounded-lg px-8 py-3 h-12 text-base font-medium",
+              'rounded-lg px-8 py-3 h-12 text-base font-medium',
               allChecked
-                ? "bg-[#E61E4D] hover:bg-[#D01346] text-white"
-                : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                ? 'bg-[#E61E4D] hover:bg-[#D01346] text-white'
+                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
             )}
           >
-            {isPublishing ? "公開中..." : "公開する"}
+            {isPublishing ? '公開中...' : '公開する'}
           </Button>
         </div>
       </footer>

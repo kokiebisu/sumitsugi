@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   createContext,
@@ -6,9 +6,9 @@ import {
   useState,
   useEffect,
   type ReactNode,
-} from "react";
-import type { User, SellerProfile, UserListing, Inquiry } from "@/lib/data";
-import { inquiries as mockInquiries } from "@/lib/data";
+} from 'react';
+import type { User, SellerProfile, UserListing, Inquiry } from '@/lib/data';
+import { inquiries as mockInquiries } from '@/lib/data';
 
 interface AuthContextType {
   user: User | null;
@@ -19,22 +19,22 @@ interface AuthContextType {
   becomeSeller: (sellerProfile: SellerProfile) => void;
   listings: UserListing[];
   addListing: (
-    listing: Omit<UserListing, "id" | "userId" | "createdAt" | "updatedAt">,
+    listing: Omit<UserListing, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
   ) => UserListing;
   updateListing: (id: string, updates: Partial<UserListing>) => void;
   deleteListing: (id: string) => void;
   publishListing: (id: string) => void;
   inquiries: Inquiry[];
   addInquiry: (
-    inquiry: Omit<Inquiry, "id" | "submittedAt" | "updatedAt">,
+    inquiry: Omit<Inquiry, 'id' | 'submittedAt' | 'updatedAt'>
   ) => Inquiry;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const STORAGE_KEY = "tsumugi_user";
-const LISTINGS_STORAGE_KEY = "tsumugi_listings";
-const INQUIRIES_STORAGE_KEY = "tsumugi_inquiries";
+const STORAGE_KEY = 'tsumugi_user';
+const LISTINGS_STORAGE_KEY = 'tsumugi_listings';
+const INQUIRIES_STORAGE_KEY = 'tsumugi_inquiries';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -53,14 +53,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     // 開発モード: 常にモックデータを使用（localStorageを無視）
-    if (process.env.NODE_ENV === "development") {
+    if (process.env.NODE_ENV === 'development') {
       setInquiries(mockInquiries);
 
       // 開発モード: テストユーザーとして自動ログイン
       const devUser: User = {
-        id: "dev_user_001",
-        name: "田中 花子",
-        email: "tanaka@example.com",
+        id: 'dev_user_001',
+        name: '田中 花子',
+        email: 'tanaka@example.com',
         isSeller: false,
         createdAt: new Date().toISOString(),
       };
@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedUser = localStorage.getItem(STORAGE_KEY);
     if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        setUser(JSON.parse(storedUser) as User);
       } catch {
         localStorage.removeItem(STORAGE_KEY);
       }
@@ -83,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedListings = localStorage.getItem(LISTINGS_STORAGE_KEY);
     if (storedListings) {
       try {
-        setListings(JSON.parse(storedListings));
+        setListings(JSON.parse(storedListings) as UserListing[]);
       } catch {
         localStorage.removeItem(LISTINGS_STORAGE_KEY);
       }
@@ -92,7 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedInquiries = localStorage.getItem(INQUIRIES_STORAGE_KEY);
     if (storedInquiries) {
       try {
-        setInquiries(JSON.parse(storedInquiries));
+        setInquiries(JSON.parse(storedInquiries) as Inquiry[]);
       } catch {
         localStorage.removeItem(INQUIRIES_STORAGE_KEY);
       }
@@ -118,13 +118,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (typeof window === 'undefined' || !isInitialized) return;
     try {
       // 写真データも含めて保存を試みる
-      localStorage.setItem(
-        LISTINGS_STORAGE_KEY,
-        JSON.stringify(listings),
-      );
+      localStorage.setItem(LISTINGS_STORAGE_KEY, JSON.stringify(listings));
     } catch (e) {
       // QuotaExceededError の場合は写真データを除外して再試行
-      console.warn("Failed to save listings with photos, trying without photos:", e);
+      console.warn(
+        'Failed to save listings with photos, trying without photos:',
+        e
+      );
       try {
         const listingsWithoutPhotos = listings.map((listing) => ({
           ...listing,
@@ -132,10 +132,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }));
         localStorage.setItem(
           LISTINGS_STORAGE_KEY,
-          JSON.stringify(listingsWithoutPhotos),
+          JSON.stringify(listingsWithoutPhotos)
         );
       } catch (e2) {
-        console.error("Failed to save listings to localStorage:", e2);
+        console.error('Failed to save listings to localStorage:', e2);
       }
     }
   }, [listings, isInitialized]);
@@ -165,9 +165,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const addListing = (
-    listing: Omit<UserListing, "id" | "userId" | "createdAt" | "updatedAt">,
+    listing: Omit<UserListing, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
   ) => {
-    if (!user) throw new Error("User must be logged in to add a listing");
+    if (!user) throw new Error('User must be logged in to add a listing');
     const now = new Date().toISOString();
     const newListing: UserListing = {
       ...listing,
@@ -185,8 +185,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       prev.map((listing) =>
         listing.id === id
           ? { ...listing, ...updates, updatedAt: new Date().toISOString() }
-          : listing,
-      ),
+          : listing
+      )
     );
   };
 
@@ -200,17 +200,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         listing.id === id
           ? {
               ...listing,
-              status: "published" as const,
+              status: 'published' as const,
               publishedAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
             }
-          : listing,
-      ),
+          : listing
+      )
     );
   };
 
   const addInquiry = (
-    inquiry: Omit<Inquiry, "id" | "submittedAt" | "updatedAt">,
+    inquiry: Omit<Inquiry, 'id' | 'submittedAt' | 'updatedAt'>
   ) => {
     const now = new Date().toISOString();
     const newInquiry: Inquiry = {
@@ -229,7 +229,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem(INQUIRIES_STORAGE_KEY, JSON.stringify(inquiries));
     } catch (e) {
-      console.error("Failed to save inquiries to localStorage:", e);
+      console.error('Failed to save inquiries to localStorage:', e);
     }
   }, [inquiries, isInitialized]);
 
@@ -298,7 +298,7 @@ export function useAuth() {
         addInquiry: () => defaultInquiry,
       };
     }
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 }

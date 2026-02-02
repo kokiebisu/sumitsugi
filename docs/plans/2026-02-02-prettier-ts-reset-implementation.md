@@ -13,6 +13,7 @@
 ## Task 1: Install Dependencies
 
 **Files:**
+
 - Modify: `package.json`
 
 **Step 1: Install Prettier and related packages**
@@ -43,6 +44,7 @@ git commit -m "chore: add prettier and ts-reset dependencies"
 ## Task 2: Configure Prettier
 
 **Files:**
+
 - Create: `.prettierrc.json`
 - Create: `.prettierignore`
 
@@ -125,6 +127,7 @@ git commit -m "chore: configure prettier"
 ## Task 3: Set Up ts-reset
 
 **Files:**
+
 - Create: `src/types/ts-reset.d.ts`
 
 **Step 1: Create ts-reset type definition file**
@@ -155,6 +158,7 @@ git commit -m "feat: add ts-reset for improved type safety"
 ## Task 4: Integrate Prettier with ESLint
 
 **Files:**
+
 - Modify: `eslint.config.mjs`
 
 **Step 1: Update ESLint config to disable formatting rules**
@@ -200,7 +204,13 @@ export default [
   },
   prettierConfig,
   {
-    ignores: ['.next/**', 'node_modules/**', 'out/**', '.next', '.worktrees/**'],
+    ignores: [
+      '.next/**',
+      'node_modules/**',
+      'out/**',
+      '.next',
+      '.worktrees/**',
+    ],
   },
 ];
 ```
@@ -225,6 +235,7 @@ git commit -m "chore: integrate prettier with eslint"
 ## Task 5: Add Package Scripts
 
 **Files:**
+
 - Modify: `package.json`
 
 **Step 1: Add formatting scripts to package.json**
@@ -271,6 +282,7 @@ git commit -m "chore: add prettier scripts to package.json"
 ## Task 6: Configure Editor Integration
 
 **Files:**
+
 - Create or Modify: `.vscode/settings.json`
 
 **Step 1: Check if .vscode/settings.json exists**
@@ -329,6 +341,7 @@ git commit -m "chore: configure vscode for prettier formatting"
 ## Task 7: Set Up Git Hooks
 
 **Files:**
+
 - Create: `.githooks/pre-commit`
 
 **Step 1: Create .githooks directory**
@@ -403,6 +416,7 @@ git commit -m "chore: add git pre-commit hook for formatting"
 ## Task 8: Format Existing Codebase
 
 **Files:**
+
 - Modify: All source files (via Prettier)
 
 **Step 1: Run Prettier on all files**
@@ -441,6 +455,7 @@ git commit -m "chore: apply prettier formatting to codebase"
 ## Task 9: Verify Setup
 
 **Files:**
+
 - None (verification only)
 
 **Step 1: Test format:check script**
@@ -526,18 +541,21 @@ After completing all tasks:
 ## Post-Implementation Notes
 
 **For future development:**
+
 - Save files to auto-format (VSCode with Prettier extension)
 - Pre-commit hook will format staged files automatically
 - Run `bun run format` to format all files manually
 - Run `bun run format:check` in CI to verify formatting
 
 **If hook fails:**
+
 - Check errors in terminal
 - Fix linting issues manually
 - Re-stage files and commit
 - Use `git commit --no-verify` only for emergencies
 
 **Rollback if needed:**
+
 ```bash
 bun remove prettier @total-typescript/ts-reset eslint-config-prettier
 rm .prettierrc.json .prettierignore src/types/ts-reset.d.ts .githooks/pre-commit

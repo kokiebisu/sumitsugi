@@ -13,6 +13,7 @@
 ## Task 1: Add npm Scripts for Tagged Test Execution
 
 **Files:**
+
 - Modify: `package.json:4-16`
 
 **Step 1: Add new test scripts to package.json**
@@ -67,6 +68,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ## Task 2: Tag Authentication Tests
 
 **Files:**
+
 - Modify: `tests/e2e/auth/authentication.spec.ts:1-233`
 
 **Step 1: Add tags to test describes**
@@ -74,7 +76,13 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 Update all `test.describe()` calls to include appropriate tags:
 
 ```typescript
-import { test, expect, testData, setupAuthenticatedUser, setupAuthenticatedSeller } from '../fixtures/test-fixtures'
+import {
+  test,
+  expect,
+  testData,
+  setupAuthenticatedUser,
+  setupAuthenticatedSeller,
+} from '../fixtures/test-fixtures';
 
 /**
  * E2E Tests: Authentication Flows
@@ -87,96 +95,111 @@ import { test, expect, testData, setupAuthenticatedUser, setupAuthenticatedSelle
 test.describe('Authentication - Login Dialog @auth @quarantine', () => {
   test('should open login dialog from header menu', async ({ page }) => {
     // ... existing test
-  })
+  });
 
   test('should display email input and continue button', async ({ page }) => {
     // ... existing test
-  })
+  });
 
   test('should display social login buttons', async ({ page }) => {
     // ... existing test
-  })
+  });
 
   test('should display phone login option', async ({ page }) => {
     // ... existing test
-  })
+  });
 
   test('should close dialog when clicking close button', async ({ page }) => {
     // ... existing test
-  })
+  });
 
   test('should close dialog when clicking overlay', async ({ page }) => {
     // ... existing test
-  })
-})
+  });
+});
 
 // Email login flow - critical and failing (quarantine)
 test.describe('Authentication - Email Login Flow @auth @quarantine', () => {
-  test('should require email before continuing', async ({ page, loginDialog }) => {
+  test('should require email before continuing', async ({
+    page,
+    loginDialog,
+  }) => {
     // ... existing test
-  })
+  });
 
-  test('should complete email login and close dialog', async ({ page, loginDialog }) => {
+  test('should complete email login and close dialog', async ({
+    page,
+    loginDialog,
+  }) => {
     // ... existing test
-  })
-})
+  });
+});
 
 // Social login - critical and failing (quarantine)
 test.describe('Authentication - Social Login Flow @auth @quarantine', () => {
   test('should complete Google login', async ({ page, loginDialog }) => {
     // ... existing test
-  })
+  });
 
   test('should complete Facebook login', async ({ page, loginDialog }) => {
     // ... existing test
-  })
+  });
 
   test('should complete Apple login', async ({ page, loginDialog }) => {
     // ... existing test
-  })
-})
+  });
+});
 
 // Phone number validation - extended tests
 test.describe('Authentication - Phone Number Validation @auth @extended', () => {
-  test('should validate Japanese phone number format', async ({ page, loginDialog }) => {
+  test('should validate Japanese phone number format', async ({
+    page,
+    loginDialog,
+  }) => {
     // ... existing test
-  })
+  });
 
   test('should reject invalid phone numbers', async ({ page, loginDialog }) => {
     // ... existing test
-  })
-})
+  });
+});
 
 // Account menu - passing critical test
 test.describe('Authentication - Account Menu @auth @critical', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/')
-    await setupAuthenticatedUser(page)
-  })
+    await page.goto('/');
+    await setupAuthenticatedUser(page);
+  });
 
-  test('should show account menu with user info when logged in', async ({ page }) => {
+  test('should show account menu with user info when logged in', async ({
+    page,
+  }) => {
     // ... existing test
-  })
+  });
 
   test('should show logout option in account menu', async ({ page }) => {
     // ... existing test
-  })
+  });
 
   test('should logout when clicking logout button', async ({ page }) => {
     // ... existing test
-  })
-})
+  });
+});
 
 // Seller onboarding - critical and failing (quarantine)
 test.describe('Authentication - Become Seller Flow @auth @listing @quarantine', () => {
-  test('should trigger login dialog when clicking "暮らしを譲る" while not logged in', async ({ page }) => {
+  test('should trigger login dialog when clicking "暮らしを譲る" while not logged in', async ({
+    page,
+  }) => {
     // ... existing test
-  })
+  });
 
-  test('should navigate to listing creation after login when clicking "暮らしを譲る"', async ({ page }) => {
+  test('should navigate to listing creation after login when clicking "暮らしを譲る"', async ({
+    page,
+  }) => {
     // ... existing test
-  })
-})
+  });
+});
 ```
 
 **Step 2: Verify tags work**
@@ -210,13 +233,20 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ## Task 3: Tag Listing Tests
 
 **Files:**
+
 - Modify: `tests/e2e/listing/create-listing.spec.ts:1-234`
 - Modify: `tests/e2e/listing/listing-management.spec.ts:1-203`
 
 **Step 1: Tag create-listing.spec.ts**
 
 ```typescript
-import { test, expect, testData, setupAuthenticatedUser, setupAuthenticatedSeller } from '../fixtures/test-fixtures'
+import {
+  test,
+  expect,
+  testData,
+  setupAuthenticatedUser,
+  setupAuthenticatedSeller,
+} from '../fixtures/test-fixtures';
 
 /**
  * E2E Tests: Create Listing Flow
@@ -227,41 +257,46 @@ import { test, expect, testData, setupAuthenticatedUser, setupAuthenticatedSelle
 
 test.describe('Create Listing - Step Navigation @listing @critical', () => {
   // ... existing tests
-})
+});
 
 test.describe('Create Listing - Step 2: Photos @listing @extended', () => {
   // ... existing tests
-})
+});
 
 test.describe('Create Listing - Step 4: Property Info @listing @extended', () => {
   // ... existing tests
-})
+});
 
 test.describe('Create Listing - Step 6: Furniture & Fee @listing @extended', () => {
   // ... existing tests
-})
+});
 
 test.describe('Create Listing - Step 7: Preview @listing @extended', () => {
   // ... existing tests
-})
+});
 
 test.describe('Create Listing - Save and Exit @listing @critical', () => {
   // ... existing tests
-})
+});
 
 test.describe('Create Listing - Logo Navigation @listing @smoke', () => {
   // ... existing tests
-})
+});
 
 test.describe('Create Listing - Authentication Guard @listing @auth @critical', () => {
   // ... existing tests
-})
+});
 ```
 
 **Step 2: Tag listing-management.spec.ts**
 
 ```typescript
-import { test, expect, testData, setupAuthenticatedUser } from '../fixtures/test-fixtures'
+import {
+  test,
+  expect,
+  testData,
+  setupAuthenticatedUser,
+} from '../fixtures/test-fixtures';
 
 /**
  * E2E Tests: Listing Management
@@ -272,12 +307,12 @@ import { test, expect, testData, setupAuthenticatedUser } from '../fixtures/test
 
 test.describe('Listing Page - No Listings State @listing @smoke', () => {
   // ... existing tests
-})
+});
 
 test.describe('Listing Page - With Existing Listings @listing @quarantine', () => {
   // All tests in this group are failing
   // ... existing tests
-})
+});
 ```
 
 **Step 3: Verify tags**
@@ -309,13 +344,14 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ## Task 4: Tag Property Tests
 
 **Files:**
+
 - Modify: `tests/e2e/properties/browse-properties.spec.ts:1-end`
 - Modify: `tests/e2e/properties/property-detail.spec.ts:1-end`
 
 **Step 1: Tag browse-properties.spec.ts**
 
 ```typescript
-import { test, expect } from '../fixtures/test-fixtures'
+import { test, expect } from '../fixtures/test-fixtures';
 
 /**
  * E2E Tests: Browse Properties
@@ -326,21 +362,21 @@ import { test, expect } from '../fixtures/test-fixtures'
 
 test.describe('Browse Properties - Property Grid @properties @critical @smoke', () => {
   // ... existing tests (all passing)
-})
+});
 
 test.describe('Browse Properties - Property Cards @properties @critical', () => {
   // ... existing tests (all passing)
-})
+});
 
 test.describe('Browse Properties - Filters @properties @extended', () => {
   // ... existing tests (if any)
-})
+});
 ```
 
 **Step 2: Tag property-detail.spec.ts**
 
 ```typescript
-import { test, expect } from '../fixtures/test-fixtures'
+import { test, expect } from '../fixtures/test-fixtures';
 
 /**
  * E2E Tests: Property Detail Page
@@ -352,30 +388,30 @@ import { test, expect } from '../fixtures/test-fixtures'
 test.describe('Property Detail Page @properties @critical', () => {
   test('should display property information', async ({ page }) => {
     // ... existing test
-  })
+  });
 
   test('should show property images', async ({ page }) => {
     // ... existing test
-  })
+  });
 
   test('should display host profile', async ({ page }) => {
     // ... existing test
-  })
+  });
 
   test('should show amenities and furniture', async ({ page }) => {
     // ... existing test
-  })
+  });
 
   test('should have contact host button', async ({ page }) => {
     // ... existing test
-  })
-})
+  });
+});
 
 test.describe('Property Detail Page - Error Handling @properties @quarantine', () => {
   test('should show 404 for non-existent property', async ({ page }) => {
     // ... existing test (failing)
-  })
-})
+  });
+});
 ```
 
 **Step 3: Verify tags**
@@ -407,6 +443,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ## Task 5: Create Claude Test Tag Detection Script
 
 **Files:**
+
 - Create: `scripts/detect-test-tags.js`
 
 **Step 1: Create detection script (using execFile for security)**
@@ -433,22 +470,10 @@ const FEATURE_MAPPINGS = {
     'src/components/auth/',
     'src/app/api/auth/',
   ],
-  listing: [
-    'src/app/listing/',
-    'src/components/listing/',
-  ],
-  properties: [
-    'src/app/properties/',
-    'src/components/property',
-  ],
-  payment: [
-    'src/lib/payment/',
-    'src/app/checkout/',
-  ],
-  messaging: [
-    'src/app/messages/',
-    'src/components/messaging/',
-  ],
+  listing: ['src/app/listing/', 'src/components/listing/'],
+  properties: ['src/app/properties/', 'src/components/property'],
+  payment: ['src/lib/payment/', 'src/app/checkout/'],
+  messaging: ['src/app/messages/', 'src/components/messaging/'],
 };
 
 // Default tags (always run)
@@ -463,12 +488,10 @@ async function getChangedFiles() {
     const { stdout } = await execFileAsync('git', [
       'diff',
       '--name-only',
-      `origin/${baseBranch}...HEAD`
+      `origin/${baseBranch}...HEAD`,
     ]);
 
-    return stdout
-      .split('\n')
-      .filter(file => file.trim().length > 0);
+    return stdout.split('\n').filter((file) => file.trim().length > 0);
   } catch (error) {
     console.error('Error getting changed files:', error.message);
     return [];
@@ -483,7 +506,7 @@ function detectFeatureTags(changedFiles) {
 
   for (const file of changedFiles) {
     for (const [feature, patterns] of Object.entries(FEATURE_MAPPINGS)) {
-      if (patterns.some(pattern => file.includes(pattern))) {
+      if (patterns.some((pattern) => file.includes(pattern))) {
         tags.add(`@${feature}`);
       }
     }
@@ -526,7 +549,7 @@ async function main() {
 }
 
 if (require.main === module) {
-  main().catch(err => {
+  main().catch((err) => {
     console.error('Fatal error:', err);
     process.exit(1);
   });
@@ -569,6 +592,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ## Task 6: Update GitHub Workflow - Add Test Detection Job
 
 **Files:**
+
 - Modify: `.github/workflows/e2e-tests.yml:1-282`
 
 **Step 1: Add determine-tests job before e2e-tests**
@@ -590,7 +614,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Need full history for git diff
+          fetch-depth: 0 # Need full history for git diff
 
       - name: Check PR labels
         id: check-labels
@@ -717,21 +741,21 @@ jobs:
 Modify the "Run E2E tests" step:
 
 ```yaml
-      - name: Run E2E tests
-        run: |
-          # On main branch or full-suite label: run all tests
-          if [[ "${{ github.event_name }}" == "push" ]] || [[ "${{ needs.determine-tests.outputs.test-filter }}" == "" ]]; then
-            echo "Running full test suite"
-            npm run test:e2e
-          else
-            # On PR: run filtered tests
-            FILTER="${{ needs.determine-tests.outputs.test-filter }}"
-            echo "Running filtered tests: $FILTER"
-            npm run test:e2e -- --grep "$FILTER"
-          fi
-        env:
-          CI: true
-          BASE_URL: http://localhost:3000
+- name: Run E2E tests
+  run: |
+    # On main branch or full-suite label: run all tests
+    if [[ "${{ github.event_name }}" == "push" ]] || [[ "${{ needs.determine-tests.outputs.test-filter }}" == "" ]]; then
+      echo "Running full test suite"
+      npm run test:e2e
+    else
+      # On PR: run filtered tests
+      FILTER="${{ needs.determine-tests.outputs.test-filter }}"
+      echo "Running filtered tests: $FILTER"
+      npm run test:e2e -- --grep "$FILTER"
+    fi
+  env:
+    CI: true
+    BASE_URL: http://localhost:3000
 ```
 
 **Step 3: Verify workflow syntax**
@@ -782,6 +806,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ## Rollback Plan
 
 If issues arise:
+
 1. Revert PR merge
 2. Tags remain in tests (harmless)
 3. Workflow reverts to running all tests

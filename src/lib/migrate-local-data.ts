@@ -1,8 +1,8 @@
-"use server";
+'use server';
 
-import { db } from "@/db";
-import { properties, inquiries } from "@/db/schema";
-import type { UserListing, Inquiry } from "@/lib/types";
+import { db } from '@/db';
+import { properties, inquiries } from '@/db/schema';
+import type { UserListing, Inquiry } from '@/lib/types';
 
 interface LocalData {
   listings?: UserListing[];
@@ -25,7 +25,7 @@ export async function migrateLocalDataAction(
             userId,
             title: listing.title,
             images: listing.roomPhotos || [],
-            status: listing.status === "published" ? "public" : "draft",
+            status: listing.status === 'published' ? 'public' : 'draft',
             handoverFee: listing.handoverFee,
             rent: listing.rent,
             managementFee: listing.managementFee,
@@ -46,7 +46,7 @@ export async function migrateLocalDataAction(
           });
           migratedListings++;
         } catch (error) {
-          console.error("Failed to migrate listing:", listing.id, error);
+          console.error('Failed to migrate listing:', listing.id, error);
         }
       }
     }
@@ -74,7 +74,7 @@ export async function migrateLocalDataAction(
           });
           migratedInquiries++;
         } catch (error) {
-          console.error("Failed to migrate inquiry:", inquiry.id, error);
+          console.error('Failed to migrate inquiry:', inquiry.id, error);
         }
       }
     }
@@ -87,10 +87,10 @@ export async function migrateLocalDataAction(
       },
     };
   } catch (error) {
-    console.error("Migration error:", error);
+    console.error('Migration error:', error);
     return {
       success: false,
-      error: "データ移行に失敗しました",
+      error: 'データ移行に失敗しました',
     };
   }
 }

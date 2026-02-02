@@ -1,26 +1,21 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
-import Link from "next/link";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/auth-context";
-import {
-  ArrowLeft,
-  Download,
-  Check,
-  FileText,
-} from "lucide-react";
-import { mockHandoverAgreements } from "@/lib/data";
-import type { ItemCondition } from "@/lib/data";
+import { useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
+import { Header } from '@/components/header';
+import { Footer } from '@/components/footer';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/auth-context';
+import { ArrowLeft, Download, Check, FileText } from 'lucide-react';
+import { mockHandoverAgreements } from '@/lib/data';
+import type { ItemCondition } from '@/lib/data';
 
 const CONDITION_LABELS: Record<ItemCondition, string> = {
-  excellent: "非常に良い",
-  good: "良い",
-  fair: "普通",
-  poor: "使用感あり",
+  excellent: '非常に良い',
+  good: '良い',
+  fair: '普通',
+  poor: '使用感あり',
 };
 
 export default function AgreementDetailPage() {
@@ -33,7 +28,7 @@ export default function AgreementDetailPage() {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/");
+      router.push('/');
     }
   }, [user, isLoading, router]);
 
@@ -63,7 +58,7 @@ export default function AgreementDetailPage() {
   }
 
   const includedItems = agreement.items.filter((item) => item.included);
-  const isSigned = agreement.status === "signed";
+  const isSigned = agreement.status === 'signed';
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -90,7 +85,7 @@ export default function AgreementDetailPage() {
                     残置物同意書
                   </h1>
                   <p className="text-sm text-muted-foreground">
-                    {isSigned ? "署名済み" : "未署名"}
+                    {isSigned ? '署名済み' : '未署名'}
                   </p>
                 </div>
               </div>
@@ -130,14 +125,14 @@ export default function AgreementDetailPage() {
               <div>
                 <dt className="text-muted-foreground">作成日</dt>
                 <dd className="font-medium">
-                  {new Date(agreement.createdAt).toLocaleDateString("ja-JP")}
+                  {new Date(agreement.createdAt).toLocaleDateString('ja-JP')}
                 </dd>
               </div>
               {agreement.signedAt && (
                 <div>
                   <dt className="text-muted-foreground">署名日</dt>
                   <dd className="font-medium">
-                    {new Date(agreement.signedAt).toLocaleDateString("ja-JP")}
+                    {new Date(agreement.signedAt).toLocaleDateString('ja-JP')}
                   </dd>
                 </div>
               )}
@@ -190,9 +185,9 @@ export default function AgreementDetailPage() {
               <div className="mt-3 text-sm text-green-700 dark:text-green-300">
                 <p>署名者: {agreement.buyerSignature.name}</p>
                 <p>
-                  署名日時:{" "}
+                  署名日時:{' '}
                   {new Date(agreement.buyerSignature.agreedAt).toLocaleString(
-                    "ja-JP"
+                    'ja-JP'
                   )}
                 </p>
               </div>

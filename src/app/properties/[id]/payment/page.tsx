@@ -1,9 +1,9 @@
-import { notFound } from "next/navigation";
-import { Check } from "lucide-react";
-import { getPropertyById } from "@/lib/data";
-import { calculateFeeBreakdown } from "@/lib/stripe/calculations";
-import { ApplicationFeeForm } from "@/components/payment/application-fee-form";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { notFound } from 'next/navigation';
+import { Check } from 'lucide-react';
+import { getPropertyById } from '@/lib/data';
+import { calculateFeeBreakdown } from '@/lib/stripe/calculations';
+import { ApplicationFeeForm } from '@/components/payment/application-fee-form';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface PaymentPageProps {
   params: Promise<{
@@ -22,17 +22,15 @@ export default async function PaymentPage({ params }: PaymentPageProps) {
   const breakdown = calculateFeeBreakdown(property.handoverFee);
 
   // Mock user and previous tenant IDs (will be replaced with real auth)
-  const userId = "user_mock_001";
-  const previousTenantId = "seller_mock_001";
+  const userId = 'user_mock_001';
+  const previousTenantId = 'seller_mock_001';
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">{property.title}</h1>
-          <p className="text-muted-foreground">
-            引き継ぎ費用のお支払い手続き
-          </p>
+          <p className="text-muted-foreground">引き継ぎ費用のお支払い手続き</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -111,7 +109,9 @@ export default async function PaymentPage({ params }: PaymentPageProps) {
 
                 <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
                   <p className="text-sm text-blue-900 dark:text-blue-100">
-                    <span className="font-semibold">次のステップについて：</span>
+                    <span className="font-semibold">
+                      次のステップについて：
+                    </span>
                     <br />
                     申込金のお支払い後、前の住人とメッセージでやり取りを開始できます。双方が合意に至った後、デポジットと残金のお支払いに進みます。
                   </p>
@@ -202,9 +202,7 @@ export default async function PaymentPage({ params }: PaymentPageProps) {
                     <div className="flex items-start gap-3">
                       <Check className="w-5 h-5 text-green-600 dark:text-green-500 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-sm font-medium">
-                          安全な決済
-                        </p>
+                        <p className="text-sm font-medium">安全な決済</p>
                         <p className="text-xs text-muted-foreground">
                           Stripeによる安全な決済処理
                         </p>
@@ -214,9 +212,7 @@ export default async function PaymentPage({ params }: PaymentPageProps) {
                     <div className="flex items-start gap-3">
                       <Check className="w-5 h-5 text-green-600 dark:text-green-500 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-sm font-medium">
-                          エスクロー保護
-                        </p>
+                        <p className="text-sm font-medium">エスクロー保護</p>
                         <p className="text-xs text-muted-foreground">
                           引き渡し確認まで資金を安全に保管
                         </p>
@@ -226,9 +222,7 @@ export default async function PaymentPage({ params }: PaymentPageProps) {
                     <div className="flex items-start gap-3">
                       <Check className="w-5 h-5 text-green-600 dark:text-green-500 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-sm font-medium">
-                          トラブル対応
-                        </p>
+                        <p className="text-sm font-medium">トラブル対応</p>
                         <p className="text-xs text-muted-foreground">
                           問題発生時のサポート体制
                         </p>

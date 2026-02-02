@@ -1,39 +1,39 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import Image from "next/image";
-import { Menu, LogOut, UserCircle, Home, LayoutDashboard } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import Image from 'next/image';
+import { Menu, LogOut, UserCircle, Home, LayoutDashboard } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/contexts/auth-context";
-import { CustomSignupDialog } from "@/components/auth/custom-signup-dialog";
+} from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/contexts/auth-context';
+import { CustomSignupDialog } from '@/components/auth/custom-signup-dialog';
 
 export function Header() {
   const { user, login, logout } = useAuth();
   const pathname = usePathname();
   const [showSignupDialog, setShowSignupDialog] = useState(false);
   const [redirectAfterLogin, setRedirectAfterLogin] = useState<string | null>(
-    null,
+    null
   );
 
   // 引き継ぎ側モードのページかどうか
-  const isHandoverHostMode = pathname?.startsWith("/listing");
+  const isHandoverHostMode = pathname?.startsWith('/listing');
 
   const handleBecomeCreatorClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!user) {
-      setRedirectAfterLogin("/listing");
+      setRedirectAfterLogin('/listing');
       setShowSignupDialog(true);
     } else {
-      window.location.href = "/listing";
+      window.location.href = '/listing';
     }
   };
 
@@ -64,17 +64,17 @@ export function Header() {
               onClick={handleBecomeCreatorClick}
               className="hidden text-sm font-semibold text-foreground transition-colors hover:bg-muted rounded-full px-3 py-2 sm:block"
             >
-              {user ? "引き継ぎ側モード" : "暮らしを譲る"}
+              {user ? '引き継ぎ側モード' : '暮らしを譲る'}
             </button>
           )}
 
           {/* リスティング / 入居者に戻る - ホストのみ表示 */}
           {user?.isSeller && (
             <Link
-              href={isHandoverHostMode ? "/" : "/listing"}
+              href={isHandoverHostMode ? '/' : '/listing'}
               className="hidden text-sm font-semibold text-foreground transition-colors hover:bg-muted rounded-full px-3 py-2 sm:block"
             >
-              {isHandoverHostMode ? "入居者に戻る" : "リスティング"}
+              {isHandoverHostMode ? '入居者に戻る' : 'リスティング'}
             </Link>
           )}
 
@@ -88,7 +88,10 @@ export function Header() {
                 <Menu className="h-4 w-4 text-gray-600" strokeWidth={2.5} />
                 {user ? (
                   // ログイン時: 他のページと統一したアバター
-                  <div className="flex h-[30px] w-[30px] items-center justify-center rounded-full overflow-hidden" style={{ backgroundColor: '#FF385C' }}>
+                  <div
+                    className="flex h-[30px] w-[30px] items-center justify-center rounded-full overflow-hidden"
+                    style={{ backgroundColor: '#FF385C' }}
+                  >
                     {user.avatarUrl ? (
                       <Image
                         src={user.avatarUrl}
@@ -136,11 +139,11 @@ export function Header() {
                   {user.isSeller && (
                     <DropdownMenuItem asChild>
                       <Link
-                        href={isHandoverHostMode ? "/" : "/listing"}
+                        href={isHandoverHostMode ? '/' : '/listing'}
                         className="flex items-center gap-2 py-3"
                       >
                         <Home className="h-4 w-4" />
-                        {isHandoverHostMode ? "入居者に戻る" : "リスティング"}
+                        {isHandoverHostMode ? '入居者に戻る' : 'リスティング'}
                       </Link>
                     </DropdownMenuItem>
                   )}

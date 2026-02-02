@@ -1,4 +1,11 @@
-import { test, expect, testData, clearLocalStorage, setupAuthenticatedUser, setupAuthenticatedSeller } from '../fixtures/test-fixtures'
+import {
+  test,
+  expect,
+  testData,
+  clearLocalStorage,
+  setupAuthenticatedUser,
+  setupAuthenticatedSeller,
+} from '../fixtures/test-fixtures';
 
 /**
  * E2E Tests: Listing Management
@@ -13,81 +20,103 @@ import { test, expect, testData, clearLocalStorage, setupAuthenticatedUser, setu
  */
 
 test.describe('Listing Page - Access Control @listing @auth @critical', () => {
-  test('should redirect to home when not logged in', async ({ listingPage, page }) => {
-    await page.goto('/')
-    await clearLocalStorage(page)
-    await listingPage.goto()
+  test('should redirect to home when not logged in', async ({
+    listingPage,
+    page,
+  }) => {
+    await page.goto('/');
+    await clearLocalStorage(page);
+    await listingPage.goto();
 
     // Should redirect to home or show login
-    await page.waitForURL('/', { timeout: 5000 }).catch(() => {})
+    await page.waitForURL('/', { timeout: 5000 }).catch(() => {});
     // Or stay but show nothing (client-side redirect happens)
-  })
+  });
 
-  test('should show listing page when logged in', async ({ listingPage, page }) => {
-    await page.goto('/')
-    await setupAuthenticatedUser(page)
-    await listingPage.goto()
+  test('should show listing page when logged in', async ({
+    listingPage,
+    page,
+  }) => {
+    await page.goto('/');
+    await setupAuthenticatedUser(page);
+    await listingPage.goto();
 
     // Should show listing page content
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('networkidle');
     // Either empty state or listing content should be visible
-    const hasEmptyState = await listingPage.isEmptyState()
-    const hasListings = await listingPage.listingCount.isVisible().catch(() => false)
+    const hasEmptyState = await listingPage.isEmptyState();
+    const hasListings = await listingPage.listingCount
+      .isVisible()
+      .catch(() => false);
 
-    expect(hasEmptyState || hasListings).toBe(true)
-  })
-})
+    expect(hasEmptyState || hasListings).toBe(true);
+  });
+});
 
 test.describe('Listing Page - Empty State @listing @smoke', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/')
-    await setupAuthenticatedUser(page)
-  })
+    await page.goto('/');
+    await setupAuthenticatedUser(page);
+  });
 
-  test('should show empty state for new users with no listings', async ({ listingPage }) => {
-    await listingPage.goto()
+  test('should show empty state for new users with no listings', async ({
+    listingPage,
+  }) => {
+    await listingPage.goto();
 
     // Should show empty state
-    const isEmptyState = await listingPage.isEmptyState()
-    expect(isEmptyState).toBe(true)
+    const isEmptyState = await listingPage.isEmptyState();
+    expect(isEmptyState).toBe(true);
 
     // Should show catchy title
-    await expect(listingPage.emptyStateTitle).toContainText('最初のリスティングをはじめよう')
-  })
+    await expect(listingPage.emptyStateTitle).toContainText(
+      '最初のリスティングをはじめよう'
+    );
+  });
 
   test('should show create button in empty state', async ({ listingPage }) => {
-    await listingPage.goto()
+    await listingPage.goto();
 
     // Should have create listing button
-    await expect(listingPage.createButton.first()).toBeVisible()
-  })
+    await expect(listingPage.createButton.first()).toBeVisible();
+  });
 
-  test('should have scrolling images in empty state', async ({ listingPage, page }) => {
-    await listingPage.goto()
+  test('should have scrolling images in empty state', async ({
+    listingPage,
+    page,
+  }) => {
+    await listingPage.goto();
 
-    const isEmptyState = await listingPage.isEmptyState()
-    test.skip(!isEmptyState, 'Not in empty state')
+    const isEmptyState = await listingPage.isEmptyState();
+    test.skip(!isEmptyState, 'Not in empty state');
 
     // Wait for the fade-in animation to complete (100ms delay + 700ms duration)
-    await page.waitForTimeout(1000)
+    await page.waitForTimeout(1000);
 
     // Should have scrolling image rows - check for the container with animation style
-    const scrollingContainer = await page.locator('[style*="animation"]').first().isVisible().catch(() => false)
-    expect(scrollingContainer).toBe(true)
-  })
+    const scrollingContainer = await page
+      .locator('[style*="animation"]')
+      .first()
+      .isVisible()
+      .catch(() => false);
+    expect(scrollingContainer).toBe(true);
+  });
 
-  test('should navigate to new listing page when clicking create', async ({ listingPage, page }) => {
-    await listingPage.goto()
-    await listingPage.clickCreateListing()
+  test('should navigate to new listing page when clicking create', async ({
+    listingPage,
+    page,
+  }) => {
+    await listingPage.goto();
+    await listingPage.clickCreateListing();
 
-    await expect(page).toHaveURL(/\/listing\/new/)
-  })
-})
+    await expect(page).toHaveURL(/\/listing\/new/);
+  });
+});
 
 test.describe('Listing Page - With Existing Listings @listing @quarantine', () => {
   test.beforeEach(async ({ page }) => {
     // Set up user with mock listings using addInitScript to ensure persistence
-    await page.goto('/')
+    await page.goto('/');
 
     await page.addInitScript(() => {
       const mockUser = {
@@ -103,8 +132,8 @@ test.describe('Listing Page - With Existing Listings @listing @quarantine', () =
           bio: 'Test bio',
           sellerSince: new Date().toISOString(),
         },
-      }
-      localStorage.setItem('tsumugi_user', JSON.stringify(mockUser))
+      };
+      localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
 
       // Add mock listings
       const mockListings = [
@@ -137,76 +166,90 @@ test.describe('Listing Page - With Existing Listings @listing @quarantine', () =
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         },
-      ]
-      localStorage.setItem('tsumugi_listings', JSON.stringify(mockListings))
-    })
+      ];
+      localStorage.setItem('tsumugi_listings', JSON.stringify(mockListings));
+    });
 
-    await page.reload()
-    await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(500)
-  })
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(500);
+  });
 
-  test('should show listings grid when user has listings', async ({ listingPage }) => {
-    await listingPage.goto()
+  test('should show listings grid when user has listings', async ({
+    listingPage,
+  }) => {
+    await listingPage.goto();
 
     // Should NOT show empty state
-    const isEmptyState = await listingPage.isEmptyState()
-    expect(isEmptyState).toBe(false)
+    const isEmptyState = await listingPage.isEmptyState();
+    expect(isEmptyState).toBe(false);
 
     // Should show listing cards
-    const cards = await listingPage.getListingCards()
-    expect(cards.length).toBeGreaterThan(0)
-  })
+    const cards = await listingPage.getListingCards();
+    expect(cards.length).toBeGreaterThan(0);
+  });
 
   test('should show listing count', async ({ listingPage }) => {
-    await listingPage.goto()
+    await listingPage.goto();
 
-    const count = await listingPage.getListingCount()
-    expect(count).toBe(2)
-  })
+    const count = await listingPage.getListingCount();
+    expect(count).toBe(2);
+  });
 
-  test('should display published and draft status badges correctly', async ({ listingPage, page }) => {
-    await listingPage.goto()
+  test('should display published and draft status badges correctly', async ({
+    listingPage,
+    page,
+  }) => {
+    await listingPage.goto();
 
     // Find published badge
-    const publishedBadge = page.locator('span:has-text("公開中")')
-    await expect(publishedBadge).toBeVisible()
+    const publishedBadge = page.locator('span:has-text("公開中")');
+    await expect(publishedBadge).toBeVisible();
 
     // Find draft badge
-    const draftBadge = page.locator('span:has-text("下書き")')
-    await expect(draftBadge).toBeVisible()
-  })
+    const draftBadge = page.locator('span:has-text("下書き")');
+    await expect(draftBadge).toBeVisible();
+  });
 
-  test.skip('should have new listing button in header', async ({ listingPage, page }) => {
+  test.skip('should have new listing button in header', async ({
+    listingPage,
+    page,
+  }) => {
     // Skipped: Button text varies between empty state and with-listings state
-    await listingPage.goto()
+    await listingPage.goto();
 
-    const newButton = page.locator('a[href="/listing/new"] button')
-    await expect(newButton).toBeVisible()
-    await expect(newButton).toContainText('新規作成')
-  })
+    const newButton = page.locator('a[href="/listing/new"] button');
+    await expect(newButton).toBeVisible();
+    await expect(newButton).toContainText('新規作成');
+  });
 
-  test.skip('should open listing menu and show options', async ({ listingPage, page }) => {
+  test.skip('should open listing menu and show options', async ({
+    listingPage,
+    page,
+  }) => {
     // Skipped: Mock listings setup needs investigation
-    await listingPage.goto()
-    await listingPage.openListingMenu(0)
+    await listingPage.goto();
+    await listingPage.openListingMenu(0);
 
     // Should show menu options
-    await expect(page.locator('a:has-text("プレビュー")')).toBeVisible()
-    await expect(page.locator('a:has-text("編集")')).toBeVisible()
-    await expect(page.locator('button:has-text("削除")')).toBeVisible()
-  })
+    await expect(page.locator('a:has-text("プレビュー")')).toBeVisible();
+    await expect(page.locator('a:has-text("編集")')).toBeVisible();
+    await expect(page.locator('button:has-text("削除")')).toBeVisible();
+  });
 
-  test.skip('should delete listing when clicking delete', async ({ listingPage, page }) => {
+  test.skip('should delete listing when clicking delete', async ({
+    listingPage,
+    page,
+  }) => {
     // Skipped: Depends on listing count which needs investigation
-    await listingPage.goto()
+    await listingPage.goto();
 
-    const initialCount = await listingPage.getListingCount()
-    await listingPage.deleteListing(0)
+    const initialCount = await listingPage.getListingCount();
+    await listingPage.deleteListing(0);
 
     // Count should decrease
-    await page.waitForTimeout(500)
-    const newCount = await listingPage.getListingCount()
-    expect(newCount).toBe(initialCount - 1)
-  })
-})
+    await page.waitForTimeout(500);
+    const newCount = await listingPage.getListingCount();
+    expect(newCount).toBe(initialCount - 1);
+  });
+});

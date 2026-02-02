@@ -111,7 +111,9 @@ export async function getConnectAccountStatus(userId: string) {
     }
 
     // Fetch latest status from Stripe
-    const stripeAccount = await stripe.accounts.retrieve(account.stripeAccountId);
+    const stripeAccount = await stripe.accounts.retrieve(
+      account.stripeAccountId
+    );
 
     // Update local database
     await db

@@ -1,9 +1,17 @@
 'use server';
 
 import { stripe } from '@/lib/stripe/server';
-import { calculateFeeBreakdown, calculatePreviousTenantAmount } from '@/lib/stripe/server';
+import {
+  calculateFeeBreakdown,
+  calculatePreviousTenantAmount,
+} from '@/lib/stripe/server';
 import { db } from '@/db';
-import { payments, transactions, stripeAccounts, properties } from '@/db/schema';
+import {
+  payments,
+  transactions,
+  stripeAccounts,
+  properties,
+} from '@/db/schema';
 import { eq, and, inArray } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
@@ -74,7 +82,9 @@ export async function releaseEscrowAndDistribute(
 
     // Calculate fee breakdown
     const breakdown = calculateFeeBreakdown(property.handoverFee);
-    const previousTenantAmount = calculatePreviousTenantAmount(property.handoverFee);
+    const previousTenantAmount = calculatePreviousTenantAmount(
+      property.handoverFee
+    );
 
     // Get all escrowed payments (deposit + remaining with status='succeeded')
     const escrowedPayments = await db.query.payments.findMany({
@@ -93,7 +103,10 @@ export async function releaseEscrowAndDistribute(
     }
 
     // Verify total escrowed amount matches expected handover fee
-    const totalEscrowed = escrowedPayments.reduce((sum, p) => sum + p.amount, 0);
+    const totalEscrowed = escrowedPayments.reduce(
+      (sum, p) => sum + p.amount,
+      0
+    );
     if (totalEscrowed !== property.handoverFee) {
       return {
         success: false,

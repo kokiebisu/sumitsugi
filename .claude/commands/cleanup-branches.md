@@ -5,11 +5,13 @@ Clean up local and remote branches that have been merged into the main branch.
 ## Step 1: Identify Merged Branches
 
 1. **List local branches**:
+
    ```bash
    git branch | grep -v "^\* main$" | grep -v "^  main$" | sed 's/^[* ] //'
    ```
 
 2. **Check for merged PRs (handles squash-merged branches)**:
+
    ```bash
    gh pr list --state merged --json number,headRefName --jq '.[].headRefName'
    ```
@@ -19,6 +21,7 @@ Clean up local and remote branches that have been merged into the main branch.
    - Show both traditional merged branches and squash-merged branches
 
 4. **Show summary** to user:
+
    ```
    Local branches that can be deleted (X):
    - feat/feature-a (squash-merged in PR #123)
@@ -34,6 +37,7 @@ Clean up local and remote branches that have been merged into the main branch.
 ## Step 2: Confirm Deletion
 
 Ask user to confirm before proceeding. Present options:
+
 - Delete both local and remote branches
 - Delete only local branches
 - Delete only remote branches
@@ -68,11 +72,13 @@ git remote prune origin
 ## Step 4: Verify Cleanup
 
 1. **Show remaining local branches**:
+
    ```bash
    git branch
    ```
 
 2. **Show remaining remote branches**:
+
    ```bash
    git branch -r
    ```

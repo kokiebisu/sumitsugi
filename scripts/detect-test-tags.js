@@ -19,23 +19,14 @@ const FEATURE_MAPPINGS = {
     'src/components/auth/',
     'src/app/api/auth/',
   ],
-  listing: [
-    'src/app/listing/',
-    'src/components/listing/',
-  ],
-  properties: [
-    'src/app/properties/',
-    'src/components/property',
-  ],
+  listing: ['src/app/listing/', 'src/components/listing/'],
+  properties: ['src/app/properties/', 'src/components/property'],
   payment: [
     'src/app/properties/[id]/payment/',
     'src/lib/stripe',
     'tests/e2e/payment/',
   ],
-  messaging: [
-    'src/app/messages/',
-    'src/components/messaging/',
-  ],
+  messaging: ['src/app/messages/', 'src/components/messaging/'],
 };
 
 // Default tags (always run)
@@ -50,12 +41,10 @@ async function getChangedFiles() {
     const { stdout } = await execFileAsync('git', [
       'diff',
       '--name-only',
-      `origin/${baseBranch}...HEAD`
+      `origin/${baseBranch}...HEAD`,
     ]);
 
-    return stdout
-      .split('\n')
-      .filter(file => file.trim().length > 0);
+    return stdout.split('\n').filter((file) => file.trim().length > 0);
   } catch (error) {
     console.error('Error getting changed files:', error.message);
     return [];
@@ -70,7 +59,7 @@ function detectFeatureTags(changedFiles) {
 
   for (const file of changedFiles) {
     for (const [feature, patterns] of Object.entries(FEATURE_MAPPINGS)) {
-      if (patterns.some(pattern => file.includes(pattern))) {
+      if (patterns.some((pattern) => file.includes(pattern))) {
         tags.add(`@${feature}`);
       }
     }
@@ -120,7 +109,7 @@ async function main() {
 }
 
 if (require.main === module) {
-  main().catch(err => {
+  main().catch((err) => {
     console.error('Fatal error:', err);
     process.exit(1);
   });

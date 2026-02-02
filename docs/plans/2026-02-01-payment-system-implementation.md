@@ -7,6 +7,7 @@
 **Architecture:** Build on existing Drizzle ORM + Neon PostgreSQL. Add Stripe SDK, create payment schema (payments, transactions, stripe_accounts), implement server actions for payment flows, and create minimal UI for payment processing with escrow and auto-distribution.
 
 **Tech Stack:**
+
 - Stripe SDK (@stripe/stripe-js, stripe server-side)
 - Drizzle ORM + Neon PostgreSQL
 - Next.js 16 Server Actions
@@ -22,6 +23,7 @@
 ### Task 1: Install Stripe Dependencies
 
 **Files:**
+
 - Modify: `package.json`
 - Create: `.env.local.example`
 
@@ -58,6 +60,7 @@ git commit -m "feat: add Stripe SDK dependencies"
 ### Task 2: Create Payment Database Schema
 
 **Files:**
+
 - Create: `src/db/schema/payments.ts`
 - Modify: `src/db/schema/index.ts`
 
@@ -107,79 +110,114 @@ Expected: FAIL - Module not found
 Create: `src/db/schema/payments.ts`
 
 ```typescript
-import { pgTable, uuid, varchar, integer, timestamp, decimal, index, boolean } from "drizzle-orm/pg-core";
-import { users } from "./users";
-import { properties } from "./properties";
+import {
+  pgTable,
+  uuid,
+  varchar,
+  integer,
+  timestamp,
+  decimal,
+  index,
+  boolean,
+} from 'drizzle-orm/pg-core';
+import { users } from './users';
+import { properties } from './properties';
 
 // Payment types: application_fee, deposit, remaining
-export const payments = pgTable("payments", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  propertyId: uuid("property_id").notNull().references(() => properties.id, { onDelete: "cascade" }),
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }), // Next tenant (payer)
+export const payments = pgTable(
+  'payments',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    propertyId: uuid('property_id')
+      .notNull()
+      .references(() => properties.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }), // Next tenant (payer)
 
-  type: varchar("type", { length: 20 }).notNull(), // 'application_fee' | 'deposit' | 'remaining'
-  amount: integer("amount").notNull(), // Amount in JPY (¥)
+    type: varchar('type', { length: 20 }).notNull(), // 'application_fee' | 'deposit' | 'remaining'
+    amount: integer('amount').notNull(), // Amount in JPY (¥)
 
-  // Stripe Integration
-  stripePaymentIntentId: varchar("stripe_payment_intent_id", { length: 255 }),
-  stripeChargeId: varchar("stripe_charge_id", { length: 255 }),
+    // Stripe Integration
+    stripePaymentIntentId: varchar('stripe_payment_intent_id', { length: 255 }),
+    stripeChargeId: varchar('stripe_charge_id', { length: 255 }),
 
-  status: varchar("status", { length: 20 }).default("pending").notNull(), // 'pending' | 'succeeded' | 'failed' | 'refunded'
+    status: varchar('status', { length: 20 }).default('pending').notNull(), // 'pending' | 'succeeded' | 'failed' | 'refunded'
 
-  // Metadata
-  metadata: varchar("metadata", { length: 1000 }), // JSON string for additional data
+    // Metadata
+    metadata: varchar('metadata', { length: 1000 }), // JSON string for additional data
 
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-}, (table) => ({
-  userIdx: index("payments_user_idx").on(table.userId),
-  propertyIdx: index("payments_property_idx").on(table.propertyId),
-  typeIdx: index("payments_type_idx").on(table.type),
-  statusIdx: index("payments_status_idx").on(table.status),
-}));
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdx: index('payments_user_idx').on(table.userId),
+    propertyIdx: index('payments_property_idx').on(table.propertyId),
+    typeIdx: index('payments_type_idx').on(table.type),
+    statusIdx: index('payments_status_idx').on(table.status),
+  })
+);
 
 // Transaction distribution log
-export const transactions = pgTable("transactions", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  paymentId: uuid("payment_id").notNull().references(() => payments.id, { onDelete: "cascade" }),
+export const transactions = pgTable(
+  'transactions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    paymentId: uuid('payment_id')
+      .notNull()
+      .references(() => payments.id, { onDelete: 'cascade' }),
 
-  recipientType: varchar("recipient_type", { length: 30 }).notNull(), // 'previous_tenant' | 'landlord' | 'property_management' | 'platform'
-  recipientId: uuid("recipient_id"), // User ID or null for platform
-  amount: integer("amount").notNull(), // Amount in JPY (¥)
+    recipientType: varchar('recipient_type', { length: 30 }).notNull(), // 'previous_tenant' | 'landlord' | 'property_management' | 'platform'
+    recipientId: uuid('recipient_id'), // User ID or null for platform
+    amount: integer('amount').notNull(), // Amount in JPY (¥)
 
-  // Stripe Integration
-  stripeTransferId: varchar("stripe_transfer_id", { length: 255 }),
-  stripePayoutId: varchar("stripe_payout_id", { length: 255 }),
+    // Stripe Integration
+    stripeTransferId: varchar('stripe_transfer_id', { length: 255 }),
+    stripePayoutId: varchar('stripe_payout_id', { length: 255 }),
 
-  status: varchar("status", { length: 20 }).default("pending").notNull(), // 'pending' | 'succeeded' | 'failed'
+    status: varchar('status', { length: 20 }).default('pending').notNull(), // 'pending' | 'succeeded' | 'failed'
 
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-}, (table) => ({
-  paymentIdx: index("transactions_payment_idx").on(table.paymentId),
-  recipientIdx: index("transactions_recipient_idx").on(table.recipientId),
-  statusIdx: index("transactions_status_idx").on(table.status),
-}));
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    paymentIdx: index('transactions_payment_idx').on(table.paymentId),
+    recipientIdx: index('transactions_recipient_idx').on(table.recipientId),
+    statusIdx: index('transactions_status_idx').on(table.status),
+  })
+);
 
 // Stripe Connect Accounts
-export const stripeAccounts = pgTable("stripe_accounts", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+export const stripeAccounts = pgTable(
+  'stripe_accounts',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
 
-  stripeAccountId: varchar("stripe_account_id", { length: 255 }).notNull().unique(),
-  accountType: varchar("account_type", { length: 30 }).notNull(), // 'previous_tenant' | 'landlord' | 'property_management'
+    stripeAccountId: varchar('stripe_account_id', { length: 255 })
+      .notNull()
+      .unique(),
+    accountType: varchar('account_type', { length: 30 }).notNull(), // 'previous_tenant' | 'landlord' | 'property_management'
 
-  onboardingCompleted: boolean("onboarding_completed").default(false).notNull(),
-  detailsSubmitted: boolean("details_submitted").default(false).notNull(),
-  chargesEnabled: boolean("charges_enabled").default(false).notNull(),
-  payoutsEnabled: boolean("payouts_enabled").default(false).notNull(),
+    onboardingCompleted: boolean('onboarding_completed')
+      .default(false)
+      .notNull(),
+    detailsSubmitted: boolean('details_submitted').default(false).notNull(),
+    chargesEnabled: boolean('charges_enabled').default(false).notNull(),
+    payoutsEnabled: boolean('payouts_enabled').default(false).notNull(),
 
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-}, (table) => ({
-  userIdx: index("stripe_accounts_user_idx").on(table.userId),
-  stripeAccountIdx: index("stripe_accounts_stripe_account_idx").on(table.stripeAccountId),
-}));
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdx: index('stripe_accounts_user_idx').on(table.userId),
+    stripeAccountIdx: index('stripe_accounts_stripe_account_idx').on(
+      table.stripeAccountId
+    ),
+  })
+);
 ```
 
 **Step 4: Export from schema index**
@@ -187,13 +225,15 @@ export const stripeAccounts = pgTable("stripe_accounts", {
 Modify: `src/db/schema/index.ts`
 
 Add at top:
+
 ```typescript
-export { payments, transactions, stripeAccounts } from "./payments";
+export { payments, transactions, stripeAccounts } from './payments';
 ```
 
 Add relations at bottom:
+
 ```typescript
-import { payments, transactions, stripeAccounts } from "./payments";
+import { payments, transactions, stripeAccounts } from './payments';
 
 // Payment relations
 export const paymentsRelations = relations(payments, ({ one, many }) => ({
@@ -257,6 +297,7 @@ git commit -m "feat: add payment system database schema
 ### Task 3: Add additionalCleaningFee to Properties
 
 **Files:**
+
 - Modify: `src/db/schema/properties.ts`
 
 **Step 1: Add column to properties table**
@@ -288,6 +329,7 @@ Default: ¥8,000 (flat rate, independent of furniture count)"
 ### Task 4: Create Stripe Client Utilities
 
 **Files:**
+
 - Create: `src/lib/stripe/client.ts`
 - Create: `src/lib/stripe/server.ts`
 - Create: `src/lib/stripe/config.ts`
@@ -310,7 +352,7 @@ export const STRIPE_CONFIG = {
   APPLICATION_FEE: 20000, // ¥20,000 non-refundable
 
   // Deposit calculation
-  DEPOSIT_RATE: 0.30, // 30%
+  DEPOSIT_RATE: 0.3, // 30%
   DEPOSIT_MIN: 30000, // ¥30,000
   DEPOSIT_MAX: 50000, // ¥50,000
 
@@ -371,7 +413,9 @@ export function calculatePlatformFee(handoverFeeTotal: number): number {
 /**
  * Calculate previous tenant receives amount
  */
-export function calculatePreviousTenantAmount(handoverFeeTotal: number): number {
+export function calculatePreviousTenantAmount(
+  handoverFeeTotal: number
+): number {
   const cleaningFee = STRIPE_CONFIG.ADDITIONAL_CLEANING_FEE;
   const landlordIncentive = calculateLandlordIncentive(handoverFeeTotal);
   const platformFee = calculatePlatformFee(handoverFeeTotal);
@@ -397,7 +441,8 @@ export function calculateFeeBreakdown(handoverFeeTotal: number): FeeBreakdown {
   const additionalCleaningFee = STRIPE_CONFIG.ADDITIONAL_CLEANING_FEE;
   const landlordIncentive = calculateLandlordIncentive(handoverFeeTotal);
   const platformFee = calculatePlatformFee(handoverFeeTotal);
-  const previousTenantReceives = calculatePreviousTenantAmount(handoverFeeTotal);
+  const previousTenantReceives =
+    calculatePreviousTenantAmount(handoverFeeTotal);
   const applicationFee = STRIPE_CONFIG.APPLICATION_FEE;
   const deposit = calculateDeposit(handoverFeeTotal);
   const remaining = handoverFeeTotal - deposit;
@@ -519,6 +564,7 @@ git commit -m "feat: add Stripe integration utilities
 ### Task 5: Create Stripe Connect Account Server Actions
 
 **Files:**
+
 - Create: `src/app/actions/stripe-connect.ts`
 
 **Step 1: Write tests for Stripe Connect actions**
@@ -527,7 +573,10 @@ Create: `src/app/actions/__tests__/stripe-connect.test.ts`
 
 ```typescript
 import { describe, it, expect, jest } from '@jest/globals';
-import { createConnectAccount, getConnectAccountOnboardingLink } from '../stripe-connect';
+import {
+  createConnectAccount,
+  getConnectAccountOnboardingLink,
+} from '../stripe-connect';
 
 // Mock Stripe
 jest.mock('../../../lib/stripe/server', () => ({
@@ -678,7 +727,9 @@ export async function getConnectAccountStatus(userId: string) {
     }
 
     // Fetch latest status from Stripe
-    const stripeAccount = await stripe.accounts.retrieve(account.stripeAccountId);
+    const stripeAccount = await stripe.accounts.retrieve(
+      account.stripeAccountId
+    );
 
     // Update local database
     await db
@@ -735,6 +786,7 @@ git commit -m "feat: add Stripe Connect account server actions
 ### Task 6: Create Payment Server Actions
 
 **Files:**
+
 - Create: `src/app/actions/payment.ts`
 
 **Step 1: Implement payment server actions**
@@ -744,7 +796,11 @@ Create: `src/app/actions/payment.ts`
 ```typescript
 'use server';
 
-import { stripe, calculateFeeBreakdown, STRIPE_CONFIG } from '@/lib/stripe/server';
+import {
+  stripe,
+  calculateFeeBreakdown,
+  STRIPE_CONFIG,
+} from '@/lib/stripe/server';
 import { db } from '@/db';
 import { payments, transactions, stripeAccounts } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
@@ -796,14 +852,17 @@ export async function createApplicationFeePayment(
     });
 
     // Save payment to database
-    const [payment] = await db.insert(payments).values({
-      propertyId,
-      userId,
-      type: 'application_fee',
-      amount,
-      stripePaymentIntentId: paymentIntent.id,
-      status: 'pending',
-    }).returning();
+    const [payment] = await db
+      .insert(payments)
+      .values({
+        propertyId,
+        userId,
+        type: 'application_fee',
+        amount,
+        stripePaymentIntentId: paymentIntent.id,
+        status: 'pending',
+      })
+      .returning();
 
     return {
       success: true,
@@ -914,15 +973,18 @@ export async function createDepositPayment(
     });
 
     // Save payment to database
-    const [payment] = await db.insert(payments).values({
-      propertyId,
-      userId,
-      type: 'deposit',
-      amount,
-      stripePaymentIntentId: paymentIntent.id,
-      status: 'pending',
-      metadata: JSON.stringify({ handoverFeeTotal }),
-    }).returning();
+    const [payment] = await db
+      .insert(payments)
+      .values({
+        propertyId,
+        userId,
+        type: 'deposit',
+        amount,
+        stripePaymentIntentId: paymentIntent.id,
+        status: 'pending',
+        metadata: JSON.stringify({ handoverFeeTotal }),
+      })
+      .returning();
 
     return {
       success: true,
@@ -965,15 +1027,18 @@ export async function createRemainingPayment(
     });
 
     // Save payment to database
-    const [payment] = await db.insert(payments).values({
-      propertyId,
-      userId,
-      type: 'remaining',
-      amount,
-      stripePaymentIntentId: paymentIntent.id,
-      status: 'pending',
-      metadata: JSON.stringify({ handoverFeeTotal }),
-    }).returning();
+    const [payment] = await db
+      .insert(payments)
+      .values({
+        propertyId,
+        userId,
+        type: 'remaining',
+        amount,
+        stripePaymentIntentId: paymentIntent.id,
+        status: 'pending',
+        metadata: JSON.stringify({ handoverFeeTotal }),
+      })
+      .returning();
 
     return {
       success: true,
@@ -1010,6 +1075,7 @@ git commit -m "feat: add payment creation server actions
 ### Task 7: Create Escrow Release Server Actions
 
 **Files:**
+
 - Create: `src/app/actions/escrow.ts`
 
 **Step 1: Implement escrow release logic**
@@ -1019,9 +1085,18 @@ Create: `src/app/actions/escrow.ts`
 ```typescript
 'use server';
 
-import { stripe, calculateFeeBreakdown, STRIPE_CONFIG } from '@/lib/stripe/server';
+import {
+  stripe,
+  calculateFeeBreakdown,
+  STRIPE_CONFIG,
+} from '@/lib/stripe/server';
 import { db } from '@/db';
-import { payments, transactions, stripeAccounts, properties } from '@/db/schema';
+import {
+  payments,
+  transactions,
+  stripeAccounts,
+  properties,
+} from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 
 export interface ReleaseEscrowResult {
@@ -1171,6 +1246,7 @@ git commit -m "feat: add escrow release and distribution logic
 ### Task 8: Create Payment Form Component
 
 **Files:**
+
 - Create: `src/components/payment/application-fee-form.tsx`
 - Create: `src/components/payment/deposit-form.tsx`
 - Create: `src/components/payment/fee-breakdown.tsx`
@@ -1397,6 +1473,7 @@ git commit -m "feat: add payment UI components
 ### Task 9: Create Stripe Webhook Handler
 
 **Files:**
+
 - Create: `src/app/api/webhooks/stripe/route.ts`
 
 **Step 1: Implement webhook endpoint**
@@ -1500,7 +1577,7 @@ export async function POST(req: NextRequest) {
 
 Create: `docs/plans/stripe-webhook-setup.md`
 
-```markdown
+````markdown
 # Stripe Webhook Setup
 
 ## Development (Stripe CLI)
@@ -1511,6 +1588,8 @@ Create: `docs/plans/stripe-webhook-setup.md`
    ```bash
    stripe listen --forward-to localhost:3000/api/webhooks/stripe
    ```
+````
+
 4. Copy webhook signing secret to `.env.local`:
    ```
    STRIPE_WEBHOOK_SECRET=whsec_...
@@ -1526,7 +1605,8 @@ Create: `docs/plans/stripe-webhook-setup.md`
    - `transfer.created`
    - `transfer.updated`
 4. Copy signing secret to production environment variables
-```
+
+````
 
 **Step 3: Commit**
 
@@ -1539,7 +1619,7 @@ git commit -m "feat: add Stripe webhook handler
 - Signature verification for security
 - Automatic application fee transfer on success
 - Setup documentation for dev/production"
-```
+````
 
 ---
 
@@ -1548,6 +1628,7 @@ git commit -m "feat: add Stripe webhook handler
 ### Task 10: Create End-to-End Payment Flow Integration
 
 **Files:**
+
 - Create: `src/app/properties/[id]/payment/page.tsx`
 
 **Step 1: Create payment page**
@@ -1664,6 +1745,7 @@ git commit -m "feat: add payment page with full flow UI
 ### Task 11: Update Documentation
 
 **Files:**
+
 - Modify: `docs/REQUIREMENTS.md`
 - Create: `docs/DEPLOYMENT.md`
 
@@ -1691,7 +1773,7 @@ In `docs/REQUIREMENTS.md`, update Phase 1 status:
 
 Create: `docs/DEPLOYMENT.md`
 
-```markdown
+````markdown
 # Payment System Deployment Guide
 
 ## Prerequisites
@@ -1711,6 +1793,7 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 # Database
 DATABASE_URL=postgresql://...
 ```
+````
 
 ## Deployment Steps
 
@@ -1753,20 +1836,24 @@ npm run build
 ## Troubleshooting
 
 **Payment fails:**
+
 - Check Stripe test/live mode
 - Verify API keys
 - Review webhook logs
 
 **Transfer fails:**
+
 - Verify Connect account onboarding complete
 - Check account capabilities
 - Review Stripe balance
 
 **Database errors:**
+
 - Verify migrations applied
 - Check foreign key constraints
 - Review connection pool settings
-```
+
+````
 
 **Step 3: Commit**
 
@@ -1778,13 +1865,14 @@ git commit -m "docs: update implementation status and add deployment guide
 - Add comprehensive deployment guide
 - Include environment variables checklist
 - Add troubleshooting section"
-```
+````
 
 ---
 
 ## Implementation Complete!
 
 **Summary:**
+
 - ✅ Database schema (payments, transactions, stripe_accounts)
 - ✅ Stripe integration (server + client utilities)
 - ✅ Server actions (Connect accounts, payments, escrow)
@@ -1797,6 +1885,7 @@ git commit -m "docs: update implementation status and add deployment guide
 **Estimated Time:** 8-12 hours of focused work
 
 **Next Steps (Post-Implementation):**
+
 1. Add deposit and remaining payment forms
 2. Implement handover completion tracking
 3. Add landlord/property management Connect account creation

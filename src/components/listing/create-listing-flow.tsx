@@ -1,82 +1,83 @@
-"use client"
+'use client';
 
-import { useState, useEffect, useCallback } from "react"
-import { Button } from "@/components/ui/button"
-import { Check } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { siteConfig } from "@/lib/site-config"
+import { useState, useEffect, useCallback } from 'react';
+import { Button } from '@/components/ui/button';
+import { Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { siteConfig } from '@/lib/site-config';
 
 interface CreateListingFlowProps {
-  onComplete: (listingData: ListingData) => void
-  onClose: () => void
+  onComplete: (listingData: ListingData) => void;
+  onClose: () => void;
 }
 
 interface ListingData {
   // カテゴリーは一旦不要
 }
 
-type Step = "intro" | "details" | "confirm"
+type Step = 'intro' | 'details' | 'confirm';
 
-const steps: Step[] = ["intro", "details", "confirm"]
+const steps: Step[] = ['intro', 'details', 'confirm'];
 
+export function CreateListingFlow({
+  onComplete,
+  onClose,
+}: CreateListingFlowProps) {
+  const [step, setStep] = useState<Step>('intro');
 
-export function CreateListingFlow({ onComplete, onClose }: CreateListingFlowProps) {
-  const [step, setStep] = useState<Step>("intro")
-
-
-  const currentStepIndex = steps.indexOf(step)
+  const currentStepIndex = steps.indexOf(step);
 
   const handleBack = () => {
     if (currentStepIndex > 0) {
-      setStep(steps[currentStepIndex - 1])
+      setStep(steps[currentStepIndex - 1]);
     } else {
-      onClose()
+      onClose();
     }
-  }
+  };
 
   const handleNext = () => {
     if (currentStepIndex < steps.length - 1) {
-      setStep(steps[currentStepIndex + 1])
+      setStep(steps[currentStepIndex + 1]);
     }
-  }
+  };
 
   const handleSubmit = async () => {
-    const listingData: ListingData = {}
-    onComplete(listingData)
-  }
+    const listingData: ListingData = {};
+    onComplete(listingData);
+  };
 
   const canProceed = useCallback(() => {
     switch (step) {
-      case "intro":
-        return true
-      case "details":
-        return true
-      case "confirm":
-        return true
+      case 'intro':
+        return true;
+      case 'details':
+        return true;
+      case 'confirm':
+        return true;
       default:
-        return false
+        return false;
     }
-  }, [step])
+  }, [step]);
 
   // Enterキーで次へ進む
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Enter" && !e.shiftKey && canProceed()) {
-        if ((e.target as HTMLElement)?.tagName === "TEXTAREA") {
-          return
+      if (e.key === 'Enter' && !e.shiftKey && canProceed()) {
+        if ((e.target as HTMLElement)?.tagName === 'TEXTAREA') {
+          return;
         }
-        e.preventDefault()
-        if (step === "confirm") {
-          handleSubmit()
+        e.preventDefault();
+        if (step === 'confirm') {
+          handleSubmit();
         } else {
-          handleNext()
+          handleNext();
         }
       }
-    }
+    };
 
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [canProceed, step])
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [canProceed, step]);
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
@@ -91,7 +92,7 @@ export function CreateListingFlow({ onComplete, onClose }: CreateListingFlowProp
       {/* Main Content */}
       <main className="flex-1 overflow-hidden">
         {/* Step: Intro */}
-        {step === "intro" && (
+        {step === 'intro' && (
           <div className="flex min-h-full">
             <div className="flex flex-1 flex-col justify-center px-12 py-16 lg:px-24">
               <p className="text-sm text-muted-foreground mb-2">ステップ1</p>
@@ -115,13 +116,11 @@ export function CreateListingFlow({ onComplete, onClose }: CreateListingFlowProp
         )}
 
         {/* Step: Details - 今後実装 */}
-        {step === "details" && (
+        {step === 'details' && (
           <div className="flex min-h-full">
             <div className="flex flex-1 flex-col justify-center px-12 py-16 lg:px-24">
               <p className="text-sm text-muted-foreground mb-2">ステップ2</p>
-              <h1 className="text-4xl font-semibold mb-6">
-                物件の詳細
-              </h1>
+              <h1 className="text-4xl font-semibold mb-6">物件の詳細</h1>
               <p className="text-lg text-muted-foreground max-w-md">
                 物件の詳細情報を入力してください。
                 （このステップは今後実装予定です）
@@ -138,13 +137,11 @@ export function CreateListingFlow({ onComplete, onClose }: CreateListingFlowProp
         )}
 
         {/* Step: Confirm */}
-        {step === "confirm" && (
+        {step === 'confirm' && (
           <div className="flex min-h-full">
             <div className="flex flex-1 flex-col justify-center px-12 py-16 lg:px-24">
               <p className="text-sm text-muted-foreground mb-2">ステップ2</p>
-              <h1 className="text-4xl font-semibold mb-6">
-                掲載内容の確認
-              </h1>
+              <h1 className="text-4xl font-semibold mb-6">掲載内容の確認</h1>
               <p className="text-muted-foreground mb-8">
                 入力した内容で物件を掲載します
               </p>
@@ -168,8 +165,8 @@ export function CreateListingFlow({ onComplete, onClose }: CreateListingFlowProp
             <div
               key={s}
               className={cn(
-                "h-1 flex-1",
-                index <= currentStepIndex ? "bg-foreground" : "bg-border"
+                'h-1 flex-1',
+                index <= currentStepIndex ? 'bg-foreground' : 'bg-border'
               )}
             />
           ))}
@@ -185,7 +182,7 @@ export function CreateListingFlow({ onComplete, onClose }: CreateListingFlowProp
             戻る
           </Button>
 
-          {step === "confirm" ? (
+          {step === 'confirm' ? (
             <Button
               onClick={handleSubmit}
               size="lg"
@@ -207,5 +204,5 @@ export function CreateListingFlow({ onComplete, onClose }: CreateListingFlowProp
         </div>
       </footer>
     </div>
-  )
+  );
 }

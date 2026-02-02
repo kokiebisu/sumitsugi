@@ -1,27 +1,52 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { useAuth } from "@/contexts/auth-context"
-import { CustomSignupDialog } from "@/components/auth/custom-signup-dialog"
-import { BecomeSellerFlow } from "@/components/auth/become-seller-flow"
-import { Button } from "@/components/ui/button"
-import { Plus, MoreHorizontal, Eye, Edit2, Trash2, Home, MessageSquare, BarChart3 } from "lucide-react"
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Header } from '@/components/header';
+import { Footer } from '@/components/footer';
+import { useAuth } from '@/contexts/auth-context';
+import { CustomSignupDialog } from '@/components/auth/custom-signup-dialog';
+import { BecomeSellerFlow } from '@/components/auth/become-seller-flow';
+import { Button } from '@/components/ui/button';
+import {
+  Plus,
+  MoreHorizontal,
+  Eye,
+  Edit2,
+  Trash2,
+  Home,
+  MessageSquare,
+  BarChart3,
+} from 'lucide-react';
 
 // リスティングカードコンポーネント
-function ListingCard({ listing, onDelete }: { listing: { id: string; title: string; status: string; roomPhotos?: string[]; publishedAt?: string }, onDelete: (id: string) => void }) {
-  const [showMenu, setShowMenu] = useState(false)
-  const firstPhoto = listing.roomPhotos?.[0]
+function ListingCard({
+  listing,
+  onDelete,
+}: {
+  listing: {
+    id: string;
+    title: string;
+    status: string;
+    roomPhotos?: string[];
+    publishedAt?: string;
+  };
+  onDelete: (id: string) => void;
+}) {
+  const [showMenu, setShowMenu] = useState(false);
+  const firstPhoto = listing.roomPhotos?.[0];
 
   return (
     <div className="group relative bg-white rounded-2xl overflow-hidden border border-border hover:shadow-lg transition-shadow">
       {/* 画像 */}
       <div className="aspect-[4/3] bg-muted relative">
         {firstPhoto ? (
-          <img src={firstPhoto} alt={listing.title} className="w-full h-full object-cover" />
+          <img
+            src={firstPhoto}
+            alt={listing.title}
+            className="w-full h-full object-cover"
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
             <span className="text-4xl">🏠</span>
@@ -29,11 +54,13 @@ function ListingCard({ listing, onDelete }: { listing: { id: string; title: stri
         )}
         {/* ステータスバッジ */}
         <div className="absolute top-3 left-3">
-          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-            listing.status === 'published'
-              ? 'bg-green-100 text-green-700'
-              : 'bg-gray-100 text-gray-600'
-          }`}>
+          <span
+            className={`px-3 py-1 rounded-full text-xs font-medium ${
+              listing.status === 'published'
+                ? 'bg-green-100 text-green-700'
+                : 'bg-gray-100 text-gray-600'
+            }`}
+          >
             {listing.status === 'published' ? '公開中' : '下書き'}
           </span>
         </div>
@@ -47,7 +74,10 @@ function ListingCard({ listing, onDelete }: { listing: { id: string; title: stri
           </button>
           {showMenu && (
             <>
-              <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
+              <div
+                className="fixed inset-0 z-10"
+                onClick={() => setShowMenu(false)}
+              />
               <div className="absolute right-0 top-10 bg-white rounded-xl shadow-lg border border-border py-2 min-w-[160px] z-20">
                 <button className="w-full px-4 py-2 text-left text-sm hover:bg-muted flex items-center gap-3">
                   <Eye className="w-4 h-4" />
@@ -59,8 +89,8 @@ function ListingCard({ listing, onDelete }: { listing: { id: string; title: stri
                 </button>
                 <button
                   onClick={() => {
-                    onDelete(listing.id)
-                    setShowMenu(false)
+                    onDelete(listing.id);
+                    setShowMenu(false);
                   }}
                   className="w-full px-4 py-2 text-left text-sm hover:bg-muted flex items-center gap-3 text-red-600"
                 >
@@ -78,44 +108,45 @@ function ListingCard({ listing, onDelete }: { listing: { id: string; title: stri
         <p className="text-sm text-muted-foreground">
           {listing.publishedAt
             ? `公開日: ${new Date(listing.publishedAt).toLocaleDateString('ja-JP')}`
-            : '未公開'
-          }
+            : '未公開'}
         </p>
       </div>
     </div>
-  )
+  );
 }
 
 export default function CreatorPage() {
-  const router = useRouter()
-  const { user, login, becomeSeller, listings, deleteListing } = useAuth()
-  const [showSignupDialog, setShowSignupDialog] = useState(false)
-  const [showBecomeSellerFlow, setShowBecomeSellerFlow] = useState(false)
+  const router = useRouter();
+  const { user, login, becomeSeller, listings, deleteListing } = useAuth();
+  const [showSignupDialog, setShowSignupDialog] = useState(false);
+  const [showBecomeSellerFlow, setShowBecomeSellerFlow] = useState(false);
 
   // ユーザーのリスティングのみフィルター
-  const userListings = listings.filter(l => l.userId === user?.id)
+  const userListings = listings.filter((l) => l.userId === user?.id);
 
   const handleGetStarted = () => {
     if (!user) {
-      setShowSignupDialog(true)
+      setShowSignupDialog(true);
     } else if (!user.isSeller) {
-      setShowBecomeSellerFlow(true)
+      setShowBecomeSellerFlow(true);
     }
-  }
+  };
 
   const handleSignupComplete = (newUser: Parameters<typeof login>[0]) => {
-    login(newUser)
-    setShowSignupDialog(false)
+    login(newUser);
+    setShowSignupDialog(false);
     // サインアップ完了後、すぐにBecomeSellerFlowを表示
-    setShowBecomeSellerFlow(true)
-  }
+    setShowBecomeSellerFlow(true);
+  };
 
-  const handleBecomeSellerComplete = (hostProfile: Parameters<typeof becomeSeller>[0]) => {
-    becomeSeller(hostProfile)
-    setShowBecomeSellerFlow(false)
+  const handleBecomeSellerComplete = (
+    hostProfile: Parameters<typeof becomeSeller>[0]
+  ) => {
+    becomeSeller(hostProfile);
+    setShowBecomeSellerFlow(false);
     // プロフィール作成完了後、ホスティングダッシュボードへリダイレクト
-    router.push("/listing")
-  }
+    router.push('/listing');
+  };
 
   // ホストでリスティングがある場合はダッシュボード表示
   if (user?.isSeller && userListings.length > 0) {
@@ -137,26 +168,41 @@ export default function CreatorPage() {
 
             {/* クイックアクション */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
-              <Link href="/listing/new" className="p-6 bg-white rounded-2xl border border-border hover:shadow-md transition-shadow">
+              <Link
+                href="/listing/new"
+                className="p-6 bg-white rounded-2xl border border-border hover:shadow-md transition-shadow"
+              >
                 <Home className="w-8 h-8 text-[#E61E4D] mb-3" />
-                <h3 className="font-semibold text-foreground mb-1">新規リスティング</h3>
-                <p className="text-sm text-muted-foreground">新しい暮らしを掲載する</p>
+                <h3 className="font-semibold text-foreground mb-1">
+                  新規リスティング
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  新しい暮らしを掲載する
+                </p>
               </Link>
               <div className="p-6 bg-white rounded-2xl border border-border hover:shadow-md transition-shadow cursor-pointer">
                 <MessageSquare className="w-8 h-8 text-blue-500 mb-3" />
-                <h3 className="font-semibold text-foreground mb-1">メッセージ</h3>
-                <p className="text-sm text-muted-foreground">問い合わせを確認する</p>
+                <h3 className="font-semibold text-foreground mb-1">
+                  メッセージ
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  問い合わせを確認する
+                </p>
               </div>
               <div className="p-6 bg-white rounded-2xl border border-border hover:shadow-md transition-shadow cursor-pointer">
                 <BarChart3 className="w-8 h-8 text-green-500 mb-3" />
                 <h3 className="font-semibold text-foreground mb-1">分析</h3>
-                <p className="text-sm text-muted-foreground">パフォーマンスを見る</p>
+                <p className="text-sm text-muted-foreground">
+                  パフォーマンスを見る
+                </p>
               </div>
             </div>
 
             {/* リスティング一覧 */}
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-foreground">あなたのリスティング</h2>
+              <h2 className="text-xl font-semibold text-foreground">
+                あなたのリスティング
+              </h2>
               <Link href="/listing/new">
                 <Button variant="outline" className="rounded-lg gap-2">
                   <Plus className="w-4 h-4" />
@@ -166,7 +212,7 @@ export default function CreatorPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {userListings.map(listing => (
+              {userListings.map((listing) => (
                 <ListingCard
                   key={listing.id}
                   listing={listing}
@@ -179,13 +225,13 @@ export default function CreatorPage() {
 
         <Footer />
       </div>
-    )
+    );
   }
 
   // ホストだがリスティングがない場合は /listing にリダイレクト
   if (user?.isSeller && userListings.length === 0) {
-    router.push("/listing")
-    return null
+    router.push('/listing');
+    return null;
   }
 
   // 未ログインまたは非ホストの場合はランディングページ
@@ -307,5 +353,5 @@ export default function CreatorPage() {
         />
       )}
     </div>
-  )
+  );
 }

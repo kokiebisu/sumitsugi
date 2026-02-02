@@ -36,6 +36,12 @@ export default [
   },
   prettierConfig,
   {
-    ignores: ['.next/**', 'node_modules/**', 'out/**', '.next', '.worktrees/**'],
+    ignores: [
+      '.next/**',
+      'node_modules/**',
+      'out/**',
+      '.next',
+      '.worktrees/**',
+    ],
   },
 ];
