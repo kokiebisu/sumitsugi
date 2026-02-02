@@ -3,7 +3,7 @@ set -e  # Exit on error
 
 # 1. Check if already in container
 if [ -n "$REMOTE_CONTAINERS" ] || [ -n "$CODESPACES" ]; then
-  echo "✓ Already in devcontainer!"
+  echo "[OK] Already in devcontainer!"
   exit 0
 fi
 
