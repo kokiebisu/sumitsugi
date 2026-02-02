@@ -144,15 +144,17 @@ After PR is created:
    # Pull latest changes
    git pull origin main
 
-   # Delete local feature branch
-   git branch -d <feature-branch-name>
+   # Delete local feature branch (only if it exists)
+   if git show-ref --verify --quiet refs/heads/<feature-branch-name>; then
+     git branch -d <feature-branch-name>
+   fi
    ```
 
-   This deletes the **local branch**.
+   This deletes the **local branch** (only if it exists).
 
 **Result**: Both remote and local branches are deleted.
 
-**Note**: If `git branch -d` fails with "branch not found", it means the branch was already deleted (no action needed).
+**Note**: The existence check prevents errors when the branch has already been deleted.
 
 ## Rules
 
