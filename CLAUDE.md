@@ -28,6 +28,7 @@ npm run dev              # 開発サーバー起動 (localhost:3000)
 npm run build            # プロダクションビルド
 npm run start            # プロダクションサーバー起動
 npm run lint             # ESLintでコードチェック
+./dev                    # Open devcontainer shell (auto-installs CLI if needed)
 
 # Git Worktrees (with devcontainer support)
 npm run worktree:create  # 新しいworktreeを作成
