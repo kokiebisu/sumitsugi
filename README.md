@@ -20,6 +20,12 @@ tsumugi connects people leaving their homes ("前の住人" - previous residents
 
 This project uses VS Code devcontainers for a consistent development environment.
 
+**Required Docker Configuration:**
+- **Swap:** 4GB minimum (prevents OOM kills during Claude sessions)
+  - Docker Desktop: Settings → Resources → Swap → Set to 4GB
+  - Background services (TypeScript, ESLint) and Claude sessions can consume significant memory
+  - Default 1GB swap causes "killed" errors when running multiple sessions
+
 ### Setup
 
 1. Open this folder in VS Code
