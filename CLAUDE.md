@@ -33,6 +33,7 @@ source .env.local
 
 Available keys in `.env.local`:
 - `LINEAR_API_KEY` - Linear API for issue tracking sync (タスク完了時に使用)
+- `LINEAR_TEAM_ID` - Linear team ID (Tsumugi team)
 - Other project-specific secrets
 
 ## Commands
@@ -52,6 +53,11 @@ npm run worktree:prune   # 削除済みworktreeをクリーンアップ
 # Branch Cleanup (automated)
 npm run cleanup:branches # マージ済みブランチと削除済みリモートブランチを削除
 npm run cleanup:all      # 完全クリーンアップ（ブランチ + worktree + stash）
+
+# Linear Integration (task tracking)
+./scripts/linear-list.sh              # オープンタスクを一覧表示
+./scripts/linear-done.sh TSU-123      # タスクをDoneに更新
+./scripts/linear-comment.sh TSU-123 "comment"  # タスクにコメント追加
 ```
 
 ## Prerequisites
