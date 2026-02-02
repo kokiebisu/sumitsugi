@@ -118,6 +118,42 @@ For each approved group:
 
 6. **Report PR URL and status** after creation
 
+## Step 6: Wait for CI and Merge
+
+After PR is created:
+
+1. **Monitor CI checks**:
+   ```bash
+   gh pr checks <pr-number>
+   ```
+
+2. **Wait for all checks to pass** - Do NOT proceed if any check fails
+
+3. **Merge PR and delete remote branch**:
+   ```bash
+   gh pr merge <pr-number> --squash --delete-branch
+   ```
+
+   This deletes the **remote branch** on GitHub.
+
+4. **Clean up local workspace**:
+   ```bash
+   # Switch to main (if not already there)
+   git checkout main
+
+   # Pull latest changes
+   git pull origin main
+
+   # Delete local feature branch
+   git branch -d <feature-branch-name>
+   ```
+
+   This deletes the **local branch**.
+
+**Result**: Both remote and local branches are deleted.
+
+**Note**: If `git branch -d` fails with "branch not found", it means the branch was already deleted (no action needed).
+
 ## Rules
 
 - **ALWAYS create PRs automatically** - Never just push and tell user to create PR manually
