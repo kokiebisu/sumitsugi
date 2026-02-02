@@ -37,7 +37,7 @@ This project uses VS Code devcontainers for a consistent development environment
 
 1. Open this folder in VS Code
 2. When prompted, click "Reopen in Container" (or use Command Palette: "Dev Containers: Reopen in Container")
-3. Wait for the container to build (Claude Code CLI will auto-install)
+3. Wait for the container to build (Claude Code starts automatically)
 4. Run `npm run dev` to start the development server at http://localhost:3000
 
 ## Development Commands

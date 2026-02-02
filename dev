@@ -27,9 +27,9 @@ if ! devcontainer up --workspace-folder .; then
   exit 1
 fi
 
-# 4. Open shell
-echo "Opening shell..."
-if ! devcontainer exec --workspace-folder . bash; then
+# 4. Open shell with Claude Code
+echo "Opening shell with Claude Code..."
+if ! devcontainer exec --workspace-folder . bash -c "claude; exec bash"; then
   echo "Error: Failed to open shell in devcontainer." >&2
   exit 1
 fi

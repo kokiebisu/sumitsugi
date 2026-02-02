@@ -20,7 +20,9 @@
     "test:e2e:properties": "playwright test --grep '@properties'",
     "worktree:create": "bash scripts/create-worktree.sh",
     "worktree:list": "git worktree list",
-    "worktree:prune": "git worktree prune"
+    "worktree:prune": "git worktree prune",
+    "cleanup:branches": "bash scripts/cleanup-branches.sh",
+    "cleanup:all": "npm run cleanup:branches && git worktree prune && git stash clear"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.72.1",

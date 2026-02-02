@@ -1,8 +1,9 @@
 name: E2E Tests
 
 on:
+  workflow_dispatch:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, labeled]
   push:
     branches:
       - main
@@ -35,12 +36,16 @@ jobs:
           script: |
             const labels = context.payload.pull_request.labels.map(l => l.name);
 
-            if (labels.includes('e2e:skip')) {
+            // Check for any E2E-related labels
+            const hasE2ELabel = labels.some(l => l.startsWith('e2e:'));
+
+            if (!hasE2ELabel) {
+              // No E2E label = skip tests
               core.setOutput('skip', 'true');
               return;
             }
 
-            if (labels.includes('e2e:full-suite')) {
+            if (labels.includes('e2e:full-suite') || labels.includes('e2e:run')) {
               core.setOutput('full-suite', 'true');
               return;
             }
@@ -50,6 +55,7 @@ jobs:
               return;
             }
 
+            // Has E2E label but not a specific one - run full suite by default
             core.setOutput('skip', 'false');
 
       - name: Setup Node.js
@@ -289,7 +295,8 @@ jobs:
                     comment += '\n';
                   }
 
-                  comment += '💡 **Note:** Full suite will run when merged to main\n\n';
+                  comment += '💡 **Note:** Full E2E suite will run when merged to main\n\n';
+                  comment += '**To run E2E tests on PRs:** Add labels `e2e:run`, `e2e:full-suite`, or `e2e:critical-only`\n\n';
                 }
 
                 comment += '### 📊 Test Results\n\n';
