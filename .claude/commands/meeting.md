@@ -80,6 +80,20 @@
 **CFO:** [この会議から学んだこと、財務モデルの修正]
 **CTO:** [この会議から学んだこと、技術判断の更新]
 **CLO:** [この会議から学んだこと、法的リスク評価の改善]
+
+## ナレッジベースへの保存
+
+会議後、各役員は重要な情報を自分のKNOWLEDGE.mdに保存します:
+- CEO: `docs/team/ceo/KNOWLEDGE.md`
+- CMO: `docs/team/cmo/KNOWLEDGE.md`
+- CFO: `docs/team/cfo/KNOWLEDGE.md`
+- CTO: `docs/team/cto/KNOWLEDGE.md`
+- CLO: `docs/team/clo/KNOWLEDGE.md`
+
+**保存する情報:**
+- WebSearchで見つけた重要な記事・ニュース
+- 競合分析、トレンド、ベストプラクティス
+- tsumugiへの影響・適用方法
 ```
 
 ## 現在のフェーズ
