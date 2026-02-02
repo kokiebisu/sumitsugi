@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from "next"
 // Temporarily disabled due to network issues
 // import { Noto_Sans_JP, Noto_Serif_JP } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
-import { AuthProvider } from "@/contexts/auth-context"
+import { Providers } from "@/components/providers"
 import "./globals.css"
 
 // const notoSansJP = Noto_Sans_JP({
@@ -58,9 +58,9 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Nunito+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
       </head>
       <body className="font-sans antialiased">
-        <AuthProvider>
+        <Providers>
           {children}
-        </AuthProvider>
+        </Providers>
         <Analytics />
       </body>
     </html>
