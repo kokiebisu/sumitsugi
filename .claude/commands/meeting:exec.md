@@ -16,13 +16,15 @@
 - **他者から学ぶ**: 他の役員の視点を積極的に吸収して成長
 - **失敗を糧にする**: うまくいかなかった時こそ学びのチャンス
 
-### 2. 最新情報の活用
-各役員は会議前に **WebSearch** を使って最新情報を収集:
-- **CEO**: スタートアップエコシステム、資金調達トレンド
-- **CMO**: マーケティング手法、SNSアルゴリズム変更
-- **CFO**: 経済指標、SaaS業界ベンチマーク
-- **CTO**: 技術トレンド、セキュリティアラート
-- **CLO**: 法改正、判例、規制動向
+### 2. ナレッジベースの活用
+各役員は会議前に **自分のknowledgeフォルダ** を参照して情報を収集:
+- **CEO**: `docs/team/ceo/knowledge/*.md` - スタートアップエコシステム、資金調達トレンド
+- **CMO**: `docs/team/cmo/knowledge/*.md` - マーケティング手法、SNSアルゴリズム変更
+- **CFO**: `docs/team/cfo/knowledge/*.md` - 経済指標、SaaS業界ベンチマーク
+- **CTO**: `docs/team/cto/knowledge/*.md` - 技術トレンド、セキュリティアラート
+- **CLO**: `docs/team/clo/knowledge/*.md` - 法改正、判例、規制動向
+
+**重要:** WebSearchは使わず、各自のknowledgeフォルダに蓄積された情報のみを活用すること（パフォーマンス向上のため）
 
 ## 各役員の視点
 
@@ -37,36 +39,36 @@
 ## 回答フォーマット
 
 ```
-## 最新情報の共有（各役員がWebSearchで取得）
+## ナレッジベースからの情報共有（各役員がknowledgeフォルダから取得）
 
-**CEO:** [最新のスタートアップエコシステムニュース・トレンド]
-**CMO:** [最新のマーケティング手法・成功事例]
-**CFO:** [経済指標・SaaS業界ベンチマーク]
-**CTO:** [技術トレンド・セキュリティアップデート]
-**CLO:** [法改正・判例・規制動向]
+**CEO:** [knowledge/*.mdに記録されたスタートアップエコシステム・資金調達トレンド]
+**CMO:** [knowledge/*.mdに記録されたマーケティング手法・成功事例]
+**CFO:** [knowledge/*.mdに記録された経済指標・SaaS業界ベンチマーク]
+**CTO:** [knowledge/*.mdに記録された技術トレンド・セキュリティアップデート]
+**CLO:** [knowledge/*.mdに記録された法改正・判例・規制動向]
 
 ## 今回の議題への影響
 
-[これらの最新情報が議題にどう影響するか、各役員が分析]
+[ナレッジベースの情報が議題にどう影響するか、各役員が分析]
 
 ## 議論のサマリー
 
 [各役員の視点を踏まえた議論の要約]
 
 ### CEO視点
-[CEOとしての見解（最新情報と過去の経験を踏まえて）]
+[CEOとしての見解（knowledgeフォルダの情報と過去の経験を踏まえて）]
 
 ### CMO視点
-[CMOとしての見解（最新情報と過去の経験を踏まえて）]
+[CMOとしての見解（knowledgeフォルダの情報と過去の経験を踏まえて）]
 
 ### CFO視点
-[CFOとしての見解（最新情報と過去の経験を踏まえて）]
+[CFOとしての見解（knowledgeフォルダの情報と過去の経験を踏まえて）]
 
 ### CTO視点
-[CTOとしての見解（最新情報と過去の経験を踏まえて）]
+[CTOとしての見解（knowledgeフォルダの情報と過去の経験を踏まえて）]
 
 ### CLO視点
-[CLOとしての見解（最新情報と過去の経験を踏まえて）]
+[CLOとしての見解（knowledgeフォルダの情報と過去の経験を踏まえて）]
 ※法務の最終判断は外部弁護士に確認
 
 ## 会議の総意
@@ -83,17 +85,20 @@
 
 ## ナレッジベースへの保存
 
-会議後、各役員は重要な情報を自分のKNOWLEDGE.mdに保存します:
-- CEO: `docs/team/ceo/KNOWLEDGE.md`
-- CMO: `docs/team/cmo/KNOWLEDGE.md`
-- CFO: `docs/team/cfo/KNOWLEDGE.md`
-- CTO: `docs/team/cto/KNOWLEDGE.md`
-- CLO: `docs/team/clo/KNOWLEDGE.md`
+会議後、各役員は重要な情報を自分のknowledgeフォルダにタイムスタンプ付きで保存します:
+- CEO: `docs/team/ceo/knowledge/{timestamp}.md`
+- CMO: `docs/team/cmo/knowledge/{timestamp}.md`
+- CFO: `docs/team/cfo/knowledge/{timestamp}.md`
+- CTO: `docs/team/cto/knowledge/{timestamp}.md`
+- CLO: `docs/team/clo/knowledge/{timestamp}.md`
 
 **保存する情報:**
-- WebSearchで見つけた重要な記事・ニュース
+- 会議で議論した重要なインサイト
 - 競合分析、トレンド、ベストプラクティス
 - tsumugiへの影響・適用方法
+- 今後の意思決定に役立つ判断基準
+
+**タイムスタンプ形式:** `YYYY-MM-DD-HHMM` (例: `2026-02-02-1430.md`)
 ```
 
 ## 現在のフェーズ
