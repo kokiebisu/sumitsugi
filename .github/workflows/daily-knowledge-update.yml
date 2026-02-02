@@ -1,0 +1,37 @@
+name: Daily Knowledge Update
+
+on:
+  schedule:
+    # 毎日午前9時(JST) = 午前0時(UTC)に実行
+    - cron: '0 0 * * *'
+  workflow_dispatch: # 手動実行も可能
+
+jobs:
+  update-knowledge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Run daily knowledge update script
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: bun run scripts/daily-knowledge-update.ts
+
+      - name: Commit and push changes
+        run: |
+          TODAY=$(date +'%Y-%m-%d')
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add docs/team/*/knowledge/
+          git diff --staged --quiet || git commit -m "chore: daily knowledge update $TODAY"
+          git push
