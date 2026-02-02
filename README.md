@@ -16,6 +16,13 @@ tsumugi connects people leaving their homes ("前の住人" - previous residents
 
 ## Quick Start
 
+1. Clone the repo
+2. Run `./dev` to enter devcontainer
+3. Inside container: `npm run dev`
+4. Open http://localhost:3000
+
+## Detailed Setup
+
 ### Prerequisites
 
 This project uses VS Code devcontainers for a consistent development environment.
