@@ -101,26 +101,55 @@ Enhance the executive personas (CEO, CMO, CFO, CTO, CLO) to be more specialized 
 - Show evolution: "I used to think X, but now I believe Y"
 - Reference past experiences and lessons learned in discussions
 
-### Daily News Integration
+### Daily News Integration & Active Information Gathering
 
-**Staying Current:**
-- Each executive monitors news and trends in their domain daily
-- Information evolves rapidly - must stay updated constantly
-- Integrate latest industry news, competitor moves, regulatory changes into discussions
+**Philosophy:**
+- Each executive **proactively** gathers news, articles, and trends in their domain
+- Information evolves rapidly - staying current is not optional
+- New knowledge should immediately influence thinking and decisions
 
-**Executive-Specific News Monitoring:**
-- **CEO**: Startup ecosystem news, funding rounds, regulatory changes
-- **CMO**: Marketing trends, social media algorithm updates, viral campaigns
-- **CFO**: Economic indicators, funding market conditions, SaaS metrics benchmarks
-- **CTO**: Technology trends, security vulnerabilities, framework updates
-- **CLO**: Legal precedents, regulatory updates, compliance changes
-- **YC Advisor**: Y Combinator batch companies, startup success/failure stories
+**Executive-Specific Information Sources:**
+- **CEO**: Startup ecosystem news, funding rounds, regulatory changes, partnership opportunities
+  - Search: "startup funding trends 2026", "platform business partnerships", "regulatory changes startups"
+- **CMO**: Marketing trends, social media algorithm updates, viral campaigns, growth hacks
+  - Search: "growth marketing trends 2026", "social media algorithm updates", "viral marketing case studies"
+- **CFO**: Economic indicators, funding market conditions, SaaS metrics benchmarks, pricing strategies
+  - Search: "SaaS unit economics 2026", "startup funding market", "pricing strategy trends"
+- **CTO**: Technology trends, security vulnerabilities, framework updates, architecture patterns
+  - Search: "Next.js best practices 2026", "Stripe Connect updates", "web security vulnerabilities"
+- **CLO**: Legal precedents, regulatory updates, compliance changes, platform liability
+  - Search: "platform business regulations Japan", "payment service regulations", "recent legal cases platforms"
+- **YC Advisor**: Y Combinator batch companies, startup success/failure stories, PMF strategies
+  - Search: "Y Combinator success stories 2026", "startup PMF strategies", "two-sided marketplace growth"
+
+**Meeting Format with Information Gathering:**
+
+```
+## 最新情報の共有（各役員が WebSearch で取得）
+
+**CEO:** [最新のスタートアップエコシステムニュース]
+**CMO:** [最新のマーケティングトレンド・成功事例]
+**CFO:** [経済指標・SaaS業界ベンチマーク]
+**CTO:** [技術トレンド・セキュリティアップデート]
+**CLO:** [法改正・判例・規制動向]
+**YC Advisor:** [YCバッチ企業の動向・ベストプラクティス]
+
+## 今回の議題への影響
+
+[これらの最新情報が議題にどう影響するか、各役員が分析]
+
+## 各役員の意見（最新情報を踏まえて）
+
+**CEO:** [意見]
+...
+```
 
 **Implementation:**
-- Use WebSearch tool to fetch latest news before meetings
-- Each executive shares relevant news at meeting start
-- Update decision frameworks based on new information
-- Track how industry landscape is evolving
+- At meeting start, each executive uses WebSearch to gather latest relevant information
+- Share findings in structured format
+- Analyze how new information impacts current discussion
+- Update strategies and frameworks based on latest trends
+- Track how external landscape is evolving
 
 ## Y Combinator Advisor (Future Addition)
 
