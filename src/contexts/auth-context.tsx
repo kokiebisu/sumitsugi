@@ -45,6 +45,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // 初期化: localStorageから復元
   useEffect(() => {
+    // SSR/SSG時はスキップ
+    if (typeof window === 'undefined') {
+      setIsInitialized(true);
+      setIsLoading(false);
+      return;
+    }
+
     // 開発モード: 常にモックデータを使用（localStorageを無視）
     if (process.env.NODE_ENV === "development") {
       setInquiries(mockInquiries);
@@ -97,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // 永続化: userが変わるたびにlocalStorageに保存（初期化完了後のみ）
   useEffect(() => {
-    if (!isInitialized) return;
+    if (typeof window === 'undefined' || !isInitialized) return;
     if (user) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
     } else {
@@ -108,7 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // 永続化: listingsが変わるたびにlocalStorageに保存（初期化完了後のみ）
   // 注意: Base64画像データが大きすぎる場合はクォータエラーになる可能性がある
   useEffect(() => {
-    if (!isInitialized) return;
+    if (typeof window === 'undefined' || !isInitialized) return;
     try {
       // 写真データも含めて保存を試みる
       localStorage.setItem(
@@ -218,7 +225,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // 永続化: inquiriesが変わるたびにlocalStorageに保存（初期化完了後のみ）
   useEffect(() => {
-    if (!isInitialized) return;
+    if (typeof window === 'undefined' || !isInitialized) return;
     try {
       localStorage.setItem(INQUIRIES_STORAGE_KEY, JSON.stringify(inquiries));
     } catch (e) {
@@ -252,6 +259,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
+    // During SSR, return a default context instead of throwing
+    if (typeof window === 'undefined') {
+      const defaultListing: UserListing = {
+        id: '',
+        userId: '',
+        status: 'draft',
+        title: '',
+        roomStyle: null,
+        roomPhotos: [],
+        createdAt: '',
+        updatedAt: '',
+      };
+      const defaultInquiry: Inquiry = {
+        id: '',
+        propertyId: '',
+        propertyTitle: '',
+        status: 'pending',
+        applicantName: '',
+        applicantEmail: '',
+        reason: '',
+        submittedAt: '',
+        updatedAt: '',
+      };
+      return {
+        user: null,
+        isLoading: false,
+        login: () => {},
+        logout: () => {},
+        updateUser: () => {},
+        becomeSeller: () => {},
+        listings: [],
+        addListing: () => defaultListing,
+        updateListing: () => {},
+        deleteListing: () => {},
+        publishListing: () => {},
+        inquiries: [],
+        addInquiry: () => defaultInquiry,
+      };
+    }
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;

@@ -43,6 +43,9 @@ interface PropertyDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
+// Disable static generation for this page since it uses client components with auth context
+export const dynamic = 'force-dynamic';
+
 export async function generateStaticParams() {
   const properties = getPublicProperties();
   return properties.map((property) => ({

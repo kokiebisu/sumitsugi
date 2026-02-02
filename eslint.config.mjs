@@ -34,6 +34,6 @@ export default [
     },
   },
   {
-    ignores: ['.next/**', 'node_modules/**', 'out/**', '.next'],
+    ignores: ['.next/**', 'node_modules/**', 'out/**', '.next', '.worktrees/**'],
   },
 ];

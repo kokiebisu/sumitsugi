@@ -23,7 +23,7 @@ export default async function PaymentPage({ params }: PaymentPageProps) {
 
   // Mock user and previous tenant IDs (will be replaced with real auth)
   const userId = "user_mock_001";
-  const previousTenantId = property.seller?.id || "seller_mock_001";
+  const previousTenantId = "seller_mock_001";
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">

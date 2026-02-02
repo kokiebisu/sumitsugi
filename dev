@@ -7,29 +7,33 @@ if [ -n "$REMOTE_CONTAINERS" ] || [ -n "$CODESPACES" ]; then
   exit 0
 fi
 
-# 2. Check/install devcontainer CLI
-if ! command -v devcontainer &> /dev/null; then
-  echo "devcontainer CLI not found."
-  read -p "Install it now? (y/n) " -n 1 -r
-  echo
-  if [[ $REPLY =~ ^[Yy]$ ]]; then
-    npm install -g @devcontainers/cli
+# 2. Determine how to run devcontainer CLI
+# Prefer bunx (works without Node.js), fall back to npx or global install
+run_devcontainer() {
+  if command -v bun &> /dev/null; then
+    bunx @devcontainers/cli "$@"
+  elif command -v npx &> /dev/null; then
+    npx @devcontainers/cli "$@"
+  elif command -v devcontainer &> /dev/null; then
+    devcontainer "$@"
   else
-    echo "Install manually: npm install -g @devcontainers/cli"
+    echo "Error: No way to run devcontainer CLI."
+    echo "Install bun (recommended): curl -fsSL https://bun.sh/install | bash"
+    echo "Or install Node.js: https://nodejs.org/"
     exit 1
   fi
-fi
+}
 
 # 3. Start container if needed (idempotent)
 echo "Starting devcontainer..."
-if ! devcontainer up --workspace-folder .; then
+if ! run_devcontainer up --workspace-folder .; then
   echo "Error: Failed to start devcontainer. Check Docker is running." >&2
   exit 1
 fi
 
 # 4. Open shell with Claude Code
 echo "Opening shell with Claude Code..."
-if ! devcontainer exec --workspace-folder . bash -c "claude; exec bash"; then
+if ! run_devcontainer exec --workspace-folder . bash -c "claude; exec bash"; then
   echo "Error: Failed to open shell in devcontainer." >&2
   exit 1
 fi
