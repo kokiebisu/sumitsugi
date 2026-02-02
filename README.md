@@ -5,20 +5,30 @@
 
 tsumugi connects people leaving their homes ("前の住人" - previous residents) with those looking to inherit not just a space, but a complete lifestyle. Furniture, neighborhood knowledge, daily routines - everything that makes a house a home.
 
+## Key Features
+
+- **Property Listings:** Browse and search properties with detailed information and photos
+- **Lifestyle Inheritance:** Transfer not just furniture, but neighborhood knowledge and daily routines
+- **Secure Payments:** Stripe integration for safe and reliable transactions
+- **Authentication:** SSR/hydration-compatible auth system with persistent state
+- **Executive Personas:** AI-driven knowledge base and self-growth capabilities for platform intelligence
+- **Responsive Design:** Mobile-first, Airbnb-inspired clean interface
+
 ## Tech Stack
 
 - **Framework:** Next.js 16 (App Router)
 - **Language:** TypeScript
+- **Runtime:** Bun 1.x (migrated from Node.js for improved performance)
+- **Package Manager:** bun
 - **Styling:** Tailwind CSS
 - **UI Components:** shadcn/ui (Radix UI)
-- **Node Version:** 20
-- **Package Manager:** npm
+- **Payment:** Stripe integration for secure transactions
 
 ## Quick Start
 
 1. Clone the repo
-2. Run `./dev` to enter devcontainer
-3. Inside container: `npm run dev`
+2. Run `./dev` to enter devcontainer (Claude Code starts automatically)
+3. Inside container: `bun dev`
 4. Open http://localhost:3000
 
 ## Detailed Setup
@@ -37,18 +47,29 @@ This project uses VS Code devcontainers for a consistent development environment
 
 1. Open this folder in VS Code
 2. When prompted, click "Reopen in Container" (or use Command Palette: "Dev Containers: Reopen in Container")
-3. Wait for the container to build (Claude Code starts automatically)
-4. Run `npm run dev` to start the development server at http://localhost:3000
+3. Wait for the container to build (Bun and Claude Code are pre-installed and auto-start)
+4. Run `bun dev` to start the development server at http://localhost:3000
+
+**Note:** Bun runtime is pre-configured in the devcontainer. For local development outside the container, install Bun from https://bun.sh
 
 ## Development Commands
 
 ```bash
-npm run dev              # Start development server (localhost:3000)
-npm run build            # Production build
-npm run start            # Start production server
-npm run lint             # Run ESLint
-npm test                 # Run tests
-npm run test:e2e         # Run E2E tests with Playwright
+bun dev                  # Start development server (localhost:3000)
+bun run build            # Production build
+bun start                # Start production server
+bun lint                 # Run ESLint
+bun test                 # Run tests
+bun run test:e2e         # Run E2E tests with Playwright
+
+# Git Worktrees (for isolated development)
+npm run worktree:create  # Create new worktree with branch
+npm run worktree:list    # List all worktrees
+npm run worktree:prune   # Clean up removed worktrees
+
+# Branch Cleanup (automated)
+npm run cleanup:branches # Delete merged and [gone] branches
+npm run cleanup:all      # Full cleanup (branches + worktrees + stashes)
 ```
 
 ## Development Tools
@@ -118,20 +139,72 @@ Load before running commands that need API keys:
 source .env.local
 ```
 
+## Git Workflow
+
+### Git Worktrees
+
+This project uses git worktrees for isolated development to prevent accidental file inclusion in commits:
+
+**When to use worktrees:**
+- Implementing features or fixes when other files are modified
+- Making changes that should be isolated from current workspace
+- Working on multiple branches simultaneously
+
+**Workflow:**
+```bash
+# Create worktree for new branch
+npm run worktree:create feature-name
+
+# Navigate to worktree
+cd .worktrees/feature-name
+
+# Make changes, commit, push
+git add <specific-files>
+git commit -m "feat: description"
+git push -u origin HEAD
+
+# Return to main workspace
+cd /workspaces/tsumugi
+
+# Clean up after PR is merged
+git worktree remove .worktrees/feature-name
+```
+
+See `.devcontainer/WORKTREE.md` for detailed documentation.
+
+### Automated Branch Cleanup
+
+**GitHub auto-delete:** Branches are automatically deleted after PR merge on GitHub.
+
+**Daily cleanup (GitHub Actions):**
+- Runs daily at 00:00 UTC
+- Deletes merged branches and branches marked as [gone]
+- Can be manually triggered: `gh workflow run "Cleanup Merged Branches"`
+
+**Local cleanup:**
+```bash
+npm run cleanup:branches  # Delete merged and [gone] branches
+npm run cleanup:all       # Full cleanup (branches + worktrees + stashes)
+```
+
 ## Automated Workflows
 
 ### Daily Requirements Audit
 
 Runs daily at 9:00 AM JST via GitHub Actions:
-1. Compares REQUIREMENTS.md / BUSINESS.md with actual code
-2. Detects implementation gaps using Claude API
+1. Compares REQUIREMENTS.md / BUSINESS.md with actual code using Claude API
+2. Detects implementation gaps
 3. Creates Beads tasks for any gaps found
-4. Auto-creates and merges PR if gaps exist
+4. Auto-creates PR with gap report (only if gaps exist)
+5. Auto-merges PR after creation
+6. Skips PR creation entirely if no gaps found
 
 **Manual trigger:**
 ```bash
 gh workflow run "Requirements Audit"
 ```
+
+**Required secret:** `ANTHROPIC_API_KEY` must be configured in repository settings
 
 ## Documentation
 
