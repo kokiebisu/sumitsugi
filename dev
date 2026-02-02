@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -e  # Exit on error
+
+# 1. Check if already in container
+if [ -n "$REMOTE_CONTAINERS" ] || [ -n "$CODESPACES" ]; then
+  echo "✓ Already in devcontainer!"
+  exit 0
+fi
+
+# 2. Check/install devcontainer CLI
+if ! command -v devcontainer &> /dev/null; then
+  echo "devcontainer CLI not found."
+  read -p "Install it now? (y/n) " -n 1 -r
+  echo
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    npm install -g @devcontainers/cli
+  else
+    echo "Install manually: npm install -g @devcontainers/cli"
+    exit 1
+  fi
+fi
+
+# 3. Start container if needed (idempotent)
+echo "Starting devcontainer..."
+devcontainer up --workspace-folder .
+
+# 4. Open shell
+echo "Opening shell..."
+devcontainer exec --workspace-folder . bash
