@@ -69,8 +69,8 @@ try {
   const result = await operation();
   return { success: true, data: result };
 } catch (error) {
-  console.error("Operation failed:", error);
-  return { success: false, error: "User-friendly message" };
+  console.error('Operation failed:', error);
+  return { success: false, error: 'User-friendly message' };
 }
 ```
 
@@ -88,6 +88,7 @@ DEBUG=false
 ## Automated Agent Usage
 
 Claude will automatically use specialized agents based on task context:
+
 - **TDD workflow** - Auto-invoked for new features, bug fixes, refactoring
 - **Planning** - Auto-invoked for complex features requiring architectural decisions
 - **Code review** - Auto-invoked after code modifications

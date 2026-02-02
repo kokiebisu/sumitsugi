@@ -11,6 +11,7 @@ Implement intelligent E2E test filtering for PRs using Playwright tags and Claud
 ## Problem Statement
 
 Currently, all E2E tests run on every PR regardless of what changed. This leads to:
+
 - Long CI feedback loops (10-15 minutes)
 - Wasted compute resources
 - Slower development velocity
@@ -40,19 +41,20 @@ Currently, all E2E tests run on every PR regardless of what changed. This leads 
 
 ```typescript
 // Critical auth flow - runs on EVERY PR
-test.describe('Login flow @auth @critical', () => {})
+test.describe('Login flow @auth @critical', () => {});
 
 // Payment feature test - runs on payment PRs + main
-test.describe('Checkout process @payment @critical', () => {})
+test.describe('Checkout process @payment @critical', () => {});
 
 // Extended listing test - runs on listing PRs + main, not every PR
-test.describe('Draft listing recovery @listing @extended', () => {})
+test.describe('Draft listing recovery @listing @extended', () => {});
 
 // Smoke test - quick check, runs everywhere
-test.describe('Homepage loads @smoke', () => {})
+test.describe('Homepage loads @smoke', () => {});
 ```
 
 **Default behavior:**
+
 - All PRs: Run `@critical` + `@smoke` + matching feature tags
 - Main branch: Run everything
 - Estimated PR test time: 2-4 minutes instead of 10-15 minutes
@@ -71,7 +73,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Need full history for diff
+          fetch-depth: 0 # Need full history for diff
 
       - name: Analyze PR changes with Claude
         id: claude-analysis
@@ -106,6 +108,7 @@ jobs:
 ```
 
 **Why Claude-powered is better:**
+
 - Understands semantic relationships (e.g., auth changes affect listing creation)
 - No maintenance of static mapping files
 - Handles edge cases intelligently
@@ -113,11 +116,13 @@ jobs:
 - Adapts as codebase evolves
 
 **Override options:**
+
 - PR label `e2e:full-suite`: Runs complete suite
 - PR label `e2e:skip`: Skips E2E tests entirely (docs-only changes)
 - PR label `e2e:critical-only`: Runs only @critical tests
 
 **Fallback safety:**
+
 - If Claude analysis fails → run `@critical` + `@smoke` (safe default)
 - If API rate limited → run `@critical` + `@smoke`
 
@@ -129,29 +134,29 @@ jobs:
 // tests/e2e/auth/authentication.spec.ts
 test.describe('Login flow @auth @critical', () => {
   // Core authentication - must always work
-})
+});
 
 test.describe('Password recovery @auth @extended', () => {
   // Important but not critical path
-})
+});
 
 // tests/e2e/listing/create-listing.spec.ts
 test.describe('Create Listing - Step Navigation @listing @critical', () => {
   // Critical: Core listing creation flow
-})
+});
 
 test.describe('Create Listing - Photo Upload @listing @extended', () => {
   // Extended: Photo upload edge cases
-})
+});
 
 // tests/e2e/properties/browse-properties.spec.ts
 test.describe('Browse properties @properties @critical @smoke', () => {
   // Triple tagged: critical path + smoke test
-})
+});
 
 test.describe('Property filtering @properties @extended', () => {
   // Extended: Advanced filtering features
-})
+});
 ```
 
 **Migration Strategy:**
@@ -170,6 +175,7 @@ test.describe('Property filtering @properties @extended', () => {
    - Messaging feature → add `@messaging` tags
 
 **Tag Guidelines for Developers:**
+
 - New feature test? Tag with feature + priority
 - Touches auth? Add `@auth` tag too
 - Takes >30s? Add `@slow` tag
@@ -221,6 +227,7 @@ gh pr create --title "Add payment checkout"
 ```
 
 **PR Feedback Loop:**
+
 1. Push commit → CI runs in ~3 minutes (only relevant tests)
 2. See results in PR comment with tag breakdown
 3. Fix issues, push again → fast re-run
@@ -236,7 +243,9 @@ gh pr create --title "Add payment checkout"
 ✅ **Status:** All tests passed!
 
 ### 🎯 Test Selection (Claude Analysis)
+
 **Changed files:**
+
 - `src/lib/payment/checkout.ts`
 - `src/app/checkout/page.tsx`
 
@@ -246,13 +255,14 @@ gh pr create --title "Add payment checkout"
 tests because checkout flow depends on active listings.
 
 ### 📊 Test Breakdown
-| Tag | Tests Run | Passed | Duration |
-|-----|-----------|--------|----------|
-| @critical | 12 | ✅ 12 | 45s |
-| @smoke | 5 | ✅ 5 | 12s |
-| @payment | 8 | ✅ 8 | 38s |
-| @listing | 3 | ✅ 3 | 15s |
-| **Total** | **28** | **✅ 28** | **110s** |
+
+| Tag       | Tests Run | Passed    | Duration |
+| --------- | --------- | --------- | -------- |
+| @critical | 12        | ✅ 12     | 45s      |
+| @smoke    | 5         | ✅ 5      | 12s      |
+| @payment  | 8         | ✅ 8      | 38s      |
+| @listing  | 3         | ✅ 3      | 15s      |
+| **Total** | **28**    | **✅ 28** | **110s** |
 
 💡 **Full suite (64 tests) will run when merged to main**
 
@@ -262,6 +272,7 @@ tests because checkout flow depends on active listings.
 **Metrics Dashboard:**
 
 Track over time (stored in GitHub Pages):
+
 - Average PR test time (goal: <5 minutes)
 - Tag coverage per feature
 - Flaky test detection
@@ -314,13 +325,13 @@ Track over time (stored in GitHub Pages):
 
 ## Risks & Mitigations
 
-| Risk | Mitigation |
-|------|------------|
-| Claude API failure | Fallback to @critical + @smoke |
-| Wrong tags selected | Always include @critical + @smoke as baseline |
-| Tests become flaky | Use @flaky tag + increased retries |
-| Tag sprawl | Regular tag audits, consolidate when needed |
-| Developers forget tags | PR template reminder, CI warning if no tags |
+| Risk                   | Mitigation                                    |
+| ---------------------- | --------------------------------------------- |
+| Claude API failure     | Fallback to @critical + @smoke                |
+| Wrong tags selected    | Always include @critical + @smoke as baseline |
+| Tests become flaky     | Use @flaky tag + increased retries            |
+| Tag sprawl             | Regular tag audits, consolidate when needed   |
+| Developers forget tags | PR template reminder, CI warning if no tags   |
 
 ## Future Enhancements
 

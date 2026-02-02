@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { Sparkles, TrendingUp, Trash2, Loader2 } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { Sparkles, TrendingUp, Trash2, Loader2 } from 'lucide-react';
 import {
   getEstimate,
   formatPriceRange,
   roundToThousand,
   type EstimateResult,
-} from "@/lib/estimate-service";
+} from '@/lib/estimate-service';
 
 interface EstimateCardProps {
   furniture: string[];
@@ -46,7 +46,7 @@ export function EstimateCard({
       // 中央値を引き継ぎ費用として提案（1000円単位に丸める）
       if (onEstimateComplete) {
         const suggestedFee = roundToThousand(
-          (result.handoverFeeMin + result.handoverFeeMax) / 2,
+          (result.handoverFeeMin + result.handoverFeeMax) / 2
         );
         onEstimateComplete(suggestedFee);
       }
@@ -61,7 +61,7 @@ export function EstimateCard({
       setEstimate(null);
       setHasRequested(false);
     }
-  }, [furniture.join(",")]);
+  }, [furniture.join(',')]);
 
   if (furniture.length === 0) {
     return (
@@ -130,7 +130,11 @@ export function EstimateCard({
             <span>処分した場合</span>
           </div>
           <p className="text-lg font-semibold text-red-600 dark:text-red-400">
-            -{formatPriceRange(estimate.disposalCostMin, estimate.disposalCostMax)}
+            -
+            {formatPriceRange(
+              estimate.disposalCostMin,
+              estimate.disposalCostMax
+            )}
           </p>
           <p className="text-xs text-muted-foreground">処分費用がかかる</p>
         </div>
@@ -140,7 +144,8 @@ export function EstimateCard({
             <span>引き継いだ場合</span>
           </div>
           <p className="text-lg font-semibold text-green-600 dark:text-green-400">
-            +{formatPriceRange(estimate.handoverFeeMin, estimate.handoverFeeMax)}
+            +
+            {formatPriceRange(estimate.handoverFeeMin, estimate.handoverFeeMax)}
           </p>
           <p className="text-xs text-muted-foreground">収入として受け取れる</p>
         </div>
@@ -160,8 +165,8 @@ export function EstimateCard({
               >
                 <span>{item.item}</span>
                 <span>
-                  処分: -{item.disposalCost.toLocaleString()}円 / 引継:
-                  +{item.handoverValue.toLocaleString()}円
+                  処分: -{item.disposalCost.toLocaleString()}円 / 引継: +
+                  {item.handoverValue.toLocaleString()}円
                 </span>
               </div>
             ))}

@@ -5,6 +5,7 @@ This guide explains how to configure Stripe webhooks for the tsumugi payment sys
 ## Webhook Endpoint
 
 The webhook handler is located at:
+
 ```
 POST /api/webhooks/stripe
 ```
@@ -53,16 +54,19 @@ The Stripe CLI allows you to test webhooks locally without exposing your develop
 #### 1. Install Stripe CLI
 
 **macOS:**
+
 ```bash
 brew install stripe/stripe-cli/stripe
 ```
 
 **Windows:**
+
 ```bash
 scoop install stripe
 ```
 
 **Linux:**
+
 ```bash
 # Download from https://github.com/stripe/stripe-cli/releases
 ```
@@ -82,6 +86,7 @@ stripe listen --forward-to localhost:3000/api/webhooks/stripe
 ```
 
 This command will:
+
 - Display your webhook signing secret (e.g., `whsec_...`)
 - Forward all webhook events to your local server
 - Show real-time webhook event logs
@@ -116,6 +121,7 @@ stripe trigger transfer.created
 ```
 
 You should see webhook events being received in both:
+
 - The Stripe CLI terminal (forwarding logs)
 - Your Next.js server logs (handling logs)
 
@@ -170,6 +176,7 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 ### 2. Copy Webhook Secret
 
 After creating the endpoint:
+
 1. Click on the endpoint in the dashboard
 2. Click "Reveal" in the "Signing secret" section
 3. Copy the secret (starts with `whsec_`)
@@ -179,12 +186,14 @@ After creating the endpoint:
 Add the webhook secret to your production environment variables:
 
 **Vercel:**
+
 ```bash
 vercel env add STRIPE_WEBHOOK_SECRET production
 # Paste the secret when prompted
 ```
 
 **Railway:**
+
 ```bash
 railway variables set STRIPE_WEBHOOK_SECRET=whsec_...
 ```
@@ -216,6 +225,7 @@ The webhook handler implements several security measures:
 ### Signature Verification
 
 Every webhook request is verified using the `stripe-signature` header and your webhook secret. This prevents:
+
 - Replay attacks
 - Man-in-the-middle attacks
 - Malicious webhook requests
@@ -223,6 +233,7 @@ Every webhook request is verified using the `stripe-signature` header and your w
 ### Error Handling
 
 The handler returns appropriate HTTP status codes:
+
 - `200 OK` - Event processed successfully
 - `400 Bad Request` - Invalid signature or missing headers
 - `404 Not Found` - Payment not found in database
@@ -231,6 +242,7 @@ The handler returns appropriate HTTP status codes:
 ### Idempotency
 
 Stripe may send the same webhook event multiple times. The handler is designed to be idempotent:
+
 - Payment status updates use the same values
 - Transfer processing checks for existing transfers
 - Database operations are atomic
@@ -240,15 +252,19 @@ Stripe may send the same webhook event multiple times. The handler is designed t
 ### Webhook Not Receiving Events
 
 1. **Check webhook secret**
+
    ```bash
    echo $STRIPE_WEBHOOK_SECRET
    ```
+
    Should output `whsec_...`
 
 2. **Check Stripe CLI connection**
+
    ```bash
    stripe listen --forward-to localhost:3000/api/webhooks/stripe
    ```
+
    Should show "Ready! You are using Stripe API Version..."
 
 3. **Check server logs**
@@ -312,6 +328,7 @@ Here's the typical event sequence for a successful payment:
 ## Support
 
 For issues with webhook configuration:
+
 1. Check Stripe Dashboard webhook logs
 2. Review Next.js server logs
 3. Test with Stripe CLI before deploying to production

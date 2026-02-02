@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
-import Link from "next/link";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/auth-context";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
-import { mockHandoverAgreements } from "@/lib/data";
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
+import { Header } from '@/components/header';
+import { Footer } from '@/components/footer';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/auth-context';
+import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { mockHandoverAgreements } from '@/lib/data';
 
 export default function AcceptPage() {
   const router = useRouter();
@@ -25,7 +25,7 @@ export default function AcceptPage() {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/");
+      router.push('/');
     }
   }, [user, isLoading, router]);
 
@@ -103,7 +103,9 @@ export default function AcceptPage() {
               </div>
               <div className="flex justify-between border-b border-border pb-3">
                 <span className="text-muted-foreground">Items Included</span>
-                <span className="font-medium">{includedItems.length} items</span>
+                <span className="font-medium">
+                  {includedItems.length} items
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Previous Resident</span>
@@ -120,15 +122,15 @@ export default function AcceptPage() {
                 onClick={() => setIsAccepted(!isAccepted)}
                 className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
                   isAccepted
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-muted-foreground"
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-muted-foreground'
                 }`}
               >
                 {isAccepted && <Check className="h-3 w-3" />}
               </button>
               <span className="text-sm text-foreground">
-                I have reviewed and accept the above handover terms.
-                After acceptance, you will proceed to sign the handover agreement.
+                I have reviewed and accept the above handover terms. After
+                acceptance, you will proceed to sign the handover agreement.
               </span>
             </label>
           </div>
@@ -143,7 +145,7 @@ export default function AcceptPage() {
               disabled={!isAccepted || isSubmitting}
             >
               {isSubmitting ? (
-                "Processing..."
+                'Processing...'
               ) : (
                 <>
                   Accept and Sign

@@ -1,52 +1,57 @@
-"use client"
+'use client';
 
-import type React from "react"
+import type React from 'react';
 
-import { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Heart, ChevronLeft, ChevronRight } from "lucide-react"
-import type { Property } from "@/lib/data"
+import { useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { Heart, ChevronLeft, ChevronRight } from 'lucide-react';
+import type { Property } from '@/lib/data';
 
-function parseLocation(neighborhood: string | undefined): { ward?: string; town?: string } {
-  if (!neighborhood) return {}
-  const match = neighborhood.match(/^(.+?[区市])(.*)$/)
+function parseLocation(neighborhood: string | undefined): {
+  ward?: string;
+  town?: string;
+} {
+  if (!neighborhood) return {};
+  const match = neighborhood.match(/^(.+?[区市])(.*)$/);
   if (match) {
-    return { ward: match[1], town: match[2] || undefined }
+    return { ward: match[1], town: match[2] || undefined };
   }
-  return { ward: neighborhood }
+  return { ward: neighborhood };
 }
 
 interface PropertyCardProps {
-  property: Property
+  property: Property;
 }
 
 export function PropertyCard({ property }: PropertyCardProps) {
-  const [currentImage, setCurrentImage] = useState(0)
-  const [isLiked, setIsLiked] = useState(false)
-  const [imageLoaded, setImageLoaded] = useState(false)
+  const [currentImage, setCurrentImage] = useState(0);
+  const [isLiked, setIsLiked] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const nextImage = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setImageLoaded(false)
-    setCurrentImage((prev) => (prev + 1) % property.images.length)
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    setImageLoaded(false);
+    setCurrentImage((prev) => (prev + 1) % property.images.length);
+  };
 
   const prevImage = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setImageLoaded(false)
-    setCurrentImage((prev) => (prev - 1 + property.images.length) % property.images.length)
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    setImageLoaded(false);
+    setCurrentImage(
+      (prev) => (prev - 1 + property.images.length) % property.images.length
+    );
+  };
 
   const toggleLike = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsLiked(!isLiked)
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    setIsLiked(!isLiked);
+  };
 
-  const currentImageSrc = property.images[currentImage] || "/placeholder.svg"
+  const currentImageSrc = property.images[currentImage] || '/placeholder.svg';
 
   return (
     <Link href={`/listings/${property.id}`} className="group block">
@@ -60,16 +65,19 @@ export function PropertyCard({ property }: PropertyCardProps) {
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           className={`object-cover transition-transform duration-300 ${
-            imageLoaded ? "opacity-100" : "opacity-0"
+            imageLoaded ? 'opacity-100' : 'opacity-0'
           }`}
           onLoad={() => setImageLoaded(true)}
           priority={false}
         />
 
         {/* Heart button */}
-        <button onClick={toggleLike} className="absolute right-3 top-3 z-10 transition-transform hover:scale-110">
+        <button
+          onClick={toggleLike}
+          className="absolute right-3 top-3 z-10 transition-transform hover:scale-110"
+        >
           <Heart
-            className={`h-6 w-6 drop-shadow-md ${isLiked ? "fill-coral text-coral" : "fill-black/50 text-white"}`}
+            className={`h-6 w-6 drop-shadow-md ${isLiked ? 'fill-coral text-coral' : 'fill-black/50 text-white'}`}
           />
         </button>
 
@@ -98,7 +106,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
               <div
                 key={index}
                 className={`h-1.5 w-1.5 rounded-full transition-colors ${
-                  index === currentImage ? "bg-white" : "bg-white/50"
+                  index === currentImage ? 'bg-white' : 'bg-white/50'
                 }`}
               />
             ))}
@@ -108,11 +116,15 @@ export function PropertyCard({ property }: PropertyCardProps) {
 
       {/* MVP構成: 一言コピー → 引き継ぎ費用 → 家賃 → 基本情報 */}
       <div className="mt-3">
-        <h3 className="font-medium text-foreground line-clamp-1">{property.title}</h3>
+        <h3 className="font-medium text-foreground line-clamp-1">
+          {property.title}
+        </h3>
 
         <p className="mt-1.5 text-sm">
           <span className="text-muted-foreground">引き継ぎ費用 </span>
-          <span className="font-semibold text-foreground">¥{property.handoverFee.toLocaleString()}</span>
+          <span className="font-semibold text-foreground">
+            ¥{property.handoverFee.toLocaleString()}
+          </span>
         </p>
 
         {property.rent && (
@@ -123,11 +135,13 @@ export function PropertyCard({ property }: PropertyCardProps) {
 
         <p className="mt-1 text-sm text-muted-foreground">
           {(() => {
-            const { ward, town } = parseLocation(property.location?.neighborhood)
-            return [ward, town, property.layout].filter(Boolean).join(" / ")
+            const { ward, town } = parseLocation(
+              property.location?.neighborhood
+            );
+            return [ward, town, property.layout].filter(Boolean).join(' / ');
           })()}
         </p>
       </div>
     </Link>
-  )
+  );
 }

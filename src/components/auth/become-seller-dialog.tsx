@@ -1,57 +1,57 @@
-"use client"
+'use client';
 
-import { useState } from "react"
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { ArrowLeft, Loader2, Check } from "lucide-react"
-import type { SellerProfile } from "@/lib/data"
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { ArrowLeft, Loader2, Check } from 'lucide-react';
+import type { SellerProfile } from '@/lib/data';
 
 interface BecomeSellerDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onComplete: (sellerProfile: SellerProfile) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onComplete: (sellerProfile: SellerProfile) => void;
 }
 
-type Step = "profile" | "social" | "confirm"
+type Step = 'profile' | 'social' | 'confirm';
 
 export function BecomeSellerDialog({
   open,
   onOpenChange,
   onComplete,
 }: BecomeSellerDialogProps) {
-  const [step, setStep] = useState<Step>("profile")
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [step, setStep] = useState<Step>('profile');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Profile fields
-  const [occupation, setOccupation] = useState("")
-  const [bio, setBio] = useState("")
+  const [occupation, setOccupation] = useState('');
+  const [bio, setBio] = useState('');
 
   // Social links
-  const [instagram, setInstagram] = useState("")
-  const [twitter, setTwitter] = useState("")
-  const [website, setWebsite] = useState("")
+  const [instagram, setInstagram] = useState('');
+  const [twitter, setTwitter] = useState('');
+  const [website, setWebsite] = useState('');
 
   const handleBack = () => {
-    if (step === "social") setStep("profile")
-    else if (step === "confirm") setStep("social")
-  }
+    if (step === 'social') setStep('profile');
+    else if (step === 'confirm') setStep('social');
+  };
 
   const handleNext = () => {
-    if (step === "profile") setStep("social")
-    else if (step === "social") setStep("confirm")
-  }
+    if (step === 'profile') setStep('social');
+    else if (step === 'social') setStep('confirm');
+  };
 
   const handleSubmit = async () => {
-    setIsSubmitting(true)
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    setIsSubmitting(true);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const sellerProfile: SellerProfile = {
       occupation,
@@ -62,27 +62,27 @@ export function BecomeSellerDialog({
         website: website || undefined,
       },
       sellerSince: new Date().toISOString(),
-    }
+    };
 
-    setIsSubmitting(false)
-    onComplete(sellerProfile)
+    setIsSubmitting(false);
+    onComplete(sellerProfile);
 
     // Reset form
-    setStep("profile")
-    setOccupation("")
-    setBio("")
-    setInstagram("")
-    setTwitter("")
-    setWebsite("")
-  }
+    setStep('profile');
+    setOccupation('');
+    setBio('');
+    setInstagram('');
+    setTwitter('');
+    setWebsite('');
+  };
 
-  const canProceedFromProfile = occupation.trim() !== "" && bio.trim() !== ""
+  const canProceedFromProfile = occupation.trim() !== '' && bio.trim() !== '';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] p-0 gap-0">
         <DialogHeader className="px-6 pt-6 pb-5 relative border-b border-border">
-          {step !== "profile" && (
+          {step !== 'profile' && (
             <button
               onClick={handleBack}
               className="absolute left-4 top-6 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none"
@@ -98,10 +98,12 @@ export function BecomeSellerDialog({
 
         <div className="px-6 py-6">
           {/* Step 1: Profile */}
-          {step === "profile" && (
+          {step === 'profile' && (
             <div className="space-y-5">
               <div>
-                <h2 className="text-xl font-semibold mb-2">プロフィールを教えてください</h2>
+                <h2 className="text-xl font-semibold mb-2">
+                  プロフィールを教えてください
+                </h2>
                 <p className="text-sm text-muted-foreground">
                   入居希望者に表示される情報です
                 </p>
@@ -141,10 +143,12 @@ export function BecomeSellerDialog({
           )}
 
           {/* Step 2: Social Links */}
-          {step === "social" && (
+          {step === 'social' && (
             <div className="space-y-5">
               <div>
-                <h2 className="text-xl font-semibold mb-2">SNSリンク（任意）</h2>
+                <h2 className="text-xl font-semibold mb-2">
+                  SNSリンク（任意）
+                </h2>
                 <p className="text-sm text-muted-foreground">
                   入居希望者があなたの活動を知れるようになります
                 </p>
@@ -201,7 +205,7 @@ export function BecomeSellerDialog({
           )}
 
           {/* Step 3: Confirm */}
-          {step === "confirm" && (
+          {step === 'confirm' && (
             <div className="space-y-5">
               <div>
                 <h2 className="text-xl font-semibold mb-2">確認</h2>
@@ -223,7 +227,9 @@ export function BecomeSellerDialog({
                   <div>
                     <p className="text-sm text-muted-foreground">SNS</p>
                     <div className="space-y-1">
-                      {instagram && <p className="text-sm">Instagram: {instagram}</p>}
+                      {instagram && (
+                        <p className="text-sm">Instagram: {instagram}</p>
+                      )}
                       {twitter && <p className="text-sm">X: {twitter}</p>}
                       {website && <p className="text-sm">Web: {website}</p>}
                     </div>
@@ -253,5 +259,5 @@ export function BecomeSellerDialog({
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

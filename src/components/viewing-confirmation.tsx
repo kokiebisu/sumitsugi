@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import type { Inquiry } from "@/lib/data";
-import { Check, Clock, Eye, FileCheck, ArrowRight } from "lucide-react";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import type { Inquiry } from '@/lib/data';
+import { Check, Clock, Eye, FileCheck, ArrowRight } from 'lucide-react';
 
 interface ViewingConfirmationProps {
   inquiry: Inquiry;
-  userRole: "seller" | "applicant";
+  userRole: 'seller' | 'applicant';
   onConfirm: (inquiry: Inquiry) => void;
 }
 
@@ -37,8 +37,8 @@ export function ViewingConfirmation({
   const bothConfirmed = isSellerConfirmed && isApplicantConfirmed;
 
   const canUserConfirm =
-    (userRole === "seller" && !isSellerConfirmed) ||
-    (userRole === "applicant" && !isApplicantConfirmed);
+    (userRole === 'seller' && !isSellerConfirmed) ||
+    (userRole === 'applicant' && !isApplicantConfirmed);
 
   const handleConfirm = () => {
     setIsConfirming(true);
@@ -46,10 +46,10 @@ export function ViewingConfirmation({
     const now = new Date().toISOString();
     const updatedInquiry: Inquiry = {
       ...inquiry,
-      status: bothConfirmed ? "approved" : inquiry.status,
+      status: bothConfirmed ? 'approved' : inquiry.status,
       viewingConfirmation: {
         ...confirmation,
-        ...(userRole === "seller"
+        ...(userRole === 'seller'
           ? { hostConfirmed: true, hostConfirmedAt: now }
           : { applicantConfirmed: true, applicantConfirmedAt: now }),
       },
@@ -57,10 +57,10 @@ export function ViewingConfirmation({
 
     // 両方確認済みならステータスを更新
     if (
-      (userRole === "seller" && isApplicantConfirmed) ||
-      (userRole === "applicant" && isSellerConfirmed)
+      (userRole === 'seller' && isApplicantConfirmed) ||
+      (userRole === 'applicant' && isSellerConfirmed)
     ) {
-      updatedInquiry.status = "approved";
+      updatedInquiry.status = 'approved';
     }
 
     setTimeout(() => {
@@ -89,13 +89,13 @@ export function ViewingConfirmation({
         <div
           className={`flex items-center gap-3 p-4 rounded-xl border ${
             isSellerConfirmed
-              ? "bg-green-50 border-green-200"
-              : "bg-white border-border"
+              ? 'bg-green-50 border-green-200'
+              : 'bg-white border-border'
           }`}
         >
           <div
             className={`w-8 h-8 rounded-full flex items-center justify-center ${
-              isSellerConfirmed ? "bg-green-500" : "bg-muted"
+              isSellerConfirmed ? 'bg-green-500' : 'bg-muted'
             }`}
           >
             {isSellerConfirmed ? (
@@ -108,18 +108,18 @@ export function ViewingConfirmation({
             <p className="font-medium text-foreground">譲る側（前の住人）</p>
             <p className="text-sm text-muted-foreground">
               {isSellerConfirmed
-                ? `確認済み（${new Date(confirmation.hostConfirmedAt || "").toLocaleDateString("ja-JP")}）`
-                : "内見完了の確認待ち"}
+                ? `確認済み（${new Date(confirmation.hostConfirmedAt || '').toLocaleDateString('ja-JP')}）`
+                : '内見完了の確認待ち'}
             </p>
           </div>
-          {userRole === "seller" && !isSellerConfirmed && (
+          {userRole === 'seller' && !isSellerConfirmed && (
             <Button
               size="sm"
               onClick={handleConfirm}
               disabled={isConfirming}
               className="bg-coral hover:bg-coral/90 text-white"
             >
-              {isConfirming ? "確認中..." : "内見完了を確認"}
+              {isConfirming ? '確認中...' : '内見完了を確認'}
             </Button>
           )}
         </div>
@@ -128,13 +128,13 @@ export function ViewingConfirmation({
         <div
           className={`flex items-center gap-3 p-4 rounded-xl border ${
             isApplicantConfirmed
-              ? "bg-green-50 border-green-200"
-              : "bg-white border-border"
+              ? 'bg-green-50 border-green-200'
+              : 'bg-white border-border'
           }`}
         >
           <div
             className={`w-8 h-8 rounded-full flex items-center justify-center ${
-              isApplicantConfirmed ? "bg-green-500" : "bg-muted"
+              isApplicantConfirmed ? 'bg-green-500' : 'bg-muted'
             }`}
           >
             {isApplicantConfirmed ? (
@@ -147,18 +147,18 @@ export function ViewingConfirmation({
             <p className="font-medium text-foreground">引き継ぐ側（申込者）</p>
             <p className="text-sm text-muted-foreground">
               {isApplicantConfirmed
-                ? `確認済み（${new Date(confirmation.applicantConfirmedAt || "").toLocaleDateString("ja-JP")}）`
-                : "内見完了の確認待ち"}
+                ? `確認済み（${new Date(confirmation.applicantConfirmedAt || '').toLocaleDateString('ja-JP')}）`
+                : '内見完了の確認待ち'}
             </p>
           </div>
-          {userRole === "applicant" && !isApplicantConfirmed && (
+          {userRole === 'applicant' && !isApplicantConfirmed && (
             <Button
               size="sm"
               onClick={handleConfirm}
               disabled={isConfirming}
               className="bg-coral hover:bg-coral/90 text-white"
             >
-              {isConfirming ? "確認中..." : "内見完了を確認"}
+              {isConfirming ? '確認中...' : '内見完了を確認'}
             </Button>
           )}
         </div>
@@ -170,9 +170,7 @@ export function ViewingConfirmation({
           <div className="flex items-center gap-3">
             <FileCheck className="w-5 h-5 text-green-600" />
             <div className="flex-1">
-              <p className="font-medium text-green-800">
-                内見が完了しました
-              </p>
+              <p className="font-medium text-green-800">内見が完了しました</p>
               <p className="text-sm text-green-700">
                 引き継ぎ条件の調整に進むことができます
               </p>
@@ -272,8 +270,8 @@ export function HandoverAgreementForm({
               onClick={() => toggleItem(item)}
               className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
                 selectedItems.includes(item)
-                  ? "bg-foreground text-white"
-                  : "bg-muted text-foreground hover:bg-muted/80"
+                  ? 'bg-foreground text-white'
+                  : 'bg-muted text-foreground hover:bg-muted/80'
               }`}
             >
               {item}
@@ -305,7 +303,7 @@ export function HandoverAgreementForm({
         disabled={!liabilityAccepted || isSubmitting}
         className="w-full bg-coral hover:bg-coral/90 text-white"
       >
-        {isSubmitting ? "送信中..." : "条件に合意する"}
+        {isSubmitting ? '送信中...' : '条件に合意する'}
       </Button>
     </div>
   );

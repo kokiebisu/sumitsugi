@@ -1,15 +1,19 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useAuth } from "@/contexts/auth-context";
-import type { LargeFurnitureType } from "@/lib/data";
-import { Button } from "@/components/ui/button";
-import { LocationPicker, type StationInfo, type LocationWithAddress } from "@/components/location-picker";
-import { EstimateCard } from "@/components/estimate-card";
-import { SingleDatePicker } from "@/components/date-range-picker";
-import { cn } from "@/lib/utils";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useAuth } from '@/contexts/auth-context';
+import type { LargeFurnitureType } from '@/lib/data';
+import { Button } from '@/components/ui/button';
+import {
+  LocationPicker,
+  type StationInfo,
+  type LocationWithAddress,
+} from '@/components/location-picker';
+import { EstimateCard } from '@/components/estimate-card';
+import { SingleDatePicker } from '@/components/date-range-picker';
+import { cn } from '@/lib/utils';
 import {
   X,
   Plus,
@@ -22,43 +26,43 @@ import {
   Tv,
   Refrigerator,
   Users,
-} from "lucide-react";
+} from 'lucide-react';
 
 // 間取りの選択肢
 const LAYOUT_OPTIONS = [
-  "1R",
-  "1K",
-  "1DK",
-  "1LDK",
-  "2K",
-  "2DK",
-  "2LDK",
-  "3K",
-  "3DK",
-  "3LDK",
-  "4K",
-  "4DK",
-  "4LDK",
+  '1R',
+  '1K',
+  '1DK',
+  '1LDK',
+  '2K',
+  '2DK',
+  '2LDK',
+  '3K',
+  '3DK',
+  '3LDK',
+  '4K',
+  '4DK',
+  '4LDK',
 ];
 
 // 居住人数の選択肢
 const OCCUPANTS_OPTIONS = [
-  { value: "1", label: "1人" },
-  { value: "2", label: "2人" },
-  { value: "3", label: "3人" },
-  { value: "4", label: "4人以上" },
+  { value: '1', label: '1人' },
+  { value: '2', label: '2人' },
+  { value: '3', label: '3人' },
+  { value: '4', label: '4人以上' },
 ];
 
 // 引き継ぎ対象の大型家具
 const FURNITURE_ITEMS = [
-  { id: "bed", label: "ベッド", Icon: BedDouble },
-  { id: "sofa", label: "ソファ", Icon: Sofa },
-  { id: "desk", label: "デスク", Icon: Monitor },
-  { id: "storage", label: "収納", Icon: Archive },
-  { id: "table", label: "テーブル", Icon: Table2 },
-  { id: "wardrobe", label: "ワードローブ", Icon: Shirt },
-  { id: "tv", label: "テレビ台", Icon: Tv },
-  { id: "fridge", label: "冷蔵庫", Icon: Refrigerator },
+  { id: 'bed', label: 'ベッド', Icon: BedDouble },
+  { id: 'sofa', label: 'ソファ', Icon: Sofa },
+  { id: 'desk', label: 'デスク', Icon: Monitor },
+  { id: 'storage', label: '収納', Icon: Archive },
+  { id: 'table', label: 'テーブル', Icon: Table2 },
+  { id: 'wardrobe', label: 'ワードローブ', Icon: Shirt },
+  { id: 'tv', label: 'テレビ台', Icon: Tv },
+  { id: 'fridge', label: '冷蔵庫', Icon: Refrigerator },
 ];
 
 export default function NewListingPage() {
@@ -66,20 +70,20 @@ export default function NewListingPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [roomPhotos, setRoomPhotos] = useState<string[]>([]);
-  const [handoverFee, setHandoverFee] = useState<string>("");
-  const [rent, setRent] = useState<string>("");
-  const [layout, setLayout] = useState<string>("");
+  const [handoverFee, setHandoverFee] = useState<string>('');
+  const [rent, setRent] = useState<string>('');
+  const [layout, setLayout] = useState<string>('');
   const [location, setLocation] = useState<LocationWithAddress | null>(null);
-  const [managementFee, setManagementFee] = useState<string>("");
+  const [managementFee, setManagementFee] = useState<string>('');
   const [selectedFurniture, setSelectedFurniture] = useState<string[]>([]);
   const [viewingDate, setViewingDate] = useState<Date | null>(null);
   const [viewingEndDate, setViewingEndDate] = useState<Date | null>(null);
   const [moveInDate, setMoveInDate] = useState<Date | null>(null);
   const [moveInEndDate, setMoveInEndDate] = useState<Date | null>(null);
   const [stations, setStations] = useState<StationInfo[]>([
-    { name: "", walkingMinutes: "" },
+    { name: '', walkingMinutes: '' },
   ]);
-  const [occupants, setOccupants] = useState<string>("");
+  const [occupants, setOccupants] = useState<string>('');
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [pendingPhotos, setPendingPhotos] = useState<string[]>([]);
@@ -96,7 +100,7 @@ export default function NewListingPage() {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/");
+      router.push('/');
     }
   }, [user, isLoading, router]);
 
@@ -110,13 +114,13 @@ export default function NewListingPage() {
   const generateTitle = () => {
     // 間取りから暮らしタイプを判定
     const getLivingType = () => {
-      if (!layout) return "";
+      if (!layout) return '';
       // 1R, 1K, 1DK, 1LDK は一人暮らし
-      if (layout.startsWith("1")) return "一人暮らしの";
+      if (layout.startsWith('1')) return '一人暮らしの';
       // 2K, 2DK, 2LDK は二人暮らし
-      if (layout.startsWith("2")) return "二人暮らしの";
+      if (layout.startsWith('2')) return '二人暮らしの';
       // 3K以上はファミリー向け
-      return "ファミリー向けの";
+      return 'ファミリー向けの';
     };
 
     const livingType = getLivingType();
@@ -143,10 +147,10 @@ export default function NewListingPage() {
   const formatDateRange = (start: Date | null, end: Date | null) => {
     if (!start) return undefined;
     const formatDate = (d: Date) =>
-      d.toLocaleDateString("ja-JP", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
+      d.toLocaleDateString('ja-JP', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
       });
     if (end) {
       return `${formatDate(start)} - ${formatDate(end)}`;
@@ -161,7 +165,7 @@ export default function NewListingPage() {
       // ステップ7: 住所詳細が入力されていれば公開、そうでなければ下書き保存
       const shouldPublish = hasDetailedAddress();
       addListing({
-        status: shouldPublish ? "published" : "draft",
+        status: shouldPublish ? 'published' : 'draft',
         title: generateTitle(),
         roomStyle: null,
         roomPhotos,
@@ -170,7 +174,7 @@ export default function NewListingPage() {
         managementFee: managementFee ? parseInt(managementFee, 10) : undefined,
         layout: layout || undefined,
         occupants: occupants ? parseInt(occupants, 10) : undefined,
-        area: location?.neighborhood || "東京",
+        area: location?.neighborhood || '東京',
         furniture:
           selectedFurniture.length > 0
             ? (selectedFurniture as LargeFurnitureType[])
@@ -188,7 +192,7 @@ export default function NewListingPage() {
       });
 
       // 公開・下書きどちらも部屋一覧へ遷移
-      router.push("/listing");
+      router.push('/listing');
     }
   };
 
@@ -196,7 +200,7 @@ export default function NewListingPage() {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     } else {
-      router.push("/listing");
+      router.push('/listing');
     }
   };
 
@@ -205,7 +209,7 @@ export default function NewListingPage() {
 
     if (hasData) {
       addListing({
-        status: "draft",
+        status: 'draft',
         title: generateTitle(),
         roomStyle: null,
         roomPhotos,
@@ -213,7 +217,7 @@ export default function NewListingPage() {
         rent: rent ? parseInt(rent, 10) : undefined,
         managementFee: managementFee ? parseInt(managementFee, 10) : undefined,
         layout: layout || undefined,
-        area: location?.neighborhood || "東京",
+        area: location?.neighborhood || '東京',
         furniture:
           selectedFurniture.length > 0
             ? (selectedFurniture as LargeFurnitureType[])
@@ -231,7 +235,7 @@ export default function NewListingPage() {
       });
     }
 
-    router.push("/listing");
+    router.push('/listing');
   };
 
   const canProceed = () => {
@@ -374,35 +378,35 @@ export default function NewListingPage() {
                   className="absolute left-0 top-0 bottom-0 w-24 z-10 pointer-events-none"
                   style={{
                     background:
-                      "linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%)",
+                      'linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%)',
                   }}
                 />
                 <div
                   className="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none"
                   style={{
                     background:
-                      "linear-gradient(to left, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%)",
+                      'linear-gradient(to left, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%)',
                   }}
                 />
                 <div
                   className={cn(
-                    "flex gap-5 overflow-x-auto py-2 scrollbar-hide",
-                    roomPhotos.length === 0 && "justify-center",
+                    'flex gap-5 overflow-x-auto py-2 scrollbar-hide',
+                    roomPhotos.length === 0 && 'justify-center'
                   )}
                   style={{
-                    scrollSnapType: "x mandatory",
-                    WebkitOverflowScrolling: "touch",
+                    scrollSnapType: 'x mandatory',
+                    WebkitOverflowScrolling: 'touch',
                     paddingLeft:
                       roomPhotos.length === 0
-                        ? "2rem"
-                        : "max(2rem, calc((100vw - 1200px) / 2))",
+                        ? '2rem'
+                        : 'max(2rem, calc((100vw - 1200px) / 2))',
                   }}
                 >
                   {roomPhotos.map((photo, index) => (
                     <div
                       key={index}
                       className="relative flex-shrink-0 w-[400px] h-[280px] rounded-2xl overflow-hidden group"
-                      style={{ scrollSnapAlign: "center" }}
+                      style={{ scrollSnapAlign: 'center' }}
                     >
                       <img
                         src={photo}
@@ -426,7 +430,7 @@ export default function NewListingPage() {
                     <button
                       onClick={openUploadDialog}
                       className="flex-shrink-0 w-[400px] h-[280px] border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center hover:border-foreground/40 transition-colors cursor-pointer"
-                      style={{ scrollSnapAlign: "center" }}
+                      style={{ scrollSnapAlign: 'center' }}
                     >
                       <Plus className="w-10 h-10 mb-2 text-muted-foreground" />
                       <span className="text-base text-muted-foreground font-medium">
@@ -437,7 +441,7 @@ export default function NewListingPage() {
                   {roomPhotos.length > 0 && (
                     <div
                       className="flex-shrink-0"
-                      style={{ width: "max(2rem, calc((100vw - 1200px) / 2))" }}
+                      style={{ width: 'max(2rem, calc((100vw - 1200px) / 2))' }}
                       aria-hidden="true"
                     />
                   )}
@@ -445,10 +449,10 @@ export default function NewListingPage() {
               </div>
               <div className="text-center mt-4">
                 <p
-                  className={`text-sm font-medium ${roomPhotos.length >= 3 ? "text-green-600" : "text-muted-foreground"}`}
+                  className={`text-sm font-medium ${roomPhotos.length >= 3 ? 'text-green-600' : 'text-muted-foreground'}`}
                 >
                   {roomPhotos.length} / 5 枚（最低5枚必要）
-                  {roomPhotos.length >= 3 ? " ✓" : ""}
+                  {roomPhotos.length >= 3 ? ' ✓' : ''}
                 </p>
               </div>
             </div>
@@ -472,7 +476,11 @@ export default function NewListingPage() {
               <div className="w-full max-w-2xl">
                 <LocationPicker
                   onLocationSelect={setLocation}
-                  initialLocation={location ? { lat: location.lat, lng: location.lng } : undefined}
+                  initialLocation={
+                    location
+                      ? { lat: location.lat, lng: location.lng }
+                      : undefined
+                  }
                   initialAddress={location?.address}
                   initialNeighborhood={location?.neighborhood}
                   stations={stations}
@@ -535,10 +543,10 @@ export default function NewListingPage() {
                         type="button"
                         onClick={() => setLayout(option)}
                         className={cn(
-                          "px-4 py-2 rounded-full border-2 text-sm font-medium transition-all",
+                          'px-4 py-2 rounded-full border-2 text-sm font-medium transition-all',
                           layout === option
-                            ? "border-foreground bg-foreground text-white"
-                            : "border-border hover:border-foreground/40",
+                            ? 'border-foreground bg-foreground text-white'
+                            : 'border-border hover:border-foreground/40'
                         )}
                       >
                         {option}
@@ -557,10 +565,10 @@ export default function NewListingPage() {
                         type="button"
                         onClick={() => setOccupants(option.value)}
                         className={cn(
-                          "px-4 py-2 rounded-full border-2 text-sm font-medium transition-all",
+                          'px-4 py-2 rounded-full border-2 text-sm font-medium transition-all',
                           occupants === option.value
-                            ? "border-foreground bg-foreground text-white"
-                            : "border-border hover:border-foreground/40",
+                            ? 'border-foreground bg-foreground text-white'
+                            : 'border-border hover:border-foreground/40'
                         )}
                       >
                         {option.label}
@@ -600,12 +608,16 @@ export default function NewListingPage() {
                     }}
                     title={
                       viewingDate && viewingEndDate
-                        ? `${viewingDate.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })} - ${viewingEndDate.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}`
+                        ? `${viewingDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })} - ${viewingEndDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })}`
                         : viewingDate
-                        ? `${viewingDate.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}以降`
-                        : "内見可能日を選択"
+                          ? `${viewingDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })}以降`
+                          : '内見可能日を選択'
                     }
-                    subtitle={viewingEndDate ? undefined : "この日以降、内見を受け付けます"}
+                    subtitle={
+                      viewingEndDate
+                        ? undefined
+                        : 'この日以降、内見を受け付けます'
+                    }
                   />
                 </div>
 
@@ -620,12 +632,16 @@ export default function NewListingPage() {
                     }}
                     title={
                       moveInDate && moveInEndDate
-                        ? `${moveInDate.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })} - ${moveInEndDate.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}`
+                        ? `${moveInDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })} - ${moveInEndDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })}`
                         : moveInDate
-                        ? `${moveInDate.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}以降`
-                        : "引き継ぎ可能日を選択"
+                          ? `${moveInDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })}以降`
+                          : '引き継ぎ可能日を選択'
                     }
-                    subtitle={moveInEndDate ? undefined : "この日以降、引き継ぎが可能です"}
+                    subtitle={
+                      moveInEndDate
+                        ? undefined
+                        : 'この日以降、引き継ぎが可能です'
+                    }
                   />
                 </div>
               </div>
@@ -651,7 +667,8 @@ export default function NewListingPage() {
                 {/* 大型家具チェック */}
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-3">
-                    引き継ぐ大型家具（複数選択可） <span className="text-coral">*</span>
+                    引き継ぐ大型家具（複数選択可）{' '}
+                    <span className="text-coral">*</span>
                   </label>
                   <div className="grid grid-cols-4 gap-3">
                     {FURNITURE_ITEMS.map(({ id, label, Icon }) => {
@@ -664,14 +681,14 @@ export default function NewListingPage() {
                             setSelectedFurniture((prev) =>
                               isSelected
                                 ? prev.filter((f) => f !== id)
-                                : [...prev, id],
+                                : [...prev, id]
                             );
                           }}
                           className={cn(
-                            "flex flex-col items-center p-3 rounded-xl border-2 transition-all",
+                            'flex flex-col items-center p-3 rounded-xl border-2 transition-all',
                             isSelected
-                              ? "border-foreground bg-muted"
-                              : "border-border hover:border-foreground/40",
+                              ? 'border-foreground bg-muted'
+                              : 'border-border hover:border-foreground/40'
                           )}
                         >
                           <Icon
@@ -697,7 +714,7 @@ export default function NewListingPage() {
                 {/* AI見積もりカード */}
                 <EstimateCard
                   furniture={selectedFurniture}
-                  area={location?.neighborhood || "東京"}
+                  area={location?.neighborhood || '東京'}
                   rent={rent ? parseInt(rent, 10) : undefined}
                   layout={layout}
                   onEstimateComplete={(suggestedFee) => {
@@ -804,7 +821,7 @@ export default function NewListingPage() {
                   <p className="mt-1 text-base font-normal text-foreground">
                     {[location?.neighborhood, layout]
                       .filter(Boolean)
-                      .join(" / ")}
+                      .join(' / ')}
                   </p>
                 </div>
 
@@ -908,7 +925,7 @@ export default function NewListingPage() {
                             居住人数
                           </p>
                           <p className="text-base font-semibold text-foreground">
-                            {occupants === "4" ? "4人以上" : `${occupants}人`}
+                            {occupants === '4' ? '4人以上' : `${occupants}人`}
                           </p>
                         </div>
                       </div>
@@ -966,7 +983,7 @@ export default function NewListingPage() {
               key={index}
               className="h-[2px] flex-1"
               style={{
-                backgroundColor: index < currentStep ? "#222222" : "#DDDDDD",
+                backgroundColor: index < currentStep ? '#222222' : '#DDDDDD',
               }}
             />
           ))}
@@ -984,15 +1001,15 @@ export default function NewListingPage() {
             disabled={!canProceed()}
             className={`rounded-lg px-6 py-3 text-base font-medium text-white h-12 disabled:opacity-50 ${
               currentStep === totalSteps && hasDetailedAddress()
-                ? "bg-[#E61E4D] hover:bg-[#D01346]"
-                : "bg-[#222222] hover:bg-[#000000]"
+                ? 'bg-[#E61E4D] hover:bg-[#D01346]'
+                : 'bg-[#222222] hover:bg-[#000000]'
             }`}
           >
             {currentStep === totalSteps
               ? hasDetailedAddress()
-                ? "公開する"
-                : "登録する"
-              : "次へ"}
+                ? '公開する'
+                : '登録する'
+              : '次へ'}
           </Button>
         </div>
       </footer>
@@ -1019,7 +1036,7 @@ export default function NewListingPage() {
                 <p className="text-sm text-muted-foreground">
                   {pendingPhotos.length > 0
                     ? `${pendingPhotos.length}枚選択中`
-                    : "アイテムが選択されていません"}
+                    : 'アイテムが選択されていません'}
                 </p>
               </div>
               <label className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted cursor-pointer">
@@ -1070,7 +1087,7 @@ export default function NewListingPage() {
               ) : pendingPhotos.length > 0 || isLoadingFiles ? (
                 <div
                   className="overflow-x-auto scrollbar-hide"
-                  style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                   <style jsx>{`
                     .scrollbar-hide::-webkit-scrollbar {
@@ -1079,7 +1096,7 @@ export default function NewListingPage() {
                   `}</style>
                   <div
                     className="flex gap-3"
-                    style={{ minWidth: "min-content" }}
+                    style={{ minWidth: 'min-content' }}
                   >
                     {pendingPhotos.map((photo, index) => (
                       <div
@@ -1223,10 +1240,10 @@ export default function NewListingPage() {
                 onClick={handleUploadConfirm}
                 disabled={pendingPhotos.length === 0 || isUploading}
                 className={cn(
-                  "rounded-lg px-6 py-2 text-sm font-medium",
+                  'rounded-lg px-6 py-2 text-sm font-medium',
                   pendingPhotos.length > 0
-                    ? "bg-foreground text-white hover:bg-foreground/90"
-                    : "bg-[#DDDDDD] text-muted-foreground cursor-not-allowed",
+                    ? 'bg-foreground text-white hover:bg-foreground/90'
+                    : 'bg-[#DDDDDD] text-muted-foreground cursor-not-allowed'
                 )}
               >
                 アップロード

@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
-import Link from "next/link";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/auth-context";
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
+import { Header } from '@/components/header';
+import { Footer } from '@/components/footer';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/auth-context';
 import {
   Check,
   Plus,
@@ -14,22 +14,22 @@ import {
   Camera,
   ArrowLeft,
   ArrowRight,
-} from "lucide-react";
-import type { HandoverItem, ItemCondition } from "@/lib/data";
+} from 'lucide-react';
+import type { HandoverItem, ItemCondition } from '@/lib/data';
 
 // 状態のラベル
 const CONDITION_LABELS: Record<ItemCondition, string> = {
-  excellent: "非常に良い",
-  good: "良い",
-  fair: "普通",
-  poor: "使用感あり",
+  excellent: '非常に良い',
+  good: '良い',
+  fair: '普通',
+  poor: '使用感あり',
 };
 
 // カテゴリのラベル
 const CATEGORY_LABELS = {
-  furniture: "家具",
-  appliance: "家電",
-  other: "その他",
+  furniture: '家具',
+  appliance: '家電',
+  other: 'その他',
 };
 
 export default function ViewingCompletePage() {
@@ -59,8 +59,8 @@ export default function ViewingCompletePage() {
         (item, index) => ({
           id: `item-${index}`,
           name: item.type,
-          category: "furniture" as const,
-          condition: item.condition || "good",
+          category: 'furniture' as const,
+          condition: item.condition || 'good',
           photos: item.photos || [],
           notes: item.notes,
           included: true,
@@ -74,7 +74,7 @@ export default function ViewingCompletePage() {
   // 認証チェック
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/");
+      router.push('/');
     }
   }, [user, isLoading, router]);
 
@@ -82,9 +82,9 @@ export default function ViewingCompletePage() {
   const addItem = () => {
     const newItem: HandoverItem = {
       id: `item-${Date.now()}`,
-      name: "",
-      category: "furniture",
-      condition: "good",
+      name: '',
+      category: 'furniture',
+      condition: 'good',
       photos: [],
       included: true,
     };
@@ -93,9 +93,9 @@ export default function ViewingCompletePage() {
 
   // アイテム更新
   const updateItem = (id: string, updates: Partial<HandoverItem>) => {
-    setItems(items.map((item) =>
-      item.id === id ? { ...item, ...updates } : item
-    ));
+    setItems(
+      items.map((item) => (item.id === id ? { ...item, ...updates } : item))
+    );
   };
 
   // アイテム削除
@@ -109,7 +109,7 @@ export default function ViewingCompletePage() {
     // TODO: API呼び出しでHandoverAgreementを作成
     // 今はモックとしてダッシュボードに戻る
     setTimeout(() => {
-      router.push("/dashboard");
+      router.push('/dashboard');
     }, 1000);
   };
 
@@ -127,7 +127,9 @@ export default function ViewingCompletePage() {
         <Header />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <p className="text-muted-foreground">該当する情報が見つかりません</p>
+            <p className="text-muted-foreground">
+              該当する情報が見つかりません
+            </p>
             <Link href="/dashboard" className="mt-4 inline-block text-primary">
               ダッシュボードに戻る
             </Link>
@@ -226,8 +228,8 @@ export default function ViewingCompletePage() {
                     key={item.id}
                     className={`rounded-lg border p-4 ${
                       item.included
-                        ? "border-border bg-background"
-                        : "border-dashed border-muted bg-muted/30"
+                        ? 'border-border bg-background'
+                        : 'border-dashed border-muted bg-muted/30'
                     }`}
                   >
                     <div className="flex items-start gap-4">
@@ -238,8 +240,8 @@ export default function ViewingCompletePage() {
                         }
                         className={`mt-1 flex h-5 w-5 items-center justify-center rounded border ${
                           item.included
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-muted-foreground"
+                            ? 'border-primary bg-primary text-primary-foreground'
+                            : 'border-muted-foreground'
                         }`}
                       >
                         {item.included && <Check className="h-3 w-3" />}
@@ -262,16 +264,19 @@ export default function ViewingCompletePage() {
                             value={item.category}
                             onChange={(e) =>
                               updateItem(item.id, {
-                                category: e.target.value as HandoverItem["category"],
+                                category: e.target
+                                  .value as HandoverItem['category'],
                               })
                             }
                             className="rounded border border-input bg-background px-3 py-2 text-sm"
                           >
-                            {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
-                              <option key={value} value={value}>
-                                {label}
-                              </option>
-                            ))}
+                            {Object.entries(CATEGORY_LABELS).map(
+                              ([value, label]) => (
+                                <option key={value} value={value}>
+                                  {label}
+                                </option>
+                              )
+                            )}
                           </select>
 
                           <select
@@ -283,17 +288,19 @@ export default function ViewingCompletePage() {
                             }
                             className="rounded border border-input bg-background px-3 py-2 text-sm"
                           >
-                            {Object.entries(CONDITION_LABELS).map(([value, label]) => (
-                              <option key={value} value={value}>
-                                {label}
-                              </option>
-                            ))}
+                            {Object.entries(CONDITION_LABELS).map(
+                              ([value, label]) => (
+                                <option key={value} value={value}>
+                                  {label}
+                                </option>
+                              )
+                            )}
                           </select>
                         </div>
 
                         <input
                           type="text"
-                          value={item.notes || ""}
+                          value={item.notes || ''}
                           onChange={(e) =>
                             updateItem(item.id, { notes: e.target.value })
                           }
@@ -332,7 +339,9 @@ export default function ViewingCompletePage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">引越し費用</span>
-                <span className="font-medium">¥{adjustedFee.toLocaleString()}</span>
+                <span className="font-medium">
+                  ¥{adjustedFee.toLocaleString()}
+                </span>
               </div>
             </div>
           </div>
@@ -344,7 +353,7 @@ export default function ViewingCompletePage() {
             </Button>
             <Button onClick={handleSubmit} disabled={isSubmitting}>
               {isSubmitting ? (
-                "送信中..."
+                '送信中...'
               ) : (
                 <>
                   内容を確定して送信

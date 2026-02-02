@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
-import Link from "next/link";
-import { useAuth } from "@/contexts/auth-context";
-import { Button } from "@/components/ui/button";
-import { furnitureLabels } from "@/lib/data";
-import type { LargeFurnitureType } from "@/lib/data";
+import { useEffect, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
+import { useAuth } from '@/contexts/auth-context';
+import { Button } from '@/components/ui/button';
+import { furnitureLabels } from '@/lib/data';
+import type { LargeFurnitureType } from '@/lib/data';
 import {
   ArrowLeft,
   Edit2,
@@ -24,7 +24,7 @@ import {
   Coffee,
   Users,
   LucideIcon,
-} from "lucide-react";
+} from 'lucide-react';
 
 // 家具アイコン
 const FURNITURE_ICONS: Record<LargeFurnitureType, LucideIcon> = {
@@ -50,13 +50,13 @@ export default function PreviewListingPage() {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/");
+      router.push('/');
     }
   }, [user, isLoading, router]);
 
   useEffect(() => {
     if (!isLoading && user && listing && listing.userId !== user.id) {
-      router.push("/listing");
+      router.push('/listing');
     }
   }, [user, isLoading, listing, router]);
 
@@ -64,7 +64,7 @@ export default function PreviewListingPage() {
     setIsPublishing(true);
     publishListing(listingId);
     setTimeout(() => {
-      router.push("/listing");
+      router.push('/listing');
     }, 500);
   };
 
@@ -119,7 +119,7 @@ export default function PreviewListingPage() {
         <div className="mx-auto max-w-4xl px-6 pt-6 flex items-center justify-between">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-full">
             <span className="text-sm font-medium text-amber-800">
-              {listing.status === "published" ? "公開中" : "プレビュー表示中"}
+              {listing.status === 'published' ? '公開中' : 'プレビュー表示中'}
             </span>
           </div>
           <Link href={`/listing/${listing.id}/edit`}>
@@ -162,9 +162,9 @@ export default function PreviewListingPage() {
               {listing.title}
             </h1>
             <p className="mt-1 text-base font-normal text-foreground">
-              {[listing.area?.replace(/区/, "区 / "), listing.layout]
+              {[listing.area?.replace(/区/, '区 / '), listing.layout]
                 .filter(Boolean)
-                .join(" / ")}
+                .join(' / ')}
             </p>
           </div>
 
@@ -262,7 +262,9 @@ export default function PreviewListingPage() {
                       居住人数
                     </p>
                     <p className="text-base font-semibold text-foreground">
-                      {listing.occupants === 4 ? "4人以上" : `${listing.occupants}人`}
+                      {listing.occupants === 4
+                        ? '4人以上'
+                        : `${listing.occupants}人`}
                     </p>
                   </div>
                 </div>
@@ -313,7 +315,7 @@ export default function PreviewListingPage() {
       </main>
 
       {/* 固定フッター - 公開ボタン（下書きの場合のみ表示） */}
-      {listing.status !== "published" && (
+      {listing.status !== 'published' && (
         <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-border">
           <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
             <div>
@@ -326,7 +328,7 @@ export default function PreviewListingPage() {
               disabled={isPublishing}
               className="rounded-lg bg-[#E61E4D] hover:bg-[#D01346] text-white px-8 py-3 h-12 text-base font-medium"
             >
-              {isPublishing ? "公開中..." : "公開する"}
+              {isPublishing ? '公開中...' : '公開する'}
             </Button>
           </div>
         </footer>

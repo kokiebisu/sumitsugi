@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import type { UserListing } from "@/lib/data";
-import { FileText, Download, Check } from "lucide-react";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import type { UserListing } from '@/lib/data';
+import { FileText, Download, Check } from 'lucide-react';
 
 interface HandoverAgreementSummaryProps {
   listing: UserListing;
@@ -14,17 +14,17 @@ interface HandoverAgreementSummaryProps {
 
 // 家具・家電のラベル
 const ITEM_LABELS: Record<string, string> = {
-  bed: "ベッド",
-  sofa: "ソファ",
-  desk: "デスク",
-  storage: "収納",
-  table: "テーブル",
-  wardrobe: "ワードローブ",
-  tv: "テレビ台",
-  fridge: "冷蔵庫",
-  washer: "洗濯機",
-  dryer: "乾燥機",
-  ac: "エアコン",
+  bed: 'ベッド',
+  sofa: 'ソファ',
+  desk: 'デスク',
+  storage: '収納',
+  table: 'テーブル',
+  wardrobe: 'ワードローブ',
+  tv: 'テレビ台',
+  fridge: '冷蔵庫',
+  washer: '洗濯機',
+  dryer: '乾燥機',
+  ac: 'エアコン',
 };
 
 export function HandoverAgreementSummary({
@@ -39,10 +39,10 @@ export function HandoverAgreementSummary({
   const furniture = listing.furniture || [];
   const allItems = [...furniture];
   const fee = agreedFee ?? listing.handoverFee ?? 0;
-  const today = new Date().toLocaleDateString("ja-JP", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+  const today = new Date().toLocaleDateString('ja-JP', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
   });
 
   const generateSummaryText = () => {
@@ -55,15 +55,15 @@ export function HandoverAgreementSummary({
 
 【当事者】
 譲渡者（前入居者）: ${hostName}
-譲受者（次入居者）: ${applicantName || "（未定）"}
+譲受者（次入居者）: ${applicantName || '（未定）'}
 
 【物件情報】
 物件名: ${listing.title}
-エリア: ${listing.area || "未設定"}
-間取り: ${listing.layout || "未設定"}
+エリア: ${listing.area || '未設定'}
+間取り: ${listing.layout || '未設定'}
 
 【譲渡対象物】
-${allItems.map((item: string) => `- ${ITEM_LABELS[item] || item}`).join("\n")}
+${allItems.map((item: string) => `- ${ITEM_LABELS[item] || item}`).join('\n')}
 
 【譲渡金額】
 ${fee.toLocaleString()}円
@@ -111,9 +111,9 @@ ${fee.toLocaleString()}円
 
   const handleDownload = () => {
     const text = generateSummaryText();
-    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
     a.download = `譲渡合意サマリー_${listing.title}_${today}.txt`;
     document.body.appendChild(a);

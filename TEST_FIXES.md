@@ -9,6 +9,7 @@
 ### 1. localStorage SecurityError (13 failures)
 
 **Error:**
+
 ```
 SecurityError: Failed to read the 'localStorage' property from 'Window':
 Access is denied for this document.
@@ -18,6 +19,7 @@ Access is denied for this document.
 `clearLocalStorage()` is called BEFORE `page.goto()`, when the page is at `about:blank` which doesn't have localStorage access.
 
 **Affected Files:**
+
 - `tests/e2e/auth/authentication.spec.ts` (11 tests)
 - `tests/e2e/listing/listing-management.spec.ts` (2 tests)
 
@@ -56,6 +58,7 @@ Tests navigate to protected pages (`/listing/new`, `/listing`) BEFORE setting up
 When navigating to `/listing/new`, page snapshot shows home page content (property listings by district), not the listing creation form.
 
 **Affected Tests:**
+
 - Create Listing navigation tests (3 failures)
 - Listing management tests (2 failures)
 - Property detail tests (2 failures)
@@ -89,7 +92,10 @@ Update `setupAuthenticatedUser` to NOT reload if already on the target page:
 
 ```typescript
 // tests/e2e/fixtures/test-fixtures.ts
-export async function setupAuthenticatedUser(page: any, user = testData.users.testUser) {
+export async function setupAuthenticatedUser(
+  page: any,
+  user = testData.users.testUser
+) {
   await page.evaluate((userData: typeof user) => {
     const mockUser = {
       id: 'test-user-' + Date.now(),
@@ -99,13 +105,16 @@ export async function setupAuthenticatedUser(page: any, user = testData.users.te
       createdAt: new Date().toISOString(),
       authProvider: 'email',
       isSeller: false,
-    }
-    localStorage.setItem('tsumugi_user', JSON.stringify(mockUser))
-  }, user)
+    };
+    localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+  }, user);
   // Only reload if necessary - check current URL first
-  const currentUrl = page.url()
-  if (currentUrl.includes('about:blank') || currentUrl === 'http://localhost:3000/') {
-    await page.reload()
+  const currentUrl = page.url();
+  if (
+    currentUrl.includes('about:blank') ||
+    currentUrl === 'http://localhost:3000/'
+  ) {
+    await page.reload();
   }
 }
 ```
@@ -113,6 +122,7 @@ export async function setupAuthenticatedUser(page: any, user = testData.users.te
 ### 3. Dev Server Not Running (Root Cause for All Failures)
 
 **Error:**
+
 ```
 Error: connect ECONNREFUSED 127.0.0.1:3000
 ```
@@ -121,6 +131,7 @@ Error: connect ECONNREFUSED 127.0.0.1:3000
 Port 3000 is not in use. Playwright's `webServer` config should auto-start the dev server, but it's failing in the devcontainer environment.
 
 **Verification:**
+
 ```bash
 $ ps aux | grep 'next\|node.*dev'  # No Next.js process
 $ lsof -i :3000                     # Port 3000 not in use
@@ -129,6 +140,7 @@ $ lsof -i :3000                     # Port 3000 not in use
 **Fix Option 1: Manual Dev Server**
 
 Start the dev server manually before running tests:
+
 ```bash
 # Terminal 1
 npm run dev
@@ -159,28 +171,29 @@ export default defineConfig({
 ```typescript
 // tests/e2e/fixtures/test-fixtures.ts
 export async function waitForServer(url: string, timeout = 30000) {
-  const start = Date.now()
+  const start = Date.now();
   while (Date.now() - start < timeout) {
     try {
-      const response = await fetch(url)
-      if (response.ok) return
+      const response = await fetch(url);
+      if (response.ok) return;
     } catch {
       // Server not ready
     }
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
-  throw new Error(`Server at ${url} did not start within ${timeout}ms`)
+  throw new Error(`Server at ${url} did not start within ${timeout}ms`);
 }
 
 // Use in test setup
 test.beforeAll(async () => {
-  await waitForServer('http://localhost:3000')
-})
+  await waitForServer('http://localhost:3000');
+});
 ```
 
 ## Selector Issues (3 failures)
 
 **Affected Tests:**
+
 - Property detail: `getLayout()` returns null
 - Listing management: empty state scrolling images
 
@@ -207,17 +220,20 @@ async getLayout(): Promise<string | null> {
 ## Action Items
 
 ### Immediate (Fix Dev Server)
+
 1. ✅ Start dev server manually: `npm run dev`
 2. ✅ Verify it's running: `curl http://localhost:3000`
 3. ✅ Run tests: `npx playwright test`
 
 ### Short-term (Fix Tests)
+
 1. 🔧 Update `clearLocalStorage()` with try-catch
 2. 🔧 Reorder `beforeEach` blocks (navigate first, then clear)
 3. 🔧 Fix auth setup timing for protected routes
 4. 🔧 Update selectors for failing assertions
 
 ### Long-term (Improve CI)
+
 1. 📝 Add server health check helper
 2. 📝 Update Playwright config for devcontainer
 3. 📝 Add data-testid attributes to critical elements

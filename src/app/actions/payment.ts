@@ -4,7 +4,12 @@ import { stripe } from '@/lib/stripe/server';
 import { calculateDeposit, calculateFeeBreakdown } from '@/lib/stripe/server';
 import { STRIPE_CONFIG } from '@/lib/stripe/config';
 import { db } from '@/db';
-import { payments, transactions, stripeAccounts, properties } from '@/db/schema';
+import {
+  payments,
+  transactions,
+  stripeAccounts,
+  properties,
+} from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
@@ -46,7 +51,8 @@ export async function createApplicationFeePayment(
     if (!previousTenantAccount.chargesEnabled) {
       return {
         success: false,
-        error: 'Previous tenant Stripe account is not ready to receive payments',
+        error:
+          'Previous tenant Stripe account is not ready to receive payments',
       };
     }
 
@@ -152,7 +158,8 @@ export async function processApplicationFeeTransfer(
     await db.insert(transactions).values({
       paymentId: payment.id,
       recipientType: 'seller',
-      recipientId: (payment.metadata as { previousTenantId?: string })?.previousTenantId,
+      recipientId: (payment.metadata as { previousTenantId?: string })
+        ?.previousTenantId,
       amount: payment.amount,
       stripeTransferId: charge.transfer as string | null,
       status: 'completed',

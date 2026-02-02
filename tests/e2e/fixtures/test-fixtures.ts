@@ -1,62 +1,62 @@
-import { test as base, expect } from '@playwright/test'
-import { HomePage } from '../pages/HomePage'
-import { PropertyDetailPage } from '../pages/PropertyDetailPage'
-import { AuthPage } from '../pages/AuthPage'
-import { ListingPage } from '../pages/ListingPage'
-import { NewListingPage } from '../pages/NewListingPage'
-import { PaymentPage } from '../pages/PaymentPage'
-import { PaymentConfirmationPage } from '../pages/PaymentConfirmationPage'
-import { DashboardPage } from '../pages/DashboardPage'
+import { test as base, expect } from '@playwright/test';
+import { HomePage } from '../pages/HomePage';
+import { PropertyDetailPage } from '../pages/PropertyDetailPage';
+import { AuthPage } from '../pages/AuthPage';
+import { ListingPage } from '../pages/ListingPage';
+import { NewListingPage } from '../pages/NewListingPage';
+import { PaymentPage } from '../pages/PaymentPage';
+import { PaymentConfirmationPage } from '../pages/PaymentConfirmationPage';
+import { DashboardPage } from '../pages/DashboardPage';
 
 /**
  * Custom test fixtures for tsumugi E2E tests
  * Provides pre-configured page objects for all tests
  */
 export const test = base.extend<{
-  homePage: HomePage
-  propertyDetailPage: PropertyDetailPage
-  authPage: AuthPage
-  listingPage: ListingPage
-  newListingPage: NewListingPage
-  paymentPage: PaymentPage
-  paymentConfirmationPage: PaymentConfirmationPage
-  dashboardPage: DashboardPage
+  homePage: HomePage;
+  propertyDetailPage: PropertyDetailPage;
+  authPage: AuthPage;
+  listingPage: ListingPage;
+  newListingPage: NewListingPage;
+  paymentPage: PaymentPage;
+  paymentConfirmationPage: PaymentConfirmationPage;
+  dashboardPage: DashboardPage;
 }>({
   homePage: async ({ page }, use) => {
-    const homePage = new HomePage(page)
-    await use(homePage)
+    const homePage = new HomePage(page);
+    await use(homePage);
   },
   propertyDetailPage: async ({ page }, use) => {
-    const propertyDetailPage = new PropertyDetailPage(page)
-    await use(propertyDetailPage)
+    const propertyDetailPage = new PropertyDetailPage(page);
+    await use(propertyDetailPage);
   },
   authPage: async ({ page }, use) => {
-    const authPage = new AuthPage(page)
-    await use(authPage)
+    const authPage = new AuthPage(page);
+    await use(authPage);
   },
   listingPage: async ({ page }, use) => {
-    const listingPage = new ListingPage(page)
-    await use(listingPage)
+    const listingPage = new ListingPage(page);
+    await use(listingPage);
   },
   newListingPage: async ({ page }, use) => {
-    const newListingPage = new NewListingPage(page)
-    await use(newListingPage)
+    const newListingPage = new NewListingPage(page);
+    await use(newListingPage);
   },
   paymentPage: async ({ page }, use) => {
-    const paymentPage = new PaymentPage(page)
-    await use(paymentPage)
+    const paymentPage = new PaymentPage(page);
+    await use(paymentPage);
   },
   paymentConfirmationPage: async ({ page }, use) => {
-    const paymentConfirmationPage = new PaymentConfirmationPage(page)
-    await use(paymentConfirmationPage)
+    const paymentConfirmationPage = new PaymentConfirmationPage(page);
+    await use(paymentConfirmationPage);
   },
   dashboardPage: async ({ page }, use) => {
-    const dashboardPage = new DashboardPage(page)
-    await use(dashboardPage)
+    const dashboardPage = new DashboardPage(page);
+    await use(dashboardPage);
   },
-})
+});
 
-export { expect }
+export { expect };
 
 /**
  * Test data for various scenarios
@@ -87,13 +87,7 @@ export const testData = {
   },
 
   // Tokyo districts that should appear on home page
-  districts: [
-    '渋谷区',
-    '目黒区',
-    '港区',
-    '世田谷区',
-    '杉並区',
-  ],
+  districts: ['渋谷区', '目黒区', '港区', '世田谷区', '杉並区'],
 
   // Layout options
   layouts: ['1R', '1K', '1DK', '1LDK', '2K', '2DK', '2LDK'],
@@ -126,7 +120,7 @@ export const testData = {
     // Fee configuration (mirrors STRIPE_CONFIG)
     fees: {
       applicationFee: 20000, // 20,000 yen
-      depositRate: 0.30, // 30%
+      depositRate: 0.3, // 30%
       depositMin: 30000, // Min 30,000 yen
       depositMax: 50000, // Max 50,000 yen
       cleaningFee: 8000, // 8,000 yen
@@ -139,28 +133,33 @@ export const testData = {
     testCvc: '123',
     testPostal: '12345',
   },
-}
+};
 
 /**
  * Stripe test card helper
  */
-export const stripeTestCards = testData.payment.cards
+export const stripeTestCards = testData.payment.cards;
 
 /**
  * Helper to clear localStorage (for clean test state)
  */
 export async function clearLocalStorage(page: any) {
-  await page.evaluate(() => {
-    localStorage.clear()
-  }).catch(() => {
-    // Ignore if localStorage is not accessible (e.g., about:blank or file://)
-  })
+  await page
+    .evaluate(() => {
+      localStorage.clear();
+    })
+    .catch(() => {
+      // Ignore if localStorage is not accessible (e.g., about:blank or file://)
+    });
 }
 
 /**
  * Helper to set up authenticated user state
  */
-export async function setupAuthenticatedUser(page: any, user = testData.users.testUser) {
+export async function setupAuthenticatedUser(
+  page: any,
+  user = testData.users.testUser
+) {
   // Add localStorage state before navigating
   await page.addInitScript((userData: typeof user) => {
     const mockUser = {
@@ -171,21 +170,24 @@ export async function setupAuthenticatedUser(page: any, user = testData.users.te
       createdAt: new Date().toISOString(),
       authProvider: 'email',
       isSeller: false,
-    }
-    localStorage.setItem('tsumugi_user', JSON.stringify(mockUser))
-  }, user)
+    };
+    localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+  }, user);
 
   // Reload the page so the init script runs
-  await page.reload()
-  await page.waitForLoadState('networkidle')
+  await page.reload();
+  await page.waitForLoadState('networkidle');
   // Give React time to hydrate and initialize auth context
-  await page.waitForTimeout(500)
+  await page.waitForTimeout(500);
 }
 
 /**
  * Helper to set up authenticated seller user state
  */
-export async function setupAuthenticatedSeller(page: any, user = testData.users.seller) {
+export async function setupAuthenticatedSeller(
+  page: any,
+  user = testData.users.seller
+) {
   // Add localStorage state before navigating
   await page.addInitScript((userData: typeof user) => {
     const mockUser = {
@@ -201,21 +203,24 @@ export async function setupAuthenticatedSeller(page: any, user = testData.users.
         bio: 'Test seller bio',
         sellerSince: new Date().toISOString(),
       },
-    }
-    localStorage.setItem('tsumugi_user', JSON.stringify(mockUser))
-  }, user)
+    };
+    localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+  }, user);
 
   // Reload the page so the init script runs
-  await page.reload()
-  await page.waitForLoadState('networkidle')
+  await page.reload();
+  await page.waitForLoadState('networkidle');
   // Give React time to hydrate and initialize auth context
-  await page.waitForTimeout(500)
+  await page.waitForTimeout(500);
 }
 
 /**
  * Helper to set up authenticated buyer user state (for payment testing)
  */
-export async function setupAuthenticatedBuyer(page: any, user = testData.users.buyer) {
+export async function setupAuthenticatedBuyer(
+  page: any,
+  user = testData.users.buyer
+) {
   await page.addInitScript((userData: typeof user) => {
     const mockUser = {
       id: 'test-buyer-' + Date.now(),
@@ -225,20 +230,23 @@ export async function setupAuthenticatedBuyer(page: any, user = testData.users.b
       createdAt: new Date().toISOString(),
       authProvider: 'email',
       isSeller: false,
-    }
-    localStorage.setItem('tsumugi_user', JSON.stringify(mockUser))
-  }, user)
+    };
+    localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+  }, user);
 
-  await page.reload()
-  await page.waitForLoadState('networkidle')
-  await page.waitForTimeout(500)
+  await page.reload();
+  await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(500);
 }
 
 /**
  * Helper to mock Stripe API responses for testing
  * Use this for testing error scenarios without hitting real Stripe
  */
-export async function mockStripeResponse(page: any, scenario: 'success' | 'decline' | 'error' | 'auth_required') {
+export async function mockStripeResponse(
+  page: any,
+  scenario: 'success' | 'decline' | 'error' | 'auth_required'
+) {
   const responses: Record<string, { status: number; body: any }> = {
     success: {
       status: 200,
@@ -278,26 +286,31 @@ export async function mockStripeResponse(page: any, scenario: 'success' | 'decli
         },
       },
     },
-  }
+  };
 
   await page.route('**/api/actions/payment**', (route: any) => {
     route.fulfill({
       status: responses[scenario].status,
       contentType: 'application/json',
       body: JSON.stringify(responses[scenario].body),
-    })
-  })
+    });
+  });
 }
 
 /**
  * Helper to wait for Stripe Elements to be ready
  */
-export async function waitForStripeElements(page: any, timeout: number = 20000) {
+export async function waitForStripeElements(
+  page: any,
+  timeout: number = 20000
+) {
   // Wait for Stripe iframe to appear
-  await page.waitForSelector('iframe[name*="__privateStripeFrame"]', { timeout })
+  await page.waitForSelector('iframe[name*="__privateStripeFrame"]', {
+    timeout,
+  });
 
   // Wait a bit for Stripe Elements to initialize
-  await page.waitForTimeout(1000)
+  await page.waitForTimeout(1000);
 }
 
 /**
@@ -314,27 +327,33 @@ export async function fillStripeCardDetails(
   // This is a simplified helper - actual implementation may vary based on Stripe Elements version
 
   // Get all Stripe iframes
-  const frames = page.frames()
+  const frames = page.frames();
 
   for (const frame of frames) {
-    const name = frame.name()
+    const name = frame.name();
     if (name.includes('__privateStripeFrame')) {
       // Try to fill card number
-      const cardInput = await frame.$('[name="cardnumber"], input[placeholder*="card" i]')
+      const cardInput = await frame.$(
+        '[name="cardnumber"], input[placeholder*="card" i]'
+      );
       if (cardInput) {
-        await cardInput.fill(cardNumber)
+        await cardInput.fill(cardNumber);
       }
 
       // Try to fill expiry
-      const expiryInput = await frame.$('[name="exp-date"], input[placeholder*="MM" i]')
+      const expiryInput = await frame.$(
+        '[name="exp-date"], input[placeholder*="MM" i]'
+      );
       if (expiryInput) {
-        await expiryInput.fill(expiry)
+        await expiryInput.fill(expiry);
       }
 
       // Try to fill CVC
-      const cvcInput = await frame.$('[name="cvc"], input[placeholder*="CVC" i]')
+      const cvcInput = await frame.$(
+        '[name="cvc"], input[placeholder*="CVC" i]'
+      );
       if (cvcInput) {
-        await cvcInput.fill(cvc)
+        await cvcInput.fill(cvc);
       }
     }
   }
@@ -344,19 +363,23 @@ export async function fillStripeCardDetails(
  * Helper to calculate expected fees (mirrors server-side calculations)
  */
 export function calculateExpectedFees(handoverFeeTotal: number) {
-  const { fees } = testData.payment
+  const { fees } = testData.payment;
 
-  const additionalCleaningFee = fees.cleaningFee
+  const additionalCleaningFee = fees.cleaningFee;
   const landlordIncentive = Math.max(
     Math.round(handoverFeeTotal * fees.landlordIncentiveRate),
     fees.landlordIncentiveMin
-  )
-  const platformFee = Math.round(handoverFeeTotal * fees.platformFeeRate)
-  const sellerReceives = handoverFeeTotal - additionalCleaningFee - landlordIncentive - platformFee
-  const applicationFee = fees.applicationFee
-  const depositRaw = Math.round(handoverFeeTotal * fees.depositRate)
-  const deposit = Math.min(Math.max(depositRaw, fees.depositMin), fees.depositMax)
-  const remaining = handoverFeeTotal - deposit
+  );
+  const platformFee = Math.round(handoverFeeTotal * fees.platformFeeRate);
+  const sellerReceives =
+    handoverFeeTotal - additionalCleaningFee - landlordIncentive - platformFee;
+  const applicationFee = fees.applicationFee;
+  const depositRaw = Math.round(handoverFeeTotal * fees.depositRate);
+  const deposit = Math.min(
+    Math.max(depositRaw, fees.depositMin),
+    fees.depositMax
+  );
+  const remaining = handoverFeeTotal - deposit;
 
   return {
     handoverFeeTotal,
@@ -367,5 +390,5 @@ export function calculateExpectedFees(handoverFeeTotal: number) {
     applicationFee,
     deposit,
     remaining,
-  }
+  };
 }

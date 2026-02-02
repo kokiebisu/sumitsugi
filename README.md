@@ -38,6 +38,7 @@ tsumugi connects people leaving their homes ("前の住人" - previous residents
 This project uses VS Code devcontainers for a consistent development environment.
 
 **Required Docker Configuration:**
+
 - **Swap:** 4GB minimum (prevents OOM kills during Claude sessions)
   - Docker Desktop: Settings → Resources → Swap → Set to 4GB
   - Background services (TypeScript, ESLint) and Claude sessions can consume significant memory
@@ -100,6 +101,7 @@ Auto-installed in the devcontainer with persistent authentication:
 ### E2E Test Reports
 
 View latest test results with screenshots, videos, and traces:
+
 - **GitHub Pages:** https://kokiebisu.github.io/tsumugi/e2e-reports/
 
 Tests run automatically on every PR and push to main.
@@ -135,6 +137,7 @@ LINEAR_API_KEY=your_key_here    # Linear API for issue tracking sync
 ```
 
 Load before running commands that need API keys:
+
 ```bash
 source .env.local
 ```
@@ -146,11 +149,13 @@ source .env.local
 This project uses git worktrees for isolated development to prevent accidental file inclusion in commits:
 
 **When to use worktrees:**
+
 - Implementing features or fixes when other files are modified
 - Making changes that should be isolated from current workspace
 - Working on multiple branches simultaneously
 
 **Workflow:**
+
 ```bash
 # Create worktree for new branch
 npm run worktree:create feature-name
@@ -177,11 +182,13 @@ See `.devcontainer/WORKTREE.md` for detailed documentation.
 **GitHub auto-delete:** Branches are automatically deleted after PR merge on GitHub.
 
 **Daily cleanup (GitHub Actions):**
+
 - Runs daily at 00:00 UTC
 - Deletes merged branches and branches marked as [gone]
 - Can be manually triggered: `gh workflow run "Cleanup Merged Branches"`
 
 **Local cleanup:**
+
 ```bash
 npm run cleanup:branches  # Delete merged and [gone] branches
 npm run cleanup:all       # Full cleanup (branches + worktrees + stashes)
@@ -192,6 +199,7 @@ npm run cleanup:all       # Full cleanup (branches + worktrees + stashes)
 ### Daily Requirements Audit
 
 Runs daily at 9:00 AM JST via GitHub Actions:
+
 1. Compares REQUIREMENTS.md / BUSINESS.md with actual code using Claude API
 2. Detects implementation gaps
 3. Creates Beads tasks for any gaps found
@@ -200,6 +208,7 @@ Runs daily at 9:00 AM JST via GitHub Actions:
 6. Skips PR creation entirely if no gaps found
 
 **Manual trigger:**
+
 ```bash
 gh workflow run "Requirements Audit"
 ```

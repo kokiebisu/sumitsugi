@@ -11,6 +11,7 @@ Create focused pull requests with changes grouped logically and limited to 200 l
 ## Step 2: Group Changes
 
 Analyze all changes and group them by:
+
 - **Feature**: Related functionality (e.g., "location picker", "date range picker")
 - **Type**: Similar change types (e.g., "type fixes", "dependency updates")
 - **Domain**: Same domain area (e.g., "auth", "listing", "admin")
@@ -20,11 +21,13 @@ For each group, calculate total line changes (additions + deletions).
 ## Step 3: Split if Needed
 
 If any group exceeds 200 lines:
+
 - Split into smaller logical units
 - Each PR should be independently reviewable
 - Maintain dependency order (base changes first)
 
 Present groups to user:
+
 ```
 Group 1: feat: add location picker (156 lines)
   - src/components/location-picker.tsx (+120, -0)
@@ -42,16 +45,19 @@ Ask user to confirm or adjust groupings.
 Before pushing, verify all tests pass:
 
 1. **Run test suite**:
+
    ```bash
    pnpm test
    ```
 
 2. **Run type check**:
+
    ```bash
    pnpm tsc --noEmit
    ```
 
 3. **Run linter**:
+
    ```bash
    pnpm lint
    ```
@@ -62,6 +68,7 @@ Before pushing, verify all tests pass:
    ```
 
 If any test fails:
+
 - **STOP** - Do not proceed with PR creation
 - Report the failing tests to user
 - Ask user how to proceed (fix issues or skip PR)
@@ -73,11 +80,13 @@ If any test fails:
 For each approved group:
 
 1. **Create branch** (if needed):
+
    ```bash
    git checkout -b <type>/<short-description>
    ```
 
 2. **Stage only group files**:
+
    ```bash
    git add <file1> <file2> ...
    ```
@@ -93,11 +102,13 @@ For each approved group:
    - `ci:` - CI/CD
 
 4. **Push branch**:
+
    ```bash
    git push -u origin HEAD
    ```
 
 5. **Immediately create PR** (DO NOT SKIP THIS):
+
    ```bash
    gh pr create --title "<type>: <description>" --body "$(cat <<'EOF'
    ## Summary
@@ -123,6 +134,7 @@ For each approved group:
 After PR is created:
 
 1. **Monitor CI checks**:
+
    ```bash
    gh pr checks <pr-number>
    ```
@@ -130,6 +142,7 @@ After PR is created:
 2. **Wait for all checks to pass** - Do NOT proceed if any check fails
 
 3. **Merge PR and delete remote branch**:
+
    ```bash
    gh pr merge <pr-number> --squash --delete-branch
    ```
@@ -137,6 +150,7 @@ After PR is created:
    This deletes the **remote branch** on GitHub.
 
 4. **Clean up local workspace**:
+
    ```bash
    # Switch to main (if not already there)
    git checkout main

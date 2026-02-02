@@ -96,13 +96,9 @@
         "accounts_user_id_users_id_fk": {
           "name": "accounts_user_id_users_id_fk",
           "tableFrom": "accounts",
-          "columnsFrom": [
-            "user_id"
-          ],
+          "columnsFrom": ["user_id"],
           "tableTo": "users",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "cascade"
         }
@@ -110,10 +106,7 @@
       "compositePrimaryKeys": {
         "accounts_provider_provider_account_id_pk": {
           "name": "accounts_provider_provider_account_id_pk",
-          "columns": [
-            "provider",
-            "provider_account_id"
-          ]
+          "columns": ["provider", "provider_account_id"]
         }
       },
       "uniqueConstraints": {},
@@ -275,26 +268,18 @@
         "inquiries_property_id_properties_id_fk": {
           "name": "inquiries_property_id_properties_id_fk",
           "tableFrom": "inquiries",
-          "columnsFrom": [
-            "property_id"
-          ],
+          "columnsFrom": ["property_id"],
           "tableTo": "properties",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "cascade"
         },
         "inquiries_user_id_users_id_fk": {
           "name": "inquiries_user_id_users_id_fk",
           "tableFrom": "inquiries",
-          "columnsFrom": [
-            "user_id"
-          ],
+          "columnsFrom": ["user_id"],
           "tableTo": "users",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "set null"
         }
@@ -461,26 +446,18 @@
         "payments_property_id_properties_id_fk": {
           "name": "payments_property_id_properties_id_fk",
           "tableFrom": "payments",
-          "columnsFrom": [
-            "property_id"
-          ],
+          "columnsFrom": ["property_id"],
           "tableTo": "properties",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "cascade"
         },
         "payments_user_id_users_id_fk": {
           "name": "payments_user_id_users_id_fk",
           "tableFrom": "payments",
-          "columnsFrom": [
-            "user_id"
-          ],
+          "columnsFrom": ["user_id"],
           "tableTo": "users",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "cascade"
         }
@@ -489,9 +466,7 @@
       "uniqueConstraints": {
         "payments_stripe_payment_intent_id_unique": {
           "name": "payments_stripe_payment_intent_id_unique",
-          "columns": [
-            "stripe_payment_intent_id"
-          ],
+          "columns": ["stripe_payment_intent_id"],
           "nullsNotDistinct": false
         }
       },
@@ -774,13 +749,9 @@
         "properties_user_id_users_id_fk": {
           "name": "properties_user_id_users_id_fk",
           "tableFrom": "properties",
-          "columnsFrom": [
-            "user_id"
-          ],
+          "columnsFrom": ["user_id"],
           "tableTo": "users",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "cascade"
         }
@@ -854,13 +825,9 @@
         "seller_profiles_user_id_users_id_fk": {
           "name": "seller_profiles_user_id_users_id_fk",
           "tableFrom": "seller_profiles",
-          "columnsFrom": [
-            "user_id"
-          ],
+          "columnsFrom": ["user_id"],
           "tableTo": "users",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "cascade"
         }
@@ -869,9 +836,7 @@
       "uniqueConstraints": {
         "seller_profiles_user_id_unique": {
           "name": "seller_profiles_user_id_unique",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "nullsNotDistinct": false
         }
       },
@@ -923,13 +888,9 @@
         "sessions_user_id_users_id_fk": {
           "name": "sessions_user_id_users_id_fk",
           "tableFrom": "sessions",
-          "columnsFrom": [
-            "user_id"
-          ],
+          "columnsFrom": ["user_id"],
           "tableTo": "users",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "cascade"
         }
@@ -1049,13 +1010,9 @@
         "stripe_accounts_user_id_users_id_fk": {
           "name": "stripe_accounts_user_id_users_id_fk",
           "tableFrom": "stripe_accounts",
-          "columnsFrom": [
-            "user_id"
-          ],
+          "columnsFrom": ["user_id"],
           "tableTo": "users",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "cascade"
         }
@@ -1064,16 +1021,12 @@
       "uniqueConstraints": {
         "stripe_accounts_user_id_unique": {
           "name": "stripe_accounts_user_id_unique",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "nullsNotDistinct": false
         },
         "stripe_accounts_stripe_account_id_unique": {
           "name": "stripe_accounts_stripe_account_id_unique",
-          "columns": [
-            "stripe_account_id"
-          ],
+          "columns": ["stripe_account_id"],
           "nullsNotDistinct": false
         }
       },
@@ -1216,13 +1169,9 @@
         "transactions_payment_id_payments_id_fk": {
           "name": "transactions_payment_id_payments_id_fk",
           "tableFrom": "transactions",
-          "columnsFrom": [
-            "payment_id"
-          ],
+          "columnsFrom": ["payment_id"],
           "tableTo": "payments",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "cascade"
         }
@@ -1322,9 +1271,7 @@
       "uniqueConstraints": {
         "users_email_unique": {
           "name": "users_email_unique",
-          "columns": [
-            "email"
-          ],
+          "columns": ["email"],
           "nullsNotDistinct": false
         }
       },
@@ -1360,10 +1307,7 @@
       "compositePrimaryKeys": {
         "verification_tokens_identifier_token_pk": {
           "name": "verification_tokens_identifier_token_pk",
-          "columns": [
-            "identifier",
-            "token"
-          ]
+          "columns": ["identifier", "token"]
         }
       },
       "uniqueConstraints": {},

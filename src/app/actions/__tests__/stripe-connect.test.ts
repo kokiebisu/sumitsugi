@@ -191,9 +191,7 @@ describe('Stripe Connect Actions', () => {
     });
 
     it('should handle Stripe API errors when creating link', async () => {
-      mockAccountLinksCreate.mockRejectedValue(
-        new Error('Account not found')
-      );
+      mockAccountLinksCreate.mockRejectedValue(new Error('Account not found'));
 
       const result = await getConnectAccountOnboardingLink(
         'acct_invalid',

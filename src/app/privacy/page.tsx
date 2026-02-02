@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "プライバシーポリシー | tsumugi",
-  description: "tsumugiのプライバシーポリシー - 個人情報の取り扱いについて",
+  title: 'プライバシーポリシー | tsumugi',
+  description: 'tsumugiのプライバシーポリシー - 個人情報の取り扱いについて',
 };
 
 export default function PrivacyPage() {
@@ -33,7 +33,7 @@ export default function PrivacyPage() {
               <strong>所在地:</strong> 〒000-0000 東京都（準備中）
             </p>
             <p>
-              <strong>お問い合わせ:</strong>{" "}
+              <strong>お問い合わせ:</strong>{' '}
               <a
                 href="mailto:privacy@tsumugi.example.com"
                 className="text-primary hover:underline"
@@ -49,9 +49,7 @@ export default function PrivacyPage() {
           <h2 className="mb-4 text-2xl font-semibold text-foreground">
             2. 収集する個人情報
           </h2>
-          <p className="mb-3">
-            本サービスでは、以下の個人情報を収集します。
-          </p>
+          <p className="mb-3">本サービスでは、以下の個人情報を収集します。</p>
           <div className="space-y-4">
             <div>
               <h3 className="mb-2 font-semibold text-foreground">
@@ -122,7 +120,9 @@ export default function PrivacyPage() {
             <li>
               サービス利用状況の分析、統計データの作成（個人を特定できない形式）のため
             </li>
-            <li>新機能、キャンペーン、イベントに関する情報提供のため（オプトアウト可能）</li>
+            <li>
+              新機能、キャンペーン、イベントに関する情報提供のため（オプトアウト可能）
+            </li>
             <li>法令に基づく対応のため</li>
           </ul>
         </section>
@@ -226,9 +226,7 @@ export default function PrivacyPage() {
               </ul>
             </div>
             <div>
-              <h3 className="mb-1 font-semibold text-foreground">
-                メール配信
-              </h3>
+              <h3 className="mb-1 font-semibold text-foreground">メール配信</h3>
               <ul className="list-inside list-disc space-y-1 pl-4">
                 <li>
                   Resend（
@@ -257,9 +255,7 @@ export default function PrivacyPage() {
           </p>
           <div className="space-y-3">
             <div>
-              <h3 className="mb-1 font-semibold text-foreground">
-                使用目的
-              </h3>
+              <h3 className="mb-1 font-semibold text-foreground">使用目的</h3>
               <ul className="list-inside list-disc space-y-1 pl-4">
                 <li>ログイン状態の維持</li>
                 <li>ユーザー設定の保存</li>
@@ -354,12 +350,10 @@ export default function PrivacyPage() {
           <h2 className="mb-4 text-2xl font-semibold text-foreground">
             12. お問い合わせ
           </h2>
-          <p>
-            本ポリシーに関するお問い合わせは、以下までご連絡ください。
-          </p>
+          <p>本ポリシーに関するお問い合わせは、以下までご連絡ください。</p>
           <div className="mt-3 space-y-1">
             <p>
-              <strong>メール:</strong>{" "}
+              <strong>メール:</strong>{' '}
               <a
                 href="mailto:privacy@tsumugi.example.com"
                 className="text-primary hover:underline"

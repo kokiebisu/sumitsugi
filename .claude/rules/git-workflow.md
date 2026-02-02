@@ -7,6 +7,7 @@
 ### Why Worktrees Matter
 
 Working directly in the main workspace can lead to accidentally committing unrelated modified files:
+
 - Example: You want to update CLAUDE.md but .beads/issues.jsonl is also modified
 - Without worktree: High risk of accidentally staging/committing both files together
 - With worktree: Complete isolation - only your intended changes exist in that workspace
@@ -14,6 +15,7 @@ Working directly in the main workspace can lead to accidentally committing unrel
 ### When to Use Worktrees
 
 **Use worktrees for ALL changes when:**
+
 - There are ANY other modified files in your workspace (even unrelated ones)
 - Making documentation updates
 - Making configuration changes
@@ -21,6 +23,7 @@ Working directly in the main workspace can lead to accidentally committing unrel
 - Fixing bugs
 
 **Only skip worktrees when:**
+
 - Working directory is completely clean (no other modified files)
 - Making trivial single-file edits with no other changes present
 
@@ -75,6 +78,7 @@ Note: Attribution disabled globally via ~/.claude/settings.json.
 ## Pull Request Workflow
 
 **NEVER STOP UNTIL MERGE IS COMPLETE (CRITICAL):**
+
 - **DO NOT STOP** after creating a PR
 - **DO NOT STOP** after pushing commits
 - **DO NOT STOP** after CI starts running
@@ -84,6 +88,7 @@ Note: Attribution disabled globally via ~/.claude/settings.json.
 - **ONLY THEN** is the work complete
 
 **Complete PR Workflow (MUST FINISH ALL STEPS):**
+
 1. Create/update PR
 2. Wait for CI checks to pass (`gh pr checks`)
 3. Merge PR (`gh pr merge <number> --squash --delete-branch`)
@@ -94,6 +99,7 @@ Note: Attribution disabled globally via ~/.claude/settings.json.
 **If you stop before step 6, you haven't finished the task.**
 
 **PR Size Limit (CRITICAL):**
+
 - Maximum ~300 lines of code per PR
 - Large features MUST be broken into multiple sequential PRs
 - Each PR should be independently reviewable
@@ -101,21 +107,25 @@ Note: Attribution disabled globally via ~/.claude/settings.json.
 - Example: Database schema with 3 tables = 3 separate PRs (one per table)
 
 **Single Responsibility Principle (CRITICAL):**
+
 - Each PR must address ONE specific concern only
 - Do NOT combine unrelated changes (e.g., feature + docs update, bug fix + refactor)
 - If changes are unrelated, create separate PRs
 - Example: Stop tracking a file should not include documentation updates
 
 **CI Check Requirement (CRITICAL):**
+
 - **WAIT FOR CI CHECKS TO PASS** before merging any PR
 - Use `gh pr checks` or check GitHub UI to verify all checks are green
 - NEVER merge a PR with failing CI checks
 
 **Auto-Merge After CI (CRITICAL):**
+
 - After CI passes, you MUST merge PRs automatically using `gh pr merge <number> --squash --delete-branch`
 - This is NOT optional - merge immediately after CI passes
 
 **When to merge automatically:**
+
 - Docs updates (README, CLAUDE.md, comments, etc.)
 - Config changes (eslint, tsconfig, package.json, etc.)
 - Bug fixes (small, non-breaking)
@@ -125,6 +135,7 @@ Note: Attribution disabled globally via ~/.claude/settings.json.
 - Dependency updates
 
 **Only wait for user approval when:**
+
 - Breaking changes that affect existing APIs
 - Major architectural decisions
 - Large features spanning 10+ files
@@ -133,6 +144,7 @@ Note: Attribution disabled globally via ~/.claude/settings.json.
 **Default: MERGE IMMEDIATELY unless it clearly falls into the "wait" category**
 
 When creating PRs:
+
 1. Analyze full commit history (not just latest commit)
 2. Use `git diff [base-branch]...HEAD` to see all changes
 3. Draft comprehensive PR summary
@@ -149,6 +161,7 @@ When creating PRs:
    ```
 
 **Keep PR Description Updated (CRITICAL):**
+
 - **ALWAYS update PR description after making changes to the branch**
 - After each commit/push, use `gh pr edit <pr-number> --body "..."` to update description
 - PR description should reflect ALL changes made, not just initial changes
@@ -165,6 +178,7 @@ When creating PRs:
 When you have multiple groups of changes to commit as separate PRs:
 
 **WRONG approach (what NOT to do):**
+
 ```bash
 # DON'T do this - staging unrelated files together
 git add file1.md file2.md file3.jsonl  # All at once
@@ -176,16 +190,19 @@ git commit -m "docs: update"           # Everything in one commit
 For each PR group, follow this exact sequence:
 
 1. **Create branch for FIRST group only:**
+
    ```bash
    git checkout -b <branch-name-for-group-1>
    ```
 
 2. **Stage ONLY files for this group (CRITICAL):**
+
    ```bash
    git add <file1-from-group-1> <file2-from-group-1>  # ONLY group 1 files
    ```
 
 3. **Verify what's staged before committing:**
+
    ```bash
    git status  # MUST show only files intended for this PR
    ```
@@ -193,23 +210,27 @@ For each PR group, follow this exact sequence:
    **STOP if you see unexpected files!** Only proceed if `git status` shows exactly the files you want in this PR.
 
 4. **Commit only staged files:**
+
    ```bash
    git commit -m "..."
    ```
 
 5. **Push and create PR:**
+
    ```bash
    git push -u origin HEAD
    gh pr create --title "..." --body "..."
    ```
 
 6. **Wait for CI, then merge:**
+
    ```bash
    gh pr checks  # Monitor CI status
    gh pr merge <number> --squash --delete-branch  # Only after CI passes
    ```
 
 7. **Return to main and pull:**
+
    ```bash
    git checkout main
    git pull origin main
@@ -222,6 +243,7 @@ For each PR group, follow this exact sequence:
    - Commit, push, create PR, merge
 
 **Key Rules:**
+
 - **ONE group per branch** - Never mix groups
 - **Explicit staging** - Use `git add <specific-file>`, NOT `git add .` or `git add -A`
 - **Always verify** - Run `git status` before committing
