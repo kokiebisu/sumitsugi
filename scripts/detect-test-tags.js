@@ -28,8 +28,9 @@ const FEATURE_MAPPINGS = {
     'src/components/property',
   ],
   payment: [
-    'src/lib/payment/',
-    'src/app/checkout/',
+    'src/app/properties/[id]/payment/',
+    'src/lib/stripe',
+    'tests/e2e/payment/',
   ],
   messaging: [
     'src/app/messages/',
