@@ -74,6 +74,25 @@ Note: Attribution disabled globally via ~/.claude/settings.json.
 
 ## Pull Request Workflow
 
+**NEVER STOP UNTIL MERGE IS COMPLETE (CRITICAL):**
+- **DO NOT STOP** after creating a PR
+- **DO NOT STOP** after pushing commits
+- **DO NOT STOP** after CI starts running
+- **ALWAYS WAIT** for CI to pass
+- **ALWAYS MERGE** the PR after CI passes
+- **ALWAYS SWITCH** back to main and pull
+- **ONLY THEN** is the work complete
+
+**Complete PR Workflow (MUST FINISH ALL STEPS):**
+1. Create/update PR
+2. Wait for CI checks to pass (`gh pr checks`)
+3. Merge PR (`gh pr merge <number> --squash --delete-branch`)
+4. Switch to main (`git checkout main`)
+5. Pull latest changes (`git pull origin main`)
+6. Verify you're on main with latest code
+
+**If you stop before step 6, you haven't finished the task.**
+
 **PR Size Limit (CRITICAL):**
 - Maximum ~300 lines of code per PR
 - Large features MUST be broken into multiple sequential PRs
