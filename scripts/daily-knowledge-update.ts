@@ -14,10 +14,10 @@ import Anthropic from '@anthropic-ai/sdk';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { format } from 'date-fns';
 
-const client = new Anthropic({
-  authToken: process.env.ANTHROPIC_AUTH_TOKEN,
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+// Use authToken if available, otherwise fall back to apiKey
+const client = process.env.ANTHROPIC_AUTH_TOKEN
+  ? new Anthropic({ authToken: process.env.ANTHROPIC_AUTH_TOKEN })
+  : new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const ROLES = ['ceo', 'cmo', 'cfo', 'cto', 'clo'] as const;
 type Role = (typeof ROLES)[number];
