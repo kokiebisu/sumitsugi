@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
@@ -28,7 +30,14 @@ const inquirySteps = [
 ];
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { user, inquiries } = useAuth();
+
+  useEffect(() => {
+    if (!user) {
+      router.push('/');
+    }
+  }, [user, router]);
 
   const userInquiries = user
     ? inquiries.filter((inq) => inq.applicantEmail === user.email)
