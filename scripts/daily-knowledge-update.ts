@@ -3,10 +3,11 @@
 /**
  * Daily Knowledge Update Script - Ralph Loop
  *
- * 毎日、各役員が10記事ずつWebSearchして学習し、
+ * 毎日、各役員が10トピックずつClaudeの知識ベースから洞察を生成し、
  * docs/team/{role}/knowledge/YYYY-MM-DD.md に追記
  *
- * 全役員合計: 50記事/日
+ * 全役員合計: 50トピック/日
+ * （Web検索なし・コスト削減版）
  */
 
 import Anthropic from '@anthropic-ai/sdk';
@@ -14,7 +15,8 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { format } from 'date-fns';
 
 const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY!,
+  authToken: process.env.ANTHROPIC_AUTH_TOKEN,
+  apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
 const ROLES = ['ceo', 'cmo', 'cfo', 'cto', 'clo'] as const;
@@ -85,22 +87,41 @@ const SEARCH_TOPICS: Record<Role, string[]> = {
 };
 
 /**
- * Claude APIでWeb検索を実行
+ * Claudeの知識ベースから該当トピックに関する洞察を生成
+ * （Web検索なし・コスト削減版）
  */
-async function searchWeb(query: string): Promise<string> {
+async function generateInsights(query: string, role: Role): Promise<string> {
+  const roleContext: Record<Role, string> = {
+    ceo: '戦略的視点から、スタートアップの成長・投資・ビジネスモデルに関する洞察',
+    cmo: 'マーケティング視点から、ユーザー獲得・ブランディング・成長戦略に関する洞察',
+    cfo: '財務視点から、ユニットエコノミクス・収益性・資金管理に関する洞察',
+    cto: '技術視点から、アーキテクチャ・パフォーマンス・開発ベストプラクティスに関する洞察',
+    clo: '法務視点から、規制・コンプライアンス・リスク管理に関する洞察',
+  };
+
   const message = await client.messages.create({
     model: 'claude-sonnet-4-5-20250929',
-    max_tokens: 4096,
+    max_tokens: 1024,
     messages: [
       {
         role: 'user',
-        content: `Please search the web for: "${query}"\n\nProvide a summary of the key findings with 3-5 bullet points in Japanese, including source URLs as markdown links. Format as:\n\n- [タイトル](URL) - 要約`,
+        content: `あなたは${role.toUpperCase()}（${roleContext[role]}）です。
+
+トピック: "${query}"
+
+このトピックについて、最新のトレンドや重要なポイントを3-5つの箇条書きで日本語で説明してください。
+各ポイントは簡潔に（1-2文）、実用的な洞察を含めてください。
+
+フォーマット:
+- **ポイント1:** 説明
+- **ポイント2:** 説明
+- **ポイント3:** 説明`,
       },
     ],
   });
 
   const textContent = message.content.find((block) => block.type === 'text');
-  return textContent?.type === 'text' ? textContent.text : 'No results found';
+  return textContent?.type === 'text' ? textContent.text : '洞察を生成できませんでした';
 }
 
 /**
@@ -144,11 +165,11 @@ async function processRole(role: Role, date: string) {
     console.log(`  [${i + 1}/10] 🔍 ${topic}`);
 
     try {
-      const searchResult = await searchWeb(topic);
-      markdown += `### ${i + 1}. ${topic}\n\n${searchResult}\n\n`;
+      const insights = await generateInsights(topic, role);
+      markdown += `### ${i + 1}. ${topic}\n\n${insights}\n\n`;
 
-      // Rate limiting対策（2秒待機）
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Rate limiting対策（1秒待機に短縮）
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     } catch (error) {
       console.error(`  ❌ Error: ${error}`);
       markdown += `### ${i + 1}. ${topic}\n\n**Error**: ${error}\n\n`;
@@ -165,8 +186,8 @@ async function main() {
   const today = format(new Date(), 'yyyy-MM-dd');
 
   console.log(`📅 Date: ${today}`);
-  console.log(`📊 Target: 50 articles (10 per role)`);
-  console.log(`\n🌐 Starting Ralph Loop...`);
+  console.log(`📊 Target: 50 insights (10 per role)`);
+  console.log(`\n🧠 Starting Ralph Loop (knowledge-based)...`);
 
   // 全役員を順次処理
   for (const role of ROLES) {
