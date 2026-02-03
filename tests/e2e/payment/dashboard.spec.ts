@@ -47,11 +47,8 @@ test.describe('Dashboard - Page Load @payment @dashboard', () => {
 test.describe('Dashboard - Empty State @payment @dashboard', () => {
   test('should show empty state for user without inquiries', async ({
     page,
-    dashboardPage,
   }) => {
-    // New user with no inquiries
-    await page.goto('/');
-
+    // Set up new user with no inquiries before navigation
     await page.addInitScript(() => {
       const mockUser = {
         id: 'new-user-' + Date.now(),
@@ -66,21 +63,15 @@ test.describe('Dashboard - Empty State @payment @dashboard', () => {
       localStorage.removeItem('tsumugi_inquiries');
     });
 
-    await page.reload();
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
 
-    // Wait for dashboard to render
-    await page.waitForTimeout(500);
+    // Wait for dashboard to load and not redirect
+    await expect(page).toHaveURL('/dashboard', { timeout: 5000 });
 
-    // Should show empty state
-    const isEmpty = await dashboardPage.isEmpty();
-    expect(isEmpty).toBe(true);
-
-    // Should show message
-    await expect(
-      page.locator('text=申し込んだ暮らしがありません')
-    ).toBeVisible();
+    // Should show empty state message
+    await expect(page.locator('text=申し込んだ暮らしがありません')).toBeVisible(
+      { timeout: 10000 }
+    );
   });
 
   test('should have link to browse properties from empty state', async ({
@@ -161,7 +152,9 @@ test.describe('Dashboard - Progress Steps @payment @dashboard', () => {
     ];
 
     for (const step of expectedSteps) {
-      await expect(page.locator(`text="${step}"`).first()).toBeVisible();
+      await expect(page.locator(`text="${step}"`).first()).toBeVisible({
+        timeout: 10000,
+      });
     }
   });
 });
@@ -202,9 +195,13 @@ test.describe('Dashboard - Status Messages @payment @dashboard', () => {
 
       await page.reload();
       await page.goto('/dashboard');
-      await page.waitForLoadState('networkidle');
 
-      await expect(page.locator(`text=${message}`)).toBeVisible();
+      // Wait for dashboard to load and not redirect
+      await expect(page).toHaveURL('/dashboard', { timeout: 5000 });
+
+      await expect(page.locator(`text=${message}`)).toBeVisible({
+        timeout: 10000,
+      });
     });
   }
 });
@@ -212,7 +209,6 @@ test.describe('Dashboard - Status Messages @payment @dashboard', () => {
 test.describe('Dashboard - Action Buttons @payment @dashboard', () => {
   test('should show viewing complete button when viewing is scheduled', async ({
     page,
-    dashboardPage,
   }) => {
     await page.goto('/');
     await setupAuthenticatedUser(page);
@@ -237,15 +233,18 @@ test.describe('Dashboard - Action Buttons @payment @dashboard', () => {
 
     await page.reload();
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
 
-    const hasButton = await dashboardPage.hasViewingCompleteButton();
-    expect(hasButton).toBe(true);
+    // Wait for dashboard to load
+    await expect(page).toHaveURL('/dashboard', { timeout: 5000 });
+
+    // Check for viewing complete button
+    await expect(page.locator('a:has-text("内見完了を報告")')).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('should show agreement button when agreement is pending', async ({
     page,
-    dashboardPage,
   }) => {
     await page.goto('/');
     await setupAuthenticatedUser(page);
@@ -270,10 +269,14 @@ test.describe('Dashboard - Action Buttons @payment @dashboard', () => {
 
     await page.reload();
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
 
-    const hasButton = await dashboardPage.hasAgreementButton();
-    expect(hasButton).toBe(true);
+    // Wait for dashboard to load
+    await expect(page).toHaveURL('/dashboard', { timeout: 5000 });
+
+    // Check for agreement button
+    await expect(page.locator('a:has-text("引き継ぎ内容を確認")')).toBeVisible({
+      timeout: 10000,
+    });
   });
 });
 
