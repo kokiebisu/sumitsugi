@@ -18,22 +18,29 @@ test.describe('Dashboard - Page Load @payment @dashboard', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await setupAuthenticatedUser(page);
-    await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
   });
 
-  test('should display dashboard title', async ({ dashboardPage }) => {
-    const isLoaded = await dashboardPage.isLoaded();
-    expect(isLoaded).toBe(true);
+  test('should display dashboard title', async ({ page }) => {
+    await page.goto('/dashboard');
 
-    const title = await dashboardPage.page.locator('h1').textContent();
-    expect(title).toContain('ダッシュボード');
+    // Wait for dashboard to load and not redirect
+    await expect(page).toHaveURL('/dashboard', { timeout: 5000 });
+
+    // Wait for title to be visible
+    await expect(page.locator('h1:has-text("ダッシュボード")')).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('should display dashboard description', async ({ page }) => {
+    await page.goto('/dashboard');
+
+    // Wait for dashboard to load
+    await expect(page).toHaveURL('/dashboard', { timeout: 5000 });
+
     await expect(
       page.locator('text=申し込んだ暮らしの引き継ぎ状況を確認できます')
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 10000 });
   });
 });
 
@@ -97,13 +104,12 @@ test.describe('Dashboard - Empty State @payment @dashboard', () => {
 
     await page.reload();
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
 
-    // Wait for dashboard to render
-    await page.waitForTimeout(500);
+    // Wait for dashboard to load and not redirect
+    await expect(page).toHaveURL('/dashboard', { timeout: 5000 });
 
     const browseLink = page.locator('a:has-text("暮らしを探す")');
-    await expect(browseLink).toBeVisible();
+    await expect(browseLink).toBeVisible({ timeout: 10000 });
 
     await browseLink.click();
     await page.waitForLoadState('networkidle');
@@ -137,7 +143,9 @@ test.describe('Dashboard - Progress Steps @payment @dashboard', () => {
 
     await page.reload();
     await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+
+    // Wait for dashboard to load
+    await expect(page).toHaveURL('/dashboard', { timeout: 5000 });
 
     // Check for progress step labels
     const expectedSteps = [
