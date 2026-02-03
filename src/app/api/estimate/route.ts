@@ -1,4 +1,3 @@
-import Anthropic from '@anthropic-ai/sdk';
 import { NextRequest, NextResponse } from 'next/server';
 
 import type { EstimateInput, EstimateResult } from '@/lib/estimate-service';
@@ -106,16 +105,63 @@ function parseAIResponse(content: string): EstimateResult {
   };
 }
 
+/**
+ * Call Claude API using raw HTTP with Bearer token authentication
+ * Supports both OAuth tokens (Max subscription) and API keys
+ */
+async function callClaudeAPI(prompt: string): Promise<string> {
+  const authToken = process.env.CLAUDE_CODE_OAUTH_TOKEN;
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+
+  if (!authToken && !apiKey) {
+    throw new Error(
+      'Neither CLAUDE_CODE_OAUTH_TOKEN nor ANTHROPIC_API_KEY configured'
+    );
+  }
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'anthropic-version': '2023-06-01',
+  };
+
+  // Use Bearer auth for OAuth token, x-api-key for API key
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
+  } else if (apiKey) {
+    headers['x-api-key'] = apiKey;
+  }
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1024,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Claude API error (${response.status}): ${errorText}`);
+  }
+
+  interface ClaudeResponse {
+    content: Array<{ type: string; text?: string }>;
+  }
+
+  const data = (await response.json()) as ClaudeResponse;
+  const textContent = data.content.find((block) => block.type === 'text');
+
+  if (!textContent || !textContent.text) {
+    throw new Error('No text content in AI response');
+  }
+
+  return textContent.text;
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: 'ANTHROPIC_API_KEY not configured' },
-        { status: 500 }
-      );
-    }
-
     const input = (await request.json()) as EstimateInput;
 
     if (!input.furniture || input.furniture.length === 0) {
@@ -130,21 +176,10 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const client = new Anthropic({ apiKey });
     const prompt = buildPrompt(input);
+    const responseText = await callClaudeAPI(prompt);
+    const result = parseAIResponse(responseText);
 
-    const message = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1024,
-      messages: [{ role: 'user', content: prompt }],
-    });
-
-    const textContent = message.content.find((block) => block.type === 'text');
-    if (!textContent || textContent.type !== 'text') {
-      throw new Error('No text content in AI response');
-    }
-
-    const result = parseAIResponse(textContent.text);
     return NextResponse.json(result);
   } catch (error) {
     if (error instanceof Error) {

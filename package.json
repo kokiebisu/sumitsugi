@@ -31,7 +31,6 @@
     "cleanup:all": "npm run cleanup:branches && git worktree prune && git stash clear"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.72.1",
     "@auth/core": "^0.41.0",
     "@auth/drizzle-adapter": "^1.11.1",
     "@hookform/resolvers": "^3.10.0",
