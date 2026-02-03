@@ -14,6 +14,11 @@ import Anthropic from '@anthropic-ai/sdk';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { format } from 'date-fns';
 
+// Debug: show which auth method is being used
+const hasAuthToken = !!process.env.ANTHROPIC_AUTH_TOKEN;
+const hasApiKey = !!process.env.ANTHROPIC_API_KEY;
+console.log(`🔐 Auth: authToken=${hasAuthToken}, apiKey=${hasApiKey}`);
+
 // Use authToken if available, otherwise fall back to apiKey
 const client = process.env.ANTHROPIC_AUTH_TOKEN
   ? new Anthropic({ authToken: process.env.ANTHROPIC_AUTH_TOKEN })
