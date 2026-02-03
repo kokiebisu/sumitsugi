@@ -204,7 +204,12 @@ test.describe('Dashboard - Status Messages @payment @dashboard', () => {
       await page.goto('/dashboard');
       await page.waitForLoadState('networkidle');
 
-      await expect(page.locator(`text=${message}`)).toBeVisible();
+      // Wait for dashboard to load and not redirect
+      await expect(page).toHaveURL('/dashboard', { timeout: 5000 });
+
+      await expect(page.locator(`text=${message}`)).toBeVisible({
+        timeout: 10000,
+      });
     });
   }
 });
@@ -328,7 +333,12 @@ test.describe('Dashboard - Responsive Design @payment @dashboard', () => {
       await page.goto('/dashboard');
       await page.waitForLoadState('networkidle');
 
-      await expect(page.locator('h1:has-text("ダッシュボード")')).toBeVisible();
+      // Wait for dashboard to load and not redirect
+      await expect(page).toHaveURL('/dashboard', { timeout: 5000 });
+
+      await expect(page.locator('h1:has-text("ダッシュボード")')).toBeVisible({
+        timeout: 10000,
+      });
 
       // Take mobile screenshot
       await page.screenshot({
