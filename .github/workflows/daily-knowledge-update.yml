@@ -45,4 +45,7 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add docs/team/*/knowledge/
           git diff --staged --quiet || git commit -m "chore: daily knowledge update $TODAY"
+
+          # Pull latest changes and rebase before pushing (handles concurrent updates)
+          git pull --rebase origin main
           git push
