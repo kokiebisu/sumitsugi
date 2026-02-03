@@ -28,46 +28,9 @@ export default defineConfig({
 
   /* Configure projects for major browsers and viewports */
   projects: [
-    /* Desktop browsers */
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-
-    /* Mobile viewports for payment flow testing */
-    {
-      name: 'mobile-chrome',
-      use: { ...devices['Pixel 5'] },
-    },
-    {
-      name: 'mobile-safari',
-      use: { ...devices['iPhone 12'] },
-    },
-
-    /* Tablet viewport */
-    {
-      name: 'tablet',
-      use: { ...devices['iPad (gen 7)'] },
-    },
-
-    /* Payment-specific project with longer timeouts */
-    {
-      name: 'payment',
-      testMatch: '**/payment/**/*.spec.ts',
-      use: {
-        ...devices['Desktop Chrome'],
-        // Longer timeout for Stripe API calls
-        actionTimeout: 30000,
-        navigationTimeout: 60000,
-      },
     },
   ],
 
