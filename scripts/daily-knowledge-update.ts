@@ -109,7 +109,7 @@ async function generateInsights(query: string, role: Role): Promise<string> {
   try {
     // Claude Code CLI in print mode (uses Max subscription token)
     // Use Bun.spawn to capture both stdout and stderr
-    const proc = Bun.spawn(['claude', '-p', prompt, '--no-config'], {
+    const proc = Bun.spawn(['claude', '-p', prompt], {
       stdout: 'pipe',
       stderr: 'pipe',
     });
