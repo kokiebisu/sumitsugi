@@ -296,6 +296,60 @@ gh workflow run "Requirements Audit"
 
 **必要なSecret:** `ANTHROPIC_API_KEY`
 
+### Using Claude in GitHub Actions (CRITICAL)
+
+**ALWAYS use Claude Code CLI instead of Anthropic SDK for GitHub Actions scripts.**
+
+The Anthropic SDK does NOT support Max subscription OAuth tokens (`sk-ant-oat01-...`). Use Claude Code CLI in print mode instead.
+
+**Required Pattern:**
+
+1. **Workflow setup** - Install Claude Code CLI and set token:
+
+```yaml
+steps:
+  - name: Setup Node.js
+    uses: actions/setup-node@v4
+    with:
+      node-version: '20'
+
+  - name: Install Claude Code CLI
+    run: npm install -g @anthropic-ai/claude-code
+
+  - name: Run script
+    env:
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+    run: bun run scripts/your-script.ts
+```
+
+2. **Script pattern** - Use `Bun.spawn` to capture stdout/stderr:
+
+```typescript
+async function callClaude(prompt: string): Promise<string> {
+  const proc = Bun.spawn(['claude', '-p', prompt], {
+    stdout: 'pipe',
+    stderr: 'pipe',
+  });
+
+  const stdout = await new Response(proc.stdout).text();
+  const stderr = await new Response(proc.stderr).text();
+  const exitCode = await proc.exited;
+
+  if (exitCode !== 0) {
+    throw new Error(`Exit code ${exitCode}: ${stderr || stdout}`);
+  }
+
+  return stdout.trim();
+}
+```
+
+**GitHub Secret:** `ANTHROPIC_AUTH_TOKEN` - Your long-lived OAuth token from Max subscription
+
+**DO NOT use:**
+- `@anthropic-ai/sdk` with OAuth tokens (doesn't work)
+- `--no-config` flag (doesn't exist)
+- `ANTHROPIC_API_KEY` with OAuth tokens
+
 ## Related Documentation
 
 詳細な仕様については以下を参照：
