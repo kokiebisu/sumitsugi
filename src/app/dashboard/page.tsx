@@ -31,13 +31,14 @@ const inquirySteps = [
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, inquiries } = useAuth();
+  const { user, inquiries, isLoading } = useAuth();
 
   useEffect(() => {
-    if (!user) {
+    // Wait for auth to initialize before redirecting
+    if (!isLoading && !user) {
       router.push('/');
     }
-  }, [user, router]);
+  }, [user, isLoading, router]);
 
   const userInquiries = user
     ? inquiries.filter((inq) => inq.applicantEmail === user.email)
