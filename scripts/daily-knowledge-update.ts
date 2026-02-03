@@ -7,22 +7,12 @@
  * docs/team/{role}/knowledge/YYYY-MM-DD.md に追記
  *
  * 全役員合計: 50トピック/日
- * （Web検索なし・コスト削減版）
+ * （Claude Code CLI使用・Max subscription対応版）
  */
 
-import Anthropic from '@anthropic-ai/sdk';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { format } from 'date-fns';
-
-// Debug: show which auth method is being used
-const hasAuthToken = !!process.env.ANTHROPIC_AUTH_TOKEN;
-const hasApiKey = !!process.env.ANTHROPIC_API_KEY;
-console.log(`🔐 Auth: authToken=${hasAuthToken}, apiKey=${hasApiKey}`);
-
-// Use authToken if available (explicitly set apiKey to null to avoid SDK preferring apiKey)
-const client = process.env.ANTHROPIC_AUTH_TOKEN
-  ? new Anthropic({ authToken: process.env.ANTHROPIC_AUTH_TOKEN, apiKey: null })
-  : new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+import { $ } from 'bun';
 
 const ROLES = ['ceo', 'cmo', 'cfo', 'cto', 'clo'] as const;
 type Role = (typeof ROLES)[number];
@@ -91,26 +81,20 @@ const SEARCH_TOPICS: Record<Role, string[]> = {
   ],
 };
 
+const ROLE_CONTEXT: Record<Role, string> = {
+  ceo: '戦略的視点から、スタートアップの成長・投資・ビジネスモデルに関する洞察',
+  cmo: 'マーケティング視点から、ユーザー獲得・ブランディング・成長戦略に関する洞察',
+  cfo: '財務視点から、ユニットエコノミクス・収益性・資金管理に関する洞察',
+  cto: '技術視点から、アーキテクチャ・パフォーマンス・開発ベストプラクティスに関する洞察',
+  clo: '法務視点から、規制・コンプライアンス・リスク管理に関する洞察',
+};
+
 /**
- * Claudeの知識ベースから該当トピックに関する洞察を生成
- * （Web検索なし・コスト削減版）
+ * Claude Code CLIを使用して洞察を生成
+ * Max subscription のトークンを使用
  */
 async function generateInsights(query: string, role: Role): Promise<string> {
-  const roleContext: Record<Role, string> = {
-    ceo: '戦略的視点から、スタートアップの成長・投資・ビジネスモデルに関する洞察',
-    cmo: 'マーケティング視点から、ユーザー獲得・ブランディング・成長戦略に関する洞察',
-    cfo: '財務視点から、ユニットエコノミクス・収益性・資金管理に関する洞察',
-    cto: '技術視点から、アーキテクチャ・パフォーマンス・開発ベストプラクティスに関する洞察',
-    clo: '法務視点から、規制・コンプライアンス・リスク管理に関する洞察',
-  };
-
-  const message = await client.messages.create({
-    model: 'claude-sonnet-4-5-20250929',
-    max_tokens: 1024,
-    messages: [
-      {
-        role: 'user',
-        content: `あなたは${role.toUpperCase()}（${roleContext[role]}）です。
+  const prompt = `あなたは${role.toUpperCase()}（${ROLE_CONTEXT[role]}）です。
 
 トピック: "${query}"
 
@@ -120,13 +104,15 @@ async function generateInsights(query: string, role: Role): Promise<string> {
 フォーマット:
 - **ポイント1:** 説明
 - **ポイント2:** 説明
-- **ポイント3:** 説明`,
-      },
-    ],
-  });
+- **ポイント3:** 説明`;
 
-  const textContent = message.content.find((block) => block.type === 'text');
-  return textContent?.type === 'text' ? textContent.text : '洞察を生成できませんでした';
+  try {
+    // Claude Code CLI in print mode (uses Max subscription token)
+    const result = await $`claude -p ${prompt} --no-config`.text();
+    return result.trim() || '洞察を生成できませんでした';
+  } catch (error) {
+    throw new Error(`Claude CLI failed: ${error}`);
+  }
 }
 
 /**
@@ -157,7 +143,7 @@ function appendToKnowledgeFile(role: Role, date: string, content: string) {
 }
 
 /**
- * 役員ごとにWeb検索を実行（10記事ずつ）
+ * 役員ごとに洞察を生成（10トピックずつ）
  */
 async function processRole(role: Role, date: string) {
   console.log(`\n👤 Processing ${role.toUpperCase()}...`);
@@ -173,8 +159,8 @@ async function processRole(role: Role, date: string) {
       const insights = await generateInsights(topic, role);
       markdown += `### ${i + 1}. ${topic}\n\n${insights}\n\n`;
 
-      // Rate limiting対策（1秒待機に短縮）
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Rate limiting対策（2秒待機）
+      await new Promise((resolve) => setTimeout(resolve, 2000));
     } catch (error) {
       console.error(`  ❌ Error: ${error}`);
       markdown += `### ${i + 1}. ${topic}\n\n**Error**: ${error}\n\n`;
@@ -192,7 +178,17 @@ async function main() {
 
   console.log(`📅 Date: ${today}`);
   console.log(`📊 Target: 50 insights (10 per role)`);
+  console.log(`🔐 Using Claude Code CLI (Max subscription)`);
   console.log(`\n🧠 Starting Ralph Loop (knowledge-based)...`);
+
+  // Verify Claude CLI is available
+  try {
+    const version = await $`claude --version`.text();
+    console.log(`✅ Claude CLI: ${version.trim()}`);
+  } catch {
+    console.error('❌ Claude CLI not found. Please install Claude Code CLI.');
+    process.exit(1);
+  }
 
   // 全役員を順次処理
   for (const role of ROLES) {
