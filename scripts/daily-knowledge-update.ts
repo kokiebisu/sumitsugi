@@ -108,8 +108,21 @@ async function generateInsights(query: string, role: Role): Promise<string> {
 
   try {
     // Claude Code CLI in print mode (uses Max subscription token)
-    const result = await $`claude -p ${prompt} --no-config`.text();
-    return result.trim() || '洞察を生成できませんでした';
+    // Use Bun.spawn to capture both stdout and stderr
+    const proc = Bun.spawn(['claude', '-p', prompt, '--no-config'], {
+      stdout: 'pipe',
+      stderr: 'pipe',
+    });
+
+    const stdout = await new Response(proc.stdout).text();
+    const stderr = await new Response(proc.stderr).text();
+    const exitCode = await proc.exited;
+
+    if (exitCode !== 0) {
+      throw new Error(`Exit code ${exitCode}: ${stderr || stdout}`);
+    }
+
+    return stdout.trim() || '洞察を生成できませんでした';
   } catch (error) {
     throw new Error(`Claude CLI failed: ${error}`);
   }
