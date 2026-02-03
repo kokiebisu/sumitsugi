@@ -19,23 +19,21 @@ export const STRIPE_CONFIG = {
   ESCROW_HOLD_HOURS: 48, // 24-48 hours dispute period
 } as const;
 
-// Only validate in production/development, not in tests
-if (
-  typeof window === 'undefined' &&
-  process.env.NODE_ENV !== 'test' &&
-  !process.env.VITEST
-) {
-  // Server-side validation only
+// Only validate in production runtime, not in tests or CI builds
+// CI builds may not have Stripe secrets available, and that's OK
+// The actual Stripe client will fail at runtime if secrets are needed but missing
+const isTestEnv = process.env.NODE_ENV === 'test' || process.env.VITEST;
+const isCIBuild = process.env.CI === 'true';
+const isServerSide = typeof window === 'undefined';
+
+if (isServerSide && !isTestEnv && !isCIBuild) {
+  // Server-side runtime validation only
   if (!STRIPE_CONFIG.secretKey) {
     throw new Error('Missing STRIPE_SECRET_KEY environment variable');
   }
 }
 
-if (
-  process.env.NODE_ENV !== 'test' &&
-  !process.env.VITEST &&
-  !STRIPE_CONFIG.publishableKey
-) {
+if (!isTestEnv && !isCIBuild && !STRIPE_CONFIG.publishableKey) {
   throw new Error(
     'Missing NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY environment variable'
   );
