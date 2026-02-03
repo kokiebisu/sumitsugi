@@ -48,8 +48,11 @@ test.describe('Dashboard - Empty State @payment @dashboard', () => {
   test('should show empty state for user without inquiries', async ({
     page,
   }) => {
-    // Set localStorage BEFORE any navigation
-    await page.addInitScript(() => {
+    // Navigate to home first to initialize the page
+    await page.goto('/');
+
+    // Set localStorage via evaluate (runs immediately)
+    await page.evaluate(() => {
       const mockUser = {
         id: 'new-user-' + Date.now(),
         email: 'newuser@test.com',
@@ -63,7 +66,7 @@ test.describe('Dashboard - Empty State @payment @dashboard', () => {
       localStorage.removeItem('tsumugi_inquiries');
     });
 
-    // Navigate directly to dashboard (init script will run on first load)
+    // Now navigate to dashboard with localStorage already set
     await page.goto('/dashboard');
     await page.waitForLoadState('networkidle');
 
@@ -79,8 +82,11 @@ test.describe('Dashboard - Empty State @payment @dashboard', () => {
   test('should have link to browse properties from empty state', async ({
     page,
   }) => {
-    // Set localStorage BEFORE any navigation
-    await page.addInitScript(() => {
+    // Navigate to home first to initialize the page
+    await page.goto('/');
+
+    // Set localStorage via evaluate (runs immediately)
+    await page.evaluate(() => {
       const mockUser = {
         id: 'new-user-' + Date.now(),
         email: 'newuser@test.com',
@@ -94,7 +100,7 @@ test.describe('Dashboard - Empty State @payment @dashboard', () => {
       localStorage.removeItem('tsumugi_inquiries');
     });
 
-    // Navigate directly to dashboard (init script will run on first load)
+    // Now navigate to dashboard with localStorage already set
     await page.goto('/dashboard');
     await page.waitForLoadState('networkidle');
 
@@ -114,37 +120,38 @@ test.describe('Dashboard - Empty State @payment @dashboard', () => {
 
 test.describe('Dashboard - Progress Steps @payment @dashboard', () => {
   test('should display 9-stage progress steps', async ({ page }) => {
-    // Set up authenticated user and inquiry BEFORE any navigation
-    await page.addInitScript(
-      ({ testEmail }) => {
-        const mockUser = {
-          id: 'test-user-' + Date.now(),
-          email: testEmail,
-          name: 'Test User',
-          createdAt: new Date().toISOString(),
-          authProvider: 'email',
-          isSeller: false,
-        };
-        localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+    // Navigate to home first to initialize the page
+    await page.goto('/');
 
-        // Create inquiry data
-        const inquiry = {
-          id: 'test-inquiry-1',
-          propertyId: '1368794573069214647',
-          propertyTitle: 'Test Property',
-          status: 'viewing_scheduled',
-          applicantName: 'Test User',
-          applicantEmail: testEmail,
-          reason: 'Test reason',
-          submittedAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-        localStorage.setItem('tsumugi_inquiries', JSON.stringify([inquiry]));
-      },
-      { testEmail: testData.users.testUser.email }
-    );
+    // Set localStorage via evaluate (runs immediately)
+    const testEmail = testData.users.testUser.email;
+    await page.evaluate((email) => {
+      const mockUser = {
+        id: 'test-user-' + Date.now(),
+        email: email,
+        name: 'Test User',
+        createdAt: new Date().toISOString(),
+        authProvider: 'email',
+        isSeller: false,
+      };
+      localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
 
-    // Navigate directly to dashboard (init script will run on first load)
+      // Create inquiry data
+      const inquiry = {
+        id: 'test-inquiry-1',
+        propertyId: '1368794573069214647',
+        propertyTitle: 'Test Property',
+        status: 'viewing_scheduled',
+        applicantName: 'Test User',
+        applicantEmail: email,
+        reason: 'Test reason',
+        submittedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem('tsumugi_inquiries', JSON.stringify([inquiry]));
+    }, testEmail);
+
+    // Now navigate to dashboard with localStorage already set
     await page.goto('/dashboard');
 
     // Wait for dashboard to load
@@ -183,12 +190,16 @@ test.describe('Dashboard - Status Messages @payment @dashboard', () => {
     test(`should show correct message for ${status} status`, async ({
       page,
     }) => {
-      // Set up authenticated user and inquiry BEFORE any navigation
-      await page.addInitScript(
-        ({ status, testEmail }) => {
+      // Navigate to home first to initialize the page
+      await page.goto('/');
+
+      // Set localStorage via evaluate (runs immediately)
+      const testEmail = testData.users.testUser.email;
+      await page.evaluate(
+        (data) => {
           const mockUser = {
             id: 'test-user-' + Date.now(),
-            email: testEmail,
+            email: data.testEmail,
             name: 'Test User',
             createdAt: new Date().toISOString(),
             authProvider: 'email',
@@ -197,22 +208,22 @@ test.describe('Dashboard - Status Messages @payment @dashboard', () => {
           localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
 
           const inquiry = {
-            id: `test-inquiry-${status}`,
+            id: `test-inquiry-${data.status}`,
             propertyId: '1368794573069214647',
             propertyTitle: 'Test Property',
-            status: status,
+            status: data.status,
             applicantName: 'Test User',
-            applicantEmail: testEmail,
+            applicantEmail: data.testEmail,
             reason: 'Test reason',
             submittedAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           };
           localStorage.setItem('tsumugi_inquiries', JSON.stringify([inquiry]));
         },
-        { status, testEmail: testData.users.testUser.email }
+        { status, testEmail }
       );
 
-      // Navigate directly to dashboard (init script will run on first load)
+      // Now navigate to dashboard with localStorage already set
       await page.goto('/dashboard');
       await page.waitForLoadState('networkidle');
 
@@ -230,36 +241,37 @@ test.describe('Dashboard - Action Buttons @payment @dashboard', () => {
   test('should show viewing complete button when viewing is scheduled', async ({
     page,
   }) => {
-    // Set up authenticated user and inquiry BEFORE any navigation
-    await page.addInitScript(
-      ({ testEmail }) => {
-        const mockUser = {
-          id: 'test-user-' + Date.now(),
-          email: testEmail,
-          name: 'Test User',
-          createdAt: new Date().toISOString(),
-          authProvider: 'email',
-          isSeller: false,
-        };
-        localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+    // Navigate to home first to initialize the page
+    await page.goto('/');
 
-        const inquiry = {
-          id: 'test-inquiry-viewing',
-          propertyId: '1368794573069214647',
-          propertyTitle: 'Test Property',
-          status: 'viewing_scheduled',
-          applicantName: 'Test User',
-          applicantEmail: testEmail,
-          reason: 'Test reason',
-          submittedAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-        localStorage.setItem('tsumugi_inquiries', JSON.stringify([inquiry]));
-      },
-      { testEmail: testData.users.testUser.email }
-    );
+    // Set localStorage via evaluate (runs immediately)
+    const testEmail = testData.users.testUser.email;
+    await page.evaluate((email) => {
+      const mockUser = {
+        id: 'test-user-' + Date.now(),
+        email: email,
+        name: 'Test User',
+        createdAt: new Date().toISOString(),
+        authProvider: 'email',
+        isSeller: false,
+      };
+      localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
 
-    // Navigate directly to dashboard (init script will run on first load)
+      const inquiry = {
+        id: 'test-inquiry-viewing',
+        propertyId: '1368794573069214647',
+        propertyTitle: 'Test Property',
+        status: 'viewing_scheduled',
+        applicantName: 'Test User',
+        applicantEmail: email,
+        reason: 'Test reason',
+        submittedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem('tsumugi_inquiries', JSON.stringify([inquiry]));
+    }, testEmail);
+
+    // Now navigate to dashboard with localStorage already set
     await page.goto('/dashboard');
     await page.waitForLoadState('networkidle');
 
@@ -274,36 +286,37 @@ test.describe('Dashboard - Action Buttons @payment @dashboard', () => {
   test('should show agreement button when agreement is pending', async ({
     page,
   }) => {
-    // Set up authenticated user and inquiry BEFORE any navigation
-    await page.addInitScript(
-      ({ testEmail }) => {
-        const mockUser = {
-          id: 'test-user-' + Date.now(),
-          email: testEmail,
-          name: 'Test User',
-          createdAt: new Date().toISOString(),
-          authProvider: 'email',
-          isSeller: false,
-        };
-        localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+    // Navigate to home first to initialize the page
+    await page.goto('/');
 
-        const inquiry = {
-          id: 'test-inquiry-agreement',
-          propertyId: '1368794573069214647',
-          propertyTitle: 'Test Property',
-          status: 'agreement_pending',
-          applicantName: 'Test User',
-          applicantEmail: testEmail,
-          reason: 'Test reason',
-          submittedAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-        localStorage.setItem('tsumugi_inquiries', JSON.stringify([inquiry]));
-      },
-      { testEmail: testData.users.testUser.email }
-    );
+    // Set localStorage via evaluate (runs immediately)
+    const testEmail = testData.users.testUser.email;
+    await page.evaluate((email) => {
+      const mockUser = {
+        id: 'test-user-' + Date.now(),
+        email: email,
+        name: 'Test User',
+        createdAt: new Date().toISOString(),
+        authProvider: 'email',
+        isSeller: false,
+      };
+      localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
 
-    // Navigate directly to dashboard (init script will run on first load)
+      const inquiry = {
+        id: 'test-inquiry-agreement',
+        propertyId: '1368794573069214647',
+        propertyTitle: 'Test Property',
+        status: 'agreement_pending',
+        applicantName: 'Test User',
+        applicantEmail: email,
+        reason: 'Test reason',
+        submittedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem('tsumugi_inquiries', JSON.stringify([inquiry]));
+    }, testEmail);
+
+    // Now navigate to dashboard with localStorage already set
     await page.goto('/dashboard');
     await page.waitForLoadState('networkidle');
 
@@ -322,8 +335,11 @@ test.describe('Dashboard - Property Navigation @payment @dashboard', () => {
   }) => {
     const propertyId = testData.properties.bohemian;
 
-    // Set up authenticated user and inquiry BEFORE any navigation
-    await page.addInitScript(
+    // Navigate to home first to initialize the page
+    await page.goto('/');
+
+    // Set localStorage via evaluate (runs immediately)
+    await page.evaluate(
       ({ propertyId, testEmail }) => {
         const mockUser = {
           id: 'test-user-' + Date.now(),
@@ -351,7 +367,7 @@ test.describe('Dashboard - Property Navigation @payment @dashboard', () => {
       { propertyId, testEmail: testData.users.testUser.email }
     );
 
-    // Navigate directly to dashboard (init script will run on first load)
+    // Now navigate to dashboard with localStorage already set
     await page.goto('/dashboard');
     await page.waitForLoadState('networkidle');
 
@@ -370,8 +386,11 @@ test.describe('Dashboard - Responsive Design @payment @dashboard', () => {
     test.use({ viewport: { width: 375, height: 667 } });
 
     test('should display dashboard on mobile', async ({ page }) => {
-      // Set up authenticated user BEFORE any navigation
-      await page.addInitScript(
+      // Navigate to home first to initialize the page
+      await page.goto('/');
+
+      // Set localStorage via evaluate (runs immediately)
+      await page.evaluate(
         ({ testEmail }) => {
           const mockUser = {
             id: 'test-user-' + Date.now(),
@@ -386,7 +405,7 @@ test.describe('Dashboard - Responsive Design @payment @dashboard', () => {
         { testEmail: testData.users.testUser.email }
       );
 
-      // Navigate directly to dashboard (init script will run on first load)
+      // Now navigate to dashboard with localStorage already set
       await page.goto('/dashboard');
       await page.waitForLoadState('networkidle');
 
@@ -407,8 +426,11 @@ test.describe('Dashboard - Responsive Design @payment @dashboard', () => {
     test('progress bar should scroll horizontally on mobile', async ({
       page,
     }) => {
-      // Set up authenticated user and inquiry BEFORE any navigation
-      await page.addInitScript(
+      // Navigate to home first to initialize the page
+      await page.goto('/');
+
+      // Set localStorage via evaluate (runs immediately)
+      await page.evaluate(
         ({ testEmail }) => {
           const mockUser = {
             id: 'test-user-' + Date.now(),
@@ -436,7 +458,7 @@ test.describe('Dashboard - Responsive Design @payment @dashboard', () => {
         { testEmail: testData.users.testUser.email }
       );
 
-      // Navigate directly to dashboard (init script will run on first load)
+      // Now navigate to dashboard with localStorage already set
       await page.goto('/dashboard');
       await page.waitForLoadState('networkidle');
 
