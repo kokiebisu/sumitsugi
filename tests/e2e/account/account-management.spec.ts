@@ -151,8 +151,12 @@ test.describe('Account - Edit Profile', () => {
   test('should show edit form with current values', async ({ page }) => {
     await page.goto('/account/edit');
 
+    // Wait for page to load
+    await page.waitForURL('/account/edit');
+
     // Name field should be pre-filled
-    const nameInput = page.locator('input[type="text"]').first();
+    const nameInput = page.locator('input[name="name"]');
+    await expect(nameInput).toBeVisible();
     await expect(nameInput).toHaveValue(testData.users.testUser.name);
   });
 
@@ -175,8 +179,12 @@ test.describe('Account - Edit Profile', () => {
   test('should allow editing name', async ({ page }) => {
     await page.goto('/account/edit');
 
+    // Wait for page to load
+    await page.waitForURL('/account/edit');
+
     // Find and edit name field
-    const nameInput = page.locator('input[name="name"], input#name').first();
+    const nameInput = page.locator('input[name="name"]');
+    await expect(nameInput).toBeVisible();
     await nameInput.clear();
     await nameInput.fill('新しい名前');
 
@@ -187,8 +195,12 @@ test.describe('Account - Edit Profile', () => {
   test('should validate required fields', async ({ page }) => {
     await page.goto('/account/edit');
 
+    // Wait for page to load
+    await page.waitForURL('/account/edit');
+
     // Clear required field (e.g., name)
-    const nameInput = page.locator('input[name="name"], input#name').first();
+    const nameInput = page.locator('input[name="name"]');
+    await expect(nameInput).toBeVisible();
     await nameInput.clear();
 
     // Try to submit
@@ -214,8 +226,12 @@ test.describe('Account - Edit Profile', () => {
   test('should save changes and redirect to account page', async ({ page }) => {
     await page.goto('/account/edit');
 
+    // Wait for page to load
+    await page.waitForURL('/account/edit');
+
     // Edit a field
-    const nameInput = page.locator('input[name="name"], input#name').first();
+    const nameInput = page.locator('input[name="name"]');
+    await expect(nameInput).toBeVisible();
     await nameInput.clear();
     await nameInput.fill('Updated Name');
 
@@ -223,9 +239,8 @@ test.describe('Account - Edit Profile', () => {
     const saveButton = page.locator('button[type="submit"]').first();
     await saveButton.click();
 
-    // Should show success message or redirect
-    // This depends on implementation
-    await page.waitForTimeout(1000);
+    // Should redirect to account page
+    await expect(page).toHaveURL('/account', { timeout: 5000 });
   });
 });
 
@@ -279,9 +294,12 @@ test.describe('Account - Loading States', () => {
   test('should handle edit page loading', async ({ page }) => {
     await page.goto('/account/edit');
 
-    // Edit form should be visible
-    const form = page.locator('form').first();
-    await expect(form).toBeVisible();
+    // Wait for page to load
+    await page.waitForURL('/account/edit');
+
+    // Edit form inputs should be visible
+    const nameInput = page.locator('input[name="name"]');
+    await expect(nameInput).toBeVisible();
   });
 });
 
