@@ -19,9 +19,9 @@ const hasAuthToken = !!process.env.ANTHROPIC_AUTH_TOKEN;
 const hasApiKey = !!process.env.ANTHROPIC_API_KEY;
 console.log(`🔐 Auth: authToken=${hasAuthToken}, apiKey=${hasApiKey}`);
 
-// Use authToken if available, otherwise fall back to apiKey
+// Use authToken if available (explicitly set apiKey to null to avoid SDK preferring apiKey)
 const client = process.env.ANTHROPIC_AUTH_TOKEN
-  ? new Anthropic({ authToken: process.env.ANTHROPIC_AUTH_TOKEN })
+  ? new Anthropic({ authToken: process.env.ANTHROPIC_AUTH_TOKEN, apiKey: null })
   : new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const ROLES = ['ceo', 'cmo', 'cfo', 'cto', 'clo'] as const;
