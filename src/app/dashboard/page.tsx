@@ -160,6 +160,7 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={inquiry.id}
+                    data-testid="inquiry-card"
                     className="rounded-xl border border-border bg-background p-6 shadow-sm"
                   >
                     {/* 物件情報 */}
