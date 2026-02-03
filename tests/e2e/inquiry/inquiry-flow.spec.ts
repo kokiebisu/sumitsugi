@@ -298,7 +298,9 @@ test.describe('Inquiry Flow - Form Validation @inquiry @extended', () => {
 
     // Should show helper text explaining email usage
     await expect(
-      page.locator('text=ご連絡はこちらのメールアドレスに送らせていただきます')
+      page
+        .getByRole('main')
+        .locator('text=ご連絡はこちらのメールアドレスに送らせていただきます')
     ).toBeVisible();
   });
 

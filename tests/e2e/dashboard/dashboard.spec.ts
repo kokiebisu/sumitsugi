@@ -81,7 +81,7 @@ test.describe('Dashboard - With Inquiries', () => {
     await page.goto('/dashboard');
 
     // Should show at least one inquiry
-    const inquiryCards = page.locator('[class*="inquiry"], [class*="card"]');
+    const inquiryCards = page.locator('[data-testid="inquiry-card"]');
     await expect(inquiryCards.first()).toBeVisible();
   });
 
