@@ -239,6 +239,8 @@ export default function AccountEditPage() {
                     姓名
                   </label>
                   <Input
+                    id="name"
+                    name="name"
                     value={formData.name}
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
@@ -267,6 +269,8 @@ export default function AccountEditPage() {
                     メールアドレス
                   </label>
                   <Input
+                    id="email"
+                    name="email"
                     type="email"
                     value={formData.email}
                     onChange={(e) =>
@@ -467,6 +471,7 @@ export default function AccountEditPage() {
           {/* 保存ボタン */}
           <div className="mt-8 flex gap-3">
             <Button
+              type="submit"
               onClick={handleSave}
               disabled={
                 isSaving || !formData.name.trim() || !formData.email.trim()

@@ -238,7 +238,7 @@ test.describe('Dashboard - Multiple Inquiries', () => {
     ).toBeVisible({ timeout: 10000 });
 
     // Create second inquiry for different property
-    await page.goto('`/listings/${testData.properties.vintage}/inquiry`');
+    await page.goto(`/listings/${testData.properties.vintage}/inquiry`);
     await page
       .locator('textarea#reason')
       .fill('ヴィンテージ家具に興味があります');
