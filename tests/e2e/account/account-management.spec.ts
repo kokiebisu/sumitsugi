@@ -203,11 +203,10 @@ test.describe('Account - Edit Profile', () => {
     await expect(nameInput).toBeVisible();
     await nameInput.clear();
 
-    // Try to submit
+    // Save button should be disabled when required fields are empty
     const saveButton = page.locator('button[type="submit"]').first();
-    await saveButton.click();
+    await expect(saveButton).toBeDisabled();
 
-    // Form should not submit (HTML5 validation)
     // Should still be on edit page
     await expect(page).toHaveURL('/account/edit');
   });
