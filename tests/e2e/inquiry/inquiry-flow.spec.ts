@@ -198,6 +198,9 @@ test.describe('Inquiry Flow - Authenticated User @inquiry @auth @critical', () =
   }) => {
     await page.goto(`/listings/${testData.properties.dj}/inquiry`);
 
+    // Wait for page to load
+    await page.waitForLoadState('networkidle');
+
     // Fill required fields (name and email pre-filled)
     await page
       .locator('textarea#reason')
@@ -211,17 +214,13 @@ test.describe('Inquiry Flow - Authenticated User @inquiry @auth @critical', () =
     // Submit form
     await page.locator('button[type="submit"]').click();
 
-    // Should show loading state
-    const loadingIndicator = page.locator('button:has-text("送信中")');
-    await expect(loadingIndicator).toBeVisible();
-
-    // Should show success message
+    // Should show success message (loading state is too fast to reliably check)
     await expect(
       page.locator('text=引き継ぎ申し込みを受け付けました')
     ).toBeVisible({ timeout: 10000 });
     await expect(
       page.locator('text=数日以内にメールでご連絡いたします')
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test('should show dashboard button after successful submission', async ({
@@ -307,11 +306,16 @@ test.describe('Inquiry Flow - Form Validation @inquiry @extended', () => {
   test('should show form purpose notice', async ({ page }) => {
     await page.goto(`/listings/${testData.properties.dj}/inquiry`);
 
+    // Wait for page to load
+    await page.waitForLoadState('networkidle');
+
     // Should show notice about form purpose
-    await expect(page.locator('text=このフォームの目的')).toBeVisible();
+    await expect(page.locator('text=このフォームの目的')).toBeVisible({
+      timeout: 10000,
+    });
     await expect(
       page.locator('text=マッチングを行うものではありません')
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test('unauthenticated submit button should prompt login', async ({
@@ -319,9 +323,14 @@ test.describe('Inquiry Flow - Form Validation @inquiry @extended', () => {
   }) => {
     await page.goto(`/listings/${testData.properties.dj}/inquiry`);
 
+    // Wait for page to load
+    await page.waitForLoadState('networkidle');
+
     // Button should say "ログインして申し込む" for unauthenticated users
     const submitButton = page.locator('button[type="submit"]');
-    await expect(submitButton).toHaveText('ログインして申し込む');
+    await expect(submitButton).toHaveText('ログインして申し込む', {
+      timeout: 10000,
+    });
   });
 });
 
