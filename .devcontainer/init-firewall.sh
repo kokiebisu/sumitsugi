@@ -77,7 +77,9 @@ for domain in \
     "api.linear.app" \
     "www.mensnonno.jp" \
     "pypi.org" \
-    "files.pythonhosted.org"; do
+    "files.pythonhosted.org" \
+    "ep-twilight-dust-ahvoqkwv-pooler.c-3.us-east-1.aws.neon.tech" \
+    "console.neon.tech"; do
     echo "Resolving $domain..."
     ips=$(dig +noall +answer A "$domain" | awk '$4 == "A" {print $5}')
     if [ -z "$ips" ]; then
