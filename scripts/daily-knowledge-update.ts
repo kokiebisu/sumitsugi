@@ -1,4 +1,6 @@
 #!/usr/bin/env bun
+/* eslint-disable no-console */
+/* global Bun */
 
 /**
  * Daily Knowledge Update Script - Ralph Loop
@@ -109,10 +111,14 @@ async function generateInsights(query: string, role: Role): Promise<string> {
   try {
     // Claude Code CLI in print mode (uses Max subscription token)
     // Use Bun.spawn to capture both stdout and stderr
-    const proc = Bun.spawn(['claude', '-p', prompt], {
-      stdout: 'pipe',
-      stderr: 'pipe',
-    });
+    // --allowedTools pre-authorizes tools for non-interactive mode (GitHub Actions)
+    const proc = Bun.spawn(
+      ['claude', '-p', prompt, '--allowedTools', 'WebSearch,WebFetch'],
+      {
+        stdout: 'pipe',
+        stderr: 'pipe',
+      }
+    );
 
     const stdout = await new Response(proc.stdout).text();
     const stderr = await new Response(proc.stderr).text();
