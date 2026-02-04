@@ -117,7 +117,7 @@ function ListingCard({
 
 export default function CreatorPage() {
   const router = useRouter();
-  const { user, login, becomeSeller, listings, deleteListing } = useAuth();
+  const { user, becomeSeller, listings, deleteListing } = useAuth();
   const [showSignupDialog, setShowSignupDialog] = useState(false);
   const [showBecomeSellerFlow, setShowBecomeSellerFlow] = useState(false);
 
@@ -132,17 +132,17 @@ export default function CreatorPage() {
     }
   };
 
-  const handleSignupComplete = (newUser: Parameters<typeof login>[0]) => {
-    login(newUser);
+  // Magic Link: ダイアログを閉じるだけ（ログインはMagic Linkクリック後に自動）
+  const handleSignupDialogClose = () => {
     setShowSignupDialog(false);
-    // サインアップ完了後、すぐにBecomeSellerFlowを表示
-    setShowBecomeSellerFlow(true);
   };
 
   const handleBecomeSellerComplete = (
-    hostProfile: Parameters<typeof becomeSeller>[0]
+    hostProfile: Parameters<typeof becomeSeller>[0] | undefined
   ) => {
-    becomeSeller(hostProfile);
+    if (hostProfile) {
+      becomeSeller(hostProfile);
+    }
     setShowBecomeSellerFlow(false);
     // プロフィール作成完了後、ホスティングダッシュボードへリダイレクト
     router.push('/listing');
@@ -342,8 +342,7 @@ export default function CreatorPage() {
       {/* Dialogs */}
       <CustomSignupDialog
         open={showSignupDialog}
-        onOpenChange={setShowSignupDialog}
-        onSignupComplete={handleSignupComplete}
+        onOpenChange={handleSignupDialogClose}
       />
 
       {showBecomeSellerFlow && (
