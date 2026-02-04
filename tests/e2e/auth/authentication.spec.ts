@@ -13,9 +13,10 @@ import {
  * Priority: HIGH
  *
  * Tests the authentication dialogs and login flows including:
- * - Email login
- * - User menu states
+ * - Email/phone login
+ * - User menu states (logged in/out)
  * - Logout flow
+ * - Become seller flow
  */
 
 test.describe('Authentication - Login Dialog @auth @quarantine', () => {
@@ -57,14 +58,6 @@ test.describe('Authentication - Login Dialog @auth @quarantine', () => {
     const phoneInput = page.locator('input[type="tel"]');
     await expect(phoneInput).toBeVisible();
     await expect(phoneInput).toHaveAttribute('placeholder', '電話番号（必須）');
-  });
-
-  test.skip('should display social login buttons', async ({ authPage }) => {
-    // Skipped: Current UI uses simple email+phone form without social login
-    await authPage.openLoginDialog();
-    await expect(authPage.socialButtons.facebook).toBeVisible();
-    await expect(authPage.socialButtons.google).toBeVisible();
-    await expect(authPage.socialButtons.apple).toBeVisible();
   });
 
   test('should close dialog when clicking close button', async ({
