@@ -22,3 +22,4 @@ playwright-results.json
 test-results/
 tests/e2e/artifacts/
 !tests/e2e/artifacts/.gitkeep
+.serena/
