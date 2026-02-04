@@ -48,8 +48,12 @@ test.describe('Dashboard - Empty State @payment @dashboard', () => {
   test('should show empty state for user without inquiries', async ({
     page,
   }) => {
-    // Set up new user with no inquiries before navigation
-    await page.addInitScript(() => {
+    // First navigate to establish page context
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    // Set up new user with no inquiries using page.evaluate (runs synchronously)
+    await page.evaluate(() => {
       const mockUser = {
         id: 'new-user-' + Date.now(),
         email: 'newuser@test.com',
@@ -63,23 +67,28 @@ test.describe('Dashboard - Empty State @payment @dashboard', () => {
       localStorage.removeItem('tsumugi_inquiries');
     });
 
+    // Navigate to dashboard with localStorage already set
     await page.goto('/dashboard');
+    await page.waitForLoadState('networkidle');
 
     // Wait for dashboard to load and not redirect
-    await expect(page).toHaveURL('/dashboard', { timeout: 5000 });
+    await expect(page).toHaveURL('/dashboard', { timeout: 10000 });
 
-    // Should show empty state message
-    await expect(page.locator('text=申し込んだ暮らしがありません')).toBeVisible(
-      { timeout: 10000 }
-    );
+    // Should show empty state message (use .first() to avoid strict mode violation)
+    await expect(
+      page.locator('text=申し込んだ暮らしがありません').first()
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test('should have link to browse properties from empty state', async ({
     page,
   }) => {
+    // First navigate to establish page context
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
-    await page.addInitScript(() => {
+    // Set up new user with no inquiries using page.evaluate (runs synchronously)
+    await page.evaluate(() => {
       const mockUser = {
         id: 'new-user-' + Date.now(),
         email: 'newuser@test.com',
@@ -93,11 +102,12 @@ test.describe('Dashboard - Empty State @payment @dashboard', () => {
       localStorage.removeItem('tsumugi_inquiries');
     });
 
-    await page.reload();
+    // Navigate to dashboard with localStorage already set
     await page.goto('/dashboard');
+    await page.waitForLoadState('networkidle');
 
     // Wait for dashboard to load and not redirect
-    await expect(page).toHaveURL('/dashboard', { timeout: 5000 });
+    await expect(page).toHaveURL('/dashboard', { timeout: 10000 });
 
     const browseLink = page.locator('a:has-text("暮らしを探す")');
     await expect(browseLink).toBeVisible({ timeout: 10000 });

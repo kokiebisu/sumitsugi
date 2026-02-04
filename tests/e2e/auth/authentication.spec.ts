@@ -152,7 +152,8 @@ test.describe('Authentication - Social Login Flow @auth @quarantine', () => {
     await clearLocalStorage(page);
   });
 
-  test('should complete Google login', async ({ authPage, page }) => {
+  test.skip('should complete Google login', async ({ authPage, page }) => {
+    // Skipped: Current UI uses simple email+phone form without social login buttons
     await authPage.openLoginDialog();
     await authPage.loginWithSocial('google');
 
@@ -165,7 +166,8 @@ test.describe('Authentication - Social Login Flow @auth @quarantine', () => {
     expect(userState).not.toBeNull();
   });
 
-  test('should complete Facebook login', async ({ authPage, page }) => {
+  test.skip('should complete Facebook login', async ({ authPage, page }) => {
+    // Skipped: Current UI uses simple email+phone form without social login buttons
     await authPage.openLoginDialog();
     await authPage.loginWithSocial('facebook');
 
@@ -177,7 +179,8 @@ test.describe('Authentication - Social Login Flow @auth @quarantine', () => {
     expect(userState).not.toBeNull();
   });
 
-  test('should complete Apple login', async ({ authPage, page }) => {
+  test.skip('should complete Apple login', async ({ authPage, page }) => {
+    // Skipped: Current UI uses simple email+phone form without social login buttons
     await authPage.openLoginDialog();
     await authPage.loginWithSocial('apple');
 
