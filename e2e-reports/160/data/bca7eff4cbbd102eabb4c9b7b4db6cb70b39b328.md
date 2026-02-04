@@ -1,0 +1,144 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - alert [ref=e2]: アートと植物に囲まれたワンルーム | tsumugi
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "tsumugi" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e7]: tsumugi
+        - generic [ref=e8]:
+          - button "引き継ぎ側モード" [ref=e9] [cursor=pointer]
+          - button "T" [ref=e10] [cursor=pointer]:
+            - img
+            - generic [ref=e12]: T
+    - main [ref=e13]:
+      - link "リスティング" [ref=e15] [cursor=pointer]:
+        - /url: /
+        - img [ref=e16]
+        - text: リスティング
+      - generic [ref=e19]:
+        - generic [ref=e20]:
+          - img "アートと植物に囲まれたワンルーム - メイン写真" [ref=e23] [cursor=pointer]
+          - img "アートと植物に囲まれたワンルーム - 写真2" [ref=e26] [cursor=pointer]
+          - img "アートと植物に囲まれたワンルーム - 写真3" [ref=e29] [cursor=pointer]
+          - img "アートと植物に囲まれたワンルーム - 写真4" [ref=e32] [cursor=pointer]
+          - img "アートと植物に囲まれたワンルーム - 写真5" [ref=e35] [cursor=pointer]
+        - button "写真をすべて表示" [ref=e36] [cursor=pointer]:
+          - img [ref=e37]
+          - text: 写真をすべて表示
+      - generic [ref=e40]:
+        - generic [ref=e41]:
+          - generic [ref=e42]:
+            - heading "アートと植物に囲まれたワンルーム" [level=1] [ref=e43]
+            - paragraph [ref=e44]: 目黒区中目黒 / 1K
+          - generic [ref=e45]:
+            - heading "物件情報" [level=2] [ref=e46]
+            - generic [ref=e47]:
+              - generic [ref=e48]:
+                - img [ref=e50]
+                - generic [ref=e53]:
+                  - paragraph [ref=e54]: 間取り
+                  - paragraph [ref=e55]: 1K
+              - generic [ref=e56]:
+                - img [ref=e58]
+                - generic [ref=e63]:
+                  - paragraph [ref=e64]: 居住人数
+                  - paragraph [ref=e65]: 1人
+          - generic [ref=e66]:
+            - heading "引き継ぎ対象の大型家具" [level=2] [ref=e67]
+            - generic [ref=e69]:
+              - generic [ref=e70]:
+                - img [ref=e72]
+                - generic [ref=e75]: ベッド
+              - generic [ref=e76]:
+                - img [ref=e78]
+                - generic [ref=e80]: デスク
+              - generic [ref=e81]:
+                - img [ref=e83]
+                - generic [ref=e86]: 収納
+        - generic [ref=e89]:
+          - generic [ref=e90]:
+            - paragraph [ref=e91]: 引き継ぎ費用
+            - generic [ref=e92]: ¥60,000
+          - generic [ref=e93]:
+            - generic [ref=e94]:
+              - generic [ref=e95]: 家賃
+              - generic [ref=e96]: ¥85,000/月
+            - paragraph [ref=e97]: 敷金・礼金・管理費は大家さんとの契約内容によります
+          - button "この暮らしを引き継ぐ" [ref=e98] [cursor=pointer]
+          - paragraph [ref=e99]: まずは内見から始めましょう
+        - generic [ref=e100]:
+          - heading "ロケーション" [level=2] [ref=e101]
+          - paragraph [ref=e102]: 日本東京都目黒区 中目黒
+          - generic [ref=e103]:
+            - iframe [ref=e104]:
+              
+            - generic:
+              - generic:
+                - img
+    - contentinfo [ref=e106]:
+      - generic [ref=e107]:
+        - generic [ref=e108]:
+          - generic [ref=e109]:
+            - heading "サポート" [level=3] [ref=e110]
+            - list [ref=e111]:
+              - listitem [ref=e112]:
+                - link "ヘルプセンター" [ref=e113] [cursor=pointer]:
+                  - /url: /help
+              - listitem [ref=e114]:
+                - link "安全上の問題に関してサポートを受ける" [ref=e115] [cursor=pointer]:
+                  - /url: /safety
+              - listitem [ref=e116]:
+                - link "キャンセルオプション" [ref=e117] [cursor=pointer]:
+                  - /url: /cancellation
+              - listitem [ref=e118]:
+                - link "近隣トラブルを報告する" [ref=e119] [cursor=pointer]:
+                  - /url: /report
+          - generic [ref=e120]:
+            - heading "引き継ぎ" [level=3] [ref=e121]
+            - list [ref=e122]:
+              - listitem [ref=e123]:
+                - link "お部屋を掲載する" [ref=e124] [cursor=pointer]:
+                  - /url: /list
+              - listitem [ref=e125]:
+                - link "引き継ぎの仕組み" [ref=e126] [cursor=pointer]:
+                  - /url: /how-it-works
+              - listitem [ref=e127]:
+                - link "出品者向けリソース" [ref=e128] [cursor=pointer]:
+                  - /url: /seller-resources
+              - listitem [ref=e129]:
+                - link "コミュニティフォーラム" [ref=e130] [cursor=pointer]:
+                  - /url: /community
+              - listitem [ref=e131]:
+                - link "責任ある引き継ぎとは" [ref=e132] [cursor=pointer]:
+                  - /url: /handover-responsibly
+          - generic [ref=e133]:
+            - heading "tsumugi" [level=3] [ref=e134]
+            - list [ref=e135]:
+              - listitem [ref=e136]:
+                - link "ニュースルーム" [ref=e137] [cursor=pointer]:
+                  - /url: /about
+              - listitem [ref=e138]:
+                - link "採用情報" [ref=e139] [cursor=pointer]:
+                  - /url: /careers
+              - listitem [ref=e140]:
+                - link "株主・投資家のみなさまへ" [ref=e141] [cursor=pointer]:
+                  - /url: /investors
+        - generic [ref=e142]:
+          - generic [ref=e143]: © 2026 tsumugi
+          - generic [ref=e144]: ·
+          - link "プライバシー" [ref=e145] [cursor=pointer]:
+            - /url: /privacy
+          - generic [ref=e146]: ·
+          - link "利用規約" [ref=e147] [cursor=pointer]:
+            - /url: /terms
+          - generic [ref=e148]: ·
+          - link "サイトマップ" [ref=e149] [cursor=pointer]:
+            - /url: /sitemap
+          - generic [ref=e150]: ·
+          - link "企業情報" [ref=e151] [cursor=pointer]:
+            - /url: /company
+```
