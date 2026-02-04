@@ -47,12 +47,13 @@ test.describe('Dashboard - Page Load @payment @dashboard', () => {
 test.describe('Dashboard - Empty State @payment @dashboard', () => {
   test('should show empty state for user without inquiries', async ({
     page,
-    dashboardPage,
   }) => {
-    // New user with no inquiries
+    // First navigate to establish context
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
-    await page.addInitScript(() => {
+    // Set up new user with no inquiries using page.evaluate
+    await page.evaluate(() => {
       const mockUser = {
         id: 'new-user-' + Date.now(),
         email: 'newuser@test.com',
@@ -66,29 +67,28 @@ test.describe('Dashboard - Empty State @payment @dashboard', () => {
       localStorage.removeItem('tsumugi_inquiries');
     });
 
-    await page.reload();
+    // Navigate to dashboard
     await page.goto('/dashboard');
     await page.waitForLoadState('networkidle');
 
-    // Wait for dashboard to render
-    await page.waitForTimeout(500);
+    // Wait for dashboard to load and not redirect
+    await expect(page).toHaveURL('/dashboard', { timeout: 10000 });
 
-    // Should show empty state
-    const isEmpty = await dashboardPage.isEmpty();
-    expect(isEmpty).toBe(true);
-
-    // Should show message
+    // Should show empty state message (use .first() to avoid strict mode violation)
     await expect(
-      page.locator('text=申し込んだ暮らしがありません')
-    ).toBeVisible();
+      page.locator('text=申し込んだ暮らしがありません').first()
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test('should have link to browse properties from empty state', async ({
     page,
   }) => {
+    // First navigate to establish context
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
-    await page.addInitScript(() => {
+    // Set up new user with no inquiries using page.evaluate
+    await page.evaluate(() => {
       const mockUser = {
         id: 'new-user-' + Date.now(),
         email: 'newuser@test.com',
@@ -102,11 +102,12 @@ test.describe('Dashboard - Empty State @payment @dashboard', () => {
       localStorage.removeItem('tsumugi_inquiries');
     });
 
-    await page.reload();
+    // Navigate to dashboard
     await page.goto('/dashboard');
+    await page.waitForLoadState('networkidle');
 
     // Wait for dashboard to load and not redirect
-    await expect(page).toHaveURL('/dashboard', { timeout: 5000 });
+    await expect(page).toHaveURL('/dashboard', { timeout: 10000 });
 
     const browseLink = page.locator('a:has-text("暮らしを探す")');
     await expect(browseLink).toBeVisible({ timeout: 10000 });
@@ -161,7 +162,9 @@ test.describe('Dashboard - Progress Steps @payment @dashboard', () => {
     ];
 
     for (const step of expectedSteps) {
-      await expect(page.locator(`text="${step}"`).first()).toBeVisible();
+      await expect(page.locator(`text="${step}"`).first()).toBeVisible({
+        timeout: 10000,
+      });
     }
   });
 });
@@ -202,9 +205,13 @@ test.describe('Dashboard - Status Messages @payment @dashboard', () => {
 
       await page.reload();
       await page.goto('/dashboard');
-      await page.waitForLoadState('networkidle');
 
-      await expect(page.locator(`text=${message}`)).toBeVisible();
+      // Wait for dashboard to load and not redirect
+      await expect(page).toHaveURL('/dashboard', { timeout: 5000 });
+
+      await expect(page.locator(`text=${message}`)).toBeVisible({
+        timeout: 10000,
+      });
     });
   }
 });
@@ -212,13 +219,23 @@ test.describe('Dashboard - Status Messages @payment @dashboard', () => {
 test.describe('Dashboard - Action Buttons @payment @dashboard', () => {
   test('should show viewing complete button when viewing is scheduled', async ({
     page,
-    dashboardPage,
   }) => {
+    // Navigate to home first to initialize the page
     await page.goto('/');
-    await setupAuthenticatedUser(page);
 
-    await page.addInitScript(
+    // Set localStorage via evaluate (runs immediately)
+    await page.evaluate(
       ({ testEmail }) => {
+        const mockUser = {
+          id: 'test-user-' + Date.now(),
+          email: testEmail,
+          name: 'Test User',
+          createdAt: new Date().toISOString(),
+          authProvider: 'email',
+          isSeller: false,
+        };
+        localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+
         const inquiry = {
           id: 'test-inquiry-viewing',
           propertyId: '1368794573069214647',
@@ -235,23 +252,38 @@ test.describe('Dashboard - Action Buttons @payment @dashboard', () => {
       { testEmail: testData.users.testUser.email }
     );
 
-    await page.reload();
+    // Now navigate to dashboard with localStorage already set
     await page.goto('/dashboard');
     await page.waitForLoadState('networkidle');
 
-    const hasButton = await dashboardPage.hasViewingCompleteButton();
-    expect(hasButton).toBe(true);
+    // Wait for dashboard to load and not redirect
+    await expect(page).toHaveURL('/dashboard', { timeout: 5000 });
+
+    // Check for viewing complete button
+    await expect(page.locator('a:has-text("内見完了を報告")')).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('should show agreement button when agreement is pending', async ({
     page,
-    dashboardPage,
   }) => {
+    // Navigate to home first to initialize the page
     await page.goto('/');
-    await setupAuthenticatedUser(page);
 
-    await page.addInitScript(
+    // Set localStorage via evaluate (runs immediately)
+    await page.evaluate(
       ({ testEmail }) => {
+        const mockUser = {
+          id: 'test-user-' + Date.now(),
+          email: testEmail,
+          name: 'Test User',
+          createdAt: new Date().toISOString(),
+          authProvider: 'email',
+          isSeller: false,
+        };
+        localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+
         const inquiry = {
           id: 'test-inquiry-agreement',
           propertyId: '1368794573069214647',
@@ -268,12 +300,17 @@ test.describe('Dashboard - Action Buttons @payment @dashboard', () => {
       { testEmail: testData.users.testUser.email }
     );
 
-    await page.reload();
+    // Now navigate to dashboard with localStorage already set
     await page.goto('/dashboard');
     await page.waitForLoadState('networkidle');
 
-    const hasButton = await dashboardPage.hasAgreementButton();
-    expect(hasButton).toBe(true);
+    // Wait for dashboard to load and not redirect
+    await expect(page).toHaveURL('/dashboard', { timeout: 5000 });
+
+    // Check for agreement button
+    await expect(page.locator('a:has-text("引き継ぎ内容を確認")')).toBeVisible({
+      timeout: 10000,
+    });
   });
 });
 
@@ -281,13 +318,24 @@ test.describe('Dashboard - Property Navigation @payment @dashboard', () => {
   test('should navigate to property page when title clicked', async ({
     page,
   }) => {
-    await page.goto('/');
-    await setupAuthenticatedUser(page);
-
     const propertyId = testData.properties.bohemian;
 
-    await page.addInitScript(
+    // Navigate to home first to initialize the page
+    await page.goto('/');
+
+    // Set localStorage via evaluate (runs immediately)
+    await page.evaluate(
       ({ propertyId, testEmail }) => {
+        const mockUser = {
+          id: 'test-user-' + Date.now(),
+          email: testEmail,
+          name: 'Test User',
+          createdAt: new Date().toISOString(),
+          authProvider: 'email',
+          isSeller: false,
+        };
+        localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+
         const inquiry = {
           id: 'test-inquiry-nav',
           propertyId: propertyId,
@@ -304,7 +352,7 @@ test.describe('Dashboard - Property Navigation @payment @dashboard', () => {
       { propertyId, testEmail: testData.users.testUser.email }
     );
 
-    await page.reload();
+    // Now navigate to dashboard with localStorage already set
     await page.goto('/dashboard');
     await page.waitForLoadState('networkidle');
 

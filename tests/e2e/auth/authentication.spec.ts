@@ -14,7 +14,6 @@ import {
  *
  * Tests the authentication dialogs and login flows including:
  * - Email login
- * - Social login (mock)
  * - User menu states
  * - Logout flow
  */
@@ -138,51 +137,6 @@ test.describe('Authentication - Email Login Flow @auth @quarantine', () => {
     expect(await authPage.isDialogVisible()).toBe(false);
 
     // User should be logged in (check localStorage)
-    const userState = await page.evaluate(() => {
-      return localStorage.getItem('tsumugi_user');
-    });
-    expect(userState).not.toBeNull();
-  });
-});
-
-test.describe('Authentication - Social Login Flow @auth @quarantine', () => {
-  // Quarantined: Current UI uses simple email+phone form without social login buttons
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await clearLocalStorage(page);
-  });
-
-  test('should complete Google login', async ({ authPage, page }) => {
-    await authPage.openLoginDialog();
-    await authPage.loginWithSocial('google');
-
-    // Dialog should close and user should be logged in
-    expect(await authPage.isDialogVisible()).toBe(false);
-
-    const userState = await page.evaluate(() => {
-      return localStorage.getItem('tsumugi_user');
-    });
-    expect(userState).not.toBeNull();
-  });
-
-  test('should complete Facebook login', async ({ authPage, page }) => {
-    await authPage.openLoginDialog();
-    await authPage.loginWithSocial('facebook');
-
-    expect(await authPage.isDialogVisible()).toBe(false);
-
-    const userState = await page.evaluate(() => {
-      return localStorage.getItem('tsumugi_user');
-    });
-    expect(userState).not.toBeNull();
-  });
-
-  test('should complete Apple login', async ({ authPage, page }) => {
-    await authPage.openLoginDialog();
-    await authPage.loginWithSocial('apple');
-
-    expect(await authPage.isDialogVisible()).toBe(false);
-
     const userState = await page.evaluate(() => {
       return localStorage.getItem('tsumugi_user');
     });
