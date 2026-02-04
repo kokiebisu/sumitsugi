@@ -1,5 +1,6 @@
 'use server';
 
+import { randomUUID } from 'crypto';
 import { stripe } from '@/lib/stripe/server';
 import {
   calculateFeeBreakdown,
@@ -141,6 +142,7 @@ export async function releaseEscrowAndDistribute(
 
     // Record previous tenant transaction
     await db.insert(transactions).values({
+      id: randomUUID(),
       paymentId: escrowedPayments[0].id, // Link to first escrowed payment
       recipientType: 'seller',
       recipientId: property.userId,
@@ -151,6 +153,7 @@ export async function releaseEscrowAndDistribute(
 
     // Record platform fee transaction (no actual transfer, just record)
     await db.insert(transactions).values({
+      id: randomUUID(),
       paymentId: escrowedPayments[0].id,
       recipientType: 'platform',
       recipientId: null,

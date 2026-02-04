@@ -1,5 +1,6 @@
 'use server';
 
+import { randomUUID } from 'crypto';
 import { db } from '@/db';
 import { properties, inquiries } from '@/db/schema';
 import type { UserListing, Inquiry } from '@/lib/types';
@@ -22,6 +23,7 @@ export async function migrateLocalDataAction(
       for (const listing of localData.listings) {
         try {
           await db.insert(properties).values({
+            id: randomUUID(),
             userId,
             title: listing.title,
             images: listing.roomPhotos || [],
@@ -59,6 +61,7 @@ export async function migrateLocalDataAction(
           // For now, we'll skip inquiries that reference non-existent properties
           // In a real migration, you'd need to handle this more carefully
           await db.insert(inquiries).values({
+            id: randomUUID(),
             userId,
             propertyId: inquiry.propertyId,
             propertyTitle: inquiry.propertyTitle,

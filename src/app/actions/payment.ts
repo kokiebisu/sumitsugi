@@ -1,5 +1,6 @@
 'use server';
 
+import { randomUUID } from 'crypto';
 import { stripe } from '@/lib/stripe/server';
 import { calculateDeposit, calculateFeeBreakdown } from '@/lib/stripe/server';
 import { STRIPE_CONFIG } from '@/lib/stripe/config';
@@ -75,6 +76,7 @@ export async function createApplicationFeePayment(
     const [payment] = await db
       .insert(payments)
       .values({
+        id: randomUUID(),
         propertyId,
         userId,
         type: 'application_fee',
@@ -156,6 +158,7 @@ export async function processApplicationFeeTransfer(
 
     // Record transaction in database
     await db.insert(transactions).values({
+      id: randomUUID(),
       paymentId: payment.id,
       recipientType: 'seller',
       recipientId: (payment.metadata as { previousTenantId?: string })
@@ -232,6 +235,7 @@ export async function createDepositPayment(
     const [payment] = await db
       .insert(payments)
       .values({
+        id: randomUUID(),
         propertyId,
         userId,
         type: 'deposit',
@@ -303,6 +307,7 @@ export async function createRemainingPayment(
     const [payment] = await db
       .insert(payments)
       .values({
+        id: randomUUID(),
         propertyId,
         userId,
         type: 'remaining',
