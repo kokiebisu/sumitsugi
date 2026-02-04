@@ -13,8 +13,10 @@
  */
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
-import { format } from 'date-fns';
+import { format, subDays } from 'date-fns';
 import { $ } from 'bun';
+
+const PAST_DAYS_TO_CHECK = 7; // 過去7日分の洞察を参照
 
 const ROLES = ['ceo', 'cmo', 'cfo', 'cto', 'clo'] as const;
 type Role = (typeof ROLES)[number];
@@ -92,16 +94,88 @@ const ROLE_CONTEXT: Record<Role, string> = {
 };
 
 /**
+ * 過去N日分の特定トピックに関する洞察を取得
+ * 重複回避のためにプロンプトに含める
+ */
+function getPastInsights(role: Role, topic: string, today: Date): string {
+  const dir = `docs/team/${role}/knowledge`;
+  if (!existsSync(dir)) {
+    return '';
+  }
+
+  const pastInsights: string[] = [];
+
+  // 過去N日分のファイルをチェック
+  for (let i = 1; i <= PAST_DAYS_TO_CHECK; i++) {
+    const pastDate = format(subDays(today, i), 'yyyy-MM-dd');
+    const filePath = `${dir}/${pastDate}.md`;
+
+    if (!existsSync(filePath)) {
+      continue;
+    }
+
+    try {
+      const content = readFileSync(filePath, 'utf-8');
+
+      // トピックに該当するセクションを抽出
+      // フォーマット: ### N. トピック名 ... 次の### または ---まで
+      const topicRegex = new RegExp(
+        `### \\d+\\.\\s*${escapeRegExp(topic)}\\n([\\s\\S]*?)(?=###|---|$)`,
+        'i'
+      );
+      const match = content.match(topicRegex);
+
+      if (match && match[1]) {
+        const insight = match[1].trim();
+        if (insight && insight.length > 50) {
+          // 空や短すぎる内容は除外
+          pastInsights.push(`[${pastDate}]\n${insight}`);
+        }
+      }
+    } catch {
+      // ファイル読み込みエラーは無視
+    }
+  }
+
+  return pastInsights.join('\n\n---\n\n');
+}
+
+/**
+ * 正規表現の特殊文字をエスケープ
+ */
+function escapeRegExp(string: string): string {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
  * Claude Code CLIを使用して洞察を生成
  * Max subscription のトークンを使用
  */
-async function generateInsights(query: string, role: Role): Promise<string> {
+async function generateInsights(
+  query: string,
+  role: Role,
+  pastInsights: string
+): Promise<string> {
+  const pastSection = pastInsights
+    ? `
+
+【過去${PAST_DAYS_TO_CHECK}日間の洞察（以下と重複しないこと）】
+${pastInsights}
+
+`
+    : '';
+
+  const avoidDuplicationNote = pastInsights
+    ? '上記の過去洞察と重複しない、新しい視点・最新の動向を'
+    : '';
+
   const prompt = `あなたは${role.toUpperCase()}（${ROLE_CONTEXT[role]}）です。
 
 トピック: "${query}"
-
-このトピックについて、最新のトレンドや重要なポイントを3-5つの箇条書きで日本語で説明してください。
+${pastSection}
+${avoidDuplicationNote}このトピックについて、最新のトレンドや重要なポイントを3-5つの箇条書きで日本語で説明してください。
 各ポイントは簡潔に（1-2文）、実用的な洞察を含めてください。
+${pastInsights ? '過去に言及済みの内容は避け、新たな切り口や深掘りを提供してください。' : ''}
 
 フォーマット:
 - **ポイント1:** 説明
@@ -164,7 +238,7 @@ function appendToKnowledgeFile(role: Role, date: string, content: string) {
 /**
  * 役員ごとに洞察を生成（10トピックずつ）
  */
-async function processRole(role: Role, date: string) {
+async function processRole(role: Role, date: string, today: Date) {
   console.log(`\n👤 Processing ${role.toUpperCase()}...`);
 
   const topics = SEARCH_TOPICS[role];
@@ -174,8 +248,14 @@ async function processRole(role: Role, date: string) {
     const topic = topics[i];
     console.log(`  [${i + 1}/10] 🔍 ${topic}`);
 
+    // 過去の洞察を取得して重複回避
+    const pastInsights = getPastInsights(role, topic, today);
+    if (pastInsights) {
+      console.log(`    📚 Found past insights to avoid duplication`);
+    }
+
     try {
-      const insights = await generateInsights(topic, role);
+      const insights = await generateInsights(topic, role, pastInsights);
       markdown += `### ${i + 1}. ${topic}\n\n${insights}\n\n`;
 
       // Rate limiting対策（2秒待機）
@@ -193,11 +273,15 @@ async function processRole(role: Role, date: string) {
 }
 
 async function main() {
-  const today = format(new Date(), 'yyyy-MM-dd');
+  const now = new Date();
+  const todayStr = format(now, 'yyyy-MM-dd');
 
-  console.log(`📅 Date: ${today}`);
+  console.log(`📅 Date: ${todayStr}`);
   console.log(`📊 Target: 50 insights (10 per role)`);
   console.log(`🔐 Using Claude Code CLI (Max subscription)`);
+  console.log(
+    `📚 Checking past ${PAST_DAYS_TO_CHECK} days for duplication avoidance`
+  );
   console.log(`\n🧠 Starting Ralph Loop (knowledge-based)...`);
 
   // Verify Claude CLI is available
@@ -211,11 +295,11 @@ async function main() {
 
   // 全役員を順次処理
   for (const role of ROLES) {
-    await processRole(role, today);
+    await processRole(role, todayStr, now);
   }
 
   console.log(`\n✅ Daily knowledge update completed!`);
-  console.log(`📁 Files updated in docs/team/*/knowledge/${today}.md`);
+  console.log(`📁 Files updated in docs/team/*/knowledge/${todayStr}.md`);
 }
 
 main().catch((error) => {
