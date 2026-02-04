@@ -318,13 +318,24 @@ test.describe('Dashboard - Property Navigation @payment @dashboard', () => {
   test('should navigate to property page when title clicked', async ({
     page,
   }) => {
-    await page.goto('/');
-    await setupAuthenticatedUser(page);
-
     const propertyId = testData.properties.bohemian;
 
-    await page.addInitScript(
+    // Navigate to home first to initialize the page
+    await page.goto('/');
+
+    // Set localStorage via evaluate (runs immediately)
+    await page.evaluate(
       ({ propertyId, testEmail }) => {
+        const mockUser = {
+          id: 'test-user-' + Date.now(),
+          email: testEmail,
+          name: 'Test User',
+          createdAt: new Date().toISOString(),
+          authProvider: 'email',
+          isSeller: false,
+        };
+        localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+
         const inquiry = {
           id: 'test-inquiry-nav',
           propertyId: propertyId,
@@ -341,7 +352,7 @@ test.describe('Dashboard - Property Navigation @payment @dashboard', () => {
       { propertyId, testEmail: testData.users.testUser.email }
     );
 
-    await page.reload();
+    // Now navigate to dashboard with localStorage already set
     await page.goto('/dashboard');
     await page.waitForLoadState('networkidle');
 
