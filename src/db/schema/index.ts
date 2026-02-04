@@ -2,7 +2,12 @@
 export { users, sellerProfiles } from './users';
 export { properties } from './properties';
 export { inquiries } from './inquiries';
-export { sessions, accounts, verificationTokens } from './sessions';
+export {
+  sessions,
+  accounts,
+  verifications,
+  verificationTokens,
+} from './sessions';
 export { payments, transactions, stripeAccounts } from './payments';
 
 // Define relations

@@ -1,6 +1,5 @@
 import {
   pgTable,
-  uuid,
   varchar,
   integer,
   timestamp,
@@ -16,11 +15,11 @@ import { properties } from './properties';
 export const payments = pgTable(
   'payments',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    propertyId: uuid('property_id')
+    id: text('id').primaryKey(),
+    propertyId: text('property_id')
       .notNull()
       .references(() => properties.id, { onDelete: 'cascade' }),
-    userId: uuid('user_id')
+    userId: text('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
 
@@ -67,14 +66,14 @@ export const payments = pgTable(
 export const transactions = pgTable(
   'transactions',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    paymentId: uuid('payment_id')
+    id: text('id').primaryKey(),
+    paymentId: text('payment_id')
       .notNull()
       .references(() => payments.id, { onDelete: 'cascade' }),
 
     // Recipient info: 'seller' | 'platform' | 'stripe'
     recipientType: varchar('recipient_type', { length: 50 }).notNull(),
-    recipientId: uuid('recipient_id'), // User ID for seller, null for platform/stripe
+    recipientId: text('recipient_id'), // User ID for seller, null for platform/stripe
     amount: integer('amount').notNull(), // Amount in yen
 
     // Stripe transfer/payout identifiers
@@ -110,8 +109,8 @@ export const transactions = pgTable(
 export const stripeAccounts = pgTable(
   'stripe_accounts',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    userId: uuid('user_id')
+    id: text('id').primaryKey(),
+    userId: text('user_id')
       .unique()
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),

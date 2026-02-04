@@ -1,6 +1,5 @@
 import {
   pgTable,
-  uuid,
   varchar,
   text,
   timestamp,
@@ -13,11 +12,11 @@ import { users } from './users';
 export const inquiries = pgTable(
   'inquiries',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    propertyId: uuid('property_id')
+    id: text('id').primaryKey(),
+    propertyId: text('property_id')
       .notNull()
       .references(() => properties.id, { onDelete: 'cascade' }),
-    userId: uuid('user_id').references(() => users.id, {
+    userId: text('user_id').references(() => users.id, {
       onDelete: 'set null',
     }),
 

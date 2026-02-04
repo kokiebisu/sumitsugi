@@ -1,6 +1,5 @@
 import {
   pgTable,
-  uuid,
   varchar,
   text,
   boolean,
@@ -9,12 +8,12 @@ import {
 } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: text('id').primaryKey(),
   email: varchar('email', { length: 255 }).unique().notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   phone: varchar('phone', { length: 50 }),
   image: text('image'), // NextAuth uses 'image' field
-  emailVerified: timestamp('email_verified', { withTimezone: true }), // NextAuth uses timestamp
+  emailVerified: boolean('email_verified').default(false), // better-auth uses boolean
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -32,8 +31,8 @@ export const users = pgTable('users', {
 });
 
 export const sellerProfiles = pgTable('seller_profiles', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id')
+  id: text('id').primaryKey(),
+  userId: text('user_id')
     .unique()
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
