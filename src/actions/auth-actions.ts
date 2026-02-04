@@ -1,113 +1,20 @@
 'use server';
 
-import { signIn, signOut, auth } from '@/lib/auth';
+import { randomUUID } from 'crypto';
+import { auth } from '@/lib/auth';
 import { db } from '@/db';
 import { users, sellerProfiles } from '@/db/schema';
-import { hash } from 'bcryptjs';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
-import { AuthError } from 'next-auth';
+import { headers } from 'next/headers';
 
-// Sign Up Schema
-const signUpSchema = z.object({
-  name: z.string().min(1, '名前を入力してください'),
-  email: z.string().email('有効なメールアドレスを入力してください'),
-  password: z.string().min(8, 'パスワードは8文字以上で入力してください'),
-  phone: z.string().optional(),
-});
-
-export async function signUpAction(data: z.infer<typeof signUpSchema>) {
-  try {
-    const validated = signUpSchema.parse(data);
-
-    // Check if user already exists
-    const existingUser = await db.query.users.findFirst({
-      where: eq(users.email, validated.email),
-    });
-
-    if (existingUser) {
-      return {
-        success: false,
-        error: 'このメールアドレスは既に登録されています',
-      };
-    }
-
-    // Hash password
-    const passwordHash = await hash(validated.password, 12);
-
-    // Create user
-    const [newUser] = await db
-      .insert(users)
-      .values({
-        name: validated.name,
-        email: validated.email,
-        phone: validated.phone,
-        passwordHash,
-        authProvider: 'email',
-        emailVerified: null, // NextAuth uses timestamp for email verification
-        isSeller: false,
-      })
-      .returning();
-
-    // Auto sign in
-    try {
-      await signIn('credentials', {
-        email: validated.email,
-        password: validated.password,
-        redirect: false,
-      });
-    } catch (error) {
-      // Sign in failed, but user was created
-      console.error('Auto sign-in failed:', error);
-    }
-
-    return {
-      success: true,
-      data: {
-        id: newUser.id,
-        email: newUser.email,
-        name: newUser.name,
-      },
-    };
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return { success: false, error: error.errors[0].message };
-    }
-    console.error('Sign up error:', error);
-    return { success: false, error: '登録に失敗しました' };
-  }
-}
-
-// Sign In Action
-export async function signInAction(email: string, password: string) {
-  try {
-    await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-    });
-    return { success: true };
-  } catch (error) {
-    if (error instanceof AuthError) {
-      return {
-        success: false,
-        error: 'メールアドレスまたはパスワードが正しくありません',
-      };
-    }
-    console.error('Sign in error:', error);
-    return { success: false, error: 'ログインに失敗しました' };
-  }
-}
-
-// Sign Out Action
-export async function signOutAction() {
-  try {
-    await signOut({ redirect: false });
-    return { success: true };
-  } catch (error) {
-    console.error('Sign out error:', error);
-    return { success: false, error: 'ログアウトに失敗しました' };
-  }
+// Helper to get session from better-auth
+async function getSession() {
+  const headersList = await headers();
+  const session = await auth.api.getSession({
+    headers: headersList,
+  });
+  return session;
 }
 
 // Become Seller Action
@@ -129,7 +36,7 @@ export async function becomeSellerAction(
   data: z.infer<typeof becomeSellerSchema>
 ) {
   try {
-    const session = await auth();
+    const session = await getSession();
     if (!session?.user?.id) {
       return { success: false, error: 'ログインが必要です' };
     }
@@ -160,6 +67,7 @@ export async function becomeSellerAction(
 
     // Create seller profile
     await db.insert(sellerProfiles).values({
+      id: randomUUID(),
       userId: session.user.id,
       occupation: validated.occupation,
       bio: validated.bio,
@@ -187,19 +95,23 @@ export async function updateProfileAction(
   data: z.infer<typeof updateProfileSchema>
 ) {
   try {
-    const session = await auth();
+    const session = await getSession();
     if (!session?.user?.id) {
       return { success: false, error: 'ログインが必要です' };
     }
 
     const validated = updateProfileSchema.parse(data);
 
+    const updateData: Record<string, unknown> = {
+      updatedAt: new Date(),
+    };
+    if (validated.name) updateData.name = validated.name;
+    if (validated.phone !== undefined) updateData.phone = validated.phone;
+    if (validated.avatarUrl) updateData.image = validated.avatarUrl;
+
     const [updatedUser] = await db
       .update(users)
-      .set({
-        ...validated,
-        updatedAt: new Date(),
-      })
+      .set(updateData)
       .where(eq(users.id, session.user.id))
       .returning();
 
@@ -241,7 +153,7 @@ export async function updateSellerProfileAction(
   data: z.infer<typeof updateSellerProfileSchema>
 ) {
   try {
-    const session = await auth();
+    const session = await getSession();
     if (!session?.user?.id) {
       return { success: false, error: 'ログインが必要です' };
     }
@@ -283,7 +195,7 @@ export async function updateSellerProfileAction(
 // Get Current User Action
 export async function getCurrentUserAction() {
   try {
-    const session = await auth();
+    const session = await getSession();
     if (!session?.user?.id) {
       return { success: false, error: 'ログインしていません' };
     }
@@ -294,7 +206,7 @@ export async function getCurrentUserAction() {
         sellerProfile: true,
       },
       columns: {
-        passwordHash: false, // Exclude password hash
+        passwordHash: false,
       },
     });
 
