@@ -10,17 +10,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  ArrowLeft,
-  User,
-  Mail,
-  Phone,
-  Camera,
-  Briefcase,
-  Instagram,
-  Globe,
-  Youtube,
-} from 'lucide-react';
+import { ArrowLeft, Camera, Instagram, Globe, Youtube } from 'lucide-react';
 
 export default function AccountEditPage() {
   const { user, isLoading, updateUser } = useAuth();
@@ -253,65 +243,44 @@ export default function AccountEditPage() {
 
             {/* メールアドレス */}
             <div className="rounded-xl border border-border bg-background p-6">
-              <div className="mb-4 flex items-start justify-between">
-                <div>
-                  <h2 className="text-base font-semibold text-foreground">
-                    メールアドレス
-                  </h2>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {user.email}
-                  </p>
-                </div>
+              <div className="mb-4">
+                <h2 className="text-base font-semibold text-foreground">
+                  メールアドレス
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  ログインや通知に使用されます
+                </p>
               </div>
-              <div className="space-y-4">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-foreground">
-                    メールアドレス
-                  </label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
-                    placeholder="メールアドレスを入力"
-                  />
-                </div>
-              </div>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+                placeholder="メールアドレスを入力"
+              />
             </div>
 
             {/* 電話番号 */}
             <div className="rounded-xl border border-border bg-background p-6">
-              <div className="mb-4 flex items-start justify-between">
-                <div>
-                  <h2 className="text-base font-semibold text-foreground">
-                    電話番号
-                  </h2>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {user.phone || '未入力'}
-                  </p>
-                </div>
+              <div className="mb-4">
+                <h2 className="text-base font-semibold text-foreground">
+                  電話番号
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  次の住人との連絡に使用されます
+                </p>
               </div>
-              <div className="space-y-4">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-foreground">
-                    電話番号
-                  </label>
-                  <Input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) =>
-                      setFormData({ ...formData, phone: e.target.value })
-                    }
-                    placeholder="電話番号を入力"
-                  />
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    連絡先電話番号（予約確定済みのゲストやAirbnbとの連絡用）。ほかの電話番号を追加して、電話番号の用途を選択できます。
-                  </p>
-                </div>
-              </div>
+              <Input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
+                placeholder="090-1234-5678"
+              />
             </div>
 
             {/* クリエイタープロフィール（セラーのみ） */}
