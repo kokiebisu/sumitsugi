@@ -75,6 +75,7 @@ for domain in \
     "update.code.visualstudio.com" \
     "main.vscode-cdn.net" \
     "api.linear.app" \
+    "api.resend.com" \
     "www.mensnonno.jp" \
     "pypi.org" \
     "files.pythonhosted.org" \
