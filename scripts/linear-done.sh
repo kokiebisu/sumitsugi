@@ -4,16 +4,23 @@
 
 set -e
 
-# Load environment variables
-if [ -f .env.local ]; then
-  source .env.local
-else
-  echo "Error: .env.local not found"
+# Load environment variables if not already set
+if [ -z "$LINEAR_API_KEY" ] || [ -z "$LINEAR_TEAM_ID" ]; then
+  if [ -f .env.local ]; then
+    source .env.local
+  fi
+fi
+
+# Verify required environment variables
+if [ -z "$LINEAR_API_KEY" ]; then
+  echo "Error: LINEAR_API_KEY not set"
+  echo "Set it as environment variable or add to .env.local"
   exit 1
 fi
 
-if [ -z "$LINEAR_API_KEY" ]; then
-  echo "Error: LINEAR_API_KEY not set in .env.local"
+if [ -z "$LINEAR_TEAM_ID" ]; then
+  echo "Error: LINEAR_TEAM_ID not set"
+  echo "Set it as environment variable or add to .env.local"
   exit 1
 fi
 
@@ -27,7 +34,7 @@ fi
 DONE_STATE_ID=$(curl -s -X POST \
   -H "Content-Type: application/json" \
   -H "Authorization: $LINEAR_API_KEY" \
-  -d '{"query":"query { workflowStates(filter: { team: { id: { eq: \"21f06272-3f96-46f2-836c-0d5dd726f931\" } } }) { nodes { id name type } } }"}' \
+  -d "{\"query\":\"query { workflowStates(filter: { team: { id: { eq: \\\"$LINEAR_TEAM_ID\\\" } } }) { nodes { id name type } } }\"}" \
   https://api.linear.app/graphql | python3 -c "import sys, json; data=json.load(sys.stdin); states=[s for s in data['data']['workflowStates']['nodes'] if s['name']=='Done']; print(states[0]['id'] if states else '')")
 
 if [ -z "$DONE_STATE_ID" ]; then
