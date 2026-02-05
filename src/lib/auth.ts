@@ -32,7 +32,7 @@ export const auth = betterAuth({
         const resend = new Resend(process.env.RESEND_API_KEY);
 
         await resend.emails.send({
-          from: 'tsumugi <noreply@tsumugi.app>',
+          from: 'tsumugi <onboarding@resend.dev>',
           to: email,
           subject: 'tsumugi ログインリンク',
           html: `
