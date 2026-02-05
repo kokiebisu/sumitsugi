@@ -4,21 +4,23 @@
 
 set -e
 
-# Load environment variables
-if [ -f .env.local ]; then
-  source .env.local
-else
-  echo "Error: .env.local not found"
-  exit 1
+# Load environment variables if not already set
+if [ -z "$LINEAR_API_KEY" ] || [ -z "$LINEAR_TEAM_ID" ]; then
+  if [ -f .env.local ]; then
+    source .env.local
+  fi
 fi
 
+# Verify required environment variables
 if [ -z "$LINEAR_API_KEY" ]; then
-  echo "Error: LINEAR_API_KEY not set in .env.local"
+  echo "Error: LINEAR_API_KEY not set"
+  echo "Set it as environment variable or add to .env.local"
   exit 1
 fi
 
 if [ -z "$LINEAR_TEAM_ID" ]; then
-  echo "Error: LINEAR_TEAM_ID not set in .env.local"
+  echo "Error: LINEAR_TEAM_ID not set"
+  echo "Set it as environment variable or add to .env.local"
   exit 1
 fi
 
