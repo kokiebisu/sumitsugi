@@ -29,11 +29,20 @@
     "worktree:list": "git worktree list",
     "worktree:prune": "git worktree prune",
     "cleanup:branches": "bash scripts/cleanup-branches.sh",
-    "cleanup:all": "bun run cleanup:branches && git worktree prune && git stash clear"
+    "cleanup:all": "bun run cleanup:branches && git worktree prune && git stash clear",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "db:generate": "bunx drizzle-kit generate",
+    "db:migrate": "bun scripts/db-migrate.ts",
+    "db:push": "bunx drizzle-kit push",
+    "db:studio": "bunx drizzle-kit studio",
+    "db:reset": "docker compose down -v && docker compose up -d postgres && sleep 2 && bun run db:migrate"
   },
   "dependencies": {
     "@auth/core": "^0.41.0",
     "@auth/drizzle-adapter": "^1.11.1",
+    "@aws-sdk/client-s3": "^3.984.0",
+    "@aws-sdk/s3-request-presigner": "^3.984.0",
     "@hookform/resolvers": "^3.10.0",
     "@neondatabase/serverless": "^1.0.2",
     "@radix-ui/react-accordion": "1.2.2",
