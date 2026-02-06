@@ -54,16 +54,27 @@ gh pr checks                          # Monitor CI status
 gh pr view <number> --comments        # Check for review comments
 gh pr merge <number> --squash --delete-branch  # Only after CI passes + comments addressed
 
-# 8. Return to main workspace BEFORE removing worktree (CRITICAL)
-# If you remove the worktree while your CWD is inside it, the shell breaks permanently.
-cd /workspaces/tsumugi
+# 8-10: Clean up worktree (EACH STEP MUST BE A SEPARATE BASH CALL)
+```
 
-# 9. Clean up worktree (MUST be done AFTER cd back to main workspace)
+**Worktree cleanup (3 separate Bash calls - NEVER chain these):**
+
+```bash
+# Bash call 1: Return to main workspace (MUST succeed on its own)
+cd /workspaces/tsumugi
+```
+
+```bash
+# Bash call 2: Remove worktree (safe now - CWD is main workspace)
 git worktree remove /workspaces/tsumugi/.worktrees/<branch-name>
+```
+
+```bash
+# Bash call 3: Pull latest
 git pull origin main
 ```
 
-**CRITICAL: Always `cd` back to the main workspace BEFORE running `git worktree remove`.** Removing a worktree while your shell CWD is inside it destroys the shell session — all subsequent commands will fail silently with exit code 1 and no output.
+**CRITICAL: Each cleanup step MUST be a separate Bash tool invocation.** Chaining `cd && git worktree remove` in one call is NOT safe - if any part of the chain fails (e.g., a later `git pull` exits 128), the CWD persistence may not update, leaving the next Bash call starting in the deleted worktree directory. This permanently breaks the shell - all commands return exit code 1 with no output.
 
 **Remember:** Worktrees prevent the "oops, I committed the wrong files" problem by giving you a clean, isolated workspace.
 
