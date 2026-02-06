@@ -46,8 +46,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   python3-pip \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Playwright system dependencies (using bunx instead of npx)
-RUN bunx -y playwright@1.58.0 install-deps chromium
+# Install Playwright system dependencies only (requires root, small footprint ~50MB)
+# Browser binary installed on-demand via: bun run test:e2e:install
+RUN npx playwright install-deps chromium
 
 # Add bun user to docker group for Docker socket access
 RUN groupadd -f docker && usermod -aG docker bun
