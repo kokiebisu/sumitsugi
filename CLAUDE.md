@@ -191,19 +191,17 @@ See [.devcontainer/WORKTREE.md](.devcontainer/WORKTREE.md) for detailed document
 - Removes branches marked as [gone] (deleted on remote)
 - Can be triggered manually: `gh workflow run "Cleanup Merged Branches"`
 
-**Local Cleanup Commands:**
+**Post-Merge Hook (Automatic):**
+
+- After every `git pull`, local branches marked [gone] are auto-deleted
+- Installed by `scripts/setup-git-hooks.sh` (runs in devcontainer `postCreateCommand`)
+- No manual action needed
+
+**Local Cleanup Commands (manual, if needed):**
 
 ```bash
 bun run cleanup:branches  # Delete merged and [gone] branches
 bun run cleanup:all       # Full cleanup: branches + worktrees + stashes
-```
-
-**Manual cleanup workflow:**
-
-```bash
-git fetch --all --prune          # Update remote tracking
-bun run cleanup:branches         # Clean up branches
-git worktree prune               # Clean up worktrees
 ```
 
 ## Directory Structure
