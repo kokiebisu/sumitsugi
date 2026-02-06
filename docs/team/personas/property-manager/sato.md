@@ -196,10 +196,10 @@
 
 ## 関連ドキュメント
 
-- [前の住人ペルソナ：ユキ](../seller/PERSONA.md)
-- [次の住人ペルソナ：ハル](../buyer/PERSONA.md)
-- [大家ペルソナ：田中オーナー](../landlord/PERSONA.md)
-- [仲介会社ペルソナ](../agent/PERSONA.md)（作成予定）
+- [前の住人ペルソナ：ユキ](../seller/yuki.md)
+- [次の住人ペルソナ：ハル](../buyer/haru.md)
+- [大家ペルソナ：田中オーナー](../landlord/tanaka.md)
+- [仲介会社ペルソナ](../agent/suzuki.md)（作成予定）
 
 ---
 

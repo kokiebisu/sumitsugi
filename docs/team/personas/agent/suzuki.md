@@ -133,10 +133,10 @@
 
 ## 関連ドキュメント
 
-- [前の住人ペルソナ：ユキ](../seller/PERSONA.md)
-- [次の住人ペルソナ：ハル](../buyer/PERSONA.md)
-- [大家ペルソナ：田中オーナー](../landlord/PERSONA.md)
-- [管理会社ペルソナ：佐藤さん](../property-manager/PERSONA.md)
+- [前の住人ペルソナ：ユキ](../seller/yuki.md)
+- [次の住人ペルソナ：ハル](../buyer/haru.md)
+- [大家ペルソナ：田中オーナー](../landlord/tanaka.md)
+- [管理会社ペルソナ：佐藤さん](../property-manager/sato.md)
 
 ---
 
