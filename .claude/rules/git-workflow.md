@@ -54,16 +54,27 @@ gh pr checks                          # Monitor CI status
 gh pr view <number> --comments        # Check for review comments
 gh pr merge <number> --squash --delete-branch  # Only after CI passes + comments addressed
 
-# 8. Return to main workspace BEFORE removing worktree (CRITICAL)
-# If you remove the worktree while your CWD is inside it, the shell breaks permanently.
-cd /workspaces/tsumugi
+# 8-10: Clean up worktree (EACH STEP MUST BE A SEPARATE BASH CALL)
+```
 
-# 9. Clean up worktree (MUST be done AFTER cd back to main workspace)
+**Worktree cleanup (3 separate Bash calls - NEVER chain these):**
+
+```bash
+# Bash call 1: Return to main workspace (MUST succeed on its own)
+cd /workspaces/tsumugi
+```
+
+```bash
+# Bash call 2: Remove worktree (safe now - CWD is main workspace)
 git worktree remove /workspaces/tsumugi/.worktrees/<branch-name>
+```
+
+```bash
+# Bash call 3: Pull latest
 git pull origin main
 ```
 
-**CRITICAL: Always `cd` back to the main workspace BEFORE running `git worktree remove`.** Removing a worktree while your shell CWD is inside it destroys the shell session — all subsequent commands will fail silently with exit code 1 and no output.
+**CRITICAL: Each cleanup step MUST be a separate Bash tool invocation.** Chaining `cd && git worktree remove` in one call is NOT safe - if any part of the chain fails (e.g., a later `git pull` exits 128), the CWD persistence may not update, leaving the next Bash call starting in the deleted worktree directory. This permanently breaks the shell - all commands return exit code 1 with no output.
 
 **Remember:** Worktrees prevent the "oops, I committed the wrong files" problem by giving you a clean, isolated workspace.
 
@@ -100,7 +111,7 @@ Note: Attribution disabled globally via ~/.claude/settings.json.
 1. Create/update PR
 2. Wait for CI checks (`gh pr checks`) - ALL must pass (lint, types, unit tests, E2E tests)
 3. If any CI check fails: use `/ralph-loop` to iteratively fix until all checks pass, then go back to step 2
-4. Check for PR review comments (`gh pr view <number> --comments` and `gh pr view <number> --json reviews`)
+4. Check for PR review comments (`gh pr view <number> --comments` and `gh pr reviews <number>`)
 5. If relevant comments exist: address them, push fixes, go back to step 2
 6. Merge PR (`gh pr merge <number> --squash --delete-branch`)
 7. Switch to main (`git checkout main`)
@@ -143,7 +154,7 @@ Note: Attribution disabled globally via ~/.claude/settings.json.
 **PR Review Comment Check (CRITICAL):**
 
 - **ALWAYS check for PR review comments before merging** using `gh pr view <number> --comments`
-- Also check review status: `gh pr view <number> --json reviews`
+- Also check review status: `gh pr reviews <number>`
 - Address ALL relevant review comments before merging, not just critical ones
 - Look for: requested changes, blocking reviews, bug reports, security concerns, design feedback, logic issues
 - Only skip comments that are clearly irrelevant (e.g., bot noise, outdated/resolved threads, pure style preferences with no substance)
@@ -184,7 +195,7 @@ When creating PRs:
 6. Verify PR contains only related changes
 7. **WAIT FOR ALL CI CHECKS TO PASS** - Use `gh pr checks` to monitor status (lint, types, unit tests, E2E)
 8. **If any CI check fails** - Use `/ralph-loop` to iteratively fix until green
-9. **CHECK FOR PR REVIEW COMMENTS** - Use `gh pr view <number> --comments` and `gh pr view <number> --json reviews`
+9. **CHECK FOR PR REVIEW COMMENTS** - Use `gh pr view <number> --comments` and `gh pr reviews <number>`
 10. **Address all relevant review comments** before proceeding
 11. **After ALL CI passes and review comments are addressed, merge PR with `gh pr merge <number> --squash --delete-branch`**
 12. **Switch back to main and delete local branch:**

@@ -248,7 +248,7 @@ railway up
    ```
 3. Start production server:
    ```bash
-   npm start
+   bun start
    ```
 
 ### Step 4: Test Payment Flow
