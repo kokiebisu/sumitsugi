@@ -49,17 +49,21 @@ git commit -m "..."
 git push -u origin HEAD
 gh pr create --title "..." --body "..."
 
-# 7. Wait for CI to pass, then merge
-gh pr checks  # Monitor CI status
-gh pr merge <number> --squash --delete-branch  # Only after CI passes
+# 7. Wait for CI to pass and check for PR review comments
+gh pr checks                          # Monitor CI status
+gh pr view <number> --comments        # Check for review comments
+gh pr merge <number> --squash --delete-branch  # Only after CI passes + comments addressed
 
-# 8. Return to main workspace
+# 8. Return to main workspace BEFORE removing worktree (CRITICAL)
+# If you remove the worktree while your CWD is inside it, the shell breaks permanently.
 cd /workspaces/tsumugi
 
-# 9. Clean up worktree
+# 9. Clean up worktree (MUST be done AFTER cd back to main workspace)
 git worktree remove /workspaces/tsumugi/.worktrees/<branch-name>
 git pull origin main
 ```
+
+**CRITICAL: Always `cd` back to the main workspace BEFORE running `git worktree remove`.** Removing a worktree while your shell CWD is inside it destroys the shell session — all subsequent commands will fail silently with exit code 1 and no output.
 
 **Remember:** Worktrees prevent the "oops, I committed the wrong files" problem by giving you a clean, isolated workspace.
 
@@ -82,21 +86,29 @@ Note: Attribution disabled globally via ~/.claude/settings.json.
 - **DO NOT STOP** after creating a PR
 - **DO NOT STOP** after pushing commits
 - **DO NOT STOP** after CI starts running
-- **ALWAYS WAIT** for CI to pass
-- **ALWAYS MERGE** the PR after CI passes
+- **DO NOT STOP** when CI fails - fix it iteratively until it passes
+- **ALWAYS WAIT** for ALL CI to pass (lint, types, unit tests, E2E tests)
+- **ALWAYS FIX** CI failures using `/ralph-loop` to iteratively fix until green
+- **ALWAYS CHECK** for relevant PR review comments before merging
+- **ALWAYS ADDRESS** relevant review feedback before merging
+- **ALWAYS MERGE** the PR after CI passes and review feedback is addressed
 - **ALWAYS SWITCH** back to main and pull
 - **ONLY THEN** is the work complete
 
 **Complete PR Workflow (MUST FINISH ALL STEPS):**
 
 1. Create/update PR
-2. Wait for CI checks to pass (`gh pr checks`)
-3. Merge PR (`gh pr merge <number> --squash --delete-branch`)
-4. Switch to main (`git checkout main`)
-5. Pull latest changes (`git pull origin main`)
-6. Verify you're on main with latest code
+2. Wait for CI checks (`gh pr checks`) - ALL must pass (lint, types, unit tests, E2E tests)
+3. If any CI check fails: use `/ralph-loop` to iteratively fix until all checks pass, then go back to step 2
+4. Check for PR review comments (`gh pr view <number> --comments` and `gh pr reviews <number>`)
+5. If relevant comments exist: address them, push fixes, go back to step 2
+6. Merge PR (`gh pr merge <number> --squash --delete-branch`)
+7. Switch to main (`git checkout main`)
+8. Pull latest changes (`git pull origin main`)
+9. Verify you're on main with latest code
 
-**If you stop before step 6, you haven't finished the task.**
+**If you stop before step 9, you haven't finished the task.**
+**If CI fails, you MUST fix it - do not skip, do not ask the user to merge manually.**
 
 **PR Size Limit (CRITICAL):**
 
@@ -115,14 +127,33 @@ Note: Attribution disabled globally via ~/.claude/settings.json.
 
 **CI Check Requirement (CRITICAL):**
 
-- **WAIT FOR CI CHECKS TO PASS** before merging any PR
-- Use `gh pr checks` or check GitHub UI to verify all checks are green
-- NEVER merge a PR with failing CI checks
+- **ALL CI checks MUST pass** before merging - this includes linting, type checks, unit tests, AND E2E tests
+- Use `gh pr checks` to monitor status; verify every check is green
+- NEVER merge a PR with any failing CI check, regardless of which check it is
+- If ANY check fails, use `/ralph-loop` to iteratively fix:
+  1. Ralph reads the failing check's logs (`gh run view <run-id> --log-failed`)
+  2. Identifies root cause from the error output
+  3. Fixes the issue locally
+  4. Pushes the fix and waits for CI to re-run
+  5. If it still fails, repeats automatically until ALL checks pass
 
-**Auto-Merge After CI (CRITICAL):**
+- E2E test failures are NOT optional to fix - treat them the same as any other CI failure
+- If after several iterations a failure appears to be a flaky test unrelated to your changes, flag it to the user rather than silently merging
 
-- After CI passes, you MUST merge PRs automatically using `gh pr merge <number> --squash --delete-branch`
-- This is NOT optional - merge immediately after CI passes
+**PR Review Comment Check (CRITICAL):**
+
+- **ALWAYS check for PR review comments before merging** using `gh pr view <number> --comments`
+- Also check review status: `gh pr reviews <number>`
+- Address ALL relevant review comments before merging, not just critical ones
+- Look for: requested changes, blocking reviews, bug reports, security concerns, design feedback, logic issues
+- Only skip comments that are clearly irrelevant (e.g., bot noise, outdated/resolved threads, pure style preferences with no substance)
+- When in doubt, address the comment - it's better to fix something unnecessary than to merge with a real issue
+- NEVER merge a PR with unaddressed relevant review comments
+
+**Auto-Merge After CI + Review Check (CRITICAL):**
+
+- After CI passes AND relevant review comments are addressed, merge using `gh pr merge <number> --squash --delete-branch`
+- This is NOT optional - merge immediately after both checks pass
 
 **When to merge automatically:**
 
@@ -151,14 +182,18 @@ When creating PRs:
 4. Include test plan with TODOs
 5. Push with `-u` flag if new branch
 6. Verify PR contains only related changes
-7. **WAIT FOR CI CHECKS TO PASS** - Use `gh pr checks` to monitor status
-8. **After CI passes, merge PR with `gh pr merge <number> --squash --delete-branch`**
-9. **Switch back to main and delete local branch:**
-   ```bash
-   git checkout main
-   git pull origin main
-   git branch -D <feature-branch-name>
-   ```
+7. **WAIT FOR ALL CI CHECKS TO PASS** - Use `gh pr checks` to monitor status (lint, types, unit tests, E2E)
+8. **If any CI check fails** - Use `/ralph-loop` to iteratively fix until green
+9. **CHECK FOR PR REVIEW COMMENTS** - Use `gh pr view <number> --comments` and `gh pr reviews <number>`
+10. **Address all relevant review comments** before proceeding
+11. **After ALL CI passes and review comments are addressed, merge PR with `gh pr merge <number> --squash --delete-branch`**
+12. **Switch back to main and delete local branch:**
+
+```bash
+git checkout main
+git pull origin main
+git branch -D <feature-branch-name>
+```
 
 **Keep PR Description Updated (CRITICAL):**
 
@@ -222,11 +257,12 @@ For each PR group, follow this exact sequence:
    gh pr create --title "..." --body "..."
    ```
 
-6. **Wait for CI, then merge:**
+6. **Wait for CI, check PR comments, then merge:**
 
    ```bash
-   gh pr checks  # Monitor CI status
-   gh pr merge <number> --squash --delete-branch  # Only after CI passes
+   gh pr checks                          # Monitor CI status
+   gh pr view <number> --comments        # Check for review comments
+   gh pr merge <number> --squash --delete-branch  # Only after CI passes + comments addressed
    ```
 
 7. **Return to main and pull:**
