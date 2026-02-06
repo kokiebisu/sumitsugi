@@ -111,7 +111,9 @@ COPY init-firewall.sh /usr/local/bin/
 USER root
 RUN chmod +x /usr/local/bin/init-firewall.sh && \
   echo "bun ALL=(root) NOPASSWD: /usr/local/bin/init-firewall.sh" > /etc/sudoers.d/bun-firewall && \
-  chmod 0440 /etc/sudoers.d/bun-firewall
+  chmod 0440 /etc/sudoers.d/bun-firewall && \
+  echo "bun ALL=(root) NOPASSWD: /bin/chgrp docker /var/run/docker.sock" > /etc/sudoers.d/bun-docker && \
+  chmod 0440 /etc/sudoers.d/bun-docker
 USER bun
 
 # Install Beads CLI (bd) for AI-friendly task tracking

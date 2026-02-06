@@ -1,0 +1,54 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ..:/workspace:cached
+    command: sleep infinity
+    cap_add:
+      - NET_ADMIN
+    deploy:
+      resources:
+        limits:
+          cpus: "6"
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    network_mode: service:app
+    environment:
+      POSTGRES_USER: tsumugi
+      POSTGRES_PASSWORD: tsumugi
+      POSTGRES_DB: tsumugi
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tsumugi"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - app
+
+  localstack:
+    image: localstack/localstack:latest
+    network_mode: service:app
+    environment:
+      - SERVICES=s3
+      - DEBUG=0
+      - DEFAULT_REGION=ap-northeast-1
+    volumes:
+      - "../scripts/localstack-init.sh:/etc/localstack/init/ready.d/init.sh"
+      - localstack_data:/var/lib/localstack
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      - app
+
+volumes:
+  postgres_data:
+  localstack_data:

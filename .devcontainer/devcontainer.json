@@ -2,10 +2,9 @@
   "name": "Bun & TypeScript",
   // This devcontainer config is shared across git worktrees via symlinks
   // See WORKTREE.md for details on using devcontainers with git worktrees
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
-  "runArgs": ["--cap-add=NET_ADMIN", "--cpus=6"],
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -14,7 +13,9 @@
         "esbenp.prettier-vscode",
         "ms-vscode.vscode-typescript-next",
         "eamodio.gitlens",
-        "GitHub.vscode-github-actions"
+        "GitHub.vscode-github-actions",
+        "ms-azuretools.vscode-containers",
+        "ms-playwright.playwright"
       ],
       "settings": {
         "editor.formatOnSave": true,
@@ -22,8 +23,8 @@
       }
     }
   },
-  "forwardPorts": [3000, 9323],
-  "postCreateCommand": "bun install && git config --global worktree.guessRemote true && ([ -d .beads ] || bd init --quiet) && echo \"alias claude='claude --skip-dangerously-permission'\" >> ~/.bashrc",
+  "forwardPorts": [3000, 4566, 5432, 9323],
+  "postCreateCommand": "bun install && bunx playwright install chromium && git config --global worktree.guessRemote true && ([ -d .beads ] || bd init --quiet) && echo \"alias claude='claude --dangerously-skip-permissions'\" >> ~/.bashrc && echo \"alias claude='claude --dangerously-skip-permissions'\" >> ~/.zshrc",
   "remoteUser": "bun",
   "postAttachCommand": ".devcontainer/install-plugins.sh",
   "mounts": [
@@ -39,6 +40,6 @@
   "containerEnv": {
     "CLAUDE_CONFIG_DIR": "/home/bun/.claude"
   },
-  "postStartCommand": "sudo /usr/local/bin/init-firewall.sh",
+  "postStartCommand": "sudo chgrp docker /var/run/docker.sock && sudo /usr/local/bin/init-firewall.sh",
   "waitFor": "postStartCommand"
 }
