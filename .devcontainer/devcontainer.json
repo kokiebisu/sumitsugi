@@ -1,5 +1,5 @@
 {
-  "name": "Bun & TypeScript",
+  "name": "Workspace",
   // This devcontainer config is shared across git worktrees via symlinks
   // See WORKTREE.md for details on using devcontainers with git worktrees
   "dockerComposeFile": "docker-compose.yml",
@@ -20,7 +20,8 @@
       "settings": {
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "claude-code.terminalCommandFlags": "--dangerously-skip-permissions"
+        "claude-code.terminalCommandFlags": "--dangerously-skip-permissions",
+        "telemetry.telemetryLevel": "off"
       }
     }
   },
