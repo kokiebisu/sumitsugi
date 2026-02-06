@@ -140,7 +140,7 @@
 ## 関連ドキュメント
 
 - [前の住人ペルソナ（一般型）：ユキ](PERSONA.md)
-- [次の住人ペルソナ：ハル](../buyer/PERSONA.md)
+- [次の住人ペルソナ：ハル](../buyer/haru.md)
 - [インテリアコーディネーター：マリ](PERSONA-COORDINATOR.md)
 
 ---

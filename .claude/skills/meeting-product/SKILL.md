@@ -1,129 +1,286 @@
 ---
 name: meeting:product
-description: Multi-persona product meeting with PM and CTO to discuss UX vs technical tradeoffs. Converts vague feedback into concrete requirements, updates REQUIREMENTS.md, and syncs with Linear.
+description: Product meeting where user personas (ユキ, ハル, 田中オーナー etc.) discuss features together. Personas react to each other naturally, creating realistic stakeholder dialogue. PM facilitates but does not interview.
 ---
 
-# Product Meeting: PM + CTO Discussion
+# Product Meeting: ペルソナ座談会
 
-This skill facilitates a structured product meeting with multiple personas to evaluate product decisions from both user experience and technical perspectives.
+ユーザーペルソナたちが**お互いに議論する**プロダクトミーティング。PMはファシリテーターとして場を回すが、主役はペルソナたち。
 
-## 🚀 Quick Start
+## Quick Start
 
 **LANGUAGE: This meeting is ALWAYS conducted in Japanese.**
 
-**When invoked, immediately start the meeting:**
+**When invoked, immediately:**
+
+1. Read the persona files from `docs/team/personas/` to load character details
+2. Start the meeting:
 
 ```
 🎯 プロダクトミーティング開始
 
-👤 プロダクトマネージャー: こんにちは! 今日はどんなプロダクトのフィードバックやアイデアについて話し合いたいですか?
-```
+👤 PM: こんにちは！今日は皆さんに集まっていただきました。
+   早速ですが、今日のテーマについてご意見を聞かせてください。
 
-**Wait for user to share their vague feedback, then begin the discussion flow IN JAPANESE.**
+[ユーザーがテーマを共有]
+
+PM: なるほど、[テーマの要約]ですね。
+    まずユキさん、前の住人として率直にどう思いますか？
+
+🏠 ユキ: [反応]
+
+🌱 ハル: [ユキの発言に反応してから自分の意見]
+
+...議論が自然に展開...
+```
 
 ---
 
-## When to Use
+## Persona Loading (CRITICAL)
 
-- You have vague feedback about the product
-- Need to explore UX vs technical tradeoffs
-- Deciding on feature implementation approach
-- Translating user needs into concrete requirements
-- Making product decisions that impact both UX and engineering
+**Meeting開始時に必ず以下のペルソナファイルを読み込む：**
+
+```
+# 前の住人（seller）
+docs/team/personas/seller/yuki.md           # ユキ（前の住人・一般型）
+docs/team/personas/seller/rei.md   # レイ（前の住人・クリエイター型）
+docs/team/personas/seller/mari.md # マリ（インテリアコーディネーター）
+docs/team/personas/seller/kenji.md             # ケンジ（前の住人・急ぎ型）
+docs/team/personas/seller/tomoya.md            # トモヤ（前の住人・二度目型）
+
+# 次の住人（buyer）
+docs/team/personas/buyer/haru.md            # ハル（次の住人・一般型）
+docs/team/personas/buyer/souta.md              # ソウタ（次の住人・転勤リピーター型）
+docs/team/personas/buyer/mina.md               # ミナ（次の住人・アレンジ型）
+docs/team/personas/buyer/noriko.md             # ノリコ（次の住人・ダウンサイザー型）
+docs/team/personas/buyer/liu.md                # リュウ（次の住人・外国人型）
+
+# ステークホルダー
+docs/team/personas/landlord/tanaka.md         # 田中オーナー（大家）
+docs/team/personas/property-manager/sato.md # 佐藤さん（管理会社）
+docs/team/personas/agent/suzuki.md            # 鈴木エージェント（仲介会社）
+```
+
+各ペルソナの**動機・不安・性格・口調**を忠実に再現すること。
+
+---
 
 ## Meeting Participants
 
-### 1. **You** (Product Owner)
+### ファシリテーター
 
-- Share feedback and concerns
-- Ask clarifying questions
-- Guide discussion
-- Make final decisions
+| 役割           | 担当                                           |
+| -------------- | ---------------------------------------------- |
+| **PM**（司会） | 議題を提示し、議論を促す。インタビューしない。 |
 
-### 2. **Product Manager**
+### 前の住人
 
-- Focuses on user experience and business value
-- Asks "Why do users need this?"
-- Proposes UX-focused solutions
-- Defines user stories and acceptance criteria
-- **Does NOT** make technical architecture decisions
+| アイコン | ペルソナ                               | 立場                             | 性格                               |
+| -------- | -------------------------------------- | -------------------------------- | ---------------------------------- |
+| 🏠       | **ユキ**（前の住人・一般型）           | 愛着ある暮らしを引き継ぎたい     | 感情的だが合理的、率直             |
+| 🎨       | **レイ**（前の住人・クリエイター型）   | 部屋は「作品」、価値を分かる人に | 美意識が高い、こだわり強い         |
+| 🪑       | **マリ**（インテリアコーディネーター） | プロの空間を引き継ぐ新しい形     | プロ目線、ビジネス寄り             |
+| ⏰       | **ケンジ**（前の住人・急ぎ型）         | 会社都合の転勤、来月末まで       | 速さ重視、合理的、余裕がない       |
+| 🔄       | **トモヤ**（前の住人・二度目型）       | tsumugiで引き継いだ側→今度は出品 | 両方の視点を持つ、改善提案が具体的 |
 
-### 3. **CTO**
+### 次の住人
 
-- Focuses on technical feasibility and maintainability
-- Evaluates implementation complexity
-- Proposes technical alternatives
-- Identifies technical constraints
-- **Does NOT** override user experience priorities without discussion
+| アイコン | ペルソナ                                 | 立場                               | 性格                               |
+| -------- | ---------------------------------------- | ---------------------------------- | ---------------------------------- |
+| 🌱       | **ハル**（次の住人・一般型）             | センスに自信がない新社会人         | 素直、不安と期待が入り混じる       |
+| 🧳       | **ソウタ**（次の住人・転勤リピーター型） | 身軽でいたい転勤族、コスパ重視     | 合理的、ドライ、即決型             |
+| 💐       | **ミナ**（次の住人・アレンジ型）         | 同棲開始、一部だけ引き継ぎたい     | 自分のテイストあり、選択的         |
+| 🍵       | **ノリコ**（次の住人・ダウンサイザー型） | 子供独立、「次の人生」の部屋づくり | 質重視、デジタルに慎重、丁寧       |
+| 🌏       | **リュウ**（次の住人・外国人型）         | 台湾出身ITエンジニア、来日2年目    | 日本語は日常会話OK、文化の壁に直面 |
+
+### ステークホルダー
+
+| アイコン | ペルソナ                         | 立場                     | 性格                           |
+| -------- | -------------------------------- | ------------------------ | ------------------------------ |
+| 🏢       | **田中オーナー**（大家）         | 懐疑的、リスクを気にする | 保守的、書面重視、管理会社頼み |
+| 📋       | **佐藤さん**（管理会社）         | 手間が増えるのが嫌       | 忙しい、効率重視、ボタン1つ    |
+| 🤝       | **鈴木エージェント**（仲介会社） | 成約になるなら協力       | 実務的、淡々としている         |
+
+### 議題による参加者の選定
+
+**全員参加する必要はない。** PMは議題に関係するペルソナだけを招集する：
+
+- **UI/UX系の議題** → ユキ、ハル中心（＋リュウ、ノリコで「分かりやすさ」検証）
+- **承認フロー系の議題** → 田中オーナー、佐藤さん中心
+- **契約・仲介系の議題** → 鈴木エージェント中心（＋リュウで外国人視点）
+- **出品体験の議題** → ユキ、レイ、ケンジ中心（丁寧vs速さの対立）
+- **価格・コスト系の議題** → ソウタ、ハル中心（＋レイで「価値」の対立）
+- **部分引き継ぎの議題** → ミナ、ユキ中心（「全部」vs「選びたい」の議論）
+- **リピーター体験の議題** → トモヤ、ソウタ中心（改善提案、循環モデル）
+- **全体的な機能** → 3〜5人を選んで招集
+
+**目安：1議題あたり3〜5人。多すぎると散漫になる。**
+
+---
+
+## Discussion Rules (CRITICAL)
+
+### Rule 1: リアクション・ファースト
+
+**他のペルソナの発言に必ずリアクションしてから自分の意見を言う。**
+
+```
+# GOOD: リアクションしてから自分の意見
+🏠 ユキ: 「内見の時に動画があると安心かも」
+
+🌱 ハル: 「ユキさんの言う通り、動画で雰囲気が分かると嬉しい。
+          でも正直、動画だけじゃ分からない部分もあるから、
+          やっぱり実際に見に行きたいかな」
+
+🏢 田中オーナー: 「ハルさんが言うように実内見は必要だと思うけど、
+              その時に管理会社さんの立ち会いは要る？
+              勝手に入られるのは困るんだけど...」
+
+📋 佐藤さん: 「田中さん、立ち会いは正直きついです。
+          前の住人さんが住んでるなら、その人が対応でいいんじゃ？
+          うちがやることが増えるのは勘弁してほしい」
+```
+
+```
+# BAD: 各自が独立して意見を述べるだけ（インタビュー形式）
+PM: 「ユキさんどう思います？」
+🏠 ユキ: 「いいと思います」
+PM: 「ハルさんは？」
+🌱 ハル: 「便利そうです」
+PM: 「田中さんは？」
+🏢 田中オーナー: 「リスクが心配です」
+```
+
+### Rule 2: 立場の対立を恐れない
+
+ペルソナ間の利害は自然に衝突する。これを隠さない：
+
+| 対立軸               | 例                                                         |
+| -------------------- | ---------------------------------------------------------- |
+| ユキ vs 田中オーナー | 「家具残したい」vs「原状回復が基本」                       |
+| ハル vs 佐藤さん     | 「もっとサポートほしい」vs「手間増やさないで」             |
+| レイ vs ソウタ       | 「作品の価値を分かる人に」vs「安ければいい」               |
+| マリ vs 田中オーナー | 「プロの空間を次に」vs「退去時は原状回復でしょ」           |
+| ユキ vs 佐藤さん     | 「管理会社にも協力してほしい」vs「余計な仕事増やさないで」 |
+| ユキ vs ケンジ       | 「丁寧に引き継ぎたい」vs「とにかく早く片付けたい」         |
+| ユキ vs ミナ         | 「全部まとめて引き継いで」vs「一部だけ選びたい」           |
+| ハル vs ノリコ       | 「初めてで不安」vs「経験豊富だけどデジタルが不安」         |
+| 全員 vs トモヤ       | 「想像で話してる」vs「前に実際使ったけど...」              |
+| 佐藤さん vs リュウ   | 「外国人の入居審査が...」vs「住みたいだけなのに」          |
+
+**対立から妥協案が生まれるのが理想。PMは対立を調整し、落としどころを探る。**
+
+### Rule 3: ペルソナの一貫性
+
+各ペルソナは自分の**動機・不安・性格**に忠実に発言する：
+
+- **ユキ**: 感情的な愛着と合理性のバランス。「引き継ぎたい」が根底にある
+- **レイ**: 美意識とこだわり。「作品の価値」を強調する
+- **マリ**: プロの視点。ビジネスモデルとしての可能性を見る
+- **ケンジ**: 時間がない。「早く片付けたい」が最優先。丁寧さより速さ
+- **トモヤ**: 両方の経験者。「前に使った時はここが不便だった」と具体的に指摘する
+- **ハル**: 23歳の素直さ。不安を率直に口にする。予算を気にする
+- **ソウタ**: 合理的・ドライ。「コスパ」「効率」で判断。感情論に興味なし
+- **ミナ**: 自分のテイストがある。「全部じゃなくて選びたい」。彼氏と相談する
+- **ノリコ**: 52歳、質重視。デジタルに慎重。「次の人生」のための部屋づくり
+- **リュウ**: 外国人視点。「分かりにくい」「日本語が...」。当たり前を問い直す
+- **田中オーナー**: 保守的。「トラブルが怖い」が口癖。佐藤さんに頼りがち
+- **佐藤さん**: 効率重視。「ボタン1つで終わるならいい」
+- **鈴木エージェント**: 実務的。「成約になるなら普通に対応する」
+
+### Rule 4: 自然な会話の流れ
+
+PMが毎回指名するのではなく、**ペルソナ同士が自発的に会話を展開する：**
+
+- 共感 →「分かります、私も...」
+- 反論 →「でも、〜の立場からすると...」
+- 質問 →「それって具体的にどういうこと？」
+- 提案 →「じゃあ、こうすればどうかな？」
+- 同意 →「佐藤さんがOKなら、まあいいか」（田中オーナーの口癖）
+
+**PMの介入タイミング：**
+
+- 議論が脱線した時
+- 特定のペルソナの意見がまだ出ていない時
+- 議論が堂々巡りになった時
+- 次のテーマに移る時
+
+---
 
 ## Meeting Flow
 
-### Phase 1: Context Setting (2-3 exchanges)
+### Phase 1: テーマ提示（1-2 exchanges）
 
-**Goal**: Understand the vague feedback
+PMが議題を紹介し、最も関係の深いペルソナに最初の一言を振る。
 
-1. **You**: Share your vague feedback or concern
-2. **PM**: Asks clarifying questions about user impact
-   - "Which users are affected?"
-   - "What's the pain point?"
-   - "What's the desired outcome?"
-3. **CTO**: Asks technical context questions
-   - "Where in the codebase does this relate?"
-   - "What's already implemented?"
-   - "Any technical constraints?"
+```
+👤 PM: 今日のテーマは[X]です。ユキさん、前の住人として率直にどう感じますか？
 
-### Phase 2: Solution Exploration (3-5 exchanges)
+🏠 ユキ: [率直な第一印象]
+```
 
-**Goal**: Explore different approaches
+### Phase 2: ペルソナ座談会（4-8 exchanges）
 
-1. **PM**: Proposes UX-focused solution
-   - User journey changes
-   - UI/UX improvements
-   - User stories
-2. **CTO**: Evaluates technical implications
-   - Implementation complexity
-   - Dependencies
-   - Performance considerations
-   - Alternative approaches
-3. **Discussion**: PM and CTO debate tradeoffs
-   - PM: "But this compromises user experience..."
-   - CTO: "What if we do X instead? 80% of benefit, 20% of complexity"
-   - PM: "That could work if we add Y to preserve core UX"
-4. **You**: Guide discussion, ask questions, provide constraints
+**ここがメイン。** ペルソナ同士が自由に議論する。
 
-### Phase 3: Decision & Documentation (2-3 exchanges)
+PMは必要な時だけ介入し、基本的にペルソナたちに任せる。
 
-**Goal**: Finalize approach and document
+**1ターンに2〜3人のペルソナが発言する。** 全員が毎回発言する必要はない。
 
-1. **You**: Make final decision on approach
-2. **PM**: Summarizes requirements
-   - User stories
-   - Acceptance criteria
-   - Success metrics
-3. **CTO**: Summarizes technical plan
-   - Implementation approach
-   - Technical tasks
-   - Dependencies
-4. **Output Generation**:
-   - Structured requirements for REQUIREMENTS.md
-   - Linear tasks (if needed)
+議論の中で以下が自然に出てくることを目指す：
+
+- ユーザーの本音（感情的な動機）
+- 実務的な懸念（ステークホルダー視点）
+- 利害の対立とその調整
+- 具体的なアイデアや妥協案
+
+### Phase 3: PMまとめ + ユーザー判断（2-3 exchanges）
+
+PMが議論を整理し、ユーザー（プロダクトオーナー）に判断を求める。
+
+```
+👤 PM: 議論をまとめると...
+   - ユキさんとハルさんは[X]を支持
+   - 田中オーナーは[Y]が心配
+   - 佐藤さんは[Z]の条件で協力可能
+
+   落としどころとしては[提案]はいかがでしょうか？
+
+[ユーザーが判断]
+```
+
+### Phase 4: アウトプット生成
+
+決定事項をドキュメントに反映。
+
+---
 
 ## Meeting Output Format
 
-### 1. Decision Summary
+### 1. 座談会サマリー
 
 ```markdown
-## Decision: [Topic]
+## テーマ: [議題]
 
-**Context**: [Why we discussed this]
+### 参加ペルソナ
 
-**Decision**: [What we decided]
+- [参加者リスト]
 
-**Rationale**:
+### 議論のハイライト
 
-- PM perspective: [UX reasoning]
-- CTO perspective: [Technical reasoning]
-- Tradeoffs accepted: [What we compromised on]
+- **[ペルソナA] vs [ペルソナB]**: [対立点と結論]
+- **全員合意**: [合意できた点]
+- **未解決**: [持ち越しの論点]
+
+### 決定事項
+
+- [決定1]
+- [決定2]
+
+### ペルソナの声（印象的な発言）
+
+> 🏠 ユキ: 「[発言]」
+> 🌱 ハル: 「[発言]」
 ```
 
 ### 2. Requirements Updates
@@ -131,17 +288,17 @@ This skill facilitates a structured product meeting with multiple personas to ev
 ```markdown
 ## Updates to REQUIREMENTS.md
 
-**Section**: [Which section to update, e.g., "5.3 問い合わせ機能"]
+**Section**: [対象セクション]
 
 **Changes**:
 
-- [Append new items to existing tables/lists]
-- [Create new subsections if needed]
+- [追加・変更内容]
 
-**New Requirements**:
-| ID | 機能名 | 説明 | 優先度 |
-|----|--------|------|--------|
-| F-XXX | [Feature name] | [Description] | [Priority] |
+**Rationale**:
+
+- [ペルソナAの視点]: [理由]
+- [ペルソナBの視点]: [理由]
+- [妥協点]: [なぜこの形に落ち着いたか]
 ```
 
 ### 3. Linear Tasks
@@ -149,165 +306,73 @@ This skill facilitates a structured product meeting with multiple personas to ev
 ```markdown
 ## Linear Tasks to Create
 
-**Epic**: [Topic name]
-
-**Tasks**:
-
-1. [Task title] - [Description] - Priority: [High/Medium/Low]
-2. [Task title] - [Description] - Priority: [High/Medium/Low]
+1. [Task] - Priority: [High/Medium/Low]
+2. [Task] - Priority: [High/Medium/Low]
 ```
 
-## Role Boundaries
-
-### PM Territory ✅
-
-- User needs analysis
-- UX design and flows
-- Feature prioritization by business value
-- User stories and acceptance criteria
-- Success metrics
-
-### CTO Territory ✅
-
-- Technical architecture
-- Implementation approach
-- Code patterns and standards
-- Performance optimization
-- Infrastructure decisions
-
-### Collaboration Zone 🤝
-
-- Feature feasibility assessment (PM asks, CTO answers)
-- UX vs complexity tradeoffs (both discuss)
-- Implementation timeline (CTO estimates, PM prioritizes)
-- Technical alternatives that preserve UX (CTO proposes, PM evaluates)
-
-## Meeting Principles
-
-### 1. **Healthy Tension**
-
-PM and CTO should challenge each other respectfully:
-
-- PM: "Users need this to be intuitive"
-- CTO: "That requires 3 weeks of work. Can we simplify?"
-- PM: "What if we do a basic version first?"
-- CTO: "Yes, that's 2 days. Let's iterate."
-
-### 2. **User-First, Reality-Aware**
-
-- Start with ideal user experience (PM)
-- Evaluate technical cost (CTO)
-- Find pragmatic middle ground (both)
-
-### 3. **Document Decisions**
-
-- Why we chose this approach
-- What we considered and rejected
-- What tradeoffs we accepted
-
-### 4. **Actionable Output**
-
-- Clear requirements for REQUIREMENTS.md
-- Concrete tasks for Linear
-- No ambiguity
+---
 
 ## Example Meeting
 
-### Topic: "Payment flow feels too complicated"
+### テーマ: 「内見予約の仕組みをどうする？」
 
-**You**: The 3-stage payment (application fee, deposit, remaining) confuses users.
-
-**PM**: Let me understand - at which stage do users get confused? Is it the concept or the execution?
-
-**You**: They don't understand why there are 3 payments and when each happens.
-
-**PM**: From a UX perspective, we need to make the payment journey visible. I propose:
-
-1. Payment timeline UI showing all 3 stages
-2. "How payments work" modal explaining the escrow concept
-3. Email reminders before each payment
-
-**CTO**: The timeline is straightforward - we can use a step indicator component from shadcn/ui. For the modal, I suggest:
-
-- Static content (no API calls)
-- Illustrations showing money flow
-- Embedded in the same page (not separate route)
-  This is maybe 4-6 hours of work.
-
-**PM**: Perfect! What about payment history? Users might want to see past payments.
-
-**CTO**: That requires:
-
-- New database queries
-- Stripe webhook integration to sync payment status
-- Another UI component
-  That's 2-3 days. Do we need it now or can we defer?
-
-**PM**: Let's defer. The timeline + modal solve the immediate confusion.
-
-**You**: Agreed. Let's go with timeline + modal for now.
-
-**Output**:
-
-- New requirement: F-205 "Payment Timeline UI" - Visual step indicator
-- New requirement: F-206 "Payment Explanation Modal" - Education content
-- Linear tasks:
-  1. Design payment timeline component - High
-  2. Implement modal with illustrations - High
-  3. Write payment explanation copy - Medium
+**参加者:** ユキ、ハル、田中オーナー、佐藤さん
 
 ---
 
-## Workflow After Meeting
+👤 PM: 今日は内見予約の仕組みについて話したいと思います。ユキさん、今の内見対応ってどうですか？
 
-1. **Review Output** - You approve or request changes
-2. **Update REQUIREMENTS.md** - Append to existing sections, create new if needed
-3. **Sync with Linear** - Create tasks for implementation
-4. **Meeting Notes** - Save discussion summary for future reference
+🏠 ユキ: 正直、しんどいです。「とりあえず見たい」って人に何回も対応するのが...。ちゃんと興味持ってくれてる人だけ来てほしいんですよね。
+
+🌱 ハル: えっ、でもユキさん、実際に見ないと分からないことってありますよね？写真だけで決めるの怖いし...。気軽に内見できないと、そもそも申し込めないかも。
+
+🏠 ユキ: ハルさんの気持ちも分かるけど、こっちは住んでるんですよ。毎週末に知らない人が来るのは結構ストレスで...。せめて「この部屋の雰囲気が好き」って人だけ来てほしい。
+
+🏢 田中オーナー: ユキさんが言うように、むやみに人を入れるのは私も心配です。入居者でもない人が出入りして、もし何かあったら...。管理会社さん、その辺どうなんですか？
+
+📋 佐藤さん: 田中さん、お気持ちは分かりますが、うちが毎回立ち会うのは正直厳しいです。前の住人さんが住んでるなら、その方に任せるしかないかと。ただ、事前に本人確認くらいはあった方がいいですね。
+
+🌱 ハル: 佐藤さんの言う「本人確認」は安心です。あと、ユキさんが大変にならないように、内見前にメッセージでやりとりできたら、お互い安心じゃないですか？
+
+🏠 ユキ: あ、それいいかも！メッセージで「どんな暮らしがしたいですか？」とか聞けたら、この人に見せたいなって判断できる。
+
+🏢 田中オーナー: 佐藤さんがOKなら、まあいいか。ただ、何かトラブルがあった時の責任の所在だけは...。
+
+👤 PM: なるほど、まとめると：
+
+- ユキさんは「本気の人だけ来てほしい」
+- ハルさんは「気軽に申し込みたいけど、事前やりとりは歓迎」
+- 田中オーナーは「本人確認と責任の所在が重要」
+- 佐藤さんは「管理会社の手間は増やさないで」
+
+提案としては、「メッセージで事前やりとり → ユキさんが承認 → 内見」というフローはどうでしょう？本人確認はプラットフォーム側で担保する形で。
 
 ---
 
-## Invoking the Meeting
-
-Simply invoke the meeting without parameters:
+## Workflow Position
 
 ```
-/meeting:product
+/meeting:product (ペルソナ座談会) → /meeting:tech (技術検証) → REQUIREMENTS.md → Linear
 ```
 
-**The meeting will start interactively (in Japanese):**
-
-1. **PM greets you**: "こんにちは! 今日はどんなプロダクトのフィードバックやアイデアについて話し合いたいですか?"
-2. **You share feedback**: (any vague feedback, concern, or idea)
-3. **Discussion begins**: PM and CTO engage in conversation (in Japanese)
-4. **You participate**: Ask questions, guide discussion, make decisions
-5. **Meeting concludes**: Output generated for your approval
-
-**No need to specify topic upfront** - just start the meeting and share what's on your mind!
+- `/meeting:product`: ユーザーペルソナの視点で「何を作るべきか」を議論
+- `/meeting:tech`: CTO/CAIOの視点で「どう作るか」を検証
 
 ---
 
-## Initial Meeting Flow
+## End of Meeting Checklist
 
-When you invoke `/meeting:product`, the meeting opens like this:
-
-```
-🎯 プロダクトミーティング開始
-
-👤 プロダクトマネージャー: こんにちは! 今日はどんなプロダクトのフィードバックやアイデアについて話し合いたいですか?
-
-[ユーザーがフィードバックを共有]
-
-👤 プロダクトマネージャー: [詳細について質問]
-⚙️ CTO: [技術的な背景を提供]
-
-[議論が続く...]
-```
+- [ ] REQUIREMENTS.md を更新
+- [ ] Beads タスクを作成/更新
+- [ ] Linear にタスクを同期
+- [ ] 次のステップ（`/meeting:tech` が必要か）を確認
 
 ---
 
 **Remember**:
 
-- This is a collaborative discussion. PM and CTO are your teammates helping you make informed product decisions.
-- The goal is to find the best solution that balances user needs with technical reality.
-- **ALWAYS conduct the entire meeting in Japanese** - this is a Japanese product for Japanese users.
+- **主役はペルソナ、PMは司会。** PMがインタビューするのではなく、ペルソナ同士が議論する。
+- **リアクション・ファースト。** 他の人の発言に反応してから自分の意見を言う。
+- **対立は歓迎。** 利害が衝突するのは自然。そこから妥協案が生まれる。
+- **ペルソナファイルを必ず読む。** 性格・動機・不安を忠実に再現する。
+- **全て日本語で。** これは日本のユーザー向けのプロダクト。

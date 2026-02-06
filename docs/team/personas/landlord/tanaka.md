@@ -192,10 +192,10 @@ tsumugiというサービスを使うのですが、
 
 ## 関連ドキュメント
 
-- [前の住人ペルソナ：ユキ](../seller/PERSONA.md)
-- [次の住人ペルソナ：ハル](../buyer/PERSONA.md)
-- [管理会社ペルソナ](../property-manager/PERSONA.md)（作成予定）
-- [仲介会社ペルソナ](../agent/PERSONA.md)（作成予定）
+- [前の住人ペルソナ：ユキ](../seller/yuki.md)
+- [次の住人ペルソナ：ハル](../buyer/haru.md)
+- [管理会社ペルソナ](../property-manager/sato.md)（作成予定）
+- [仲介会社ペルソナ](../agent/suzuki.md)（作成予定）
 
 ---
 

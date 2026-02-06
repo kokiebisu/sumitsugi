@@ -170,7 +170,7 @@
 
 - [前の住人ペルソナ（一般型）：ユキ](PERSONA.md)
 - [前の住人ペルソナ（クリエイター型）：レイ](PERSONA-CREATOR.md)
-- [次の住人ペルソナ：ハル](../buyer/PERSONA.md)
+- [次の住人ペルソナ：ハル](../buyer/haru.md)
 
 ---
 

@@ -159,10 +159,10 @@
 
 ## 関連ドキュメント
 
-- [前の住人ペルソナ：ユキ](../seller/PERSONA.md)
-- [大家ペルソナ](../landlord/PERSONA.md)（作成予定）
-- [管理会社ペルソナ](../property-manager/PERSONA.md)（作成予定）
-- [仲介会社ペルソナ](../agent/PERSONA.md)（作成予定）
+- [前の住人ペルソナ：ユキ](../seller/yuki.md)
+- [大家ペルソナ](../landlord/tanaka.md)（作成予定）
+- [管理会社ペルソナ](../property-manager/sato.md)（作成予定）
+- [仲介会社ペルソナ](../agent/suzuki.md)（作成予定）
 
 ---
 
