@@ -68,13 +68,13 @@ bun run test:run         # Run unit tests once and exit
 bun run test:e2e         # Run E2E tests with Playwright
 
 # Git Worktrees (for isolated development)
-npm run worktree:create  # Create new worktree with branch
-npm run worktree:list    # List all worktrees
-npm run worktree:prune   # Clean up removed worktrees
+bun run worktree:create  # Create new worktree with branch
+bun run worktree:list    # List all worktrees
+bun run worktree:prune   # Clean up removed worktrees
 
 # Branch Cleanup (automated)
-npm run cleanup:branches # Delete merged and [gone] branches
-npm run cleanup:all      # Full cleanup (branches + worktrees + stashes)
+bun run cleanup:branches # Delete merged and [gone] branches
+bun run cleanup:all      # Full cleanup (branches + worktrees + stashes)
 ```
 
 ## Development Tools
@@ -162,7 +162,7 @@ This project uses git worktrees for isolated development to prevent accidental f
 
 ```bash
 # Create worktree for new branch
-npm run worktree:create feature-name
+bun run worktree:create feature-name
 
 # Navigate to worktree
 cd .worktrees/feature-name
@@ -194,8 +194,8 @@ See `.devcontainer/WORKTREE.md` for detailed documentation.
 **Local cleanup:**
 
 ```bash
-npm run cleanup:branches  # Delete merged and [gone] branches
-npm run cleanup:all       # Full cleanup (branches + worktrees + stashes)
+bun run cleanup:branches  # Delete merged and [gone] branches
+bun run cleanup:all       # Full cleanup (branches + worktrees + stashes)
 ```
 
 ## Automated Workflows

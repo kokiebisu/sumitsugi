@@ -8,7 +8,7 @@ Worktrees created here are automatically ignored by git (see `.gitignore`).
 
 Create a new worktree:
 ```bash
-npm run worktree:create feature-name
+bun run worktree:create feature-name
 ```
 
 This directory is used instead of creating sibling directories to avoid permission issues in the devcontainer environment.

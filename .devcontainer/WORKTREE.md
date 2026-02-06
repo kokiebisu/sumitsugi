@@ -6,7 +6,7 @@ This guide explains how to use VS Code devcontainers when working with git workt
 
 ```bash
 # Create a new worktree with devcontainer support
-npm run worktree:create feature-name
+bun run worktree:create feature-name
 
 # Or manually (in devcontainer):
 git worktree add .worktrees/feature-name feature-name
@@ -38,7 +38,7 @@ When running inside a devcontainer, worktrees are created in a `.worktrees/` sub
 ### Option 1: Using the Helper Script (Recommended)
 
 ```bash
-npm run worktree:create my-feature
+bun run worktree:create my-feature
 ```
 
 This script:
@@ -184,7 +184,7 @@ ln -s ../tsumugi/.devcontainer .devcontainer
 
 ### Container uses old dependencies
 
-**Cause**: `postCreateCommand` runs `npm install` but package.json might differ across branches.
+**Cause**: `postCreateCommand` runs `bun install` but package.json might differ across branches.
 
 **Solution**: Rebuild the container:
 
@@ -230,7 +230,7 @@ ssh-add ~/.ssh/id_rsa
 
 This setup integrates with the project's git workflow defined in [.claude/rules/git-workflow.md](../.claude/rules/git-workflow.md):
 
-1. Create worktree for feature: `npm run worktree:create feature-auth`
+1. Create worktree for feature: `bun run worktree:create feature-auth`
 2. Open in VS Code and reopen in container
 3. Implement feature using TDD
 4. Commit changes: `/commit`
@@ -258,7 +258,7 @@ code .  # Opens in container instance 2
 Each container runs independently with its own:
 
 - Dev server (port 3000 + offset)
-- Dependencies (npm install per worktree)
+- Dependencies (bun install per worktree)
 - Git state (different branch checked out)
 
 ## References

@@ -54,13 +54,13 @@ bun run test:ui          # Run tests with Vitest UI
 bun run test:e2e         # Run E2E tests with Playwright
 
 # Git Worktrees (with devcontainer support)
-npm run worktree:create  # 新しいworktreeを作成 (still uses npm script runner)
-npm run worktree:list    # worktree一覧を表示
-npm run worktree:prune   # 削除済みworktreeをクリーンアップ
+bun run worktree:create  # 新しいworktreeを作成
+bun run worktree:list    # worktree一覧を表示
+bun run worktree:prune   # 削除済みworktreeをクリーンアップ
 
 # Branch Cleanup (automated)
-npm run cleanup:branches # マージ済みブランチと削除済みリモートブランチを削除
-npm run cleanup:all      # 完全クリーンアップ（ブランチ + worktree + stash）
+bun run cleanup:branches # マージ済みブランチと削除済みリモートブランチを削除
+bun run cleanup:all      # 完全クリーンアップ（ブランチ + worktree + stash）
 
 # Linear Integration (task tracking)
 ./scripts/linear-list.sh              # オープンタスクを一覧表示
@@ -145,7 +145,7 @@ bd ready                   # Check available work
 
 **Git Worktrees for Isolated Development**
 
-Use git worktrees (via Superpowers' `using-git-worktrees` skill or npm scripts) when:
+Use git worktrees (via Superpowers' `using-git-worktrees` skill or bun scripts) when:
 
 - Implementing complex features
 - Working from an implementation plan
@@ -165,9 +165,9 @@ Use git worktrees (via Superpowers' `using-git-worktrees` skill or npm scripts) 
 You can create worktrees manually with:
 
 ```bash
-npm run worktree:create feature-name  # Creates worktree with devcontainer support
-npm run worktree:list                 # List all worktrees
-npm run worktree:prune                # Clean up removed worktrees
+bun run worktree:create feature-name  # Creates worktree with devcontainer support
+bun run worktree:list                 # List all worktrees
+bun run worktree:prune                # Clean up removed worktrees
 ```
 
 Worktrees are created in `.worktrees/<branch-name>/` with automatic devcontainer symlink setup.
@@ -193,15 +193,15 @@ See [.devcontainer/WORKTREE.md](.devcontainer/WORKTREE.md) for detailed document
 **Local Cleanup Commands:**
 
 ```bash
-npm run cleanup:branches  # Delete merged and [gone] branches
-npm run cleanup:all       # Full cleanup: branches + worktrees + stashes
+bun run cleanup:branches  # Delete merged and [gone] branches
+bun run cleanup:all       # Full cleanup: branches + worktrees + stashes
 ```
 
 **Manual cleanup workflow:**
 
 ```bash
 git fetch --all --prune          # Update remote tracking
-npm run cleanup:branches         # Clean up branches
+bun run cleanup:branches         # Clean up branches
 git worktree prune               # Clean up worktrees
 ```
 
@@ -346,6 +346,7 @@ async function callClaude(prompt: string): Promise<string> {
 **GitHub Secret:** `ANTHROPIC_AUTH_TOKEN` - Your long-lived OAuth token from Max subscription
 
 **DO NOT use:**
+
 - `@anthropic-ai/sdk` with OAuth tokens (doesn't work)
 - `--no-config` flag (doesn't exist)
 - `ANTHROPIC_API_KEY` with OAuth tokens

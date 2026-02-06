@@ -31,7 +31,7 @@ Working directly in the main workspace can lead to accidentally committing unrel
 
 ```bash
 # 1. Create worktree FIRST (before making any changes)
-npm run worktree:create <branch-name>
+bun run worktree:create <branch-name>
 
 # 2. Navigate to worktree
 cd /workspaces/tsumugi/.worktrees/<branch-name>

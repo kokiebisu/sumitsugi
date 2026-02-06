@@ -418,16 +418,16 @@ async function verifyTransaction(transaction: Transaction) {
 
 ```bash
 # Check for vulnerabilities
-npm audit
+bun audit
 
 # Fix automatically fixable issues
-npm audit fix
+bun audit fix
 
 # Update dependencies
-npm update
+bun update
 
 # Check for outdated packages
-npm outdated
+bun outdated
 ```
 
 #### Lock Files
@@ -437,13 +437,13 @@ npm outdated
 git add package-lock.json
 
 # Use in CI/CD for reproducible builds
-npm ci  # Instead of npm install
+bun install --frozen-lockfile  # Instead of npm install
 ```
 
 #### Verification Steps
 
 - [ ] Dependencies up to date
-- [ ] No known vulnerabilities (npm audit clean)
+- [ ] No known vulnerabilities (bun audit clean)
 - [ ] Lock files committed
 - [ ] Dependabot enabled on GitHub
 - [ ] Regular security updates

@@ -130,7 +130,7 @@ For each user journey:
 ```
 a) Run tests locally (in worktree)
    - Ensure you're in the worktree directory
-   - Start dev server: npm run dev
+   - Start dev server: bun run dev
    - Run tests: npx playwright test
    - Verify all tests pass
    - Check for flakiness (run 3-5 times)
@@ -507,7 +507,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run dev',
+    command: 'bun run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
@@ -643,7 +643,7 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps

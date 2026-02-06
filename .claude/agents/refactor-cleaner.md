@@ -279,9 +279,9 @@ If something breaks after removal:
 
    ```bash
    git revert HEAD
-   npm install
-   npm run build
-   npm test
+   bun install
+   bun run build
+   bun run test
    ```
 
 2. **Investigate:**
