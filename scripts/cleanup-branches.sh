@@ -26,7 +26,7 @@ echo ""
 
 # Delete branches marked as [gone] (deleted on remote)
 echo "=== Deleting branches removed from remote ==="
-gone_branches=$(git branch -vv | grep '\[gone\]' | awk '{print $1}' | sed 's/^[+* ]//' || true)
+gone_branches=$(git branch -vv | grep ': gone]' | awk '{print $1}' | sed 's/^[+* ]//' || true)
 if [ -z "$gone_branches" ]; then
   echo "  No [gone] branches to delete"
 else
