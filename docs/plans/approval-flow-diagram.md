@@ -23,7 +23,7 @@ graph TD
     MgmtProcess --> CheckLandlord[管理会社→大家へ確認]
     CheckLandlord --> LandlordDecision{大家の判断}
 
-    LandlordDecision -->|予備承認| PreliminaryOK[回答: 内見後に正式判断]
+    LandlordDecision -->|事前了承| PreliminaryOK[回答: 内見後に正式判断]
     LandlordDecision -->|拒否| Rejected[回答: 不可]
 
     PreliminaryOK --> TenantUpdate1[前の住人がステータス更新<br/>conditional]
@@ -60,7 +60,7 @@ graph TD
 stateDiagram-v2
     [*] --> pending: リスティング公開
 
-    pending --> conditional: 大家予備承認<br/>(内見後に正式判断)
+    pending --> conditional: 大家事前了承<br/>(内見後に正式判断)
     pending --> rejected: 大家が拒否
     pending --> expired: 30日間更新なし
 
@@ -74,12 +74,12 @@ stateDiagram-v2
 
     note right of pending
         グレーバッジ
-        「大家確認中」
+        「要確認」
     end note
 
     note right of conditional
         黄色バッジ
-        「予備承認済み」
+        「条件付き承認」
     end note
 
     note right of approved
@@ -103,8 +103,8 @@ stateDiagram-v2
 
 | ConsentStatus | 日本語表示   | バッジ色 | 表示状態 | 説明                                       |
 | ------------- | ------------ | -------- | -------- | ------------------------------------------ |
-| `pending`     | 大家確認中   | グレー   | 公開     | リスティング作成直後、管理会社への確認待ち |
-| `conditional` | 予備承認済み | 黄色     | 公開     | 大家が予備承認、内見後に正式判断           |
+| `pending`     | 要確認       | グレー   | 公開     | リスティング作成直後、管理会社への確認待ち |
+| `conditional` | 条件付き承認 | 黄色     | 公開     | 大家が事前了承済み、内見後に正式判断       |
 | `approved`    | 承認済み     | 緑       | 公開     | 大家が正式承認、引き継ぎ可能               |
 | `rejected`    | 不可         | -        | 非表示   | 大家が拒否、リスティング非公開             |
 | `expired`     | 期限切れ     | -        | 非表示   | 30日間更新なし、自動非表示                 |
@@ -161,7 +161,7 @@ graph LR
         Mgmt --> M2[大家へ確認]
         Mgmt --> M3[回答を転送]
 
-        Landlord --> L1[予備承認/拒否]
+        Landlord --> L1[事前了承/拒否]
         Landlord --> L2[正式承認/拒否]
 
         System --> S1[PDF自動生成]
