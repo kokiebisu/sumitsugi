@@ -16,8 +16,8 @@ if [ ! -f "$HOOK_FILE" ]; then
   chmod +x "$HOOK_FILE"
 fi
 
-# Remove the trailing `exit 0` so our block runs, then re-add it
-sed -i '/^exit 0$/d' "$HOOK_FILE"
+# Remove only the trailing `exit 0` so our block runs, then re-add it
+sed -i '${/^exit 0$/d}' "$HOOK_FILE"
 
 cat >> "$HOOK_FILE" << 'HOOK'
 
