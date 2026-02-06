@@ -49,12 +49,12 @@ echo ""
 for IDENTIFIER in "$@"; do
   echo "Processing $IDENTIFIER..."
 
-  # Get issue ID from identifier
+  # Get issue ID from identifier (using issue() query which accepts TSU-XXX format)
   ISSUE_ID=$(curl -s -X POST \
     -H "Content-Type: application/json" \
     -H "Authorization: $LINEAR_API_KEY" \
-    -d "{\"query\":\"query { issues(filter: { identifier: { eq: \\\"$IDENTIFIER\\\" } }) { nodes { id identifier title state { name } } } }\"}" \
-    https://api.linear.app/graphql | python3 -c "import sys, json; data=json.load(sys.stdin); nodes=data['data']['issues']['nodes']; print(nodes[0]['id'] if nodes else '')")
+    -d "{\"query\":\"query { issue(id: \\\"$IDENTIFIER\\\") { id identifier title state { name } } }\"}" \
+    https://api.linear.app/graphql | python3 -c "import sys, json; data=json.load(sys.stdin); issue=data.get('data',{}).get('issue'); print(issue['id'] if issue else '')")
 
   if [ -z "$ISSUE_ID" ]; then
     echo "  ❌ Issue $IDENTIFIER not found"

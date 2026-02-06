@@ -244,7 +244,7 @@ import React from 'react'
 
 // ✅ FIX: Install dependencies
 bun install react
-bun add -d @types/react
+bun install --save-dev @types/react
 
 // ✅ CHECK: Verify package.json has dependency
 {
@@ -534,7 +534,7 @@ bun install
 npx eslint . --fix
 
 # Update TypeScript
-bun add -d typescript@latest
+bun install --save-dev typescript@latest
 
 # Verify node_modules
 rm -rf node_modules package-lock.json
