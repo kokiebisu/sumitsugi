@@ -23,7 +23,7 @@
     }
   },
   "forwardPorts": [3000, 9323],
-  "postCreateCommand": "bun install && bunx playwright install chromium && git config --global worktree.guessRemote true && ([ -d .beads ] || bd init --quiet) && echo \"alias claude='claude --skip-dangerously-permission'\" >> ~/.bashrc",
+  "postCreateCommand": "bun install && git config --global worktree.guessRemote true && ([ -d .beads ] || bd init --quiet) && echo \"alias claude='claude --skip-dangerously-permission'\" >> ~/.bashrc",
   "remoteUser": "bun",
   "postAttachCommand": ".devcontainer/install-plugins.sh",
   "mounts": [

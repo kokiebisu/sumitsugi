@@ -51,6 +51,7 @@ bun lint                 # ESLintでコードチェック
 bun run test             # Run unit tests with Vitest (watch mode)
 bun run test:run         # Run unit tests once and exit
 bun run test:ui          # Run tests with Vitest UI
+bun run test:e2e:install # Install Playwright Chromium (required before first E2E run)
 bun run test:e2e         # Run E2E tests with Playwright
 
 # Git Worktrees (with devcontainer support)
@@ -346,6 +347,7 @@ async function callClaude(prompt: string): Promise<string> {
 **GitHub Secret:** `ANTHROPIC_AUTH_TOKEN` - Your long-lived OAuth token from Max subscription
 
 **DO NOT use:**
+
 - `@anthropic-ai/sdk` with OAuth tokens (doesn't work)
 - `--no-config` flag (doesn't exist)
 - `ANTHROPIC_API_KEY` with OAuth tokens

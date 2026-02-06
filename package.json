@@ -14,6 +14,7 @@
     "test:run": "vitest run",
     "test:ui": "vitest --ui",
     "shell": "./dev",
+    "test:e2e:install": "bunx playwright install chromium",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
