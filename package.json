@@ -36,7 +36,12 @@
     "db:migrate": "bun scripts/db-migrate.ts",
     "db:push": "bunx drizzle-kit push",
     "db:studio": "bunx drizzle-kit studio",
-    "db:reset": "docker compose down -v && docker compose up -d postgres && sleep 2 && bun run db:migrate"
+    "db:reset": "docker compose down -v && docker compose up -d postgres && sleep 2 && bun run db:migrate",
+    "autonomous:stats": "bun run scripts/autonomous-tasks.ts stats",
+    "autonomous:queue": "bun run scripts/autonomous-tasks.ts queue",
+    "autonomous:list": "bun run scripts/autonomous-tasks.ts list",
+    "autonomous:exclude": "bun run scripts/autonomous-tasks.ts exclude",
+    "autonomous:include": "bun run scripts/autonomous-tasks.ts include"
   },
   "dependencies": {
     "@auth/core": "^0.41.0",

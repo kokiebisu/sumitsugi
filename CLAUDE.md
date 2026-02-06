@@ -67,6 +67,13 @@ bun run cleanup:all      # 完全クリーンアップ（ブランチ + worktree
 ./scripts/linear-list.sh              # オープンタスクを一覧表示
 ./scripts/linear-done.sh TSU-123      # タスクをDoneに更新
 ./scripts/linear-comment.sh TSU-123 "comment"  # タスクにコメント追加
+
+# Autonomous Development Pipeline
+bun run autonomous:stats             # パイプライン統計を表示
+bun run autonomous:queue             # 次に自動実行されるタスクを表示
+bun run autonomous:list              # タスクをカテゴリ別に一覧表示
+bun run autonomous:exclude <id>      # タスクを自動実行から除外
+bun run autonomous:include <id>      # タスクを自動実行に再追加
 ```
 
 ## Prerequisites
@@ -358,6 +365,62 @@ async function callClaude(prompt: string): Promise<string> {
 
 - `.claude/PROJECT.md` - プロジェクト仕様書（コンセプト、デザイン原則）
 - `.claude/BUSINESS.md` - ビジネスロジック仕様書（料金体系、引き継ぎフロー）
+
+## Autonomous Development Pipeline
+
+tsumugiは自律開発パイプラインを備えています。Claudeが自動的にBeadsタスクを拾い、実装し、PRを作成します。
+
+### アーキテクチャ
+
+```
+Beads Tasks (issues.jsonl)
+  ↓ フィルタリング（手動タスク・ブロック中を除外）
+Claude Autonomous Workflow (GitHub Actions, 1日2回)
+  ↓ Claude Code CLIで実装
+PR作成 → CI (lint + types + tests)
+  ↓ CI通過 + diff < 300行
+Auto-Merge → main
+```
+
+### ワークフロー
+
+| ワークフロー | スケジュール | 役割 |
+|-------------|-------------|------|
+| `claude-autonomous.yml` | 毎日9:00/15:00 JST | タスク選択・実装・PR作成 |
+| `auto-merge-autonomous.yml` | CI完了時 | CI通過した小PRを自動マージ |
+| `requirements-audit.yml` | 毎日9:00 JST | 要件vsコードのギャップ検出・タスク生成 |
+
+### タスク適格性
+
+自動実行**される**タスク:
+- コード実装タスク（型追加、コンポーネント作成、API実装など）
+- テスト追加タスク
+- リファクタリングタスク
+- 依存関係なし（ブロッカーなし）
+
+自動実行**されない**タスク:
+- 手動タスク（電話、ヒアリング、資料作成など）
+- 設計・計画タスク
+- 依存関係ありのタスク
+- `no-autonomous`ラベル付きタスク
+
+### 安全策
+
+- diff 300行以上のPRは自動マージせず、手動レビューを要求
+- CI（lint, types, tests）が全て通らないとマージしない
+- ワークフローファイル、CLAUDE.md、REQUIREMENTS.mdの変更は禁止
+- 新しいnpm依存の追加には正当な理由が必要
+
+### Ownerの役割
+
+| 頻度 | やること |
+|------|---------|
+| 月1-2回 | REQUIREMENTS.mdの方針更新 |
+| 週1回 | `bun run autonomous:stats` でパイプライン確認 |
+| 必要時 | `bun run autonomous:exclude <id>` で特定タスクを除外 |
+| 必要時 | 大きなPR（300行超）のレビュー |
+
+---
 
 ## Current Phase
 

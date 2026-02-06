@@ -1,0 +1,218 @@
+name: Claude Autonomous Development
+
+on:
+  schedule:
+    # Run twice daily: 9 AM and 3 PM JST (0:00 and 6:00 UTC)
+    - cron: '0 0 * * *'
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      max_tasks:
+        description: 'Maximum number of tasks to process'
+        required: false
+        default: '3'
+      dry_run:
+        description: 'Dry run (list tasks without implementing)'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  select-tasks:
+    runs-on: ubuntu-latest
+    outputs:
+      tasks: ${{ steps.select.outputs.tasks }}
+      task_count: ${{ steps.select.outputs.task_count }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select autonomous tasks
+        id: select
+        env:
+          MAX_TASKS_INPUT: ${{ github.event.inputs.max_tasks || '3' }}
+        run: |
+          # Read Beads tasks and select autonomous-eligible ones
+          # Criteria: status=open, no blockers, not a manual/human task
+          TASKS=$(cat .beads/issues.jsonl | jq -s --argjson max "${MAX_TASKS_INPUT}" '
+            [.[] |
+              select(.status == "open") |
+              select(
+                # Exclude manual/human tasks (phone calls, meetings, documents, etc.)
+                (.title | test("電話|ヒアリング|相談|予約|確認.*HP|メモ|リスト化|リストアップ|下書き|投稿|アカウント.*作成|Sheets|Docs|見積もり|フィードバック.*収集|準備|送信|振り返り|開く.*https|読む.*https|設計|Design|design|検討|実地検証|STRATEGY\\\\.md|質問.*読み|資料.*レビュー") | not) and
+                # Exclude explicitly opted-out tasks
+                ((.labels // []) | any(. == "no-autonomous") | not) and
+                # Must not be blocked by other tasks
+                ((.blocked_by // []) | length == 0) and
+                ((.dependencies // []) | length == 0)
+              ) |
+              {id, title, description: (.description // .title), priority: (.priority // 3)}
+            ] |
+            sort_by(.priority) |
+            .[:$max]
+          ' 2>/dev/null || echo "[]")
+
+          TASK_COUNT=$(echo "$TASKS" | jq 'length')
+          echo "Found $TASK_COUNT eligible tasks"
+          echo "$TASKS" | jq '.'
+
+          echo "tasks=$(echo "$TASKS" | jq -c '.')" >> $GITHUB_OUTPUT
+          echo "task_count=$TASK_COUNT" >> $GITHUB_OUTPUT
+
+  implement:
+    needs: select-tasks
+    if: needs.select-tasks.outputs.task_count != '0' && github.event.inputs.dry_run != 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        task_index: [0, 1, 2]
+    steps:
+      - name: Check if task exists at index
+        id: check
+        env:
+          ALL_TASKS: ${{ needs.select-tasks.outputs.tasks }}
+        run: |
+          TASK=$(echo "$ALL_TASKS" | jq -c '.[${{ matrix.task_index }}] // empty')
+          if [ -z "$TASK" ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "No task at index ${{ matrix.task_index }}"
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+            TASK_ID=$(echo "$TASK" | jq -r '.id')
+            TASK_TITLE=$(echo "$TASK" | jq -r '.title')
+            TASK_DESC=$(echo "$TASK" | jq -r '.description')
+            echo "task_id=$TASK_ID" >> $GITHUB_OUTPUT
+            # Write to files to avoid injection via task content
+            echo "$TASK_TITLE" > /tmp/task_title.txt
+            echo "$TASK_DESC" > /tmp/task_desc.txt
+            echo "Task: [$TASK_ID] $TASK_TITLE"
+          fi
+
+      - name: Checkout
+        if: steps.check.outputs.skip != 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        if: steps.check.outputs.skip != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Bun
+        if: steps.check.outputs.skip != 'true'
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        if: steps.check.outputs.skip != 'true'
+        run: bun install
+
+      - name: Install Claude Code CLI
+        if: steps.check.outputs.skip != 'true'
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Create branch and implement
+        if: steps.check.outputs.skip != 'true'
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+          TASK_ID: ${{ steps.check.outputs.task_id }}
+        run: |
+          TASK_TITLE=$(cat /tmp/task_title.txt)
+          TASK_DESC=$(cat /tmp/task_desc.txt)
+          BRANCH="autonomous/${TASK_ID}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+
+          # Build prompt from file content (safe from injection)
+          cat > /tmp/claude_prompt.txt << 'PROMPT_END'
+          You are an autonomous developer for the tsumugi project.
+          Read CLAUDE.md for project conventions before starting.
+
+          INSTRUCTIONS:
+          1. Read the relevant source files to understand current code
+          2. Implement the task following the project coding style
+          3. Write or update tests for your changes
+          4. Run 'bun lint' to verify code quality
+          5. Run 'bun run test:run' to verify tests pass
+          6. Keep changes focused and minimal (under 300 lines of diff)
+          7. If the task is too large or ambiguous, implement only the smallest safe subset
+
+          CONSTRAINTS:
+          - Do NOT modify CLAUDE.md, REQUIREMENTS.md, or any workflow files (.github/workflows/)
+          - Do NOT add new npm dependencies without clear justification
+          - Do NOT change files unrelated to the task
+          - Commit with conventional commit format: feat|fix|refactor|test: description
+          PROMPT_END
+
+          echo "" >> /tmp/claude_prompt.txt
+          echo "TASK ID: ${TASK_ID}" >> /tmp/claude_prompt.txt
+          echo "TASK TITLE: ${TASK_TITLE}" >> /tmp/claude_prompt.txt
+          echo "TASK DESCRIPTION: ${TASK_DESC}" >> /tmp/claude_prompt.txt
+
+          PROMPT=$(cat /tmp/claude_prompt.txt)
+
+          claude -p "$PROMPT" || {
+            echo "Claude execution failed for task $TASK_ID"
+            exit 1
+          }
+
+      - name: Push and create PR
+        if: steps.check.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TASK_ID: ${{ steps.check.outputs.task_id }}
+        run: |
+          TASK_TITLE=$(cat /tmp/task_title.txt)
+          BRANCH="autonomous/${TASK_ID}"
+
+          # Check if there are changes to push
+          if git diff --quiet HEAD origin/main 2>/dev/null; then
+            echo "No changes produced for $TASK_ID"
+            exit 0
+          fi
+
+          git push -u origin "$BRANCH"
+
+          DIFF_STAT=$(git diff --shortstat origin/main)
+          COMMIT_LOG=$(git log origin/main..HEAD --oneline)
+
+          # Create PR body in a file (safe from injection)
+          cat > /tmp/pr_body.txt << EOF
+          ## Autonomous Implementation
+
+          **Task ID:** \`${TASK_ID}\`
+          **Pipeline:** Claude Autonomous Development
+
+          ### Commits
+          ${COMMIT_LOG}
+
+          ### Diff
+          ${DIFF_STAT}
+
+          ### Quality
+          - [ ] Lint (CI)
+          - [ ] Tests (CI)
+          - [ ] Types (CI)
+
+          ---
+          *Auto-generated PR. Reviews welcome but not required for small changes.*
+          EOF
+
+          gh pr create \
+            --title "feat(autonomous): ${TASK_TITLE}" \
+            --body-file /tmp/pr_body.txt \
+            --base main \
+            --head "$BRANCH" \
+            --label "autonomous" || echo "PR creation failed for $TASK_ID"

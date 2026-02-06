@@ -1,0 +1,111 @@
+name: Auto-Merge Autonomous PRs
+
+on:
+  # Trigger when CI checks complete on a PR
+  check_suite:
+    types: [completed]
+  # Also trigger on workflow completion (for E2E tests)
+  workflow_run:
+    workflows: ["Claude Code"]
+    types: [completed]
+  # Manual trigger for specific PR
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to auto-merge'
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find autonomous PRs ready to merge
+        id: find
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MANUAL_PR: ${{ github.event.inputs.pr_number || '' }}
+        run: |
+          REPO="${{ github.repository }}"
+
+          if [ -n "$MANUAL_PR" ]; then
+            PRS="[$MANUAL_PR]"
+          else
+            # Find open PRs with 'autonomous' label
+            PRS=$(gh pr list \
+              --repo "$REPO" \
+              --label "autonomous" \
+              --state open \
+              --json number \
+              --jq '[.[].number]')
+          fi
+
+          echo "Checking PRs: $PRS"
+          echo "prs=$PRS" >> $GITHUB_OUTPUT
+
+      - name: Evaluate and merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_NAME: ${{ github.repository }}
+        run: |
+          PRS='${{ steps.find.outputs.prs }}'
+
+          echo "$PRS" | jq -r '.[]' | while read -r PR_NUM; do
+            echo "=== Evaluating PR #${PR_NUM} ==="
+
+            # Get PR details
+            PR_DATA=$(gh pr view "$PR_NUM" --repo "$REPO_NAME" --json state,mergeable,statusCheckRollup,additions,deletions)
+
+            STATE=$(echo "$PR_DATA" | jq -r '.state')
+            MERGEABLE=$(echo "$PR_DATA" | jq -r '.mergeable')
+            ADDITIONS=$(echo "$PR_DATA" | jq -r '.additions')
+            DELETIONS=$(echo "$PR_DATA" | jq -r '.deletions')
+            TOTAL_CHANGES=$((ADDITIONS + DELETIONS))
+
+            echo "State: $STATE, Mergeable: $MERGEABLE, Changes: +$ADDITIONS -$DELETIONS ($TOTAL_CHANGES total)"
+
+            # Skip if not open or not mergeable
+            if [ "$STATE" != "OPEN" ]; then
+              echo "Skipping: not open"
+              continue
+            fi
+
+            if [ "$MERGEABLE" != "MERGEABLE" ]; then
+              echo "Skipping: not mergeable (conflicts?)"
+              continue
+            fi
+
+            # Check CI status
+            FAILED=$(echo "$PR_DATA" | jq '[.statusCheckRollup[]? | select(.conclusion == "FAILURE" or .conclusion == "ERROR")] | length')
+            PENDING=$(echo "$PR_DATA" | jq '[.statusCheckRollup[]? | select(.status != "COMPLETED")] | length')
+
+            if [ "$PENDING" -gt 0 ]; then
+              echo "Skipping: $PENDING checks still pending"
+              continue
+            fi
+
+            if [ "$FAILED" -gt 0 ]; then
+              echo "Skipping: $FAILED checks failed"
+              continue
+            fi
+
+            # Size gate: auto-merge only if changes < 300 lines
+            if [ "$TOTAL_CHANGES" -gt 300 ]; then
+              echo "Skipping: too large ($TOTAL_CHANGES lines > 300 limit), needs manual review"
+              gh pr edit "$PR_NUM" --repo "$REPO_NAME" --add-label "needs-review" || true
+              continue
+            fi
+
+            # All checks passed, size is OK - merge
+            echo "Merging PR #${PR_NUM} ($TOTAL_CHANGES lines, all CI green)"
+            gh pr merge "$PR_NUM" --repo "$REPO_NAME" --squash --delete-branch
+
+            if [ $? -eq 0 ]; then
+              echo "Merged PR #${PR_NUM}"
+            else
+              echo "Merge failed for PR #${PR_NUM}"
+            fi
+          done
