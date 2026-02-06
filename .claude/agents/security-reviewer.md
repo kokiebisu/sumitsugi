@@ -22,7 +22,7 @@ You are an expert security specialist focused on identifying and remediating vul
 
 ### Security Analysis Tools
 
-- **npm audit** - Check for vulnerable dependencies
+- **bun audit** - Check for vulnerable dependencies
 - **eslint-plugin-security** - Static analysis for security issues
 - **git-secrets** - Prevent committing secrets
 - **trufflehog** - Find secrets in git history
@@ -32,10 +32,10 @@ You are an expert security specialist focused on identifying and remediating vul
 
 ```bash
 # Check for vulnerable dependencies
-npm audit
+bun audit
 
 # High severity only
-npm audit --audit-level=high
+bun audit --audit-level=high
 
 # Check for secrets in files
 grep -r "api[_-]?key\|password\|secret\|token" --include="*.js" --include="*.ts" --include="*.json" .
@@ -56,7 +56,7 @@ git log -p | grep -i "password\|api_key\|secret"
 
 ```
 a) Run automated security tools
-   - npm audit for dependency vulnerabilities
+   - bun audit for dependency vulnerabilities
    - eslint-plugin-security for code issues
    - grep for hardcoded secrets
    - Check for exposed environment variables
@@ -118,7 +118,7 @@ For each category, check:
 
 9. Using Components with Known Vulnerabilities
    - Are all dependencies up to date?
-   - Is npm audit clean?
+   - Is bun audit clean?
    - Are CVEs monitored?
 
 10. Insufficient Logging & Monitoring
@@ -489,17 +489,17 @@ When reviewing PRs, post inline comments:
 
 ```bash
 # Install security linting
-npm install --save-dev eslint-plugin-security
+bun add -d eslint-plugin-security
 
 # Install dependency auditing
-npm install --save-dev audit-ci
+bun add -d audit-ci
 
 # Add to package.json scripts
 {
   "scripts": {
-    "security:audit": "npm audit",
+    "security:audit": "bun audit",
     "security:lint": "eslint . --plugin security",
-    "security:check": "npm run security:audit && npm run security:lint"
+    "security:check": "bun run security:audit && bun run security:lint"
   }
 }
 ```

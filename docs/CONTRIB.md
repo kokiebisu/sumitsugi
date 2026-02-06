@@ -16,16 +16,19 @@ This guide covers the development workflow, tools, and best practices for contri
 ### Quick Start
 
 1. **Open in devcontainer**
+
    ```bash
    ./dev  # Opens VS Code devcontainer with Claude Code auto-started
    ```
 
 2. **Install dependencies** (if not already installed)
+
    ```bash
    bun install
    ```
 
 3. **Start development server**
+
    ```bash
    bun dev
    ```
@@ -38,6 +41,7 @@ This guide covers the development workflow, tools, and best practices for contri
 **Always use git worktrees to prevent accidental file inclusion in commits.**
 
 **When to use worktrees:**
+
 - ANY other modified files exist in your workspace
 - Making documentation updates
 - Implementing features or bug fixes
@@ -47,7 +51,7 @@ This guide covers the development workflow, tools, and best practices for contri
 
 ```bash
 # 1. Create worktree FIRST (before making changes)
-npm run worktree:create feature-name
+bun run worktree:create feature-name
 
 # 2. Navigate to worktree
 cd .worktrees/feature-name
@@ -85,74 +89,74 @@ See `.devcontainer/WORKTREE.md` for detailed documentation.
 
 ### Development
 
-| Command | Description |
-|---------|-------------|
-| `bun dev` | Start Next.js development server on http://localhost:3000 |
-| `bun run build` | Build production bundle with optimizations |
-| `bun start` | Start production server (requires `build` first) |
+| Command         | Description                                               |
+| --------------- | --------------------------------------------------------- |
+| `bun dev`       | Start Next.js development server on http://localhost:3000 |
+| `bun run build` | Build production bundle with optimizations                |
+| `bun start`     | Start production server (requires `build` first)          |
 
 ### Code Quality
 
-| Command | Description |
-|---------|-------------|
-| `bun lint` | Run ESLint and Prettier checks on all files |
-| `bun run format` | Auto-format all files with Prettier |
-| `bun run format:check` | Check formatting without making changes |
+| Command                | Description                                 |
+| ---------------------- | ------------------------------------------- |
+| `bun lint`             | Run ESLint and Prettier checks on all files |
+| `bun run format`       | Auto-format all files with Prettier         |
+| `bun run format:check` | Check formatting without making changes     |
 
 ### Testing
 
-| Command | Description |
-|---------|-------------|
-| `bun test` | Run unit tests with Vitest |
+| Command           | Description                    |
+| ----------------- | ------------------------------ |
+| `bun test`        | Run unit tests with Vitest     |
 | `bun run test:ui` | Run Vitest with interactive UI |
 
 #### E2E Testing (Playwright)
 
-| Command | Description |
-|---------|-------------|
-| `bun run test:e2e` | Run all E2E tests headless |
-| `bun run test:e2e:headed` | Run E2E tests with browser visible |
-| `bun run test:e2e:debug` | Run E2E tests in debug mode with Playwright Inspector |
-| `bun run test:e2e:ui` | Run E2E tests with Playwright UI mode |
-| `bun run test:e2e:report` | Show HTML test report from last run |
+| Command                   | Description                                           |
+| ------------------------- | ----------------------------------------------------- |
+| `bun run test:e2e`        | Run all E2E tests headless                            |
+| `bun run test:e2e:headed` | Run E2E tests with browser visible                    |
+| `bun run test:e2e:debug`  | Run E2E tests in debug mode with Playwright Inspector |
+| `bun run test:e2e:ui`     | Run E2E tests with Playwright UI mode                 |
+| `bun run test:e2e:report` | Show HTML test report from last run                   |
 
 #### E2E Test Tag Filtering
 
-| Command | Description |
-|---------|-------------|
-| `bun run test:e2e:critical` | Run only critical path tests (smoke + auth + checkout) |
-| `bun run test:e2e:smoke` | Run smoke tests (basic functionality) |
-| `bun run test:e2e:auth` | Run authentication tests |
-| `bun run test:e2e:listing` | Run listing creation tests |
-| `bun run test:e2e:properties` | Run property browsing tests |
+| Command                       | Description                                            |
+| ----------------------------- | ------------------------------------------------------ |
+| `bun run test:e2e:critical`   | Run only critical path tests (smoke + auth + checkout) |
+| `bun run test:e2e:smoke`      | Run smoke tests (basic functionality)                  |
+| `bun run test:e2e:auth`       | Run authentication tests                               |
+| `bun run test:e2e:listing`    | Run listing creation tests                             |
+| `bun run test:e2e:properties` | Run property browsing tests                            |
 
 ### Git Worktrees
 
-| Command | Description |
-|---------|-------------|
-| `npm run worktree:create` | Create new worktree with devcontainer support |
-| `npm run worktree:list` | List all worktrees |
-| `npm run worktree:prune` | Clean up removed worktrees |
+| Command                   | Description                                   |
+| ------------------------- | --------------------------------------------- |
+| `bun run worktree:create` | Create new worktree with devcontainer support |
+| `bun run worktree:list`   | List all worktrees                            |
+| `bun run worktree:prune`  | Clean up removed worktrees                    |
 
 ### Branch Cleanup
 
-| Command | Description |
-|---------|-------------|
-| `npm run cleanup:branches` | Delete merged and [gone] branches |
-| `npm run cleanup:all` | Full cleanup (branches + worktrees + stashes) |
+| Command                    | Description                                   |
+| -------------------------- | --------------------------------------------- |
+| `bun run cleanup:branches` | Delete merged and [gone] branches             |
+| `bun run cleanup:all`      | Full cleanup (branches + worktrees + stashes) |
 
 ### Git Hooks
 
-| Command | Description |
-|---------|-------------|
+| Command           | Description                              |
+| ----------------- | ---------------------------------------- |
 | `bun run prepare` | Configure git hooks path to `.githooks/` |
 
 ### Devcontainer
 
-| Command | Description |
-|---------|-------------|
-| `./dev` | Open devcontainer with Claude Code (auto-starts) |
-| `bun run shell` | Alias for `./dev` |
+| Command         | Description                                      |
+| --------------- | ------------------------------------------------ |
+| `./dev`         | Open devcontainer with Claude Code (auto-starts) |
+| `bun run shell` | Alias for `./dev`                                |
 
 ## Environment Setup
 
@@ -326,10 +330,12 @@ bun run test:e2e:report
 **CI/CD Integration:**
 
 E2E tests run automatically on:
+
 - Every PR
 - Every push to main branch
 
 Test reports are published to GitHub Pages:
+
 - https://kokiebisu.github.io/tsumugi/e2e-reports/
 
 ### Test Coverage
@@ -341,6 +347,7 @@ bun test --coverage
 ```
 
 **Minimum requirements:**
+
 - **Overall:** 80%+ coverage
 - **Unit tests:** All utilities, functions, components
 - **Integration tests:** API endpoints, database operations
@@ -359,6 +366,7 @@ Follow Conventional Commits:
 ```
 
 **Types:**
+
 - `feat:` - New feature
 - `fix:` - Bug fix
 - `refactor:` - Code refactoring
@@ -399,6 +407,7 @@ docs: update contributing guide
 **Auto-merge after CI (default):**
 
 Merge immediately after CI passes for:
+
 - Docs updates
 - Config changes
 - Bug fixes (small, non-breaking)
@@ -408,6 +417,7 @@ Merge immediately after CI passes for:
 - Dependency updates
 
 **Wait for user approval only for:**
+
 - Breaking changes affecting existing APIs
 - Major architectural decisions
 - Large features (10+ files)
@@ -425,10 +435,10 @@ Merge immediately after CI passes for:
 
 ```bash
 # Delete merged and [gone] branches
-npm run cleanup:branches
+bun run cleanup:branches
 
 # Full cleanup (branches + worktrees + stashes)
-npm run cleanup:all
+bun run cleanup:all
 ```
 
 ## Code Quality

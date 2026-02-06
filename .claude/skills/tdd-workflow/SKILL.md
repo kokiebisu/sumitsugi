@@ -90,7 +90,7 @@ describe('Semantic Search', () => {
 ### Step 3: Run Tests (They Should Fail)
 
 ```bash
-npm test
+bun run test
 # Tests should fail - we haven't implemented yet
 ```
 
@@ -108,7 +108,7 @@ export async function searchMarkets(query: string) {
 ### Step 5: Run Tests Again
 
 ```bash
-npm test
+bun run test
 # Tests should now pass
 ```
 
@@ -124,7 +124,7 @@ Improve code quality while keeping tests green:
 ### Step 7: Verify Coverage
 
 ```bash
-npm run test:coverage
+bun run test:coverage
 # Verify 80%+ coverage achieved
 ```
 
@@ -318,7 +318,7 @@ jest.mock('@/lib/openai', () => ({
 ### Run Coverage Report
 
 ```bash
-npm run test:coverage
+bun run test:coverage
 ```
 
 ### Coverage Thresholds
@@ -401,7 +401,7 @@ test('updates user', () => {
 ### Watch Mode During Development
 
 ```bash
-npm test -- --watch
+bun run test -- --watch
 # Tests run automatically on file changes
 ```
 
@@ -409,7 +409,7 @@ npm test -- --watch
 
 ```bash
 # Runs before every commit
-npm test && npm run lint
+bun run test && bun run lint
 ```
 
 ### CI/CD Integration
@@ -417,7 +417,7 @@ npm test && npm run lint
 ```yaml
 # GitHub Actions
 - name: Run Tests
-  run: npm test -- --coverage
+  run: bun run test -- --coverage
 - name: Upload Coverage
   uses: codecov/codecov-action@v3
 ```

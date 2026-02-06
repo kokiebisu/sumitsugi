@@ -96,13 +96,13 @@ Before deploying the application, ensure all database migrations are applied:
 
 ```bash
 # Install dependencies
-npm install
+bun install
 
 # Generate migration files (if not already generated)
-npm run db:generate
+bun run db:generate
 
 # Apply migrations to production database
-npm run db:migrate
+bun run db:migrate
 ```
 
 #### Option B: Using Drizzle Studio
@@ -112,7 +112,7 @@ npm run db:migrate
 export DATABASE_URL="postgresql://[user]:[password]@[host]/[db]?sslmode=require"
 
 # Open Drizzle Studio
-npm run db:studio
+bun run db:studio
 
 # Verify schema matches expected structure
 ```
@@ -244,7 +244,7 @@ railway up
 1. Configure environment variables in platform dashboard
 2. Build application:
    ```bash
-   npm run build
+   bun run build
    ```
 3. Start production server:
    ```bash
@@ -527,7 +527,7 @@ Set up alerts for critical events:
 2. **Re-run migrations**:
 
    ```bash
-   npm run db:migrate
+   bun run db:migrate
    ```
 
 3. **Check database schema**:
@@ -599,7 +599,7 @@ vercel rollback [deployment-url]
 
 ```bash
 # Revert migrations (if needed)
-npm run db:rollback
+bun run db:rollback
 
 # Or manually drop tables
 psql $DATABASE_URL

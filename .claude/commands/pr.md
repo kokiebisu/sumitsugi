@@ -47,24 +47,24 @@ Before pushing, verify all tests pass:
 1. **Run test suite**:
 
    ```bash
-   pnpm test
+   bun run test
    ```
 
 2. **Run type check**:
 
    ```bash
-   pnpm tsc --noEmit
+   bunx tsc --noEmit
    ```
 
 3. **Run linter**:
 
    ```bash
-   pnpm lint
+   bun run lint
    ```
 
 4. **Run build** (if applicable):
    ```bash
-   pnpm build
+   bun run build
    ```
 
 If any test fails:

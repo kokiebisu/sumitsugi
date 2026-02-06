@@ -35,7 +35,7 @@ describe('searchMarkets', () => {
 ### Step 2: Run Test (Verify it FAILS)
 
 ```bash
-npm test
+bun run test
 # Test should fail - we haven't implemented yet
 ```
 
@@ -52,7 +52,7 @@ export async function searchMarkets(query: string) {
 ### Step 4: Run Test (Verify it PASSES)
 
 ```bash
-npm test
+bun run test
 # Test should now pass
 ```
 
@@ -66,7 +66,7 @@ npm test
 ### Step 6: Verify Coverage
 
 ```bash
-npm run test:coverage
+bun run test:coverage
 # Verify 80%+ coverage
 ```
 
@@ -280,7 +280,7 @@ test('updates user', () => {
 
 ```bash
 # Run tests with coverage
-npm run test:coverage
+bun run test:coverage
 
 # View HTML report
 open coverage/lcov-report/index.html
@@ -297,13 +297,13 @@ Required thresholds:
 
 ```bash
 # Watch mode during development
-npm test -- --watch
+bun run test -- --watch
 
 # Run before commit (via git hook)
-npm test && npm run lint
+bun run test && bun run lint
 
 # CI/CD integration
-npm test -- --coverage --ci
+bun run test -- --coverage --ci
 ```
 
 **Remember**: No code without tests. Tests are not optional. They are the safety net that enables confident refactoring, rapid development, and production reliability.

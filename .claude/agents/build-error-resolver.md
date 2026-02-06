@@ -46,10 +46,10 @@ npx tsc --noEmit path/to/file.ts
 npx eslint . --ext .ts,.tsx,.js,.jsx
 
 # Next.js build (production)
-npm run build
+bun run build
 
 # Next.js build with debug
-npm run build -- --debug
+bun run build -- --debug
 ```
 
 ## Error Resolution Workflow
@@ -165,7 +165,7 @@ import { formatDate } from '@/lib/utils'
 import { formatDate } from '../lib/utils'
 
 // ✅ FIX 3: Install missing package
-npm install @/lib/utils
+bun install @/lib/utils
 ```
 
 **Pattern 5: Type Mismatch**
@@ -243,8 +243,8 @@ async function fetchData() {
 import React from 'react'
 
 // ✅ FIX: Install dependencies
-npm install react
-npm install --save-dev @types/react
+bun install react
+bun add -d @types/react
 
 // ✅ CHECK: Verify package.json has dependency
 {
@@ -453,10 +453,10 @@ Parameter 'market' implicitly has an 'any' type.
 ## Verification Steps
 
 1. ✅ TypeScript check passes: `npx tsc --noEmit`
-2. ✅ Next.js build succeeds: `npm run build`
+2. ✅ Next.js build succeeds: `bun run build`
 3. ✅ ESLint check passes: `npx eslint .`
 4. ✅ No new errors introduced
-5. ✅ Development server runs: `npm run dev`
+5. ✅ Development server runs: `bun run dev`
 
 ## Summary
 
@@ -477,7 +477,7 @@ Parameter 'market' implicitly has an 'any' type.
 ## When to Use This Agent
 
 **USE when:**
-- `npm run build` fails
+- `bun run build` fails
 - `npx tsc --noEmit` shows errors
 - Type errors blocking development
 - Import/module resolution errors
@@ -518,27 +518,27 @@ Parameter 'market' implicitly has an 'any' type.
 npx tsc --noEmit
 
 # Build Next.js
-npm run build
+bun run build
 
 # Clear cache and rebuild
 rm -rf .next node_modules/.cache
-npm run build
+bun run build
 
 # Check specific file
 npx tsc --noEmit src/path/to/file.ts
 
 # Install missing dependencies
-npm install
+bun install
 
 # Fix ESLint issues automatically
 npx eslint . --fix
 
 # Update TypeScript
-npm install --save-dev typescript@latest
+bun add -d typescript@latest
 
 # Verify node_modules
 rm -rf node_modules package-lock.json
-npm install
+bun install
 ````
 
 ## Success Metrics
@@ -546,7 +546,7 @@ npm install
 After build error resolution:
 
 - ✅ `npx tsc --noEmit` exits with code 0
-- ✅ `npm run build` completes successfully
+- ✅ `bun run build` completes successfully
 - ✅ No new errors introduced
 - ✅ Minimal lines changed (< 5% of affected file)
 - ✅ Build time not significantly increased

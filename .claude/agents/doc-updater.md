@@ -255,7 +255,7 @@ Brief description
 
 # Installation
 
-npm install
+bun install
 
 # Environment variables
 
@@ -265,11 +265,11 @@ cp .env.example .env.local
 
 # Development
 
-npm run dev
+bun run dev
 
 # Build
 
-npm run build
+bun run build
 \`\`\`
 
 ## Architecture

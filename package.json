@@ -29,7 +29,7 @@
     "worktree:list": "git worktree list",
     "worktree:prune": "git worktree prune",
     "cleanup:branches": "bash scripts/cleanup-branches.sh",
-    "cleanup:all": "npm run cleanup:branches && git worktree prune && git stash clear"
+    "cleanup:all": "bun run cleanup:branches && git worktree prune && git stash clear"
   },
   "dependencies": {
     "@auth/core": "^0.41.0",
