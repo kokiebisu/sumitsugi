@@ -269,6 +269,67 @@ PMが議論を整理し、ユーザー（プロダクトオーナー）に判断
 
 決定事項をドキュメントに反映。
 
+### Phase 4.5: デルタサマリー生成
+
+**REQUIREMENTS.md更新後、技術ミーティング向けのデルタサマリーを生成する。**
+
+技術チームがREQUIREMENTS.md全体を読み直す必要がなくなり、変更点だけを効率的に検証できる。
+
+**ファイル名:** `docs/meetings/YYYY-MM-DD-product-meeting-N-delta.md`
+
+**テンプレート:**
+
+```markdown
+# デルタサマリー: プロダクトミーティング #N
+
+**日時:** YYYY-MM-DD
+**議題:** [議題]
+
+---
+
+## 1. 新規追加
+
+| Feature ID | セクション | 内容                   |
+| ---------- | ---------- | ---------------------- |
+| F-XXX      | §X.X       | [追加された要件の概要] |
+
+## 2. 変更
+
+| Feature ID | セクション | 変更前 | 変更後 | 理由                       |
+| ---------- | ---------- | ------ | ------ | -------------------------- |
+| F-XXX      | §X.X       | [旧]   | [新]   | [ペルソナの声や議論の結論] |
+
+## 3. フェーズ移動
+
+| Feature ID | 内容   | 移動元  | 移動先  | 理由   |
+| ---------- | ------ | ------- | ------- | ------ |
+| F-XXX      | [内容] | Phase N | Phase M | [理由] |
+
+## 4. 削除・延期
+
+| Feature ID | 内容   | 理由         |
+| ---------- | ------ | ------------ |
+| F-XXX      | [内容] | [議論の結論] |
+
+## 5. 議論したが変更なし
+
+- [議題X]: [変更しなかった理由]
+
+---
+
+## 技術ミーティングへの引き継ぎ事項
+
+- [ ] [技術検証が必要な項目1]（関連: F-XXX）
+- [ ] [技術検証が必要な項目2]（関連: F-YYY）
+- [ ] [技術的前提の確認]（関連: F-ZZZ）
+```
+
+**ルール:**
+
+- セクション1〜4が全て空の場合、デルタサマリーは生成しない（「変更なし」とチェックリストに記録）
+- Feature IDはREQUIREMENTS.mdのF-XXX番号を使用
+- 「技術ミーティングへの引き継ぎ事項」は技術検証が必要な項目のみ記載
+
 ---
 
 ## Meeting Output Format
@@ -368,17 +429,29 @@ PMが議論を整理し、ユーザー（プロダクトオーナー）に判断
 ## Workflow Position
 
 ```
-/meeting:product (ペルソナ座談会) → /meeting:tech (技術検証) → REQUIREMENTS.md → Linear
+/meeting:product (ペルソナ座談会)
+  ├→ REQUIREMENTS.md 更新
+  └→ デルタサマリー生成 (docs/meetings/YYYY-MM-DD-product-meeting-N-delta.md)
+       ↓
+/meeting:tech (技術検証) ← デルタサマリーを入力として消費
+  ├→ DESIGN_DOC.md 更新 (T-N技術決定)
+  └→ CTO/CAIO knowledge 更新
+       ↓
+/meeting:tasks (タスク分解) ← DESIGN_DOC.md + REQUIREMENTS.md
+  └→ Beads → Linear
 ```
 
-- `/meeting:product`: ユーザーペルソナの視点で「何を作るべきか」を議論
-- `/meeting:tech`: CTO/CAIOの視点で「どう作るか」を検証
+- `/meeting:product`: ユーザーペルソナの視点で「何を作るべきか」を議論 + デルタサマリー生成
+- `/meeting:tech`: CTO/CAIOの視点で「どう作るか」を検証 + DESIGN_DOC.md更新
+- `/meeting:tasks`: 確定要件をタスクに分解（F-XXXトレーサビリティ付き）
 
 ---
 
 ## End of Meeting Checklist
 
 - [ ] REQUIREMENTS.md を更新
+- [ ] **デルタサマリーを生成** (`docs/meetings/YYYY-MM-DD-product-meeting-N-delta.md`)
+  - 変更がなかった場合は「変更なし — デルタサマリー生成不要」と記録
 - [ ] Beads タスクを作成/更新
 - [ ] Linear にタスクを同期
 - [ ] 次のステップ（`/meeting:tech` が必要か）を確認

@@ -20,6 +20,27 @@ PM: こんにちは！技術チームの皆さん。先ほどのプロダクト�
 
 ---
 
+## Input: デルタサマリーの読み込み
+
+**技術ミーティング開始時に、直近のプロダクトミーティングのデルタサマリーを確認する:**
+
+```
+docs/meetings/YYYY-MM-DD-product-meeting-N-delta.md
+```
+
+**デルタサマリーがある場合:**
+
+- REQUIREMENTS.md全体を読み直す必要はない
+- デルタサマリーの「新規追加」「変更」「フェーズ移動」を技術検証の対象とする
+- 「技術ミーティングへの引き継ぎ事項」を優先的に議論する
+- 必要に応じてREQUIREMENTS.mdの該当セクションだけ参照
+
+**デルタサマリーがない場合:**
+
+- 従来通りREQUIREMENTS.mdから対象の要件を読み込む
+
+---
+
 ## When to Use
 
 - PM needs to understand technical feasibility of a requirement
@@ -98,6 +119,37 @@ PM: こんにちは！技術チームの皆さん。先ほどのプロダクト�
 ### Phase 2: Constraint Discussion (4-6 exchanges)
 
 **Goal**: PM deeply understands constraints to make informed decisions
+
+**このフェーズには2つのモードがある。議題に応じて使い分ける:**
+
+#### モードA: フィージビリティ検証（クイック）
+
+新規要件の「できる/できない」を素早く判断する。
+
+**アウトプット:** 各要件に対して以下を判定
+
+- ✅ 実現可能（そのまま進行）
+- ⚠️ 条件付き実現可能（制約・条件を明記）
+- ❌ 実現困難（代替案を提示）
+
+**目安:** 1要件あたり2-3 exchanges
+
+#### モードB: アーキテクチャ設計（ディープ）
+
+実現可能と判定された要件の「どう作るか」を設計する。
+
+**アウトプット:** T-N技術決定エントリ + DESIGN_DOC.md更新
+
+- アーキテクチャパターンの選定
+- 技術選定（ライブラリ、サービス）
+- データモデル設計
+- 実装ロードマップへの配置
+
+**目安:** 1トピックあたり4-6 exchanges
+
+**推奨フロー:** 全要件をモードAで一通りスクリーニング → 設計が必要なものだけモードBで深掘り
+
+---
 
 1. **PM asks probing questions**:
    - "What makes this difficult?"
@@ -313,9 +365,44 @@ This meeting is the **validation step** before finalizing requirements.
 ## End of Meeting Checklist (CRITICAL)
 
 - [ ] Update REQUIREMENTS.md with final requirements
+- [ ] **Update `docs/DESIGN_DOC.md`** (see DESIGN_DOC Update Guide below)
 - [ ] Create/update Beads tasks based on requirements changes
 - [ ] Sync to Linear
 - [ ] Document technical decisions in `docs/team/cto/knowledge/` or `docs/team/caio/knowledge/`
+
+---
+
+## DESIGN_DOC Update Guide
+
+技術ミーティングで新しい技術決定が出た場合、必ず `docs/DESIGN_DOC.md` を更新する。
+
+### セクション1: 技術決定サマリーテーブルに新しいT-N行を追加
+
+次のT-N番号は、テーブル内の最大番号+1とする。
+
+```markdown
+| T-N | [残論点] | **[決定内容]** | [関連F-XXX] | 解決済み |
+```
+
+### セクション2: アーキテクチャ詳細に新しいサブセクションを追加
+
+```markdown
+### 2.X T-N: [決定タイトル]
+
+[アーキテクチャ図/フロー]
+
+**実装メモ:**
+
+- [具体的な実装方針]
+- [ファイル配置]
+- [依存関係]
+```
+
+### セクション3: MVP実装ロードマップを更新
+
+新しいタスクが既存のPhaseに追加されるか、新しいPhaseが必要かを判断して更新。
+
+**更新不要の場合:** 新規技術決定がなかった場合は「新規技術決定なし — DESIGN_DOC.md更新不要」とチェックリストに記録する。
 
 ---
 
