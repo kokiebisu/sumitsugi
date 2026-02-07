@@ -13,8 +13,6 @@ import {
 import {
   ArrowLeft,
   Home,
-  CheckCircle2,
-  XCircle,
   BedDouble,
   Sofa,
   Monitor,
@@ -28,6 +26,7 @@ import {
 } from 'lucide-react';
 import { isUrgentMoveIn } from '@/lib/utils';
 import { UrgentMoveInBadge } from '@/components/urgent-move-in-badge';
+import { ConsentBadge } from '@/components/consent-badge';
 
 const FURNITURE_ICONS: Record<string, typeof BedDouble> = {
   bed: BedDouble,
@@ -111,6 +110,13 @@ export default async function PropertyDetailPage({
                   {isUrgentMoveIn(property.moveOutDate) && (
                     <UrgentMoveInBadge variant="inline" />
                   )}
+                  {property.consentStatus &&
+                    property.consentStatus !== 'pending' && (
+                      <ConsentBadge
+                        status={property.consentStatus}
+                        variant="inline"
+                      />
+                    )}
                 </div>
                 <p className="mt-1 text-base font-normal text-foreground">
                   {[

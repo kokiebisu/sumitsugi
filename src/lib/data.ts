@@ -187,6 +187,14 @@ export type LargeApplianceType =
   | 'dishwasher';
 
 // 大家承諾情報
+// 大家承認ステータス（§7.4）
+export type ConsentStatus =
+  | 'pending'
+  | 'conditional'
+  | 'approved'
+  | 'rejected'
+  | 'expired';
+
 export interface LandlordConsent {
   hasLandlordConsent: boolean;
 }
@@ -223,6 +231,7 @@ export interface UserListing {
   furniture?: LargeFurnitureType[]; // 大型家具（旧形式、互換性のため）
   furnitureItems?: FurnitureItem[]; // 家具アイテム（写真付き）
   story?: string;
+  consentStatus?: ConsentStatus; // 大家承認ステータス（§7.4）
   // 公開前確認
   landlordConsent?: LandlordConsent; // 大家承諾
   liabilityTerms?: LiabilityTerms; // 責任区分
@@ -249,6 +258,7 @@ export interface Property {
   furniture?: LargeFurnitureType[]; // 引き継ぎ対象の大型家具
   moveOutDate?: string; // 退去日（F-501）
   status: 'draft' | 'public';
+  consentStatus?: ConsentStatus; // 大家承認ステータス（§7.4）
   // 以下は詳細ページ用（MVP後に追加検討）
   summary?: string;
   furnitureDescription?: string;
@@ -311,6 +321,7 @@ export const properties: Property[] = [
       'ヴィンテージのチェスト、手作りの本棚、レコードプレーヤー。壁にかかる大きなタペストリーはお気に入りのアーティストの作品。スケートボードやアート作品もそのままお使いいただけます。',
     moveOutDate: '2026-03-01',
     status: 'public',
+    consentStatus: 'approved',
     story:
       'グラフィックデザイナーとして活動しながら、この部屋を自分だけのギャラリーのように育ててきました。窓辺の植物たちに水をやり、好きなレコードをかけながら作業する日々。海外での仕事が決まり、この空間を大切にしてくれる方に引き継ぎたいと思っています。',
     conditions:
@@ -412,6 +423,7 @@ export const properties: Property[] = [
     furnitureDescription:
       'Marshallのスピーカー、DJ機材一式（ターンテーブル、ミキサー）、レコード棚。深夜でも音を出せる防音対策済み。シンプルなベッドフレーム、カフェテーブルとチェア。',
     status: 'public',
+    consentStatus: 'conditional',
     story:
       'DJとして活動しながら、週末は自宅でイベントを開催してきました。コンクリートの音響と、機材を囲んだ空間が最高です。海外ツアーが決まり、同じように音楽を愛する方に使ってもらえたら嬉しいです。レコードコレクションも一部そのまま使えます。',
     conditions:
@@ -520,6 +532,7 @@ export const properties: Property[] = [
     furnitureDescription:
       '木製のヴィンテージデスク、レトロな照明、古い本棚。長年かけて集めた古道具たちがこの空間を彩っています。',
     status: 'public',
+    consentStatus: 'pending',
     story:
       '古着屋を営みながら、仕事帰りに少しずつ集めた家具たち。この部屋で過ごす時間が一番落ち着きます。店舗を移転することになり、この空間を気に入ってくれる方に譲りたいです。',
     conditions: 'ヴィンテージ品を大切にしてくれる方。喫煙不可。',
