@@ -93,6 +93,19 @@ describe('HandoverConfirmation', () => {
     });
   });
 
+  it('should handle network errors gracefully', async () => {
+    vi.mocked(confirmHandoverCompletion).mockRejectedValue(
+      new Error('Network error')
+    );
+
+    render(<HandoverConfirmation {...defaultProps} />);
+    fireEvent.click(screen.getByText('引き継ぎ完了を確認'));
+
+    await waitFor(() => {
+      expect(screen.getByText(/ネットワークエラー/)).toBeDefined();
+    });
+  });
+
   it('should show already confirmed state', () => {
     render(<HandoverConfirmation {...defaultProps} alreadyConfirmed={true} />);
 

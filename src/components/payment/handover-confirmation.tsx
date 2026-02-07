@@ -45,13 +45,20 @@ export function HandoverConfirmation({
     setState('loading');
     setErrorMessage(null);
 
-    const result = await confirmHandoverCompletion(propertyId, userId, role);
+    try {
+      const result = await confirmHandoverCompletion(propertyId, userId, role);
 
-    if (result.success) {
-      setState(result.bothConfirmed ? 'both_confirmed' : 'confirmed');
-    } else {
+      if (result.success) {
+        setState(result.bothConfirmed ? 'both_confirmed' : 'confirmed');
+      } else {
+        setState('error');
+        setErrorMessage(result.error ?? '予期しないエラーが発生しました');
+      }
+    } catch {
       setState('error');
-      setErrorMessage(result.error ?? '予期しないエラーが発生しました');
+      setErrorMessage(
+        'ネットワークエラーが発生しました。もう一度お試しください。'
+      );
     }
   }, [propertyId, userId, role]);
 
