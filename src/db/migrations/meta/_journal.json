@@ -8,6 +8,13 @@
       "when": 1770346422126,
       "tag": "0000_yielding_patch",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1770441772112,
+      "tag": "0001_phase0-schema-extension",
+      "breakpoints": true
     }
   ]
 }
