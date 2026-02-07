@@ -116,7 +116,7 @@ describe('POST /api/properties', () => {
       area: '渋谷区',
       layout: '1LDK',
       condition: 'excellent',
-      landlordConsent: true,
+      landlordConsent: { status: 'approved' },
     };
     const created = {
       id: 'test-uuid-1234',
