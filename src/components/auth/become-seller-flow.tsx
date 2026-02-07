@@ -297,7 +297,7 @@ export function BecomeSellerFlow({
             <div className="flex flex-1 flex-col justify-center px-12 py-16 lg:px-24">
               <p className="text-sm text-muted-foreground mb-2">ステップ1</p>
               <h1 className="text-4xl font-semibold mb-6">
-                クリエイターとして
+                前の住人として
                 <br />
                 登録する
               </h1>
@@ -479,7 +479,7 @@ export function BecomeSellerFlow({
               <p className="text-sm text-muted-foreground mb-2">ステップ3</p>
               <h1 className="text-4xl font-semibold mb-6">登録内容の確認</h1>
               <p className="text-muted-foreground mb-8">
-                以下の内容でクリエイターとして登録します
+                以下の内容で前の住人として登録します
               </p>
               <div className="space-y-4 rounded-xl border p-6 max-w-md">
                 <div>
@@ -560,7 +560,7 @@ export function BecomeSellerFlow({
               ) : (
                 <>
                   <Check className="mr-2 h-4 w-4" />
-                  クリエイターになる
+                  前の住人になる
                 </>
               )}
             </Button>

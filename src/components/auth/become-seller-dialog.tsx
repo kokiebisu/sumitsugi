@@ -92,7 +92,7 @@ export function BecomeSellerDialog({
             </button>
           )}
           <DialogTitle className="text-center text-base font-semibold">
-            クリエイターになる
+            前の住人になる
           </DialogTitle>
         </DialogHeader>
 
@@ -210,7 +210,7 @@ export function BecomeSellerDialog({
               <div>
                 <h2 className="text-xl font-semibold mb-2">確認</h2>
                 <p className="text-sm text-muted-foreground">
-                  以下の内容でクリエイターとして登録します
+                  以下の内容で前の住人として登録します
                 </p>
               </div>
 
@@ -250,7 +250,7 @@ export function BecomeSellerDialog({
                 ) : (
                   <>
                     <Check className="mr-2 h-4 w-4" />
-                    クリエイターになる
+                    前の住人になる
                   </>
                 )}
               </Button>

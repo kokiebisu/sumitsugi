@@ -84,7 +84,7 @@ export default function AccountPage() {
                     {user.name}
                   </h2>
                   <p className="text-sm text-muted-foreground">
-                    {user.isSeller ? 'クリエイター' : '入居希望者'}
+                    {user.isSeller ? '前の住人' : '入居希望者'}
                   </p>
                   <p className="mt-1 text-sm text-coral font-medium">
                     プロフィールを編集
@@ -142,12 +142,12 @@ export default function AccountPage() {
             </div>
           </div>
 
-          {/* クリエイタープロフィール（ホストのみ） */}
+          {/* 前の住人プロフィール（ホストのみ） */}
           {user.isSeller && user.sellerProfile && (
             <div className="mb-6 rounded-xl border border-border bg-background shadow-sm">
               <div className="border-b border-border p-4">
                 <h3 className="font-semibold text-foreground">
-                  クリエイタープロフィール
+                  前の住人プロフィール
                 </h3>
               </div>
               <div className="divide-y divide-border">
@@ -200,9 +200,7 @@ export default function AccountPage() {
                 <div className="flex items-center gap-3 p-4">
                   <Calendar className="h-5 w-5 text-muted-foreground" />
                   <div className="flex-1">
-                    <p className="text-sm text-muted-foreground">
-                      クリエイター登録日
-                    </p>
+                    <p className="text-sm text-muted-foreground">登録日</p>
                     <p className="text-foreground">
                       {formatDate(user.sellerProfile.sellerSince)}
                     </p>
@@ -212,7 +210,7 @@ export default function AccountPage() {
             </div>
           )}
 
-          {/* クリエイターになる（非ホストのみ） */}
+          {/* 前の住人になる（非ホストのみ） */}
           {!user.isSeller && (
             <Link
               href="/listing"
@@ -224,7 +222,7 @@ export default function AccountPage() {
                 </div>
                 <div>
                   <p className="font-semibold text-foreground">
-                    クリエイターになる
+                    前の住人になる
                   </p>
                   <p className="text-sm text-muted-foreground">
                     あなたの暮らしを次の人へ引き継ぎませんか？
