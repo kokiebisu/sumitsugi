@@ -8,6 +8,7 @@ import {
   Property,
   convertUserListingToProperty,
 } from '@/lib/data';
+import { isUrgentMoveIn, getDaysUntilMoveOut } from '@/lib/utils';
 import { useAuth } from '@/contexts/auth-context';
 import { useMemo } from 'react';
 
@@ -122,7 +123,7 @@ export default function HomePage() {
   // 東京の物件のみをフィルタリング
   const tokyoProperties = properties.filter((p) => p.area === '東京');
 
-  // 区ごとにグループ化
+  // 区ごとにグループ化し、即入居可能物件を優先表示（F-507）
   const propertiesByDistrict = useMemo(() => {
     const grouped: Record<string, Property[]> = {};
 
@@ -133,6 +134,27 @@ export default function HomePage() {
       }
       grouped[district].push(property);
     });
+
+    // 各区内で即入居可能物件を先頭にソート
+    for (const district of Object.keys(grouped)) {
+      grouped[district] = [...grouped[district]].sort((a, b) => {
+        const aUrgent = isUrgentMoveIn(a.moveOutDate);
+        const bUrgent = isUrgentMoveIn(b.moveOutDate);
+
+        if (aUrgent && !bUrgent) return -1;
+        if (!aUrgent && bUrgent) return 1;
+
+        // 両方urgent: 退去日が近い順
+        if (aUrgent && bUrgent) {
+          return (
+            getDaysUntilMoveOut(a.moveOutDate!) -
+            getDaysUntilMoveOut(b.moveOutDate!)
+          );
+        }
+
+        return 0;
+      });
+    }
 
     return grouped;
   }, [tokyoProperties]);
