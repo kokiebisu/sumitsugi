@@ -4,6 +4,8 @@ import { registerFonts } from './fonts';
 
 export async function renderPdf(document: ReactElement): Promise<Buffer> {
   registerFonts();
-  const buffer = await renderToBuffer(document);
+  const buffer = await renderToBuffer(
+    document as Parameters<typeof renderToBuffer>[0]
+  );
   return Buffer.from(buffer);
 }
