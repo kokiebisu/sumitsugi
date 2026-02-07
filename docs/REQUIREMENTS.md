@@ -557,23 +557,27 @@ booleanではなく構造化データとして管理。条件付き承認や原�
 
 ### 9.1 フロントエンド
 
-| 分類             | 技術                                                         |
-| ---------------- | ------------------------------------------------------------ |
-| フレームワーク   | Next.js 16 (App Router)                                      |
-| 言語             | TypeScript 5                                                 |
-| UIライブラリ     | React 19                                                     |
-| スタイリング     | Tailwind CSS 3                                               |
-| UIコンポーネント | shadcn/ui (Radix UI)                                         |
-| アイコン         | Lucide React                                                 |
-| フォーム         | React Hook Form + Zod                                        |
-| PDF生成          | @react-pdf/renderer（サーバーサイド生成も可）※技術選定は別途 |
-| メール送信       | Resend or SendGrid（問い合わせ通知 F-204）※技術選定は別途    |
+| 分類             | 技術                                                            |
+| ---------------- | --------------------------------------------------------------- |
+| フレームワーク   | Next.js 16 (App Router)                                         |
+| 言語             | TypeScript 5                                                    |
+| UIライブラリ     | React 19                                                        |
+| スタイリング     | Tailwind CSS 3                                                  |
+| UIコンポーネント | shadcn/ui (Radix UI)                                            |
+| アイコン         | Lucide React                                                    |
+| フォーム         | React Hook Form + Zod                                           |
+| PDF生成          | @react-pdf/renderer（サーバーサイド renderToBuffer() + R2保存） |
+| メール送信       | Resend + React Email（問い合わせ通知 F-204、リマインド F-205）  |
+| 定期実行         | Vercel Cron Jobs（リマインドチェック、期限切れチェック）        |
+| 決済             | Stripe Connect — Destination Charges（Phase 4）                 |
+| ORM              | Drizzle ORM                                                     |
+| 認証             | Better Auth（magic link）                                       |
 
 ### 9.2 開発環境
 
 | 分類                 | 技術                  |
 | -------------------- | --------------------- |
-| パッケージマネージャ | npm                   |
+| パッケージマネージャ | Bun                   |
 | コンテナ             | Docker + DevContainer |
 | リンター             | ESLint                |
 | コード整形           | Prettier              |
