@@ -98,7 +98,7 @@ Use the `bd` command for AI-friendly task tracking instead of markdown TODOs:
 bd ready              # Show tasks with no blockers
 bd create "Task"      # Create new task
 bd status --json      # Get JSON output for agents
-bd done <id>          # Mark task complete
+bd close <id>         # Mark task complete
 bd show <id>          # Show task details and dependencies
 ```
 
