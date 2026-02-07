@@ -5,3 +5,7 @@ export { ConsultationDocument } from './templates/consultation-document';
 export { ConsentForm } from './templates/consent-form';
 export { ScheduleTemplate } from './templates/schedule-template';
 export { ManagementFaq } from './templates/management-faq';
+export {
+  buildConsentFormProps,
+  mapChecklistToConsentItems,
+} from './consent-generator';
