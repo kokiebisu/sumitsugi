@@ -15,7 +15,15 @@
         "eamodio.gitlens",
         "GitHub.vscode-github-actions",
         "ms-azuretools.vscode-containers",
-        "ms-playwright.playwright"
+        "ms-playwright.playwright",
+        "usernamehw.errorlens",
+        "bradlc.vscode-tailwindcss",
+        "pranaygp.vscode-css-peek",
+        "GitHub.vscode-pull-request-github",
+        "Gruntfuggly.todo-tree",
+        "yzhang.markdown-all-in-one",
+        "mushan.vscode-paste-image",
+        "tonybaloney.vscode-pets"
       ],
       "settings": {
         "editor.formatOnSave": true,
