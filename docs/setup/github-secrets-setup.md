@@ -4,10 +4,10 @@
 
 tsumugiのGitHub Actionsワークフローで使用するSecrets：
 
-| Secret名 | 使用ワークフロー | 必須 |
-|----------|-----------------|------|
-| `ANTHROPIC_API_KEY` | Requirements Audit, Daily Knowledge Update | ✅ 必須 |
-| `LINEAR_API_KEY` | Linear統合（将来） | オプション |
+| Secret名            | 使用ワークフロー                           | 必須       |
+| ------------------- | ------------------------------------------ | ---------- |
+| `ANTHROPIC_API_KEY` | Requirements Audit, Daily Knowledge Update | ✅ 必須    |
+| `LINEAR_API_KEY`    | Linear統合（将来）                         | オプション |
 
 ---
 
@@ -16,6 +16,7 @@ tsumugiのGitHub Actionsワークフローで使用するSecrets：
 ### WebUI経由（推奨）
 
 1. **リポジトリページを開く**
+
    ```
    https://github.com/[your-username]/tsumugi
    ```
@@ -44,11 +45,13 @@ gh secret set ANTHROPIC_API_KEY --body "$ANTHROPIC_API_KEY"
 ```
 
 **確認:**
+
 ```bash
 gh secret list
 ```
 
 **出力例:**
+
 ```
 ANTHROPIC_API_KEY  Updated 2026-02-03
 ```
@@ -107,12 +110,14 @@ gh run view --log
 ```
 
 **成功例:**
+
 ```
 ✅ Run Claude Audit
 ✅ Create tasks and PR
 ```
 
 **失敗例（API Key未設定）:**
+
 ```
 ❌ Error: Invalid API key
 ```
@@ -126,6 +131,7 @@ gh run view --log
 **原因:** GitHub Secretsに正しいAPI Keyが設定されていない
 
 **解決策:**
+
 1. Anthropic Consoleで新しいKeyを作成
 2. GitHub Secretsに設定し直す
 3. ワークフローを再実行
@@ -135,6 +141,7 @@ gh run view --log
 **原因:** Secret名が間違っている、または設定されていない
 
 **解決策:**
+
 ```bash
 # Secretsを確認
 gh secret list
@@ -150,6 +157,7 @@ gh secret set ANTHROPIC_API_KEY --body "sk-ant-your-key-here"
 **説明:** GitHub Actionsは `.env.local` を使いません。GitHub Secretsから環境変数を読み込みます。
 
 **確認すべき箇所:**
+
 - スクリプトが `process.env.ANTHROPIC_API_KEY` を使っているか
 - ワークフローが `env: ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}` を設定しているか
 

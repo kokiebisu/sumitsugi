@@ -49,6 +49,6 @@
   "containerEnv": {
     "CLAUDE_CONFIG_DIR": "/home/bun/.claude"
   },
-  "postStartCommand": "sudo chgrp docker /var/run/docker.sock && sudo /usr/local/bin/init-firewall.sh",
+  "postStartCommand": "(sudo chgrp docker /var/run/docker.sock 2>/dev/null || true) && sudo /usr/local/bin/init-firewall.sh",
   "waitFor": "postStartCommand"
 }

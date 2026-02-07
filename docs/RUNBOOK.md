@@ -71,11 +71,13 @@ vercel --prod --force
 **Production environment variables (Vercel Dashboard):**
 
 Required:
+
 - `DATABASE_URL` - Neon PostgreSQL connection string
 - `NEXTAUTH_URL` - Production URL (e.g., https://tsumugi.example.com)
 - `NEXTAUTH_SECRET` - JWT encryption secret (unique per environment)
 
 Optional:
+
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` - Google OAuth
 - `APPLE_CLIENT_ID` / `APPLE_CLIENT_SECRET` - Apple Sign In
 - `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` - S3 image storage

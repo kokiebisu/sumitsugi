@@ -5,6 +5,7 @@ This document explains the Linear MCP (Model Context Protocol) server integratio
 ## Overview
 
 The Linear MCP server provides Claude with direct access to Linear's API, enabling:
+
 - Listing and querying issues
 - Creating and updating issues
 - Adding comments
@@ -23,11 +24,13 @@ LINEAR_TEAM_ID=21f06272-3f96-46f2-836c-0d5dd726f931
 ```
 
 **Get your Linear API key:**
+
 1. Go to Linear Settings → API
 2. Create a new Personal API Key
 3. Copy the key (starts with `lin_api_`)
 
 **Get your team ID:**
+
 ```bash
 source .env.local
 curl -s -X POST \
@@ -81,6 +84,7 @@ Lists all open tasks with details:
 ```
 
 Output:
+
 ```
 Open Tasks (5):
 
@@ -105,6 +109,7 @@ Marks one or more tasks as Done:
 ```
 
 Output:
+
 ```
 Done State ID: a044ed83-b069-454b-8243-7d9dc6912324
 
@@ -124,6 +129,7 @@ Adds a comment to a task:
 ```
 
 Output:
+
 ```
 Adding comment to TSU-123...
 ✅ Comment added to TSU-123
@@ -169,12 +175,14 @@ After a team meeting:
 ### MCP Server Not Connected
 
 **Symptoms:**
+
 - `plugin:linear:linear` not shown in Claude CLI startup
 - Helper scripts fail with authentication errors
 
 **Solutions:**
 
 1. Check environment variables:
+
    ```bash
    source .env.local
    echo $LINEAR_API_KEY
@@ -184,6 +192,7 @@ After a team meeting:
 2. Verify `.claude/settings.json` has correct MCP configuration
 
 3. Restart Claude CLI:
+
    ```bash
    # Exit current session (Ctrl+C)
    claude

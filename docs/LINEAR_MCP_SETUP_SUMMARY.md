@@ -8,6 +8,7 @@
 ### 1. MCP Server Configuration ✅
 
 Added Linear MCP server to `.claude/settings.json`:
+
 ```json
 {
   "mcpServers": {
@@ -26,36 +27,43 @@ Added Linear MCP server to `.claude/settings.json`:
 ### 2. Environment Variables ✅
 
 Added to `.env.local`:
+
 - `LINEAR_API_KEY` - Personal API key for Linear
 - `LINEAR_TEAM_ID` - Tsumugi team ID (21f06272-3f96-46f2-836c-0d5dd726f931)
 
 ### 3. Helper Scripts Created ✅
 
 **scripts/linear-list.sh**
+
 - Lists all open tasks with details
 - Shows identifier, title, state, assignee, and last updated date
 
 **scripts/linear-done.sh**
+
 - Marks one or more tasks as Done
 - Accepts multiple task identifiers
 - Example: `./scripts/linear-done.sh TSU-123 TSU-124`
 
 **scripts/linear-comment.sh**
+
 - Adds comments to tasks
 - Example: `./scripts/linear-comment.sh TSU-123 "Completed"`
 
 ### 4. Documentation Updated ✅
 
 **CLAUDE.md**
+
 - Added Linear integration commands to Commands section
 - Updated environment variables section
 
 **.claude/rules/task-management.md**
+
 - Simplified workflows using helper scripts
 - Replaced complex inline commands with simple script calls
 - Updated FAQ section
 
 **docs/LINEAR_INTEGRATION.md**
+
 - Comprehensive integration guide
 - Setup instructions
 - Usage examples
@@ -64,6 +72,7 @@ Added to `.env.local`:
 ### 5. Integration Testing ✅
 
 **Tests Performed:**
+
 - ✅ Viewer query (user authentication)
 - ✅ Teams query (team information)
 - ✅ Issues query (list open tasks)
@@ -138,6 +147,7 @@ Added to `.env.local`:
 If Linear integration doesn't work:
 
 1. Check environment variables:
+
    ```bash
    source .env.local
    echo $LINEAR_API_KEY
@@ -145,6 +155,7 @@ If Linear integration doesn't work:
    ```
 
 2. Verify script permissions:
+
    ```bash
    chmod +x scripts/linear-*.sh
    ```
