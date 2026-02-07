@@ -26,6 +26,7 @@ import {
   Tv,
   Refrigerator,
   Users,
+  CalendarDays,
 } from 'lucide-react';
 
 // 間取りの選択肢
@@ -76,6 +77,7 @@ export default function NewListingPage() {
   const [location, setLocation] = useState<LocationWithAddress | null>(null);
   const [managementFee, setManagementFee] = useState<string>('');
   const [selectedFurniture, setSelectedFurniture] = useState<string[]>([]);
+  const [moveOutDate, setMoveOutDate] = useState<Date | null>(null);
   const [viewingDate, setViewingDate] = useState<Date | null>(null);
   const [viewingEndDate, setViewingEndDate] = useState<Date | null>(null);
   const [moveInDate, setMoveInDate] = useState<Date | null>(null);
@@ -179,6 +181,9 @@ export default function NewListingPage() {
           selectedFurniture.length > 0
             ? (selectedFurniture as LargeFurnitureType[])
             : undefined,
+        moveOutDate: moveOutDate
+          ? moveOutDate.toISOString().split('T')[0]
+          : undefined,
         viewingAvailableFrom: formatDateRange(viewingDate, viewingEndDate),
         moveInAvailableFrom: formatDateRange(moveInDate, moveInEndDate),
         stations: stations
@@ -222,6 +227,9 @@ export default function NewListingPage() {
           selectedFurniture.length > 0
             ? (selectedFurniture as LargeFurnitureType[])
             : undefined,
+        moveOutDate: moveOutDate
+          ? moveOutDate.toISOString().split('T')[0]
+          : undefined,
         viewingAvailableFrom: formatDateRange(viewingDate, viewingEndDate),
         moveInAvailableFrom: formatDateRange(moveInDate, moveInEndDate),
         stations: stations
@@ -247,7 +255,7 @@ export default function NewListingPage() {
       case 4:
         return rent.length > 0 && layout.length > 0;
       case 5:
-        return true; // スケジュールは任意
+        return moveOutDate !== null; // 退去日は必須（F-501）
       case 6:
         return selectedFurniture.length > 0 && handoverFee.length > 0;
       default:
@@ -597,6 +605,26 @@ export default function NewListingPage() {
               </p>
 
               <div className="w-full space-y-8">
+                {/* 退去日（必須） */}
+                <div>
+                  <SingleDatePicker
+                    selectedDate={moveOutDate}
+                    endDate={null}
+                    onDateChange={(start) => {
+                      setMoveOutDate(start);
+                    }}
+                    title={
+                      moveOutDate
+                        ? `退去日: ${moveOutDate.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })}`
+                        : '退去予定日を選択（必須）'
+                    }
+                    subtitle={
+                      moveOutDate ? undefined : '現在の住居を退去する予定日'
+                    }
+                    minDate={new Date()}
+                  />
+                </div>
+
                 {/* 内見可能日 */}
                 <div>
                   <SingleDatePicker
@@ -934,12 +962,29 @@ export default function NewListingPage() {
                 </section>
 
                 {/* 引き継ぎスケジュール */}
-                {(viewingDate || moveInDate) && (
+                {(moveOutDate || viewingDate || moveInDate) && (
                   <section className="py-8">
                     <h3 className="mb-6 text-xl font-semibold text-foreground">
                       引き継ぎスケジュール
                     </h3>
                     <div className="space-y-4">
+                      {moveOutDate && (
+                        <div className="flex items-start gap-3">
+                          <CalendarDays className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-sm text-muted-foreground">
+                              退去予定日
+                            </p>
+                            <p className="text-base font-semibold text-foreground">
+                              {moveOutDate.toLocaleDateString('ja-JP', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                              })}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                       {viewingDate && (
                         <div className="flex items-start gap-3">
                           <Tv className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
