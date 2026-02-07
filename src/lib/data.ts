@@ -212,6 +212,7 @@ export interface UserListing {
   area?: string; // エリア
   layout?: string; // 間取り
   occupants?: number; // 居住人数
+  moveOutDate?: string; // 退去日（F-501）
   viewingAvailableFrom?: string; // 内見可能日
   moveInAvailableFrom?: string; // 引き継ぎ可能日
   stations?: { name: string; walkingMinutes: number }[]; // 最寄り駅（複数）
@@ -246,6 +247,7 @@ export interface Property {
   occupancy?: number; // 居住人数
   style?: string; // e.g., "scandinavian", "industrial", "bohemian", "minimal", "vintage", "modern", etc.
   furniture?: LargeFurnitureType[]; // 引き継ぎ対象の大型家具
+  moveOutDate?: string; // 退去日（F-501）
   status: 'draft' | 'public';
   // 以下は詳細ページ用（MVP後に追加検討）
   summary?: string;
@@ -307,6 +309,7 @@ export const properties: Property[] = [
     ],
     furnitureDescription:
       'ヴィンテージのチェスト、手作りの本棚、レコードプレーヤー。壁にかかる大きなタペストリーはお気に入りのアーティストの作品。スケートボードやアート作品もそのままお使いいただけます。',
+    moveOutDate: '2026-03-01',
     status: 'public',
     story:
       'グラフィックデザイナーとして活動しながら、この部屋を自分だけのギャラリーのように育ててきました。窓辺の植物たちに水をやり、好きなレコードをかけながら作業する日々。海外での仕事が決まり、この空間を大切にしてくれる方に引き継ぎたいと思っています。',
@@ -413,6 +416,7 @@ export const properties: Property[] = [
       'DJとして活動しながら、週末は自宅でイベントを開催してきました。コンクリートの音響と、機材を囲んだ空間が最高です。海外ツアーが決まり、同じように音楽を愛する方に使ってもらえたら嬉しいです。レコードコレクションも一部そのまま使えます。',
     conditions:
       '音楽制作をする方歓迎。深夜の音出しOK（防音済み）。機材の扱いに慣れている方優先。',
+    moveOutDate: '2026-02-28',
     handoverFee: 60000,
     rent: 120000,
     managementFee: 8000,
@@ -519,6 +523,7 @@ export const properties: Property[] = [
     story:
       '古着屋を営みながら、仕事帰りに少しずつ集めた家具たち。この部屋で過ごす時間が一番落ち着きます。店舗を移転することになり、この空間を気に入ってくれる方に譲りたいです。',
     conditions: 'ヴィンテージ品を大切にしてくれる方。喫煙不可。',
+    moveOutDate: '2026-05-15',
     handoverFee: 48000,
     rent: 75000,
     managementFee: 5000,
