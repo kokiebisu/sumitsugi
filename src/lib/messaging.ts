@@ -161,6 +161,10 @@ export function selectDate(
     throw new Error('日程提案が見つかりません');
   }
 
+  if (proposal.status !== 'pending') {
+    throw new Error('この日程提案は既に確定または期限切れです');
+  }
+
   if (!proposal.candidateDates.includes(selectedDate)) {
     throw new Error('選択された日時は候補に含まれていません');
   }

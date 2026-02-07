@@ -146,6 +146,20 @@ describe('messaging service', () => {
       expect(fetched!.id).toBe(proposal.id);
     });
 
+    it('rejects selecting a date on already-confirmed proposal', () => {
+      const thread = createThread('prop-1', 'seller-1', 'buyer-1');
+      const dates = [
+        '2026-02-15T10:00:00',
+        '2026-02-16T14:00:00',
+        '2026-02-17T11:00:00',
+      ];
+      const proposal = sendDateProposal(thread.id, 'seller-1', dates);
+      selectDate(proposal.id, '2026-02-16T14:00:00');
+      expect(() => selectDate(proposal.id, '2026-02-15T10:00:00')).toThrow(
+        'この日程提案は既に確定または期限切れです'
+      );
+    });
+
     it('returns undefined for nonexistent proposal', () => {
       expect(getDateProposal('nonexistent')).toBeUndefined();
     });
