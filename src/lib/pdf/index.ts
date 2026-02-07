@@ -9,3 +9,4 @@ export {
   buildConsentFormProps,
   mapChecklistToConsentItems,
 } from './consent-generator';
+export { buildAgreementPdfProps, generateAgreementPdf } from './agreement-pdf';
