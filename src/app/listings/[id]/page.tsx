@@ -10,6 +10,7 @@ import {
   getPublicProperties,
   furnitureLabels,
 } from '@/lib/data';
+import { isCoreFurniture, getLayerLabel } from '@/lib/furniture-layers';
 import {
   ArrowLeft,
   Home,
@@ -167,36 +168,81 @@ export default async function PropertyDetailPage({
                 </div>
               </section>
 
-              {/* Furniture Section */}
+              {/* Furniture Section - 2-layer structure */}
               <section className="py-8 border-b border-border">
                 <h2 className="mb-4 text-xl font-semibold text-foreground">
                   引き継ぎ対象の大型家具
                 </h2>
 
-                {/* Large Furniture Icons */}
                 {property.furniture && property.furniture.length > 0 && (
-                  <div className="mb-6">
-                    <div className="flex gap-6">
-                      {property.furniture.map((item, index) => {
-                        const Icon = FURNITURE_ICONS[item] || Home;
-                        return (
-                          <div
-                            key={index}
-                            className="flex flex-col items-center gap-2"
-                          >
-                            <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center">
-                              <Icon
-                                className="h-7 w-7 text-foreground"
-                                strokeWidth={1.5}
-                              />
-                            </div>
-                            <span className="text-sm text-foreground">
-                              {furnitureLabels[item] || item}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
+                  <div className="space-y-6">
+                    {/* Core Set */}
+                    {property.furniture.some((item) =>
+                      isCoreFurniture(item)
+                    ) && (
+                      <div>
+                        <h3 className="text-sm font-semibold text-foreground mb-3">
+                          {getLayerLabel('core')}
+                        </h3>
+                        <div className="flex gap-6">
+                          {property.furniture
+                            .filter((item) => isCoreFurniture(item))
+                            .map((item, index) => {
+                              const Icon = FURNITURE_ICONS[item] || Home;
+                              return (
+                                <div
+                                  key={index}
+                                  className="flex flex-col items-center gap-2"
+                                >
+                                  <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center">
+                                    <Icon
+                                      className="h-7 w-7 text-foreground"
+                                      strokeWidth={1.5}
+                                    />
+                                  </div>
+                                  <span className="text-sm text-foreground">
+                                    {furnitureLabels[item] || item}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Additional Furniture */}
+                    {property.furniture.some(
+                      (item) => !isCoreFurniture(item)
+                    ) && (
+                      <div>
+                        <h3 className="text-sm font-semibold text-foreground mb-3">
+                          {getLayerLabel('additional')}
+                        </h3>
+                        <div className="flex gap-6">
+                          {property.furniture
+                            .filter((item) => !isCoreFurniture(item))
+                            .map((item, index) => {
+                              const Icon = FURNITURE_ICONS[item] || Home;
+                              return (
+                                <div
+                                  key={index}
+                                  className="flex flex-col items-center gap-2"
+                                >
+                                  <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center">
+                                    <Icon
+                                      className="h-7 w-7 text-foreground"
+                                      strokeWidth={1.5}
+                                    />
+                                  </div>
+                                  <span className="text-sm text-foreground">
+                                    {furnitureLabels[item] || item}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </section>
