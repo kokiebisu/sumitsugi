@@ -34,7 +34,7 @@ describe('sendAgreementToManagementCompany', () => {
   });
 
   const mockPropertyId = 'prop-123';
-  const mockPdfUrl = 'https://example.com/agreement.pdf';
+  const mockPdfUrl = 'https://storage.tsumugi.com/agreement.pdf';
 
   it('should send email and log when management company details are present', async () => {
     vi.mocked(db.query.properties.findFirst).mockResolvedValue({
@@ -120,6 +120,16 @@ describe('sendAgreementToManagementCompany', () => {
 
     expect(result.success).toBe(false);
     expect(result.error).toContain('入力が不正です');
+  });
+
+  it('should reject untrusted PDF URLs to prevent phishing', async () => {
+    const result = await sendAgreementToManagementCompany({
+      propertyId: mockPropertyId,
+      pdfUrl: 'https://attacker.com/phishing.pdf',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('trusted storage domain');
   });
 
   it('should handle email sending errors gracefully', async () => {

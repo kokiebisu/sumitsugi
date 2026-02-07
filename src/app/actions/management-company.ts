@@ -9,9 +9,34 @@ import { sendEmail } from '@/lib/email/send';
 import { ManagementCompanyAgreement } from '@/lib/email/templates/management-company-agreement';
 import { revalidatePath } from 'next/cache';
 
+/**
+ * Trusted domains for PDF URLs. Only URLs from these domains can be
+ * embedded in outbound emails. This prevents the action from being
+ * used as a phishing relay with attacker-controlled links.
+ */
+const TRUSTED_PDF_DOMAINS = (
+  process.env.TRUSTED_PDF_DOMAINS ?? 'tsumugi.com,r2.cloudflarestorage.com'
+)
+  .split(',')
+  .map((d) => d.trim())
+  .filter(Boolean);
+
+function isTrustedPdfUrl(url: string): boolean {
+  try {
+    const hostname = new URL(url).hostname;
+    return TRUSTED_PDF_DOMAINS.some(
+      (domain) => hostname === domain || hostname.endsWith(`.${domain}`)
+    );
+  } catch {
+    return false;
+  }
+}
+
 const sendAgreementSchema = zod.object({
   propertyId: zod.string().min(1),
-  pdfUrl: zod.string().url(),
+  pdfUrl: zod.string().url().refine(isTrustedPdfUrl, {
+    message: 'PDF URL must be from a trusted storage domain',
+  }),
 });
 
 export interface SendAgreementInput {
