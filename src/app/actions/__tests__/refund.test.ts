@@ -283,6 +283,17 @@ describe('processRefund', () => {
     expect(result.error).toBe('No payments found for this property');
   });
 
+  it('should reject invalid input with Zod validation', async () => {
+    const result = await processRefund({
+      propertyId: '',
+      cancelledBy: 'invalid' as any,
+      phase: 'pre_viewing',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('入力が不正です');
+  });
+
   it('should handle Stripe API errors gracefully', async () => {
     vi.mocked(db.query.properties.findFirst).mockResolvedValue({
       id: mockPropertyId,

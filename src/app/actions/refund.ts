@@ -1,6 +1,7 @@
 'use server';
 
 import { randomUUID } from 'crypto';
+import zod from 'zod';
 import { stripe } from '@/lib/stripe/server';
 import { db } from '@/db';
 import { payments, transactions, properties } from '@/db/schema';
@@ -11,6 +12,12 @@ import {
   type CancelledBy,
   type CancellationPhase,
 } from '@/lib/cancellation-penalty';
+
+const processRefundSchema = zod.object({
+  propertyId: zod.string().min(1),
+  cancelledBy: zod.enum(['buyer', 'seller', 'screening_failure', 'mutual']),
+  phase: zod.enum(['pre_viewing', 'post_deposit', 'post_remaining_payment']),
+});
 
 export interface ProcessRefundInput {
   propertyId: string;
@@ -44,7 +51,8 @@ export async function processRefund(
   input: ProcessRefundInput
 ): Promise<ProcessRefundResult> {
   try {
-    const { propertyId, cancelledBy, phase } = input;
+    const validated = processRefundSchema.parse(input);
+    const { propertyId, cancelledBy, phase } = validated;
 
     // Get property details
     const property = await db.query.properties.findFirst({
@@ -190,6 +198,12 @@ export async function processRefund(
       refundIds: refundIds.length > 0 ? refundIds : undefined,
     };
   } catch (error) {
+    if (error instanceof zod.ZodError) {
+      return {
+        success: false,
+        error: `入力が不正です: ${error.errors.map((e) => e.message).join(', ')}`,
+      };
+    }
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred',
