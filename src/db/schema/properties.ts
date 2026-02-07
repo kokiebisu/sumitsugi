@@ -117,6 +117,9 @@ export const properties = pgTable(
 
     // Management Company
     managementCompanyName: varchar('management_company_name', { length: 255 }),
+    managementCompanyEmail: varchar('management_company_email', {
+      length: 320,
+    }),
     managementConsultedAt: timestamp('management_consulted_at', {
       withTimezone: true,
     }),
