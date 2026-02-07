@@ -1,7 +1,15 @@
 // Export all schema tables
 export { users, sellerProfiles } from './users';
-export { properties } from './properties';
+export {
+  properties,
+  type ConsentStatus,
+  type LandlordConsent,
+  type FurnitureCategory,
+  type FurnitureItem,
+  type MoveOutReason,
+} from './properties';
 export { inquiries } from './inquiries';
+export { threads, messages } from './messages';
 export {
   sessions,
   accounts,
@@ -15,6 +23,7 @@ import { relations } from 'drizzle-orm';
 import { users, sellerProfiles } from './users';
 import { properties } from './properties';
 import { inquiries } from './inquiries';
+import { threads, messages } from './messages';
 import { sessions, accounts } from './sessions';
 import { payments, transactions, stripeAccounts } from './payments';
 
@@ -51,6 +60,7 @@ export const propertiesRelations = relations(properties, ({ one, many }) => ({
   }),
   inquiries: many(inquiries),
   payments: many(payments),
+  threads: many(threads),
 }));
 
 // Inquiry relations
@@ -106,6 +116,37 @@ export const transactionsRelations = relations(transactions, ({ one }) => ({
 export const stripeAccountsRelations = relations(stripeAccounts, ({ one }) => ({
   user: one(users, {
     fields: [stripeAccounts.userId],
+    references: [users.id],
+  }),
+}));
+
+// Thread relations
+export const threadsRelations = relations(threads, ({ one, many }) => ({
+  property: one(properties, {
+    fields: [threads.propertyId],
+    references: [properties.id],
+  }),
+  seller: one(users, {
+    fields: [threads.sellerId],
+    references: [users.id],
+    relationName: 'threadSeller',
+  }),
+  buyer: one(users, {
+    fields: [threads.buyerId],
+    references: [users.id],
+    relationName: 'threadBuyer',
+  }),
+  messages: many(messages),
+}));
+
+// Message relations
+export const messagesRelations = relations(messages, ({ one }) => ({
+  thread: one(threads, {
+    fields: [messages.threadId],
+    references: [threads.id],
+  }),
+  sender: one(users, {
+    fields: [messages.senderId],
     references: [users.id],
   }),
 }));

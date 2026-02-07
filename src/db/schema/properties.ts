@@ -7,9 +7,64 @@ import {
   jsonb,
   decimal,
   index,
-  boolean,
 } from 'drizzle-orm/pg-core';
 import { users } from './users';
+
+// LandlordConsent JSONB structure (§7.4)
+// ConsentStatus: 'pending' | 'approved' | 'conditional' | 'rejected' | 'expired'
+export type ConsentStatus =
+  | 'pending'
+  | 'approved'
+  | 'conditional'
+  | 'rejected'
+  | 'expired';
+
+export interface LandlordConsent {
+  status: ConsentStatus;
+  approvedItems?: string[];
+  rejectedItems?: string[];
+  conditions?: string;
+  restorationTerms?: string;
+  approvedAt?: string;
+  approvedBy?: string;
+}
+
+// FurnitureItem JSONB structure (§7.7)
+export type FurnitureCategory =
+  | 'sofa'
+  | 'dining_table'
+  | 'bed_frame'
+  | 'desk'
+  | 'storage'
+  | 'chair'
+  | 'lighting'
+  | 'rug'
+  | 'other';
+
+export interface FurnitureItem {
+  id: string;
+  name: string;
+  category: 'core' | 'additional';
+  furnitureCategory: FurnitureCategory;
+  description?: string;
+  photoUrl?: string;
+  price?: number;
+  brand?: string;
+  newPrice?: number;
+  yearsUsed?: number;
+  pin?: { photoIndex: number; x: number; y: number };
+}
+
+// MoveOutReason (§7.6)
+export type MoveOutReason =
+  | 'job_transfer'
+  | 'job_change'
+  | 'marriage'
+  | 'family'
+  | 'upgrade'
+  | 'downsize'
+  | 'end_of_contract'
+  | 'other';
 
 export const properties = pgTable(
   'properties',
@@ -30,6 +85,7 @@ export const properties = pgTable(
     additionalCleaningFee: integer('additional_cleaning_fee')
       .default(8000)
       .notNull(), // Fixed ¥8,000
+    coreSetPrice: integer('core_set_price'), // コアセット一括価格（円）
     rent: integer('rent'),
     managementFee: integer('management_fee'),
     deposit: decimal('deposit', { precision: 3, scale: 1 }), // Months
@@ -45,11 +101,28 @@ export const properties = pgTable(
     layout: varchar('layout', { length: 50 }),
     occupancy: integer('occupancy'),
     style: varchar('style', { length: 50 }),
-    furniture: text('furniture').array(), // Array of furniture types
+    furnitureItems: jsonb('furniture_items').$type<FurnitureItem[]>(), // 破壊的変更: furniture text[] → furnitureItems JSONB
     condition: varchar('condition', { length: 20 }), // 'excellent' | 'good' | 'used'
     estimatedDuration: varchar('estimated_duration', { length: 50 }), // Contract duration e.g., '2〜4ヶ月'
-    landlordConsent: boolean('landlord_consent').default(false), // Landlord approval status
+    landlordConsent: jsonb('landlord_consent')
+      .$type<LandlordConsent>()
+      .default({ status: 'pending' }), // 破壊的変更: boolean → JSONB
     amenities: text('amenities').array(), // Array of amenities (e.g., WiFi, AC, washing machine)
+
+    // Move-out Info (F-501, §7.1)
+    moveOutDate: timestamp('move_out_date', { withTimezone: true }),
+    moveOutReason: varchar('move_out_reason', {
+      length: 50,
+    }).$type<MoveOutReason>(),
+
+    // Management Company
+    managementCompanyName: varchar('management_company_name', { length: 255 }),
+    managementConsultedAt: timestamp('management_consulted_at', {
+      withTimezone: true,
+    }),
+
+    // Generated PDFs (F-611/F-612/F-616)
+    pdfUrls: jsonb('pdf_urls').$type<Record<string, string>>(),
 
     // Detailed Descriptions
     furnitureDescription: text('furniture_description'),

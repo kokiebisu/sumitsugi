@@ -23,10 +23,26 @@ const updatePropertySchema = z.object({
   layout: z.string().max(50).optional().nullable(),
   occupancy: z.number().int().nonnegative().optional().nullable(),
   style: z.string().max(50).optional().nullable(),
-  furniture: z.array(z.string()).optional().nullable(),
+  furnitureItems: z.array(z.any()).optional().nullable(),
   condition: z.enum(['excellent', 'good', 'used']).optional().nullable(),
   estimatedDuration: z.string().max(50).optional().nullable(),
-  landlordConsent: z.boolean().optional(),
+  landlordConsent: z
+    .object({
+      status: z.enum([
+        'pending',
+        'approved',
+        'conditional',
+        'rejected',
+        'expired',
+      ]),
+      approvedItems: z.array(z.string()).optional(),
+      rejectedItems: z.array(z.string()).optional(),
+      conditions: z.string().optional(),
+      restorationTerms: z.string().optional(),
+      approvedAt: z.string().optional(),
+      approvedBy: z.string().optional(),
+    })
+    .optional(),
   amenities: z.array(z.string()).optional().nullable(),
   furnitureDescription: z.string().optional().nullable(),
   story: z.string().optional().nullable(),
