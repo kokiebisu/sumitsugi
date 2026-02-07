@@ -17,6 +17,12 @@ export {
   verificationTokens,
 } from './sessions';
 export { payments, transactions, stripeAccounts } from './payments';
+export {
+  emailLogs,
+  type EmailType,
+  type EmailLogStatus,
+  type EmailLogMetadata,
+} from './email-logs';
 
 // Define relations
 import { relations } from 'drizzle-orm';
@@ -26,6 +32,7 @@ import { inquiries } from './inquiries';
 import { threads, messages } from './messages';
 import { sessions, accounts } from './sessions';
 import { payments, transactions, stripeAccounts } from './payments';
+import { emailLogs } from './email-logs';
 
 // User relations
 export const usersRelations = relations(users, ({ one, many }) => ({
@@ -61,6 +68,7 @@ export const propertiesRelations = relations(properties, ({ one, many }) => ({
   inquiries: many(inquiries),
   payments: many(payments),
   threads: many(threads),
+  emailLogs: many(emailLogs),
 }));
 
 // Inquiry relations
@@ -148,5 +156,13 @@ export const messagesRelations = relations(messages, ({ one }) => ({
   sender: one(users, {
     fields: [messages.senderId],
     references: [users.id],
+  }),
+}));
+
+// Email Log relations
+export const emailLogsRelations = relations(emailLogs, ({ one }) => ({
+  property: one(properties, {
+    fields: [emailLogs.propertyId],
+    references: [properties.id],
   }),
 }));
