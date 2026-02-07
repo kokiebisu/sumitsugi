@@ -5,13 +5,16 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ..:/workspace:cached
+      - claude_config:/home/bun/.claude
+      # Mount parent repo's git module data so submodule .git reference resolves
+      - ../../../.git/modules/tsumugi:/.git/modules/tsumugi:cached
     command: sleep infinity
     cap_add:
       - NET_ADMIN
     deploy:
       resources:
         limits:
-          cpus: "6"
+          cpus: '6'
 
   postgres:
     image: postgres:16-alpine
@@ -24,7 +27,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U tsumugi"]
+      test: ['CMD-SHELL', 'pg_isready -U tsumugi']
       interval: 5s
       timeout: 5s
       retries: 5
@@ -39,10 +42,10 @@ services:
       - DEBUG=0
       - DEFAULT_REGION=ap-northeast-1
     volumes:
-      - "../scripts/localstack-init.sh:/etc/localstack/init/ready.d/init.sh"
+      - '../scripts/localstack-init.sh:/etc/localstack/init/ready.d/init.sh'
       - localstack_data:/var/lib/localstack
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:4566/_localstack/health']
       interval: 5s
       timeout: 5s
       retries: 10
@@ -52,3 +55,4 @@ services:
 volumes:
   postgres_data:
   localstack_data:
+  claude_config:
