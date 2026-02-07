@@ -15,6 +15,7 @@ const { sendEmail } = await import('../send');
 describe('sendEmail', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    process.env.RESEND_API_KEY = 'test-key';
   });
 
   it('sends email with correct parameters', async () => {

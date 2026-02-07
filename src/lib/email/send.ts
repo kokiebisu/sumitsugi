@@ -1,7 +1,13 @@
 import { Resend } from 'resend';
 import type { ReactElement } from 'react';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResendClient() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error('RESEND_API_KEY not configured');
+  }
+  return new Resend(apiKey);
+}
 
 const FROM_ADDRESS =
   process.env.RESEND_FROM_ADDRESS ?? 'tsumugi <noreply@tsumugi.com>';
@@ -19,6 +25,7 @@ export async function sendEmail({
   react,
   replyTo,
 }: SendEmailOptions) {
+  const resend = getResendClient();
   const { data, error } = await resend.emails.send({
     from: FROM_ADDRESS,
     to: Array.isArray(to) ? to : [to],
