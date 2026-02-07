@@ -22,8 +22,7 @@
         "GitHub.vscode-pull-request-github",
         "Gruntfuggly.todo-tree",
         "yzhang.markdown-all-in-one",
-        "mushan.vscode-paste-image",
-        "tonybaloney.vscode-pets"
+        "mushan.vscode-paste-image"
       ],
       "settings": {
         "editor.formatOnSave": true,
