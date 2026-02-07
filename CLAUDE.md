@@ -67,6 +67,10 @@ bun run cleanup:all      # 完全クリーンアップ（ブランチ + worktree
 ./scripts/linear-list.sh              # オープンタスクを一覧表示
 ./scripts/linear-done.sh TSU-123      # タスクをDoneに更新
 ./scripts/linear-comment.sh TSU-123 "comment"  # タスクにコメント追加
+./scripts/linear-set-project.sh               # 未設定issueをDevelopmentプロジェクトに紐づけ
+
+# Beads → Linear sync (ALWAYS run set-project after sync)
+bd linear sync --push --create-only && ./scripts/linear-set-project.sh
 ```
 
 ## Prerequisites
