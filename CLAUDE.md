@@ -356,6 +356,7 @@ async function callClaude(prompt: string): Promise<string> {
 
 - `.claude/PROJECT.md` - プロジェクト仕様書（コンセプト、デザイン原則）
 - `.claude/BUSINESS.md` - ビジネスロジック仕様書（料金体系、引き継ぎフロー）
+- `docs/DESIGN_DOC.md` - 技術設計書（アーキテクチャ、実装ロードマップ）
 
 ## Current Phase
 
