@@ -45,13 +45,41 @@ Shows all open tasks with their identifiers, states, and assignees.
 
 Automatically updates tasks to "Done" state.
 
-### 3. Add Comments to Tasks
+### 3. Assign Project to Issues
+
+```bash
+# Assign all project-less open issues to Development (default)
+./scripts/linear-set-project.sh
+
+# Assign to a specific project
+./scripts/linear-set-project.sh Business
+```
+
+**CRITICAL: After `bd linear sync --push`, ALWAYS run `./scripts/linear-set-project.sh` to ensure new issues are assigned to the Development project.**
+
+### 4. Add Comments to Tasks
 
 ```bash
 ./scripts/linear-comment.sh TSU-123 "Implementation completed successfully"
 ```
 
 Adds a comment to the specified task.
+
+---
+
+## Beads → Linear 同期ワークフロー (CRITICAL)
+
+Beadsでタスクを作成・更新した後は、必ずLinearに同期し、プロジェクトを紐づけること。
+
+```bash
+# 1. Beadsの変更をLinearにpush
+bd linear sync --push --create-only
+
+# 2. 新規issueにDevelopmentプロジェクトを紐づけ（必須）
+./scripts/linear-set-project.sh
+```
+
+**この2ステップは常にセットで実行すること。** `linear-set-project.sh` を忘れるとLinear上でプロジェクト未設定のissueが残る。
 
 ---
 
@@ -90,6 +118,7 @@ Adds a comment to the specified task.
 ### Q1: Linearが更新されない場合は？
 
 A: 以下を確認：
+
 1. `.env.local` に `LINEAR_API_KEY` と `LINEAR_TEAM_ID` が設定されているか
 2. スクリプトに実行権限があるか (`chmod +x scripts/linear-*.sh`)
 3. タスク識別子が正しいか (例: `TSU-123`)
@@ -102,14 +131,16 @@ A: 可能。`./scripts/linear-done.sh TSU-123 TSU-124 TSU-125` のように複�
 ### Q3: タスク識別子(identifier)はどこで確認できるか？
 
 A: Linear UI で issue を開き、URL の最後の部分（例: `TSU-123`）。
-   または、`./scripts/linear-list.sh` で確認。
+または、`./scripts/linear-list.sh` で確認。
 
 ### Q4: Helper scriptsがない場合は？
 
 A: プロジェクトルートから以下を実行：
+
 ```bash
 ls -la scripts/linear-*.sh
 ```
+
 存在しない場合は、Linear MCP統合のセットアップが必要。
 
 ---
