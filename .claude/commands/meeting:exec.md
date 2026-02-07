@@ -23,6 +23,7 @@
 各役員は会議前に **自分のknowledgeフォルダ** を参照して情報を収集:
 
 - **CEO**: `docs/team/ceo/knowledge/*.md` - スタートアップエコシステム、資金調達トレンド
+- **CPO**: `docs/team/cpo/knowledge/*.md` - ユーザーインサイト、要件変更履歴、プロダクトロードマップ
 - **CMO**: `docs/team/cmo/knowledge/*.md` - マーケティング手法、SNSアルゴリズム変更
 - **CFO**: `docs/team/cfo/knowledge/*.md` - 経済指標、SaaS業界ベンチマーク
 - **CTO**: `docs/team/cto/knowledge/*.md` - 技術トレンド、セキュリティアラート
@@ -35,6 +36,7 @@
 | 役割 | 視点                                                        | 詳細                                           |
 | ---- | ----------------------------------------------------------- | ---------------------------------------------- |
 | CEO  | 全体戦略、パートナーシップ、優先順位                        | [STRATEGY](../../../docs/team/ceo/STRATEGY.md) |
+| CPO  | プロダクト戦略、ユーザーインサイト、要件・ロードマップ      | [STRATEGY](../../../docs/team/cpo/STRATEGY.md) |
 | CMO  | ユーザー獲得、ブランド、市場の反応、競合                    | [STRATEGY](../../../docs/team/cmo/STRATEGY.md) |
 | CFO  | コスト、収益性、ランウェイ、ROI                             | [STRATEGY](../../../docs/team/cfo/STRATEGY.md) |
 | CTO  | 技術的実現性、工数、セキュリティ、スケーラビリティ          | [STRATEGY](../../../docs/team/cto/STRATEGY.md) |
@@ -46,6 +48,7 @@
 ## ナレッジベースからの情報共有（各役員がknowledgeフォルダから取得）
 
 **CEO:** [knowledge/*.mdに記録されたスタートアップエコシステム・資金調達トレンド]
+**CPO:** [knowledge/*.mdに記録されたユーザーインサイト・要件変更履歴・プロダクトロードマップ]
 **CMO:** [knowledge/*.mdに記録されたマーケティング手法・成功事例]
 **CFO:** [knowledge/*.mdに記録された経済指標・SaaS業界ベンチマーク]
 **CTO:** [knowledge/*.mdに記録された技術トレンド・セキュリティアップデート]
@@ -61,6 +64,9 @@
 
 ### CEO視点
 [CEOとしての見解（knowledgeフォルダの情報と過去の経験を踏まえて）]
+
+### CPO視点
+[CPOとしての見解（ペルソナ座談会のインサイト、要件の優先順位、ユーザー体験を踏まえて）]
 
 ### CMO視点
 [CMOとしての見解（knowledgeフォルダの情報と過去の経験を踏まえて）]
@@ -82,6 +88,7 @@
 ## 今回の会議からの学び
 
 **CEO:** [この会議から学んだこと、判断基準の更新]
+**CPO:** [この会議から学んだこと、ロードマップ・要件への反映]
 **CMO:** [この会議から学んだこと、戦略の進化]
 **CFO:** [この会議から学んだこと、財務モデルの修正]
 **CTO:** [この会議から学んだこと、技術判断の更新]
@@ -91,6 +98,7 @@
 
 会議後、各役員は重要な情報を自分のknowledgeフォルダにタイムスタンプ付きで保存します:
 - CEO: `docs/team/ceo/knowledge/{timestamp}.md`
+- CPO: `docs/team/cpo/knowledge/{timestamp}.md`
 - CMO: `docs/team/cmo/knowledge/{timestamp}.md`
 - CFO: `docs/team/cfo/knowledge/{timestamp}.md`
 - CTO: `docs/team/cto/knowledge/{timestamp}.md`

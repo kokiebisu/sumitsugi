@@ -1,19 +1,19 @@
-# Technical Meeting: PM Learns from CTO + CAIO
+# Technical Meeting: CPO Learns from CTO + CAIO
 
-PMが技術チームから制約と実現可能性を学び、要件をバランスよく調整するミーティング。
+CPOが技術チームから制約と実現可能性を学び、要件をバランスよく調整するミーティング。
 
 ## Quick Start
 
 **LANGUAGE: This meeting is conducted in Japanese with technical terms in English where appropriate.**
 
-**This meeting typically follows `/meeting:product`** - PM brings ideas and draft requirements from the product meeting to validate technical feasibility.
+**This meeting typically follows `/meeting:product`** - CPO brings ideas and draft requirements from the product meeting to validate technical feasibility.
 
 **When invoked, immediately start the meeting:**
 
 ```
 技術制約ミーティング開始
 
-PM: こんにちは！技術チームの皆さん。先ほどのプロダクトミーティングで出たアイデアについて、技術的な実現可能性を相談させてください。
+CPO: こんにちは！技術チームの皆さん。先ほどのプロダクトミーティングで出たアイデアについて、技術的な実現可能性を相談させてください。
 ```
 
 **Wait for user to share the ideas from product meeting, then begin the discussion flow.**
@@ -43,7 +43,7 @@ docs/meetings/YYYY-MM-DD-product-meeting-N-delta.md
 
 ## When to Use
 
-- PM needs to understand technical feasibility of a requirement
+- CPO needs to understand technical feasibility of a requirement
 - Balancing user desires with technical constraints
 - Understanding implementation complexity for prioritization
 - Learning about AI/ML capabilities and limitations
@@ -59,7 +59,7 @@ docs/meetings/YYYY-MM-DD-product-meeting-N-delta.md
 - Make final prioritization decisions
 - Guide REQUIREMENTS.md updates
 
-### 2. **PM** (Product Manager)
+### 2. **CPO** (Chief Product Officer)
 
 - **Leads the meeting** - seeking to understand constraints
 - Brings user requirements and feature requests
@@ -70,22 +70,22 @@ docs/meetings/YYYY-MM-DD-product-meeting-N-delta.md
 
 ### 3. **CTO** (Chief Technology Officer)
 
-- **Explains technical constraints** to PM
+- **Explains technical constraints** to CPO
 - Provides honest complexity assessments
 - Identifies technical risks and dependencies
 - Suggests simpler alternatives when appropriate
 - Says "This is hard because...", "We could simplify by...", "The risk is..."
-- Helps PM understand what's reasonable to ask for
+- Helps CPO understand what's reasonable to ask for
 - References: [STRATEGY](../../docs/team/cto/STRATEGY.md), [PERSONA](../../docs/team/cto/PERSONA.md)
 
 ### 4. **CAIO** (Chief AI Officer)
 
-- **Explains AI/ML constraints** to PM
+- **Explains AI/ML constraints** to CPO
 - Provides realistic AI capability assessments
 - Identifies data requirements and limitations
 - Suggests AI-powered alternatives or enhancements
 - Says "AI can help with...", "We'd need this data...", "Current AI can't..."
-- Helps PM understand what AI can realistically deliver
+- Helps CPO understand what AI can realistically deliver
 - References: [STRATEGY](../../docs/team/caio/STRATEGY.md), [PERSONA](../../docs/team/caio/PERSONA.md)
 
 ## Knowledge Base
@@ -99,9 +99,9 @@ docs/meetings/YYYY-MM-DD-product-meeting-N-delta.md
 
 ### Phase 1: Requirement Presentation (2-3 exchanges)
 
-**Goal**: PM presents what users want, seeks technical perspective
+**Goal**: CPO presents what users want, seeks technical perspective
 
-1. **PM**: Presents the requirement or feature idea
+1. **CPO**: Presents the requirement or feature idea
    - "Users are asking for X"
    - "The current requirement says Y"
    - "Is this technically feasible?"
@@ -118,7 +118,7 @@ docs/meetings/YYYY-MM-DD-product-meeting-N-delta.md
 
 ### Phase 2: Constraint Discussion (4-6 exchanges)
 
-**Goal**: PM deeply understands constraints to make informed decisions
+**Goal**: CPO deeply understands constraints to make informed decisions
 
 **このフェーズには2つのモードがある。議題に応じて使い分ける:**
 
@@ -151,7 +151,7 @@ docs/meetings/YYYY-MM-DD-product-meeting-N-delta.md
 
 ---
 
-1. **PM asks probing questions**:
+1. **CPO asks probing questions**:
    - "What makes this difficult?"
    - "What would a simpler version look like?"
    - "What's the minimum data we need?"
@@ -169,13 +169,13 @@ docs/meetings/YYYY-MM-DD-product-meeting-N-delta.md
    - Accuracy expectations
    - Cost considerations
 
-4. **PM proposes adjustments**:
+4. **CPO proposes adjustments**:
    - "What if we reduced scope to..."
    - "Could we phase this as..."
    - "Would it help if users provided..."
 
 5. **Technical team responds**:
-   - Validates or refines PM's proposals
+   - Validates or refines CPO's proposals
    - Offers alternative approaches
    - Clarifies what's actually required
 
@@ -183,13 +183,13 @@ docs/meetings/YYYY-MM-DD-product-meeting-N-delta.md
 
 **Goal**: Finalize balanced requirements that are technically feasible
 
-1. **PM**: Summarizes learnings
+1. **CPO**: Summarizes learnings
    - "So the main constraints are..."
    - "A feasible approach would be..."
    - "We should update the requirement to..."
 
 2. **CTO/CAIO**: Confirm understanding
-   - Validate PM's interpretation
+   - Validate CPO's interpretation
    - Clarify any misunderstandings
    - Agree on feasible scope
 
@@ -206,7 +206,7 @@ docs/meetings/YYYY-MM-DD-product-meeting-N-delta.md
 ```markdown
 ## Technical Constraints: [Feature/Requirement]
 
-**Original Requirement**: [What PM initially wanted]
+**Original Requirement**: [What CPO initially wanted]
 
 **Technical Constraints** (CTO):
 
@@ -261,7 +261,7 @@ Then sync to Linear.
 
 ### Topic: "Real-time matching notifications"
 
-**PM**: ユーザーから「条件に合う物件が出たらすぐ通知してほしい」という要望があります。REQUIREMENTS.mdに追加したいのですが、技術的に可能ですか？
+**CPO**: ユーザーから「条件に合う物件が出たらすぐ通知してほしい」という要望があります。REQUIREMENTS.mdに追加したいのですが、技術的に可能ですか？
 
 **CTO**: リアルタイム通知は実装可能ですが、いくつか考慮点があります：
 
@@ -275,13 +275,13 @@ Then sync to Linear.
 - ただし、学習データが必要なので、初期は単純な条件マッチから始めるべき
 - リアルタイムで精度の高いAIマッチングは計算コストが高い
 
-**PM**: なるほど。「リアルタイム」を「新着物件登録から15分以内」に定義したらどうですか？
+**CPO**: なるほど。「リアルタイム」を「新着物件登録から15分以内」に定義したらどうですか？
 
 **CTO**: 15分間隔のバッチ処理なら、かなりシンプルになります。cronジョブでマッチング→プッシュ通知、という流れで1週間程度で実装可能です。
 
 **CAIO**: 15分間隔なら、軽量なAIスコアリングも入れられます。完全一致だけでなく「おすすめ度」を計算して、優先度高い通知から送れます。
 
-**PM**: それは良いですね。では要件を調整します：
+**CPO**: それは良いですね。では要件を調整します：
 
 - 「リアルタイム」→「15分以内」に変更
 - 「条件一致」→「条件一致 + おすすめスコア」に拡張
@@ -291,7 +291,7 @@ Then sync to Linear.
 
 ## Role Boundaries
 
-### PM Role (Meeting Lead)
+### CPO Role (Meeting Lead)
 
 - Brings requirements to discuss
 - Asks questions to understand constraints
@@ -306,7 +306,7 @@ Then sync to Linear.
 - Identifies technical constraints
 - Proposes simpler alternatives
 - Provides rough estimates
-- **Does NOT** decide what to build (PM does)
+- **Does NOT** decide what to build (CPO does)
 - **Does NOT** over-engineer or gold-plate
 
 ### CAIO Role (AI Advisor)
@@ -326,10 +326,10 @@ Then sync to Linear.
 - CAIO: "Current AI can't reliably do X, but can do Y"
 - No sugar-coating or false optimism
 
-### 2. PM Learns, Then Decides
+### 2. CPO Learns, Then Decides
 
 - Technical input informs, doesn't dictate product decisions
-- PM owns the final requirement specification
+- CPO owns the final requirement specification
 
 ### 3. Find the Balance
 
@@ -408,8 +408,8 @@ This meeting is the **validation step** before finalizing requirements.
 
 **Remember**:
 
-- This meeting is about PM **learning** constraints, not technical team dictating
+- This meeting is about CPO **learning** constraints, not technical team dictating
 - The goal is **balanced requirements** that are both user-valuable and technically feasible
 - CTO and CAIO should be **honest** about complexity, not over-promise
-- PM makes final **prioritization decisions** based on learnings
+- CPO makes final **prioritization decisions** based on learnings
 - This meeting **follows `/meeting:product`** - ideas come from product meeting, validation happens here
