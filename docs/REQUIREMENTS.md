@@ -443,6 +443,7 @@ MVPリリース後、利用実績に応じて段階的に追加する機能群�
 | faq                   | FAQ[]               | -    | よくある質問（下記7.5参照）                                      |
 | coordinatorId         | string              | -    | コーディネーターのユーザーID                                     |
 | landlordConsent       | LandlordConsent     | ○    | 大家承認情報（下記7.4参照）                                      |
+| handoverFee           | number              | ○    | 引越し費用（円）。内訳はセクション12.3参照                       |
 | moveOutDate           | Date \| null        | ○    | 退去（引き渡し）予定日                                           |
 | managementCompanyName | string              | -    | 管理会社名（前の住人が入力。ポストのシール・管理アプリ等で確認） |
 | managementConsultedAt | Date \| null        | -    | 管理会社に残置物相談を行った日時（前の住人が自己申告）           |
