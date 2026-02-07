@@ -1,0 +1,661 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "tsumugi" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e7]: tsumugi
+        - button [ref=e9] [cursor=pointer]:
+          - img
+          - generic [ref=e10]:
+            - img
+    - main [ref=e11]:
+      - generic [ref=e13]:
+        - generic [ref=e14]:
+          - img [ref=e15]
+          - generic [ref=e17]: 入居可能月
+        - generic [ref=e18]:
+          - button "2月" [ref=e19] [cursor=pointer]
+          - button "3月" [ref=e20] [cursor=pointer]
+          - button "4月" [ref=e21] [cursor=pointer]
+          - button "5月" [ref=e22] [cursor=pointer]
+          - button "6月" [ref=e23] [cursor=pointer]
+          - button "7月" [ref=e24] [cursor=pointer]
+      - generic [ref=e25]:
+        - generic [ref=e26]:
+          - heading "渋谷区" [level=2] [ref=e28]
+          - generic [ref=e31]:
+            - link "DJ/プロデューサーの音楽制作空間 即入居可能 DJ/プロデューサーの音楽制作空間 引き継ぎ費用 ¥60,000 家賃 ¥120,000/月 渋谷区 / 恵比寿 / 1LDK" [ref=e33] [cursor=pointer]:
+              - /url: /listings/1368794573069214648
+              - generic [ref=e34]:
+                - img "DJ/プロデューサーの音楽制作空間" [ref=e35]
+                - generic [ref=e36]:
+                  - img [ref=e37]
+                  - text: 即入居可能
+                - button [ref=e39]:
+                  - img [ref=e40]
+                - button [ref=e42]:
+                  - img [ref=e43]
+                - button [ref=e45]:
+                  - img [ref=e46]
+              - generic [ref=e54]:
+                - heading "DJ/プロデューサーの音楽制作空間" [level=3] [ref=e55]
+                - paragraph [ref=e56]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e57]: ¥60,000
+                - paragraph [ref=e58]: 家賃 ¥120,000/月
+                - paragraph [ref=e59]: 渋谷区 / 恵比寿 / 1LDK
+            - link "ポップカラーが映える大人の1LDK ポップカラーが映える大人の1LDK 引き継ぎ費用 ¥72,000 家賃 ¥115,000/月 渋谷区 / 代官山" [ref=e61] [cursor=pointer]:
+              - /url: /listings/1368794573069214658
+              - generic [ref=e62]:
+                - img "ポップカラーが映える大人の1LDK" [ref=e63]
+                - button [ref=e64]:
+                  - img [ref=e65]
+                - button [ref=e67]:
+                  - img [ref=e68]
+                - button [ref=e70]:
+                  - img [ref=e71]
+              - generic [ref=e79]:
+                - heading "ポップカラーが映える大人の1LDK" [level=3] [ref=e80]
+                - paragraph [ref=e81]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e82]: ¥72,000
+                - paragraph [ref=e83]: 家賃 ¥115,000/月
+                - paragraph [ref=e84]: 渋谷区 / 代官山
+            - link "映画好きのシアタールーム 映画好きのシアタールーム 引き継ぎ費用 ¥80,000 家賃 ¥135,000/月 渋谷区 / 恵比寿" [ref=e86] [cursor=pointer]:
+              - /url: /listings/1368794573069214668
+              - generic [ref=e87]:
+                - img "映画好きのシアタールーム" [ref=e88]
+                - button [ref=e89]:
+                  - img [ref=e90]
+                - button [ref=e92]:
+                  - img [ref=e93]
+                - button [ref=e95]:
+                  - img [ref=e96]
+              - generic [ref=e104]:
+                - heading "映画好きのシアタールーム" [level=3] [ref=e105]
+                - paragraph [ref=e106]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e107]: ¥80,000
+                - paragraph [ref=e108]: 家賃 ¥135,000/月
+                - paragraph [ref=e109]: 渋谷区 / 恵比寿
+            - link "ヨガインストラクターの静寂空間 ヨガインストラクターの静寂空間 引き継ぎ費用 ¥30,000 家賃 ¥72,000/月 渋谷区 / 千駄ヶ谷" [ref=e111] [cursor=pointer]:
+              - /url: /listings/1368794573069214671
+              - generic [ref=e112]:
+                - img "ヨガインストラクターの静寂空間" [ref=e113]
+                - button [ref=e114]:
+                  - img [ref=e115]
+                - button [ref=e117]:
+                  - img [ref=e118]
+                - button [ref=e120]:
+                  - img [ref=e121]
+              - generic [ref=e129]:
+                - heading "ヨガインストラクターの静寂空間" [level=3] [ref=e130]
+                - paragraph [ref=e131]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e132]: ¥30,000
+                - paragraph [ref=e133]: 家賃 ¥72,000/月
+                - paragraph [ref=e134]: 渋谷区 / 千駄ヶ谷
+        - generic [ref=e136]:
+          - heading "目黒区" [level=2] [ref=e138]
+          - generic [ref=e141]:
+            - link "アートと植物に囲まれたワンルーム 即入居可能 ✓ 大家承認済み アートと植物に囲まれたワンルーム 引き継ぎ費用 ¥60,000 家賃 ¥85,000/月 目黒区 / 中目黒 / 1K" [ref=e143] [cursor=pointer]:
+              - /url: /listings/1368794573069214647
+              - generic [ref=e144]:
+                - img "アートと植物に囲まれたワンルーム" [ref=e145]
+                - generic [ref=e146]:
+                  - img [ref=e147]
+                  - text: 即入居可能
+                - generic [ref=e149]:
+                  - img [ref=e150]
+                  - text: ✓ 大家承認済み
+                - button [ref=e153]:
+                  - img [ref=e154]
+                - button [ref=e156]:
+                  - img [ref=e157]
+                - button [ref=e159]:
+                  - img [ref=e160]
+              - generic [ref=e168]:
+                - heading "アートと植物に囲まれたワンルーム" [level=3] [ref=e169]
+                - paragraph [ref=e170]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e171]: ¥60,000
+                - paragraph [ref=e172]: 家賃 ¥85,000/月
+                - paragraph [ref=e173]: 目黒区 / 中目黒 / 1K
+            - link "写真家のスタジオ兼住居 写真家のスタジオ兼住居 引き継ぎ費用 ¥48,000 家賃 ¥88,000/月 目黒区 / 祐天寺" [ref=e175] [cursor=pointer]:
+              - /url: /listings/1368794573069214662
+              - generic [ref=e176]:
+                - img "写真家のスタジオ兼住居" [ref=e177]
+                - button [ref=e178]:
+                  - img [ref=e179]
+                - button [ref=e181]:
+                  - img [ref=e182]
+                - button [ref=e184]:
+                  - img [ref=e185]
+              - generic [ref=e193]:
+                - heading "写真家のスタジオ兼住居" [level=3] [ref=e194]
+                - paragraph [ref=e195]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e196]: ¥48,000
+                - paragraph [ref=e197]: 家賃 ¥88,000/月
+                - paragraph [ref=e198]: 目黒区 / 祐天寺
+        - generic [ref=e200]:
+          - heading "港区" [level=2] [ref=e202]
+          - generic [ref=e205]:
+            - link "北欧家具が映えるデザイナーズ1LDK 北欧家具が映えるデザイナーズ1LDK 引き継ぎ費用 ¥80,000 家賃 ¥130,000/月 港区 / 白金台 / 1LDK" [ref=e207] [cursor=pointer]:
+              - /url: /listings/1368794573069214654
+              - generic [ref=e208]:
+                - img "北欧家具が映えるデザイナーズ1LDK" [ref=e209]
+                - button [ref=e210]:
+                  - img [ref=e211]
+                - button [ref=e213]:
+                  - img [ref=e214]
+                - button [ref=e216]:
+                  - img [ref=e217]
+              - generic [ref=e225]:
+                - heading "北欧家具が映えるデザイナーズ1LDK" [level=3] [ref=e226]
+                - paragraph [ref=e227]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e228]: ¥80,000
+                - paragraph [ref=e229]: 家賃 ¥130,000/月
+                - paragraph [ref=e230]: 港区 / 白金台 / 1LDK
+            - link "モルタル天井のデザイナーズ物件 モルタル天井のデザイナーズ物件 引き継ぎ費用 ¥80,000 家賃 ¥145,000/月 港区 / 南青山" [ref=e232] [cursor=pointer]:
+              - /url: /listings/1368794573069214656
+              - generic [ref=e233]:
+                - img "モルタル天井のデザイナーズ物件" [ref=e234]
+                - button [ref=e235]:
+                  - img [ref=e236]
+                - button [ref=e238]:
+                  - img [ref=e239]
+                - button [ref=e241]:
+                  - img [ref=e242]
+              - generic [ref=e250]:
+                - heading "モルタル天井のデザイナーズ物件" [level=3] [ref=e251]
+                - paragraph [ref=e252]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e253]: ¥80,000
+                - paragraph [ref=e254]: 家賃 ¥145,000/月
+                - paragraph [ref=e255]: 港区 / 南青山
+            - link "白を基調としたレザーの空間 白を基調としたレザーの空間 引き継ぎ費用 ¥60,000 家賃 ¥98,000/月 港区 / 六本木" [ref=e257] [cursor=pointer]:
+              - /url: /listings/1368794573069214659
+              - generic [ref=e258]:
+                - img "白を基調としたレザーの空間" [ref=e259]
+                - button [ref=e260]:
+                  - img [ref=e261]
+                - button [ref=e263]:
+                  - img [ref=e264]
+                - button [ref=e266]:
+                  - img [ref=e267]
+              - generic [ref=e275]:
+                - heading "白を基調としたレザーの空間" [level=3] [ref=e276]
+                - paragraph [ref=e277]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e278]: ¥60,000
+                - paragraph [ref=e279]: 家賃 ¥98,000/月
+                - paragraph [ref=e280]: 港区 / 六本木
+            - link "ミッドセンチュリーが香る1LDK ミッドセンチュリーが香る1LDK 引き継ぎ費用 ¥80,000 家賃 ¥125,000/月 港区 / 麻布十番" [ref=e282] [cursor=pointer]:
+              - /url: /listings/1368794573069214663
+              - generic [ref=e283]:
+                - img "ミッドセンチュリーが香る1LDK" [ref=e284]
+                - button [ref=e285]:
+                  - img [ref=e286]
+                - button [ref=e288]:
+                  - img [ref=e289]
+                - button [ref=e291]:
+                  - img [ref=e292]
+              - generic [ref=e300]:
+                - heading "ミッドセンチュリーが香る1LDK" [level=3] [ref=e301]
+                - paragraph [ref=e302]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e303]: ¥80,000
+                - paragraph [ref=e304]: 家賃 ¥125,000/月
+                - paragraph [ref=e305]: 港区 / 麻布十番
+            - link "テラス付きルーフトップ1LDK テラス付きルーフトップ1LDK 引き継ぎ費用 ¥48,000 家賃 ¥120,000/月 港区 / 白金台" [ref=e307] [cursor=pointer]:
+              - /url: /listings/1368794573069214674
+              - generic [ref=e308]:
+                - img "テラス付きルーフトップ1LDK" [ref=e309]
+                - button [ref=e310]:
+                  - img [ref=e311]
+                - button [ref=e313]:
+                  - img [ref=e314]
+                - button [ref=e316]:
+                  - img [ref=e317]
+              - generic [ref=e325]:
+                - heading "テラス付きルーフトップ1LDK" [level=3] [ref=e326]
+                - paragraph [ref=e327]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e328]: ¥48,000
+                - paragraph [ref=e329]: 家賃 ¥120,000/月
+                - paragraph [ref=e330]: 港区 / 白金台
+        - generic [ref=e332]:
+          - heading "世田谷区" [level=2] [ref=e334]
+          - generic [ref=e337]:
+            - link "アーティストのアトリエ 1LDK アーティストのアトリエ 1LDK 引き継ぎ費用 ¥80,000 家賃 ¥150,000/月 世田谷区 / 三軒茶屋 / 1LDK" [ref=e339] [cursor=pointer]:
+              - /url: /listings/1368794573069214650
+              - generic [ref=e340]:
+                - img "アーティストのアトリエ 1LDK" [ref=e341]
+                - button [ref=e342]:
+                  - img [ref=e343]
+                - button [ref=e345]:
+                  - img [ref=e346]
+                - button [ref=e348]:
+                  - img [ref=e349]
+              - generic [ref=e357]:
+                - heading "アーティストのアトリエ 1LDK" [level=3] [ref=e358]
+                - paragraph [ref=e359]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e360]: ¥80,000
+                - paragraph [ref=e361]: 家賃 ¥150,000/月
+                - paragraph [ref=e362]: 世田谷区 / 三軒茶屋 / 1LDK
+            - link "グリーンに囲まれた癒しの空間 グリーンに囲まれた癒しの空間 引き継ぎ費用 ¥72,000 家賃 ¥110,000/月 世田谷区 / 池尻" [ref=e364] [cursor=pointer]:
+              - /url: /listings/1368794573069214661
+              - generic [ref=e365]:
+                - img "グリーンに囲まれた癒しの空間" [ref=e366]
+                - button [ref=e367]:
+                  - img [ref=e368]
+                - button [ref=e370]:
+                  - img [ref=e371]
+                - button [ref=e373]:
+                  - img [ref=e374]
+              - generic [ref=e382]:
+                - heading "グリーンに囲まれた癒しの空間" [level=3] [ref=e383]
+                - paragraph [ref=e384]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e385]: ¥72,000
+                - paragraph [ref=e386]: 家賃 ¥110,000/月
+                - paragraph [ref=e387]: 世田谷区 / 池尻
+            - link "料理研究家のキッチンスタジオ 料理研究家のキッチンスタジオ 引き継ぎ費用 ¥80,000 家賃 ¥155,000/月 世田谷区 / 駒沢" [ref=e389] [cursor=pointer]:
+              - /url: /listings/1368794573069214669
+              - generic [ref=e390]:
+                - img "料理研究家のキッチンスタジオ" [ref=e391]
+                - button [ref=e392]:
+                  - img [ref=e393]
+                - button [ref=e395]:
+                  - img [ref=e396]
+                - button [ref=e398]:
+                  - img [ref=e399]
+              - generic [ref=e407]:
+                - heading "料理研究家のキッチンスタジオ" [level=3] [ref=e408]
+                - paragraph [ref=e409]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e410]: ¥80,000
+                - paragraph [ref=e411]: 家賃 ¥155,000/月
+                - paragraph [ref=e412]: 世田谷区 / 駒沢
+            - link "ペットと暮らせる広々2LDK ペットと暮らせる広々2LDK 引き継ぎ費用 ¥32,000 家賃 ¥78,000/月 世田谷区 / 等々力" [ref=e414] [cursor=pointer]:
+              - /url: /listings/1368794573069214673
+              - generic [ref=e415]:
+                - img "ペットと暮らせる広々2LDK" [ref=e416]
+                - button [ref=e417]:
+                  - img [ref=e418]
+                - button [ref=e420]:
+                  - img [ref=e421]
+                - button [ref=e423]:
+                  - img [ref=e424]
+              - generic [ref=e432]:
+                - heading "ペットと暮らせる広々2LDK" [level=3] [ref=e433]
+                - paragraph [ref=e434]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e435]: ¥32,000
+                - paragraph [ref=e436]: 家賃 ¥78,000/月
+                - paragraph [ref=e437]: 世田谷区 / 等々力
+        - generic [ref=e439]:
+          - heading "新宿区" [level=2] [ref=e441]
+          - generic [ref=e444]:
+            - link "ミニマルホワイトのワンルーム ミニマルホワイトのワンルーム 引き継ぎ費用 ¥30,000 家賃 ¥70,000/月 新宿区 / 西新宿 / 1R" [ref=e446] [cursor=pointer]:
+              - /url: /listings/1368794573069214652
+              - generic [ref=e447]:
+                - img "ミニマルホワイトのワンルーム" [ref=e448]
+                - button [ref=e449]:
+                  - img [ref=e450]
+                - button [ref=e452]:
+                  - img [ref=e453]
+                - button [ref=e455]:
+                  - img [ref=e456]
+              - generic [ref=e464]:
+                - heading "ミニマルホワイトのワンルーム" [level=3] [ref=e465]
+                - paragraph [ref=e466]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e467]: ¥30,000
+                - paragraph [ref=e468]: 家賃 ¥70,000/月
+                - paragraph [ref=e469]: 新宿区 / 西新宿 / 1R
+            - link "コーヒー好きのための1LDK コーヒー好きのための1LDK 引き継ぎ費用 ¥80,000 家賃 ¥105,000/月 新宿区 / 落合" [ref=e471] [cursor=pointer]:
+              - /url: /listings/1368794573069214667
+              - generic [ref=e472]:
+                - img "コーヒー好きのための1LDK" [ref=e473]
+                - button [ref=e474]:
+                  - img [ref=e475]
+                - button [ref=e477]:
+                  - img [ref=e478]
+                - button [ref=e480]:
+                  - img [ref=e481]
+              - generic [ref=e489]:
+                - heading "コーヒー好きのための1LDK" [level=3] [ref=e490]
+                - paragraph [ref=e491]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e492]: ¥80,000
+                - paragraph [ref=e493]: 家賃 ¥105,000/月
+                - paragraph [ref=e494]: 新宿区 / 落合
+            - link "ゲーマーのための最強環境 ゲーマーのための最強環境 引き継ぎ費用 ¥80,000 家賃 ¥140,000/月 新宿区 / 高田馬場" [ref=e496] [cursor=pointer]:
+              - /url: /listings/1368794573069214675
+              - generic [ref=e497]:
+                - img "ゲーマーのための最強環境" [ref=e498]
+                - button [ref=e499]:
+                  - img [ref=e500]
+                - button [ref=e502]:
+                  - img [ref=e503]
+                - button [ref=e505]:
+                  - img [ref=e506]
+              - generic [ref=e514]:
+                - heading "ゲーマーのための最強環境" [level=3] [ref=e515]
+                - paragraph [ref=e516]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e517]: ¥80,000
+                - paragraph [ref=e518]: 家賃 ¥140,000/月
+                - paragraph [ref=e519]: 新宿区 / 高田馬場
+        - generic [ref=e521]:
+          - heading "杉並区" [level=2] [ref=e523]
+          - generic [ref=e526]:
+            - link "ヴィンテージ家具とレトロな暮らし ヴィンテージ家具とレトロな暮らし 引き継ぎ費用 ¥48,000 家賃 ¥75,000/月 杉並区 / 高円寺 / 1K" [ref=e528] [cursor=pointer]:
+              - /url: /listings/1368794573069214649
+              - generic [ref=e529]:
+                - img "ヴィンテージ家具とレトロな暮らし" [ref=e530]
+                - button [ref=e531]:
+                  - img [ref=e532]
+                - button [ref=e534]:
+                  - img [ref=e535]
+                - button [ref=e537]:
+                  - img [ref=e538]
+              - generic [ref=e546]:
+                - heading "ヴィンテージ家具とレトロな暮らし" [level=3] [ref=e547]
+                - paragraph [ref=e548]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e549]: ¥48,000
+                - paragraph [ref=e550]: 家賃 ¥75,000/月
+                - paragraph [ref=e551]: 杉並区 / 高円寺 / 1K
+            - link "ボヘミアンスタイルの隠れ家 ボヘミアンスタイルの隠れ家 引き継ぎ費用 ¥40,000 家賃 ¥68,000/月 杉並区 / 高円寺南 / 1K" [ref=e553] [cursor=pointer]:
+              - /url: /listings/1368794573069214653
+              - generic [ref=e554]:
+                - img "ボヘミアンスタイルの隠れ家" [ref=e555]
+                - button [ref=e556]:
+                  - img [ref=e557]
+                - button [ref=e559]:
+                  - img [ref=e560]
+                - button [ref=e562]:
+                  - img [ref=e563]
+              - generic [ref=e571]:
+                - heading "ボヘミアンスタイルの隠れ家" [level=3] [ref=e572]
+                - paragraph [ref=e573]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e574]: ¥40,000
+                - paragraph [ref=e575]: 家賃 ¥68,000/月
+                - paragraph [ref=e576]: 杉並区 / 高円寺南 / 1K
+        - generic [ref=e578]:
+          - heading "文京区" [level=2] [ref=e580]
+          - link "本に埋もれる書斎付き1LDK 本に埋もれる書斎付き1LDK 引き継ぎ費用 ¥60,000 家賃 ¥95,000/月 文京区 / 本郷" [ref=e585] [cursor=pointer]:
+            - /url: /listings/1368794573069214670
+            - generic [ref=e586]:
+              - img "本に埋もれる書斎付き1LDK" [ref=e587]
+              - button [ref=e588]:
+                - img [ref=e589]
+              - button [ref=e591]:
+                - img [ref=e592]
+              - button [ref=e594]:
+                - img [ref=e595]
+            - generic [ref=e603]:
+              - heading "本に埋もれる書斎付き1LDK" [level=3] [ref=e604]
+              - paragraph [ref=e605]:
+                - text: 引き継ぎ費用
+                - generic [ref=e606]: ¥60,000
+              - paragraph [ref=e607]: 家賃 ¥95,000/月
+              - paragraph [ref=e608]: 文京区 / 本郷
+        - generic [ref=e610]:
+          - heading "台東区" [level=2] [ref=e612]
+          - generic [ref=e615]:
+            - link "リノベーションで蘇った2DK リノベーションで蘇った2DK 引き継ぎ費用 ¥48,000 家賃 ¥82,000/月 台東区 / 谷中" [ref=e617] [cursor=pointer]:
+              - /url: /listings/1368794573069214660
+              - generic [ref=e618]:
+                - img "リノベーションで蘇った2DK" [ref=e620]
+                - button [ref=e621]:
+                  - img [ref=e622]
+                - button [ref=e624]:
+                  - img [ref=e625]
+                - button [ref=e627]:
+                  - img [ref=e628]
+              - generic [ref=e636]:
+                - heading "リノベーションで蘇った2DK" [level=3] [ref=e637]
+                - paragraph [ref=e638]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e639]: ¥48,000
+                - paragraph [ref=e640]: 家賃 ¥82,000/月
+                - paragraph [ref=e641]: 台東区 / 谷中
+            - link "浅草の静かな隠れ家ホテル 浅草の静かな隠れ家ホテル 引き継ぎ費用 ¥50,000 家賃 ¥95,000/月 台東区 / 浅草 / 1K" [ref=e643] [cursor=pointer]:
+              - /url: /listings/1504655411015512190
+              - generic [ref=e644]:
+                - img "浅草の静かな隠れ家ホテル" [ref=e646]
+                - button [ref=e647]:
+                  - img [ref=e648]
+                - button [ref=e650]:
+                  - img [ref=e651]
+                - button [ref=e653]:
+                  - img [ref=e654]
+              - generic [ref=e665]:
+                - heading "浅草の静かな隠れ家ホテル" [level=3] [ref=e666]
+                - paragraph [ref=e667]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e668]: ¥50,000
+                - paragraph [ref=e669]: 家賃 ¥95,000/月
+                - paragraph [ref=e670]: 台東区 / 浅草 / 1K
+        - generic [ref=e672]:
+          - heading "墨田区" [level=2] [ref=e674]
+          - generic [ref=e677]:
+            - link "天井高4mのロフト空間 天井高4mのロフト空間 引き継ぎ費用 ¥40,000 家賃 ¥92,000/月 墨田区 / 両国" [ref=e679] [cursor=pointer]:
+              - /url: /listings/1368794573069214664
+              - generic [ref=e680]:
+                - img "天井高4mのロフト空間" [ref=e682]
+                - button [ref=e683]:
+                  - img [ref=e684]
+                - button [ref=e686]:
+                  - img [ref=e687]
+                - button [ref=e689]:
+                  - img [ref=e690]
+              - generic [ref=e698]:
+                - heading "天井高4mのロフト空間" [level=3] [ref=e699]
+                - paragraph [ref=e700]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e701]: ¥40,000
+                - paragraph [ref=e702]: 家賃 ¥92,000/月
+                - paragraph [ref=e703]: 墨田区 / 両国
+            - link "和モダンが美しい1DK 和モダンが美しい1DK 引き継ぎ費用 ¥32,000 家賃 ¥65,000/月 墨田区 / 向島" [ref=e705] [cursor=pointer]:
+              - /url: /listings/1368794573069214665
+              - generic [ref=e706]:
+                - img "和モダンが美しい1DK" [ref=e708]
+                - button [ref=e709]:
+                  - img [ref=e710]
+                - button [ref=e712]:
+                  - img [ref=e713]
+                - button [ref=e715]:
+                  - img [ref=e716]
+              - generic [ref=e724]:
+                - heading "和モダンが美しい1DK" [level=3] [ref=e725]
+                - paragraph [ref=e726]:
+                  - text: 引き継ぎ費用
+                  - generic [ref=e727]: ¥32,000
+                - paragraph [ref=e728]: 家賃 ¥65,000/月
+                - paragraph [ref=e729]: 墨田区 / 向島
+        - generic [ref=e731]:
+          - heading "豊島区" [level=2] [ref=e733]
+          - link "池袋エリアのコンパクトな隠れ家 池袋エリアのコンパクトな隠れ家 引き継ぎ費用 ¥35,000 家賃 ¥72,000/月 豊島区 / 南長崎 / 1R" [ref=e738] [cursor=pointer]:
+            - /url: /listings/1368794573069214671
+            - generic [ref=e739]:
+              - img "池袋エリアのコンパクトな隠れ家" [ref=e741]
+              - button [ref=e742]:
+                - img [ref=e743]
+              - button [ref=e745]:
+                - img [ref=e746]
+              - button [ref=e748]:
+                - img [ref=e749]
+            - generic [ref=e757]:
+              - heading "池袋エリアのコンパクトな隠れ家" [level=3] [ref=e758]
+              - paragraph [ref=e759]:
+                - text: 引き継ぎ費用
+                - generic [ref=e760]: ¥35,000
+              - paragraph [ref=e761]: 家賃 ¥72,000/月
+              - paragraph [ref=e762]: 豊島区 / 南長崎 / 1R
+        - generic [ref=e764]:
+          - heading "中野区" [level=2] [ref=e766]
+          - link "DIYで作り込んだ賃貸ワンルーム DIYで作り込んだ賃貸ワンルーム 引き継ぎ費用 ¥30,000 家賃 ¥75,000/月 中野区 / 野方" [ref=e771] [cursor=pointer]:
+            - /url: /listings/1368794573069214666
+            - generic [ref=e772]:
+              - img "DIYで作り込んだ賃貸ワンルーム" [ref=e774]
+              - button [ref=e775]:
+                - img [ref=e776]
+              - button [ref=e778]:
+                - img [ref=e779]
+              - button [ref=e781]:
+                - img [ref=e782]
+            - generic [ref=e790]:
+              - heading "DIYで作り込んだ賃貸ワンルーム" [level=3] [ref=e791]
+              - paragraph [ref=e792]:
+                - text: 引き継ぎ費用
+                - generic [ref=e793]: ¥30,000
+              - paragraph [ref=e794]: 家賃 ¥75,000/月
+              - paragraph [ref=e795]: 中野区 / 野方
+        - generic [ref=e797]:
+          - heading "練馬区" [level=2] [ref=e799]
+          - link "陶芸作家のアトリエ兼住居 陶芸作家のアトリエ兼住居 引き継ぎ費用 ¥32,000 家賃 ¥78,000/月 練馬区 / 江古田" [ref=e804] [cursor=pointer]:
+            - /url: /listings/1368794573069214657
+            - generic [ref=e805]:
+              - img "陶芸作家のアトリエ兼住居" [ref=e807]
+              - button [ref=e808]:
+                - img [ref=e809]
+              - button [ref=e811]:
+                - img [ref=e812]
+              - button [ref=e814]:
+                - img [ref=e815]
+            - generic [ref=e823]:
+              - heading "陶芸作家のアトリエ兼住居" [level=3] [ref=e824]
+              - paragraph [ref=e825]:
+                - text: 引き継ぎ費用
+                - generic [ref=e826]: ¥32,000
+              - paragraph [ref=e827]: 家賃 ¥78,000/月
+              - paragraph [ref=e828]: 練馬区 / 江古田
+        - generic [ref=e830]:
+          - heading "北区" [level=2] [ref=e832]
+          - link "インダストリアルなクリエイターの部屋 インダストリアルなクリエイターの部屋 引き継ぎ費用 ¥36,000 家賃 ¥95,000/月 北区 / 田端 / 1K" [ref=e837] [cursor=pointer]:
+            - /url: /listings/1368794573069214651
+            - generic [ref=e838]:
+              - img "インダストリアルなクリエイターの部屋" [ref=e840]
+              - button [ref=e841]:
+                - img [ref=e842]
+              - button [ref=e844]:
+                - img [ref=e845]
+              - button [ref=e847]:
+                - img [ref=e848]
+            - generic [ref=e856]:
+              - heading "インダストリアルなクリエイターの部屋" [level=3] [ref=e857]
+              - paragraph [ref=e858]:
+                - text: 引き継ぎ費用
+                - generic [ref=e859]: ¥36,000
+              - paragraph [ref=e860]: 家賃 ¥95,000/月
+              - paragraph [ref=e861]: 北区 / 田端 / 1K
+        - generic [ref=e863]:
+          - heading "荒川区" [level=2] [ref=e865]
+          - link "ロフト付きワンルーム ロフト付きワンルーム 引き継ぎ費用 ¥30,000 家賃 ¥72,000/月 荒川区 / 西日暮里" [ref=e870] [cursor=pointer]:
+            - /url: /listings/1368794573069214655
+            - generic [ref=e871]:
+              - img "ロフト付きワンルーム" [ref=e873]
+              - button [ref=e874]:
+                - img [ref=e875]
+              - button [ref=e877]:
+                - img [ref=e878]
+              - button [ref=e880]:
+                - img [ref=e881]
+            - generic [ref=e889]:
+              - heading "ロフト付きワンルーム" [level=3] [ref=e890]
+              - paragraph [ref=e891]:
+                - text: 引き継ぎ費用
+                - generic [ref=e892]: ¥30,000
+              - paragraph [ref=e893]: 家賃 ¥72,000/月
+              - paragraph [ref=e894]: 荒川区 / 西日暮里
+        - generic [ref=e896]:
+          - heading "板橋区" [level=2] [ref=e898]
+          - link "ガレージ付きバイク好きの隠れ家 ガレージ付きバイク好きの隠れ家 引き継ぎ費用 ¥40,000 家賃 ¥85,000/月 板橋区 / 大山" [ref=e903] [cursor=pointer]:
+            - /url: /listings/1368794573069214672
+            - generic [ref=e904]:
+              - img "ガレージ付きバイク好きの隠れ家" [ref=e906]
+              - button [ref=e907]:
+                - img [ref=e908]
+              - button [ref=e910]:
+                - img [ref=e911]
+              - button [ref=e913]:
+                - img [ref=e914]
+            - generic [ref=e922]:
+              - heading "ガレージ付きバイク好きの隠れ家" [level=3] [ref=e923]
+              - paragraph [ref=e924]:
+                - text: 引き継ぎ費用
+                - generic [ref=e925]: ¥40,000
+              - paragraph [ref=e926]: 家賃 ¥85,000/月
+              - paragraph [ref=e927]: 板橋区 / 大山
+    - contentinfo [ref=e929]:
+      - generic [ref=e930]:
+        - generic [ref=e931]:
+          - generic [ref=e932]:
+            - heading "サポート" [level=3] [ref=e933]
+            - list [ref=e934]:
+              - listitem [ref=e935]:
+                - link "ヘルプセンター" [ref=e936] [cursor=pointer]:
+                  - /url: /help
+              - listitem [ref=e937]:
+                - link "安全上の問題に関してサポートを受ける" [ref=e938] [cursor=pointer]:
+                  - /url: /safety
+              - listitem [ref=e939]:
+                - link "キャンセルオプション" [ref=e940] [cursor=pointer]:
+                  - /url: /cancellation
+              - listitem [ref=e941]:
+                - link "近隣トラブルを報告する" [ref=e942] [cursor=pointer]:
+                  - /url: /report
+          - generic [ref=e943]:
+            - heading "引き継ぎ" [level=3] [ref=e944]
+            - list [ref=e945]:
+              - listitem [ref=e946]:
+                - link "お部屋を掲載する" [ref=e947] [cursor=pointer]:
+                  - /url: /list
+              - listitem [ref=e948]:
+                - link "引き継ぎの仕組み" [ref=e949] [cursor=pointer]:
+                  - /url: /how-it-works
+              - listitem [ref=e950]:
+                - link "出品者向けリソース" [ref=e951] [cursor=pointer]:
+                  - /url: /seller-resources
+              - listitem [ref=e952]:
+                - link "コミュニティフォーラム" [ref=e953] [cursor=pointer]:
+                  - /url: /community
+              - listitem [ref=e954]:
+                - link "責任ある引き継ぎとは" [ref=e955] [cursor=pointer]:
+                  - /url: /handover-responsibly
+          - generic [ref=e956]:
+            - heading "tsumugi" [level=3] [ref=e957]
+            - list [ref=e958]:
+              - listitem [ref=e959]:
+                - link "ニュースルーム" [ref=e960] [cursor=pointer]:
+                  - /url: /about
+              - listitem [ref=e961]:
+                - link "採用情報" [ref=e962] [cursor=pointer]:
+                  - /url: /careers
+              - listitem [ref=e963]:
+                - link "株主・投資家のみなさまへ" [ref=e964] [cursor=pointer]:
+                  - /url: /investors
+        - generic [ref=e965]:
+          - generic [ref=e966]: © 2026 tsumugi
+          - link "プライバシー" [ref=e967] [cursor=pointer]:
+            - /url: /privacy
+          - link "利用規約" [ref=e968] [cursor=pointer]:
+            - /url: /terms
+          - link "サイトマップ" [ref=e969] [cursor=pointer]:
+            - /url: /sitemap
+          - link "企業情報" [ref=e970] [cursor=pointer]:
+            - /url: /company
+```
