@@ -24,5 +24,9 @@ tests/e2e/artifacts/
 !tests/e2e/artifacts/.gitkeep
 .serena/
 
+# Generated slides (rebuild with `bun run slides` / `bun run slides:html`)
+docs/pitch/slides-*.pptx
+docs/pitch/slides-*.html
+
 # OpenClaw setup (local/personal)
 docs/setup/openclaw-mobile-dev-setup.md
