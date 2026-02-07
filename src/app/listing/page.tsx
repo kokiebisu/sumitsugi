@@ -17,6 +17,7 @@ import {
   Home,
 } from 'lucide-react';
 import { InquiryList } from '@/components/admin/inquiry-list';
+import { ConsentBadge } from '@/components/consent-badge';
 
 // 無限スクロール用の画像データ（Unsplash - 明るいインテリア・部屋の写真）
 const scrollImages = {
@@ -109,6 +110,7 @@ function ListingCard({
     status: string;
     roomPhotos?: string[];
     publishedAt?: string;
+    consentStatus?: string;
   };
   onDelete: (id: string) => void;
 }) {
@@ -131,7 +133,7 @@ function ListingCard({
           </div>
         )}
         {/* ステータスバッジ */}
-        <div className="absolute top-3 left-3">
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
           <span
             className={`px-3 py-1 rounded-full text-xs font-medium ${
               listing.status === 'published'
@@ -141,6 +143,19 @@ function ListingCard({
           >
             {listing.status === 'published' ? '公開中' : '下書き'}
           </span>
+          {listing.consentStatus && (
+            <ConsentBadge
+              status={
+                listing.consentStatus as
+                  | 'pending'
+                  | 'conditional'
+                  | 'approved'
+                  | 'rejected'
+                  | 'expired'
+              }
+              variant="inline"
+            />
+          )}
         </div>
         {/* メニューボタン */}
         <div className="absolute top-3 right-3">

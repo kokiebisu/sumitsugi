@@ -9,6 +9,7 @@ import { Heart, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Property } from '@/lib/data';
 import { isUrgentMoveIn } from '@/lib/utils';
 import { UrgentMoveInBadge } from '@/components/urgent-move-in-badge';
+import { ConsentBadge } from '@/components/consent-badge';
 
 function parseLocation(neighborhood: string | undefined): {
   ward?: string;
@@ -75,6 +76,17 @@ export function PropertyCard({ property }: PropertyCardProps) {
 
         {/* 即入居可能バッジ（F-507） */}
         {isUrgentMoveIn(property.moveOutDate) && <UrgentMoveInBadge />}
+
+        {/* 大家承認バッジ（§7.4） */}
+        {property.consentStatus === 'approved' && (
+          <ConsentBadge
+            status="approved"
+            variant="overlay"
+            className={
+              isUrgentMoveIn(property.moveOutDate) ? 'top-10' : undefined
+            }
+          />
+        )}
 
         {/* Heart button */}
         <button
