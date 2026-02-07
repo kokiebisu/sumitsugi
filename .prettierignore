@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+bun.lockb
+
+# Build outputs
+.next/
+dist/
+out/
+build/
+
+# Git
+.git/
+.worktrees/
+
+# Env files
+.env
+.env.local
+.env*.local
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+
+# TypeScript
+tsconfig.tsbuildinfo
+
+# Test results
+coverage/
+playwright-report/
+test-results/
+
+# Misc
+*.min.js
+*.min.css

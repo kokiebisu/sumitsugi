@@ -7,6 +7,7 @@
 ## Motivation
 
 Migrate to Bun to achieve:
+
 - 2-3x faster dependency installs
 - Faster dev server startup
 - Faster builds in CI/CD
@@ -23,6 +24,7 @@ Migrate to Bun to achieve:
 **Objective:** Replace Node.js devcontainer with Bun
 
 **Changes:**
+
 1. **Dockerfile** (`FROM oven/bun:1-debian`)
    - Replace `node:20-bullseye` with Bun's official Debian-based image
    - Remove npm global installs (nodemon, typescript, typescript-language-server, ts-node)
@@ -47,6 +49,7 @@ Migrate to Bun to achieve:
    - Remove `package-lock.json`
 
 **Validation checklist:**
+
 - [ ] Devcontainer rebuilds successfully
 - [ ] `bun install` completes without errors
 - [ ] `bun dev` starts Next.js dev server
@@ -62,6 +65,7 @@ Migrate to Bun to achieve:
 **Objective:** Migrate all GitHub Actions to use Bun
 
 **Workflows to update:**
+
 1. `requirements-audit.yml` - Daily Claude audit
 2. `e2e-tests.yml` - E2E tests with Playwright
 3. `cleanup-branches.yml` - Branch cleanup
@@ -71,6 +75,7 @@ Migrate to Bun to achieve:
 **Standard migration pattern:**
 
 **Before:**
+
 ```yaml
 - name: Setup Node.js
   uses: actions/setup-node@v4
@@ -86,6 +91,7 @@ Migrate to Bun to achieve:
 ```
 
 **After:**
+
 ```yaml
 - name: Setup Bun
   uses: oven-sh/setup-bun@v2
@@ -100,6 +106,7 @@ Migrate to Bun to achieve:
 ```
 
 **Command mapping:**
+
 - `npm ci` → `bun install --frozen-lockfile`
 - `npm install` → `bun install`
 - `npm run <script>` → `bun run <script>` or `bun <script>`
@@ -109,6 +116,7 @@ Migrate to Bun to achieve:
 **Node.js inline scripts:** Keep as-is. Bun is Node-compatible and supports `require()`, `fs`, etc.
 
 **Validation checklist:**
+
 - [ ] All workflows trigger and run successfully
 - [ ] Requirements audit completes
 - [ ] E2E tests pass
@@ -125,6 +133,7 @@ Migrate to Bun to achieve:
 #### 3.1 Vercel Configuration
 
 Create `vercel.json`:
+
 ```json
 {
   "buildCommand": "bun run build",
@@ -136,6 +145,7 @@ Create `vercel.json`:
 ```
 
 **Notes:**
+
 - Vercel's Bun runtime is in beta (2026)
 - Automatic fallback to Node.js if issues occur
 - 2-3x faster build times expected
@@ -144,6 +154,7 @@ Create `vercel.json`:
 #### 3.2 AWS Deployment
 
 Create `Dockerfile.production`:
+
 ```dockerfile
 FROM oven/bun:1-debian as builder
 
@@ -174,11 +185,13 @@ CMD ["bun", "server.js"]
 ```
 
 **Deployment targets:**
+
 - ECS (Elastic Container Service)
 - EKS (Elastic Kubernetes Service)
 - Lambda (with custom runtime)
 
 **Validation checklist:**
+
 - [ ] Vercel deployment succeeds
 - [ ] Production build works locally with Bun
 - [ ] Docker image builds successfully
@@ -187,18 +200,21 @@ CMD ["bun", "server.js"]
 - [ ] Performance metrics meet expectations
 
 **Rollback:**
+
 - Vercel: Remove `vercel.json` to fall back to Node.js
 - AWS: Use existing Node.js Dockerfile
 
 ## Success Criteria
 
 ### Performance Targets
+
 - ✅ 2-3x faster dependency installs (vs npm)
 - ✅ Faster dev server startup
 - ✅ Faster CI/CD builds (20-30% improvement expected)
 - ✅ Comparable or better production performance
 
 ### Functional Requirements
+
 - ✅ All tests passing (unit, integration, E2E)
 - ✅ All GitHub Actions workflows passing
 - ✅ Dev server works correctly
@@ -207,6 +223,7 @@ CMD ["bun", "server.js"]
 - ✅ No breaking changes to developer workflow
 
 ### Documentation
+
 - ✅ CLAUDE.md updated with Bun commands
 - ✅ README updated with Bun installation
 - ✅ Deployment docs updated

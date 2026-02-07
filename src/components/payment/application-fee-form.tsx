@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   Elements,
   PaymentElement,
   useStripe,
   useElements,
-} from "@stripe/react-stripe-js";
-import { AlertCircle, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getStripe } from "@/lib/stripe/client";
-import { STRIPE_CONFIG } from "@/lib/stripe/config";
-import { createApplicationFeePayment } from "@/app/actions/payment";
+} from '@stripe/react-stripe-js';
+import { AlertCircle, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { getStripe } from '@/lib/stripe/client';
+import { STRIPE_CONFIG } from '@/lib/stripe/config';
+import { createApplicationFeePayment } from '@/app/actions/payment';
 
 interface ApplicationFeeFormProps {
   propertyId: string;
@@ -48,7 +48,7 @@ function ApplicationFeeFormContent({
       const { error: submitError } = await elements.submit();
       if (submitError) {
         throw new Error(
-          submitError.message || "お支払い情報の確認に失敗しました"
+          submitError.message || 'お支払い情報の確認に失敗しました'
         );
       }
 
@@ -60,9 +60,7 @@ function ApplicationFeeFormContent({
       });
 
       if (result.error) {
-        throw new Error(
-          result.error.message || "お支払い処理に失敗しました"
-        );
+        throw new Error(result.error.message || 'お支払い処理に失敗しました');
       }
 
       if (onSuccess) {
@@ -72,7 +70,7 @@ function ApplicationFeeFormContent({
       const errorMessage =
         err instanceof Error
           ? err.message
-          : "お支払い処理中にエラーが発生しました";
+          : 'お支払い処理中にエラーが発生しました';
       setError(errorMessage);
       if (onError) {
         onError(errorMessage);
@@ -98,8 +96,7 @@ function ApplicationFeeFormContent({
               </li>
               <li>• お支払い後すぐに前の住人に直接送金されます</li>
               <li>
-                •
-                この金額は引き継ぎの意思表示として前の住人に支払われます
+                • この金額は引き継ぎの意思表示として前の住人に支払われます
               </li>
             </ul>
           </div>
@@ -186,13 +183,11 @@ export function ApplicationFeeForm({
         );
 
         if (!result.success) {
-          throw new Error(
-            result.error || "お支払いの準備に失敗しました"
-          );
+          throw new Error(result.error || 'お支払いの準備に失敗しました');
         }
 
         if (!result.clientSecret) {
-          throw new Error("お支払い情報の取得に失敗しました");
+          throw new Error('お支払い情報の取得に失敗しました');
         }
 
         setClientSecret(result.clientSecret);
@@ -200,7 +195,7 @@ export function ApplicationFeeForm({
         const errorMessage =
           err instanceof Error
             ? err.message
-            : "お支払いの準備中にエラーが発生しました";
+            : 'お支払いの準備中にエラーが発生しました';
         setError(errorMessage);
         if (onError) {
           onError(errorMessage);
@@ -273,12 +268,12 @@ export function ApplicationFeeForm({
           options={{
             clientSecret,
             appearance: {
-              theme: "stripe",
+              theme: 'stripe',
               variables: {
-                colorPrimary: "#FF5A5F",
+                colorPrimary: '#FF5A5F',
               },
             },
-            locale: "ja",
+            locale: 'ja',
           }}
         >
           <ApplicationFeeFormContent

@@ -96,13 +96,13 @@ Before deploying the application, ensure all database migrations are applied:
 
 ```bash
 # Install dependencies
-npm install
+bun install
 
 # Generate migration files (if not already generated)
-npm run db:generate
+bun run db:generate
 
 # Apply migrations to production database
-npm run db:migrate
+bun run db:migrate
 ```
 
 #### Option B: Using Drizzle Studio
@@ -112,7 +112,7 @@ npm run db:migrate
 export DATABASE_URL="postgresql://[user]:[password]@[host]/[db]?sslmode=require"
 
 # Open Drizzle Studio
-npm run db:studio
+bun run db:studio
 
 # Verify schema matches expected structure
 ```
@@ -171,12 +171,14 @@ git push origin main
 #### D. Add Webhook Secret to Environment
 
 **Vercel:**
+
 ```bash
 vercel env add STRIPE_WEBHOOK_SECRET production
 # Paste the secret when prompted
 ```
 
 **Railway:**
+
 ```bash
 railway variables set STRIPE_WEBHOOK_SECRET=whsec_...
 ```
@@ -242,11 +244,11 @@ railway up
 1. Configure environment variables in platform dashboard
 2. Build application:
    ```bash
-   npm run build
+   bun run build
    ```
 3. Start production server:
    ```bash
-   npm start
+   bun start
    ```
 
 ### Step 4: Test Payment Flow
@@ -351,16 +353,19 @@ WHERE status = 'pending';
 Monitor application logs for webhook processing:
 
 **Vercel:**
+
 ```bash
 vercel logs --follow
 ```
 
 **Railway:**
+
 ```bash
 railway logs
 ```
 
 Look for:
+
 - Webhook signature verification errors
 - Payment processing errors
 - Transfer failures
@@ -390,18 +395,21 @@ Set up alerts for critical events:
 #### Problem: Webhooks not being received
 
 **Symptoms:**
+
 - Payment succeeds in Stripe but status not updated in database
 - Transfers not created automatically
 
 **Solutions:**
 
 1. **Verify webhook endpoint is accessible**:
+
    ```bash
    curl -I https://your-domain.com/api/webhooks/stripe
    # Expected: 405 Method Not Allowed (POST required)
    ```
 
 2. **Check webhook secret**:
+
    ```bash
    # Vercel
    vercel env ls
@@ -426,6 +434,7 @@ Set up alerts for critical events:
 #### Problem: Invalid signature errors
 
 **Symptoms:**
+
 - Webhook returns 400 Bad Request
 - Logs show "Webhook signature verification failed"
 
@@ -445,12 +454,14 @@ Set up alerts for critical events:
 #### Problem: Payments stuck in "pending" status
 
 **Symptoms:**
+
 - Payment shows `status = 'pending'` in database
 - User completed payment but status not updated
 
 **Solutions:**
 
 1. **Check Stripe PaymentIntent status**:
+
    ```bash
    # In Stripe Dashboard, search for payment
    # Verify it shows "Succeeded"
@@ -470,12 +481,14 @@ Set up alerts for critical events:
 #### Problem: Transfers not created
 
 **Symptoms:**
+
 - Application fee payment succeeded
 - No transfer to previous tenant
 
 **Solutions:**
 
 1. **Check Stripe account onboarding**:
+
    ```sql
    SELECT id, user_id, "stripeAccountId", "onboardingCompleted"
    FROM stripe_accounts
@@ -498,6 +511,7 @@ Set up alerts for critical events:
 #### Problem: Migration errors
 
 **Symptoms:**
+
 - Tables missing
 - Column type mismatches
 - Foreign key constraint errors
@@ -505,13 +519,15 @@ Set up alerts for critical events:
 **Solutions:**
 
 1. **Verify migration files are up to date**:
+
    ```bash
    ls -la src/db/migrations/
    ```
 
 2. **Re-run migrations**:
+
    ```bash
-   npm run db:migrate
+   bun run db:migrate
    ```
 
 3. **Check database schema**:
@@ -526,6 +542,7 @@ Set up alerts for critical events:
 #### Problem: Slow payment processing
 
 **Symptoms:**
+
 - Long delay between payment and webhook processing
 - Timeout errors
 
@@ -536,6 +553,7 @@ Set up alerts for critical events:
    - Monitor active connections
 
 2. **Optimize database queries**:
+
    ```sql
    -- Add indexes if missing
    CREATE INDEX idx_payments_stripe_payment_intent_id
@@ -581,7 +599,7 @@ vercel rollback [deployment-url]
 
 ```bash
 # Revert migrations (if needed)
-npm run db:rollback
+bun run db:rollback
 
 # Or manually drop tables
 psql $DATABASE_URL

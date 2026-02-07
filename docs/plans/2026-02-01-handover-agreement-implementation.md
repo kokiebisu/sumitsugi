@@ -13,6 +13,7 @@
 ## Task 1: データモデル拡張 - InquiryStatusに新ステータス追加
 
 **Files:**
+
 - Modify: `src/lib/data.ts:54-67`
 
 **Step 1: Inquiryインターフェースのステータスを拡張**
@@ -22,30 +23,30 @@
 ```typescript
 // Inquiry (引き継ぎ申し込み) データ型
 export interface Inquiry {
-  id: string
-  propertyId: string
-  propertyTitle: string
+  id: string;
+  propertyId: string;
+  propertyTitle: string;
   status:
-    | "pending"
-    | "reviewing"
-    | "approved"
-    | "viewing_scheduled"
-    | "viewing_completed"      // 追加: 内見完了
-    | "agreement_pending"      // 追加: 合意待ち
-    | "agreement_signed"       // 追加: 署名完了
-    | "contract_in_progress"
-    | "completed"
-    | "rejected"
-    | "cancelled"
-  applicantName: string
-  applicantEmail: string
-  reason: string
-  questions?: string
-  submittedAt: string
-  updatedAt: string
-  notes?: string
-  viewingConfirmation?: ViewingConfirmation
-  handoverAgreementId?: string  // 追加: 紐づく合意ID
+    | 'pending'
+    | 'reviewing'
+    | 'approved'
+    | 'viewing_scheduled'
+    | 'viewing_completed' // 追加: 内見完了
+    | 'agreement_pending' // 追加: 合意待ち
+    | 'agreement_signed' // 追加: 署名完了
+    | 'contract_in_progress'
+    | 'completed'
+    | 'rejected'
+    | 'cancelled';
+  applicantName: string;
+  applicantEmail: string;
+  reason: string;
+  questions?: string;
+  submittedAt: string;
+  updatedAt: string;
+  notes?: string;
+  viewingConfirmation?: ViewingConfirmation;
+  handoverAgreementId?: string; // 追加: 紐づく合意ID
 }
 ```
 
@@ -69,6 +70,7 @@ git commit -m "feat: add new inquiry statuses for handover agreement flow"
 ## Task 2: データモデル - HandoverAgreement型定義追加
 
 **Files:**
+
 - Modify: `src/lib/data.ts` (Inquiryの後に追加)
 
 **Step 1: HandoverAgreement関連の型を追加**
@@ -77,64 +79,64 @@ git commit -m "feat: add new inquiry statuses for handover agreement flow"
 
 ```typescript
 // 引き継ぎ品目の状態
-export type ItemCondition = "excellent" | "good" | "fair" | "poor"
+export type ItemCondition = 'excellent' | 'good' | 'fair' | 'poor';
 
 // 引き継ぎ品目
 export interface HandoverItem {
-  id: string
-  name: string
-  category: "furniture" | "appliance" | "other"
-  condition: ItemCondition
-  photos: string[]
-  notes?: string
-  included: boolean
+  id: string;
+  name: string;
+  category: 'furniture' | 'appliance' | 'other';
+  condition: ItemCondition;
+  photos: string[];
+  notes?: string;
+  included: boolean;
 }
 
 // 署名情報
 export interface BuyerSignature {
-  name: string
-  agreedAt: string  // ISO日付
-  ipAddress?: string
+  name: string;
+  agreedAt: string; // ISO日付
+  ipAddress?: string;
 }
 
 // 引き継ぎ合意ステータス
 export type HandoverAgreementStatus =
-  | "draft"
-  | "pending_acceptance"
-  | "accepted"
-  | "signed"
+  | 'draft'
+  | 'pending_acceptance'
+  | 'accepted'
+  | 'signed';
 
 // 引き継ぎ合意
 export interface HandoverAgreement {
-  id: string
-  inquiryId: string
-  propertyId: string
+  id: string;
+  inquiryId: string;
+  propertyId: string;
 
   // 家具リスト（最終調整後）
-  items: HandoverItem[]
+  items: HandoverItem[];
 
   // 引越し費用
-  adjustedHandoverFee: number
-  originalHandoverFee: number
+  adjustedHandoverFee: number;
+  originalHandoverFee: number;
 
   // ステータス
-  status: HandoverAgreementStatus
+  status: HandoverAgreementStatus;
 
   // タイムスタンプ
-  createdAt: string
-  acceptedAt?: string
-  signedAt?: string
+  createdAt: string;
+  acceptedAt?: string;
+  signedAt?: string;
 
   // 署名情報
-  buyerSignature?: BuyerSignature
+  buyerSignature?: BuyerSignature;
 
   // 当事者情報（PDF用）
-  sellerName: string
-  sellerEmail: string
-  buyerName: string
-  buyerEmail: string
-  propertyTitle: string
-  propertyAddress?: string
+  sellerName: string;
+  sellerEmail: string;
+  buyerName: string;
+  buyerEmail: string;
+  propertyTitle: string;
+  propertyAddress?: string;
 }
 ```
 
@@ -156,6 +158,7 @@ git commit -m "feat: add HandoverAgreement type definitions"
 ## Task 3: モックデータ - HandoverAgreement用のサンプルデータ
 
 **Files:**
+
 - Modify: `src/lib/data.ts` (mockDataセクションに追加)
 
 **Step 1: モック合意データを追加**
@@ -166,48 +169,48 @@ data.tsのモックデータセクション（既存のmockInquiriesなどの近
 // モック引き継ぎ合意データ
 export const mockHandoverAgreements: HandoverAgreement[] = [
   {
-    id: "ha-001",
-    inquiryId: "inq-001",
-    propertyId: "prop-001",
+    id: 'ha-001',
+    inquiryId: 'inq-001',
+    propertyId: 'prop-001',
     items: [
       {
-        id: "item-001",
-        name: "冷蔵庫",
-        category: "appliance",
-        condition: "good",
+        id: 'item-001',
+        name: '冷蔵庫',
+        category: 'appliance',
+        condition: 'good',
         photos: [],
         included: true,
       },
       {
-        id: "item-002",
-        name: "洗濯機",
-        category: "appliance",
-        condition: "excellent",
+        id: 'item-002',
+        name: '洗濯機',
+        category: 'appliance',
+        condition: 'excellent',
         photos: [],
         included: true,
       },
       {
-        id: "item-003",
-        name: "ダイニングテーブル",
-        category: "furniture",
-        condition: "good",
+        id: 'item-003',
+        name: 'ダイニングテーブル',
+        category: 'furniture',
+        condition: 'good',
         photos: [],
-        notes: "4人掛け、IKEAで購入",
+        notes: '4人掛け、IKEAで購入',
         included: true,
       },
     ],
     adjustedHandoverFee: 50000,
     originalHandoverFee: 60000,
-    status: "draft",
+    status: 'draft',
     createdAt: new Date().toISOString(),
-    sellerName: "山田太郎",
-    sellerEmail: "yamada@example.com",
-    buyerName: "佐藤花子",
-    buyerEmail: "sato@example.com",
-    propertyTitle: "目黒の緑に囲まれた部屋",
-    propertyAddress: "東京都目黒区中目黒1-1-1",
+    sellerName: '山田太郎',
+    sellerEmail: 'yamada@example.com',
+    buyerName: '佐藤花子',
+    buyerEmail: 'sato@example.com',
+    propertyTitle: '目黒の緑に囲まれた部屋',
+    propertyAddress: '東京都目黒区中目黒1-1-1',
   },
-]
+];
 ```
 
 **Step 2: ビルド確認**
@@ -228,6 +231,7 @@ git commit -m "feat: add mock HandoverAgreement data"
 ## Task 4: ダッシュボード更新 - 新ステータスの表示対応
 
 **Files:**
+
 - Modify: `src/app/dashboard/page.tsx:18-25` (inquirySteps)
 - Modify: `src/app/dashboard/page.tsx:34-54` (getStepIndex)
 - Modify: `src/app/dashboard/page.tsx:56-77` (getNextAction)
@@ -236,15 +240,15 @@ git commit -m "feat: add mock HandoverAgreement data"
 
 ```typescript
 const inquirySteps = [
-  { id: "pending", label: "申し込み", icon: Clock },
-  { id: "reviewing", label: "確認中", icon: Eye },
-  { id: "approved", label: "承認済み", icon: Check },
-  { id: "viewing_scheduled", label: "内見予定", icon: Calendar },
-  { id: "viewing_completed", label: "内見完了", icon: Check },     // 追加
-  { id: "agreement_pending", label: "合意待ち", icon: FileText },  // 追加
-  { id: "agreement_signed", label: "署名完了", icon: Check },      // 追加
-  { id: "contract_in_progress", label: "契約手続き中", icon: FileText },
-  { id: "completed", label: "完了", icon: Home },
+  { id: 'pending', label: '申し込み', icon: Clock },
+  { id: 'reviewing', label: '確認中', icon: Eye },
+  { id: 'approved', label: '承認済み', icon: Check },
+  { id: 'viewing_scheduled', label: '内見予定', icon: Calendar },
+  { id: 'viewing_completed', label: '内見完了', icon: Check }, // 追加
+  { id: 'agreement_pending', label: '合意待ち', icon: FileText }, // 追加
+  { id: 'agreement_signed', label: '署名完了', icon: Check }, // 追加
+  { id: 'contract_in_progress', label: '契約手続き中', icon: FileText },
+  { id: 'completed', label: '完了', icon: Home },
 ];
 ```
 
@@ -253,26 +257,26 @@ const inquirySteps = [
 ```typescript
 const getStepIndex = (status: string) => {
   switch (status) {
-    case "pending":
+    case 'pending':
       return 0;
-    case "reviewing":
+    case 'reviewing':
       return 1;
-    case "approved":
+    case 'approved':
       return 2;
-    case "viewing_scheduled":
+    case 'viewing_scheduled':
       return 3;
-    case "viewing_completed":
+    case 'viewing_completed':
       return 4;
-    case "agreement_pending":
+    case 'agreement_pending':
       return 5;
-    case "agreement_signed":
+    case 'agreement_signed':
       return 6;
-    case "contract_in_progress":
+    case 'contract_in_progress':
       return 7;
-    case "completed":
+    case 'completed':
       return 8;
-    case "rejected":
-    case "cancelled":
+    case 'rejected':
+    case 'cancelled':
       return -1;
     default:
       return 0;
@@ -285,30 +289,30 @@ const getStepIndex = (status: string) => {
 ```typescript
 const getNextAction = (status: string) => {
   switch (status) {
-    case "pending":
-      return "前の住人からのご連絡をお待ちください";
-    case "reviewing":
-      return "前の住人が内容を確認中です";
-    case "approved":
-      return "内見の日程調整をお待ちください";
-    case "viewing_scheduled":
-      return "内見予定日が確定しました";
-    case "viewing_completed":
-      return "前の住人が引き継ぎ内容を準備中です";
-    case "agreement_pending":
-      return "引き継ぎ内容を確認して受諾してください";
-    case "agreement_signed":
-      return "残置物同意書の署名が完了しました";
-    case "contract_in_progress":
-      return "引き継ぎの準備を進めましょう";
-    case "completed":
-      return "引き継ぎが完了しました";
-    case "rejected":
-      return "申し訳ございません。今回はお断りとなりました";
-    case "cancelled":
-      return "申し込みがキャンセルされました";
+    case 'pending':
+      return '前の住人からのご連絡をお待ちください';
+    case 'reviewing':
+      return '前の住人が内容を確認中です';
+    case 'approved':
+      return '内見の日程調整をお待ちください';
+    case 'viewing_scheduled':
+      return '内見予定日が確定しました';
+    case 'viewing_completed':
+      return '前の住人が引き継ぎ内容を準備中です';
+    case 'agreement_pending':
+      return '引き継ぎ内容を確認して受諾してください';
+    case 'agreement_signed':
+      return '残置物同意書の署名が完了しました';
+    case 'contract_in_progress':
+      return '引き継ぎの準備を進めましょう';
+    case 'completed':
+      return '引き継ぎが完了しました';
+    case 'rejected':
+      return '申し訳ございません。今回はお断りとなりました';
+    case 'cancelled':
+      return '申し込みがキャンセルされました';
     default:
-      return "お待ちください";
+      return 'お待ちください';
   }
 };
 ```
@@ -331,6 +335,7 @@ git commit -m "feat: update dashboard to show new agreement statuses"
 ## Task 5: 内見完了ページ作成 - 基本構造
 
 **Files:**
+
 - Create: `src/app/inquiry/[id]/viewing-complete/page.tsx`
 
 **Step 1: ディレクトリ作成**
@@ -724,6 +729,7 @@ git commit -m "feat: add viewing complete page for seller to finalize handover i
 ## Task 6: 合意内容確認ページ作成（次の住人用）
 
 **Files:**
+
 - Create: `src/app/inquiry/[id]/agreement/page.tsx`
 
 **Step 1: ディレクトリ作成**
@@ -945,6 +951,7 @@ git commit -m "feat: add agreement review page for buyer"
 ## Task 7: 受諾ページ作成
 
 **Files:**
+
 - Create: `src/app/inquiry/[id]/agreement/accept/page.tsx`
 
 **Step 1: ディレクトリ作成**
@@ -1137,6 +1144,7 @@ git commit -m "feat: add acceptance page for buyer to accept handover terms"
 ## Task 8: 署名ページ作成
 
 **Files:**
+
 - Create: `src/app/inquiry/[id]/agreement/sign/page.tsx`
 
 **Step 1: ディレクトリ作成**
@@ -1368,6 +1376,7 @@ git commit -m "feat: add signature page for buyer to sign leftover items agreeme
 ## Task 9: 合意詳細・PDFダウンロードページ作成
 
 **Files:**
+
 - Create: `src/app/agreements/[id]/page.tsx`
 - Create: `src/app/agreements/[id]/pdf/page.tsx`
 
@@ -1866,6 +1875,7 @@ git commit -m "feat: add agreement detail and PDF pages"
 ## Task 10: ダッシュボードに導線追加
 
 **Files:**
+
 - Modify: `src/app/dashboard/page.tsx`
 
 **Step 1: 合意フローへのリンクを追加**
@@ -1903,9 +1913,14 @@ const getActionButton = (status: string, inquiryId: string) => {
 ```
 
 ダッシュボードのカード内に追加:
+
 ```tsx
-{/* 既存のステータス表示の後に */}
-{getActionButton(inquiry.status, inquiry.id)}
+{
+  /* 既存のステータス表示の後に */
+}
+{
+  getActionButton(inquiry.status, inquiry.id);
+}
 ```
 
 **Step 2: ビルド確認**

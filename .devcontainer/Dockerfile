@@ -46,8 +46,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   python3-pip \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Playwright system dependencies (using bunx instead of npx)
-RUN bunx -y playwright@1.58.0 install-deps chromium
+# Install Playwright system dependencies only (requires root, small footprint ~50MB)
+# Browser binary installed on-demand via: bun run test:e2e:install
+RUN bunx playwright install-deps chromium
 
 # Add bun user to docker group for Docker socket access
 RUN groupadd -f docker && usermod -aG docker bun
@@ -70,6 +71,10 @@ ENV DEVCONTAINER=true
 # Create workspace and config directories and set permissions
 RUN mkdir -p /workspace /home/bun/.claude && \
   chown -R bun:bun /workspace /home/bun/.claude
+
+# Create symlink so git submodule worktree path resolves inside container
+# (.git/modules/tsumugi/config has worktree = ../../../aspects/tsumugi)
+RUN mkdir -p /aspects && ln -s /workspace /aspects/tsumugi
 
 WORKDIR /workspace
 
@@ -111,7 +116,9 @@ COPY init-firewall.sh /usr/local/bin/
 USER root
 RUN chmod +x /usr/local/bin/init-firewall.sh && \
   echo "bun ALL=(root) NOPASSWD: /usr/local/bin/init-firewall.sh" > /etc/sudoers.d/bun-firewall && \
-  chmod 0440 /etc/sudoers.d/bun-firewall
+  chmod 0440 /etc/sudoers.d/bun-firewall && \
+  echo "bun ALL=(root) NOPASSWD: /bin/chgrp docker /var/run/docker.sock" > /etc/sudoers.d/bun-docker && \
+  chmod 0440 /etc/sudoers.d/bun-docker
 USER bun
 
 # Install Beads CLI (bd) for AI-friendly task tracking

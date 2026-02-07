@@ -1,8 +1,9 @@
-"use server";
+'use server';
 
-import { db } from "@/db";
-import { properties, inquiries } from "@/db/schema";
-import type { UserListing, Inquiry } from "@/lib/types";
+import { randomUUID } from 'crypto';
+import { db } from '@/db';
+import { properties, inquiries } from '@/db/schema';
+import type { UserListing, Inquiry } from '@/lib/types';
 
 interface LocalData {
   listings?: UserListing[];
@@ -22,17 +23,18 @@ export async function migrateLocalDataAction(
       for (const listing of localData.listings) {
         try {
           await db.insert(properties).values({
+            id: randomUUID(),
             userId,
             title: listing.title,
             images: listing.roomPhotos || [],
-            status: listing.status === "published" ? "public" : "draft",
+            status: listing.status === 'published' ? 'public' : 'draft',
             handoverFee: listing.handoverFee,
             rent: listing.rent,
             managementFee: listing.managementFee,
             area: listing.area,
             layout: listing.layout,
             occupancy: listing.occupants,
-            furniture: listing.furniture,
+            furnitureItems: [], // Legacy migration: furniture text[] → FurnitureItem[] (empty default)
             story: listing.story,
             handoverDetails: {
               viewingAvailableFrom: listing.viewingAvailableFrom,
@@ -46,7 +48,7 @@ export async function migrateLocalDataAction(
           });
           migratedListings++;
         } catch (error) {
-          console.error("Failed to migrate listing:", listing.id, error);
+          console.error('Failed to migrate listing:', listing.id, error);
         }
       }
     }
@@ -59,6 +61,7 @@ export async function migrateLocalDataAction(
           // For now, we'll skip inquiries that reference non-existent properties
           // In a real migration, you'd need to handle this more carefully
           await db.insert(inquiries).values({
+            id: randomUUID(),
             userId,
             propertyId: inquiry.propertyId,
             propertyTitle: inquiry.propertyTitle,
@@ -74,7 +77,7 @@ export async function migrateLocalDataAction(
           });
           migratedInquiries++;
         } catch (error) {
-          console.error("Failed to migrate inquiry:", inquiry.id, error);
+          console.error('Failed to migrate inquiry:', inquiry.id, error);
         }
       }
     }
@@ -87,10 +90,10 @@ export async function migrateLocalDataAction(
       },
     };
   } catch (error) {
-    console.error("Migration error:", error);
+    console.error('Migration error:', error);
     return {
       success: false,
-      error: "データ移行に失敗しました",
+      error: 'データ移行に失敗しました',
     };
   }
 }

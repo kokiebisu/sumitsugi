@@ -15,6 +15,7 @@
 ### Task 1: Update Dockerfile for Bun
 
 **Files:**
+
 - Modify: `.devcontainer/Dockerfile:1-140`
 
 **Step 1: Replace base image and remove npm-specific packages**
@@ -174,6 +175,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ### Task 2: Update devcontainer.json for Bun
 
 **Files:**
+
 - Modify: `.devcontainer/devcontainer.json:1-44`
 
 **Step 1: Update devcontainer configuration**
@@ -244,6 +246,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ### Task 3: Generate bun.lockb and remove package-lock.json
 
 **Files:**
+
 - Create: `bun.lockb` (generated)
 - Delete: `package-lock.json`
 
@@ -283,6 +286,7 @@ No commit needed if .gitignore already correct.
 ### Task 4: Phase 1 Validation
 
 **Files:**
+
 - N/A (validation only)
 
 **Step 1: Rebuild devcontainer**
@@ -358,6 +362,7 @@ Update this plan with validation results (pass/fail for each check).
 ### Task 5: Update requirements-audit.yml
 
 **Files:**
+
 - Modify: `.github/workflows/requirements-audit.yml:1-145`
 
 **Step 1: Replace Node.js setup with Bun setup**
@@ -382,6 +387,7 @@ No commit needed for this workflow.
 ### Task 6: Update e2e-tests.yml
 
 **Files:**
+
 - Modify: `.github/workflows/e2e-tests.yml:1-412`
 
 **Step 1: Update Node.js setup to Bun setup**
@@ -392,44 +398,44 @@ Find lines 61-68 and 112-122, replace with:
 
 ```yaml
 # In determine-tests job (around line 61-68)
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
+- name: Setup Bun
+  uses: oven-sh/setup-bun@v2
+  with:
+    bun-version: latest
 
 # In e2e-tests job (around line 112-122)
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
+- name: Setup Bun
+  uses: oven-sh/setup-bun@v2
+  with:
+    bun-version: latest
 
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+- name: Install dependencies
+  run: bun install --frozen-lockfile
 
-      - name: Install Playwright browsers
-        run: bunx playwright install --with-deps chromium
+- name: Install Playwright browsers
+  run: bunx playwright install --with-deps chromium
 
-      - name: Build Next.js app
-        run: bun run build
-        env:
-          NODE_ENV: production
-          DATABASE_URL: postgresql://user:password@localhost:5432/test_db
-          NEXTAUTH_URL: http://localhost:3000
-          NEXTAUTH_SECRET: test-secret-for-ci-builds-only
+- name: Build Next.js app
+  run: bun run build
+  env:
+    NODE_ENV: production
+    DATABASE_URL: postgresql://user:password@localhost:5432/test_db
+    NEXTAUTH_URL: http://localhost:3000
+    NEXTAUTH_SECRET: test-secret-for-ci-builds-only
 
-      - name: Run E2E tests
-        run: |
-          if [[ "${{ github.event_name }}" == "push" ]] || [[ "${{ needs.determine-tests.outputs.test-filter }}" == "" ]]; then
-            echo "Running full test suite"
-            bun run test:e2e
-          else
-            FILTER="${{ needs.determine-tests.outputs.test-filter }}"
-            echo "Running filtered tests: $FILTER"
-            bun run test:e2e -- --grep "$FILTER"
-          fi
-        env:
-          CI: true
-          BASE_URL: http://localhost:3000
+- name: Run E2E tests
+  run: |
+    if [[ "${{ github.event_name }}" == "push" ]] || [[ "${{ needs.determine-tests.outputs.test-filter }}" == "" ]]; then
+      echo "Running full test suite"
+      bun run test:e2e
+    else
+      FILTER="${{ needs.determine-tests.outputs.test-filter }}"
+      echo "Running filtered tests: $FILTER"
+      bun run test:e2e -- --grep "$FILTER"
+    fi
+  env:
+    CI: true
+    BASE_URL: http://localhost:3000
 ```
 
 **Step 2: Update fallback detection script execution**
@@ -437,9 +443,9 @@ Find lines 61-68 and 112-122, replace with:
 Find line 68, update to use Bun:
 
 ```yaml
-      - name: Detect tags with fallback script
-        id: fallback-detection
-        run: bun scripts/detect-test-tags.js
+- name: Detect tags with fallback script
+  id: fallback-detection
+  run: bun scripts/detect-test-tags.js
 ```
 
 **Step 3: Commit e2e-tests.yml changes**
@@ -458,6 +464,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ### Task 7: Update cleanup-branches.yml
 
 **Files:**
+
 - Modify: `.github/workflows/cleanup-branches.yml`
 
 **Step 1: Read cleanup-branches.yml**
@@ -485,6 +492,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ### Task 8: Update claude-code-review.yml
 
 **Files:**
+
 - Modify: `.github/workflows/claude-code-review.yml`
 
 **Step 1: Read claude-code-review.yml**
@@ -509,6 +517,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ### Task 9: Update claude.yml
 
 **Files:**
+
 - Modify: `.github/workflows/claude.yml`
 
 **Step 1: Read claude.yml**
@@ -533,6 +542,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ### Task 10: Phase 2 Validation
 
 **Files:**
+
 - N/A (validation only)
 
 **Step 1: Push to trigger workflows**
@@ -568,6 +578,7 @@ Update plan with validation results.
 ### Task 11: Create vercel.json
 
 **Files:**
+
 - Create: `vercel.json`
 
 **Step 1: Create Vercel configuration**
@@ -599,6 +610,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ### Task 12: Create Dockerfile.production for AWS
 
 **Files:**
+
 - Create: `Dockerfile.production`
 
 **Step 1: Create production Dockerfile**
@@ -647,6 +659,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ### Task 13: Update CLAUDE.md with Bun commands
 
 **Files:**
+
 - Modify: `CLAUDE.md:1-200`
 
 **Step 1: Update package manager references**
@@ -664,7 +677,7 @@ Update the Quick Reference section:
 
 Update Commands section:
 
-```markdown
+````markdown
 ## Commands
 
 ```bash
@@ -683,7 +696,9 @@ npm run worktree:prune   # 削除済みworktreeをクリーンアップ
 npm run cleanup:branches # マージ済みブランチと削除済みリモートブランチを削除
 npm run cleanup:all      # 完全クリーンアップ（ブランチ + worktree + stash）
 ```
-```
+````
+
+````
 
 **Step 2: Add Bun installation note**
 
@@ -704,10 +719,11 @@ bun install
 
 # Start dev server
 bun dev
-```
+````
 
 **Devcontainer:** Bun is pre-installed in the devcontainer.
-```
+
+````
 
 **Step 3: Commit CLAUDE.md changes**
 
@@ -720,11 +736,12 @@ git commit -m "docs: update CLAUDE.md for Bun migration
 - Add Bun installation prerequisites
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
-```
+````
 
 ### Task 14: Phase 3 Validation
 
 **Files:**
+
 - N/A (validation only)
 
 **Step 1: Test Vercel deployment**
@@ -760,6 +777,7 @@ Update plan with validation results.
 ### Task 15: Create PR and merge
 
 **Files:**
+
 - N/A (Git operations)
 
 **Step 1: Push all changes**
@@ -854,11 +872,13 @@ git worktree remove .worktrees/bun-migration
 ### Task 16: Monitor production
 
 **Files:**
+
 - N/A (monitoring)
 
 **Step 1: Monitor Vercel deployments**
 
 Check Vercel dashboard for:
+
 - Build times (should be 2-3x faster)
 - Cold start times
 - Any runtime errors
@@ -866,6 +886,7 @@ Check Vercel dashboard for:
 **Step 2: Monitor GitHub Actions**
 
 Check workflow run times:
+
 - E2E tests should be faster
 - Dependency install times should be 2-3x faster
 

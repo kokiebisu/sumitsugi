@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { STRIPE_CONFIG } from "@/lib/stripe/config";
-import { calculateFeeBreakdown } from "@/lib/stripe/calculations";
+import { useState } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { STRIPE_CONFIG } from '@/lib/stripe/config';
+import { calculateFeeBreakdown } from '@/lib/stripe/calculations';
 
 interface FeeBreakdownProps {
   handoverFeeTotal: number;
@@ -15,7 +15,7 @@ interface FeeBreakdownProps {
 export function FeeBreakdown({
   handoverFeeTotal,
   showDetails = false,
-  className = "",
+  className = '',
 }: FeeBreakdownProps) {
   const [isExpanded, setIsExpanded] = useState(showDetails);
 
@@ -76,8 +76,7 @@ export function FeeBreakdown({
 
             <div className="text-xs text-muted-foreground space-y-1 pt-2">
               <p>
-                ※
-                申込金は返金不可ですが、前の住人に直接お支払いいただきます
+                ※ 申込金は返金不可ですが、前の住人に直接お支払いいただきます
               </p>
               <p>
                 ※
@@ -92,7 +91,7 @@ export function FeeBreakdown({
           onClick={() => setIsExpanded(!isExpanded)}
           className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full justify-center pt-2"
         >
-          <span>{isExpanded ? "詳細を閉じる" : "詳細を見る"}</span>
+          <span>{isExpanded ? '詳細を閉じる' : '詳細を見る'}</span>
           {isExpanded ? (
             <ChevronUp className="w-4 h-4" />
           ) : (

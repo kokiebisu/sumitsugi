@@ -1,34 +1,34 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { CustomSignupDialog } from "@/components/auth/custom-signup-dialog"
-import type { Property, User } from "@/lib/data"
-import { useRouter } from "next/navigation"
-import { useAuth } from "@/contexts/auth-context"
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { CustomSignupDialog } from '@/components/auth/custom-signup-dialog';
+import type { Property, User } from '@/lib/data';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/auth-context';
 
 interface PropertySidebarProps {
-  property: Property
+  property: Property;
 }
 
 export function PropertySidebar({ property }: PropertySidebarProps) {
-  const [showSignupDialog, setShowSignupDialog] = useState(false)
-  const router = useRouter()
-  const { user, login } = useAuth()
+  const [showSignupDialog, setShowSignupDialog] = useState(false);
+  const router = useRouter();
+  const { user, login } = useAuth();
 
   const handleInquiryClick = () => {
     if (!user) {
-      setShowSignupDialog(true)
+      setShowSignupDialog(true);
     } else {
-      router.push(`/listings/${property.id}/inquiry`)
+      router.push(`/listings/${property.id}/inquiry`);
     }
-  }
+  };
 
   const handleSignupComplete = (newUser: User) => {
-    login(newUser)
-    setShowSignupDialog(false)
-    router.push(`/listings/${property.id}/inquiry`)
-  }
+    login(newUser);
+    setShowSignupDialog(false);
+    router.push(`/listings/${property.id}/inquiry`);
+  };
 
   return (
     <>
@@ -77,5 +77,5 @@ export function PropertySidebar({ property }: PropertySidebarProps) {
         onSignupComplete={handleSignupComplete}
       />
     </>
-  )
+  );
 }

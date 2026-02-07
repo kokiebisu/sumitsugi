@@ -2,7 +2,7 @@
 
 Analyze test coverage and generate missing tests:
 
-1. Run tests with coverage: npm test --coverage or pnpm test --coverage
+1. Run tests with coverage: bun run test --coverage
 
 2. Analyze coverage report (coverage/coverage-summary.json)
 
@@ -21,6 +21,7 @@ Analyze test coverage and generate missing tests:
 7. Ensure project reaches 80%+ overall coverage
 
 Focus on:
+
 - Happy path scenarios
 - Error handling
 - Edge cases (null, undefined, empty)

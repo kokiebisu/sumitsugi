@@ -1,23 +1,22 @@
-import Anthropic from "@anthropic-ai/sdk"
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from 'next/server';
 
-import type { EstimateInput, EstimateResult } from "@/lib/estimate-service"
+import type { EstimateInput, EstimateResult } from '@/lib/estimate-service';
 
 const FURNITURE_LABELS: Record<string, string> = {
-  bed: "ベッド",
-  sofa: "ソファ",
-  desk: "デスク",
-  table: "テーブル",
-  storage: "収納",
-  wardrobe: "ワードローブ",
-  tv: "テレビ台",
-  fridge: "冷蔵庫",
-}
+  bed: 'ベッド',
+  sofa: 'ソファ',
+  desk: 'デスク',
+  table: 'テーブル',
+  storage: '収納',
+  wardrobe: 'ワードローブ',
+  tv: 'テレビ台',
+  fridge: '冷蔵庫',
+};
 
 function buildPrompt(input: EstimateInput): string {
   const furnitureList = input.furniture
     .map((f) => FURNITURE_LABELS[f] || f)
-    .join("、")
+    .join('、');
 
   return `あなたは日本の不動産市場における家具・インテリアの価値評価の専門家です。
 以下の条件で、家具の処分費用と引き継ぎ価値を見積もってください。
@@ -25,8 +24,8 @@ function buildPrompt(input: EstimateInput): string {
 ## 条件
 - エリア: ${input.area}
 - 家具リスト: ${furnitureList}
-${input.rent ? `- 家賃: ${input.rent.toLocaleString()}円/月` : ""}
-${input.layout ? `- 間取り: ${input.layout}` : ""}
+${input.rent ? `- 家賃: ${input.rent.toLocaleString()}円/月` : ''}
+${input.layout ? `- 間取り: ${input.layout}` : ''}
 
 ## 出力形式
 以下のJSON形式で回答してください。金額は全て日本円の整数値で、1000円単位に丸めてください。
@@ -51,19 +50,49 @@ ${input.layout ? `- 間取り: ${input.layout}` : ""}
 - 引き継ぎ価値は中古家具市場の相場や利便性を考慮
 - 家具の状態は「良好」を仮定
 
-JSON形式のみで回答してください。説明文は不要です。`
+JSON形式のみで回答してください。説明文は不要です。`;
+}
+
+interface AIEstimateResponse {
+  disposalCostMin: number;
+  disposalCostMax: number;
+  handoverFeeMin: number;
+  handoverFeeMax: number;
+  breakdown: Array<{
+    item: string;
+    disposalCost: number;
+    handoverValue: number;
+  }>;
+}
+
+function isAIEstimateResponse(obj: unknown): obj is AIEstimateResponse {
+  if (typeof obj !== 'object' || obj === null) return false;
+
+  const candidate = obj as Record<string, unknown>;
+
+  return (
+    typeof candidate.disposalCostMin === 'number' &&
+    typeof candidate.disposalCostMax === 'number' &&
+    typeof candidate.handoverFeeMin === 'number' &&
+    typeof candidate.handoverFeeMax === 'number' &&
+    Array.isArray(candidate.breakdown)
+  );
 }
 
 function parseAIResponse(content: string): EstimateResult {
-  const jsonMatch = content.match(/\{[\s\S]*\}/)
+  const jsonMatch = content.match(/\{[\s\S]*\}/);
   if (!jsonMatch) {
-    throw new Error("AI response does not contain valid JSON")
+    throw new Error('AI response does not contain valid JSON');
   }
 
-  const parsed = JSON.parse(jsonMatch[0])
+  const parsed: unknown = JSON.parse(jsonMatch[0]);
 
-  const savingsMin = parsed.handoverFeeMin + parsed.disposalCostMin
-  const savingsMax = parsed.handoverFeeMax + parsed.disposalCostMax
+  if (!isAIEstimateResponse(parsed)) {
+    throw new Error('AI response does not match expected format');
+  }
+
+  const savingsMin = parsed.handoverFeeMin + parsed.disposalCostMin;
+  const savingsMax = parsed.handoverFeeMax + parsed.disposalCostMax;
 
   return {
     disposalCostMin: parsed.disposalCostMin,
@@ -73,20 +102,67 @@ function parseAIResponse(content: string): EstimateResult {
     savingsMin,
     savingsMax,
     breakdown: parsed.breakdown,
+  };
+}
+
+/**
+ * Call Claude API using raw HTTP with Bearer token authentication
+ * Supports both OAuth tokens (Max subscription) and API keys
+ */
+async function callClaudeAPI(prompt: string): Promise<string> {
+  const authToken = process.env.CLAUDE_CODE_OAUTH_TOKEN;
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+
+  if (!authToken && !apiKey) {
+    throw new Error(
+      'Neither CLAUDE_CODE_OAUTH_TOKEN nor ANTHROPIC_API_KEY configured'
+    );
   }
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'anthropic-version': '2023-06-01',
+  };
+
+  // Use Bearer auth for OAuth token, x-api-key for API key
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
+  } else if (apiKey) {
+    headers['x-api-key'] = apiKey;
+  }
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1024,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Claude API error (${response.status}): ${errorText}`);
+  }
+
+  interface ClaudeResponse {
+    content: Array<{ type: string; text?: string }>;
+  }
+
+  const data = (await response.json()) as ClaudeResponse;
+  const textContent = data.content.find((block) => block.type === 'text');
+
+  if (!textContent || !textContent.text) {
+    throw new Error('No text content in AI response');
+  }
+
+  return textContent.text;
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const apiKey = process.env.ANTHROPIC_API_KEY
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "ANTHROPIC_API_KEY not configured" },
-        { status: 500 }
-      )
-    }
-
-    const input: EstimateInput = await request.json()
+    const input = (await request.json()) as EstimateInput;
 
     if (!input.furniture || input.furniture.length === 0) {
       return NextResponse.json({
@@ -97,32 +173,21 @@ export async function POST(request: NextRequest) {
         savingsMin: 0,
         savingsMax: 0,
         breakdown: [],
-      })
+      });
     }
 
-    const client = new Anthropic({ apiKey })
-    const prompt = buildPrompt(input)
+    const prompt = buildPrompt(input);
+    const responseText = await callClaudeAPI(prompt);
+    const result = parseAIResponse(responseText);
 
-    const message = await client.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 1024,
-      messages: [{ role: "user", content: prompt }],
-    })
-
-    const textContent = message.content.find((block) => block.type === "text")
-    if (!textContent || textContent.type !== "text") {
-      throw new Error("No text content in AI response")
-    }
-
-    const result = parseAIResponse(textContent.text)
-    return NextResponse.json(result)
+    return NextResponse.json(result);
   } catch (error) {
     if (error instanceof Error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
     return NextResponse.json(
-      { error: "Failed to generate estimate" },
+      { error: 'Failed to generate estimate' },
       { status: 500 }
-    )
+    );
   }
 }

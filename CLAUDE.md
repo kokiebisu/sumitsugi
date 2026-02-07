@@ -16,6 +16,7 @@
 詳細は `.claude/rules/task-management.md` を参照。
 
 **クイックワークフロー:**
+
 1. タスクを完了
 2. DASHBOARDを更新
 3. **LinearでタスクをDoneに更新**
@@ -32,7 +33,9 @@ source .env.local
 ```
 
 Available keys in `.env.local`:
+
 - `LINEAR_API_KEY` - Linear API for issue tracking sync (タスク完了時に使用)
+- `LINEAR_TEAM_ID` - Linear team ID (Tsumugi team)
 - Other project-specific secrets
 
 ## Commands
@@ -44,14 +47,30 @@ bun start                # プロダクションサーバー起動
 bun lint                 # ESLintでコードチェック
 ./dev                    # Open devcontainer with Claude Code (auto-starts)
 
+# Testing (IMPORTANT: Use "bun run test", NOT "bun test")
+bun run test             # Run unit tests with Vitest (watch mode)
+bun run test:run         # Run unit tests once and exit
+bun run test:ui          # Run tests with Vitest UI
+bun run test:e2e:install # Install Playwright Chromium (required before first E2E run)
+bun run test:e2e         # Run E2E tests with Playwright
+
 # Git Worktrees (with devcontainer support)
-npm run worktree:create  # 新しいworktreeを作成 (still uses npm script runner)
-npm run worktree:list    # worktree一覧を表示
-npm run worktree:prune   # 削除済みworktreeをクリーンアップ
+bun run worktree:create  # 新しいworktreeを作成
+bun run worktree:list    # worktree一覧を表示
+bun run worktree:prune   # 削除済みworktreeをクリーンアップ
 
 # Branch Cleanup (automated)
-npm run cleanup:branches # マージ済みブランチと削除済みリモートブランチを削除
-npm run cleanup:all      # 完全クリーンアップ（ブランチ + worktree + stash）
+bun run cleanup:branches # マージ済みブランチと削除済みリモートブランチを削除
+bun run cleanup:all      # 完全クリーンアップ（ブランチ + worktree + stash）
+
+# Linear Integration (task tracking)
+./scripts/linear-list.sh              # オープンタスクを一覧表示
+./scripts/linear-done.sh TSU-123      # タスクをDoneに更新
+./scripts/linear-comment.sh TSU-123 "comment"  # タスクにコメント追加
+./scripts/linear-set-project.sh               # 未設定issueをDevelopmentプロジェクトに紐づけ
+
+# Beads → Linear sync (ALWAYS run set-project after sync)
+bd linear sync --push --create-only && ./scripts/linear-set-project.sh
 ```
 
 ## Prerequisites
@@ -59,6 +78,7 @@ npm run cleanup:all      # 完全クリーンアップ（ブランチ + worktree
 **Bun Runtime:** This project uses Bun instead of Node.js for faster performance.
 
 **Local development (outside devcontainer):**
+
 ```bash
 # Install Bun
 curl -fsSL https://bun.sh/install | bash
@@ -82,7 +102,7 @@ Use the `bd` command for AI-friendly task tracking instead of markdown TODOs:
 bd ready              # Show tasks with no blockers
 bd create "Task"      # Create new task
 bd status --json      # Get JSON output for agents
-bd done <id>          # Mark task complete
+bd close <id>         # Mark task complete
 bd show <id>          # Show task details and dependencies
 ```
 
@@ -95,16 +115,19 @@ See [Beads documentation](https://github.com/steveyegge/beads) for details.
 This project includes Claude Code CLI auto-installation in the devcontainer.
 
 **Authentication Persistence:**
+
 - Claude config directory (`~/.claude`) is mounted from your host machine
 - Authentication persists across devcontainer restarts and rebuilds
 - One-time authentication that persists permanently
 
 **Setup:**
+
 - Claude Code CLI: Auto-installed during devcontainer build
 - First-time auth: Run `claude` to authenticate via browser (one-time, persists)
 - Plugins: Configured in `.claude/settings.json` and auto-enabled
 
 **Enabled Plugins:**
+
 - `superpowers` - TDD, planning, and review workflows
 - `context7` - Enhanced context management
 - `typescript-lsp` - TypeScript language server integration
@@ -116,6 +139,7 @@ This project includes Claude Code CLI auto-installation in the devcontainer.
 **Integration:** Superpowers formalizes the TDD, planning, and review workflows already defined in `.claude/rules/` and `.claude/agents/`, providing additional structure through composable skills.
 
 **Workflow Example:**
+
 ```bash
 /superpowers:write-plan    # Create structured implementation plan
 bd create "Task from plan" # Create Beads tasks from plan
@@ -126,13 +150,15 @@ bd ready                   # Check available work
 
 **Git Worktrees for Isolated Development**
 
-Use git worktrees (via Superpowers' `using-git-worktrees` skill or npm scripts) when:
+Use git worktrees (via Superpowers' `using-git-worktrees` skill or bun scripts) when:
+
 - Implementing complex features
 - Working from an implementation plan
 - Needing isolation from current workspace
 - Making changes that span multiple files/components
 
 **Skip worktrees for:**
+
 - Single-line typo fixes
 - Documentation-only changes
 - Simple, low-risk edits
@@ -144,9 +170,9 @@ Use git worktrees (via Superpowers' `using-git-worktrees` skill or npm scripts) 
 You can create worktrees manually with:
 
 ```bash
-npm run worktree:create feature-name  # Creates worktree with devcontainer support
-npm run worktree:list                 # List all worktrees
-npm run worktree:prune                # Clean up removed worktrees
+bun run worktree:create feature-name  # Creates worktree with devcontainer support
+bun run worktree:list                 # List all worktrees
+bun run worktree:prune                # Clean up removed worktrees
 ```
 
 Worktrees are created in `.worktrees/<branch-name>/` with automatic devcontainer symlink setup.
@@ -158,26 +184,28 @@ See [.devcontainer/WORKTREE.md](.devcontainer/WORKTREE.md) for detailed document
 **Automatic cleanup is enabled** to keep your repository clean:
 
 **GitHub Auto-Delete:**
+
 - Branches are automatically deleted on GitHub after PR merge
 - Enabled via repository settings
 
 **GitHub Actions (Daily):**
+
 - Runs daily at 00:00 UTC
 - Deletes merged branches
 - Removes branches marked as [gone] (deleted on remote)
 - Can be triggered manually: `gh workflow run "Cleanup Merged Branches"`
 
-**Local Cleanup Commands:**
-```bash
-npm run cleanup:branches  # Delete merged and [gone] branches
-npm run cleanup:all       # Full cleanup: branches + worktrees + stashes
-```
+**Post-Merge Hook (Automatic):**
 
-**Manual cleanup workflow:**
+- After every `git pull`, local branches marked [gone] are auto-deleted
+- Installed by `scripts/setup-git-hooks.sh` (runs in devcontainer `postCreateCommand`)
+- No manual action needed
+
+**Local Cleanup Commands (manual, if needed):**
+
 ```bash
-git fetch --all --prune          # Update remote tracking
-npm run cleanup:branches         # Clean up branches
-git worktree prune               # Clean up worktrees
+bun run cleanup:branches  # Delete merged and [gone] branches
+bun run cleanup:all       # Full cleanup: branches + worktrees + stashes
 ```
 
 ## Directory Structure
@@ -218,7 +246,7 @@ src/
 ### 物件ステータス
 
 ```typescript
-status: "draft" | "public";
+status: 'draft' | 'public';
 ```
 
 - `draft`: 下書き状態、一覧には非表示
@@ -244,8 +272,8 @@ status: "draft" | "public";
 ## Import Aliases
 
 ```typescript
-import { something } from "@/lib/utils"; // → src/lib/utils
-import { Button } from "@/components/ui/button";
+import { something } from '@/lib/utils'; // → src/lib/utils
+import { Button } from '@/components/ui/button';
 ```
 
 ## Automated Workflows
@@ -255,6 +283,7 @@ import { Button } from "@/components/ui/button";
 GitHub Actionsで毎日午前9時(JST)に自動実行。REQUIREMENTS.mdとコードを比較し、実装漏れを検出。
 
 **動作:**
+
 1. REQUIREMENTS.md / BUSINESS.md を読み込み
 2. 実際のコードと比較（Claude API使用）
 3. 差分（ギャップ）があればBeadsタスクとして登録
@@ -263,6 +292,7 @@ GitHub Actionsで毎日午前9時(JST)に自動実行。REQUIREMENTS.mdとコー
 6. ギャップがなければPR作成をスキップ
 
 **手動実行:**
+
 ```bash
 gh workflow run "Requirements Audit"
 ```
@@ -274,11 +304,13 @@ gh workflow run "Requirements Audit"
 リポジトリは自律的に開発を進めます。人間の介入なしで、タスクの選択→実装→PR作成→マージを自動実行。
 
 **ワークフロー:**
+
 1. `autonomous-developer.yml` - 4時間ごとにBeadsタスクを実装
 2. `daily-standup.yml` - 毎日09:00 JSTにCTOへ進捗報告
 3. `weekly-retrospective.yml` - 毎週日曜に振り返りレポート
 
 **動作:**
+
 1. Beadsからオープンタスクを取得
 2. 優先度順にタスクを選択
 3. Claude Codeで実装
@@ -287,6 +319,7 @@ gh workflow run "Requirements Audit"
 6. CTOにレポート作成
 
 **一時停止する方法:**
+
 ```bash
 # ファイルで停止
 touch .github/PAUSE_AUTONOMOUS && git add -A && git commit -m "pause" && git push
@@ -297,12 +330,68 @@ gh issue create --title "Pause" --label "autonomous:pause"
 
 **詳細:** `.github/AUTONOMOUS_DEVELOPMENT.md`
 
+### Using Claude in GitHub Actions (CRITICAL)
+
+**ALWAYS use Claude Code CLI instead of Anthropic SDK for GitHub Actions scripts.**
+
+The Anthropic SDK does NOT support Max subscription OAuth tokens (`sk-ant-oat01-...`). Use Claude Code CLI in print mode instead.
+
+**Required Pattern:**
+
+1. **Workflow setup** - Install Claude Code CLI and set token:
+
+```yaml
+steps:
+  - name: Setup Node.js
+    uses: actions/setup-node@v4
+    with:
+      node-version: '20'
+
+  - name: Install Claude Code CLI
+    run: npm install -g @anthropic-ai/claude-code
+
+  - name: Run script
+    env:
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+    run: bun run scripts/your-script.ts
+```
+
+2. **Script pattern** - Use `Bun.spawn` to capture stdout/stderr:
+
+```typescript
+async function callClaude(prompt: string): Promise<string> {
+  const proc = Bun.spawn(['claude', '-p', prompt], {
+    stdout: 'pipe',
+    stderr: 'pipe',
+  });
+
+  const stdout = await new Response(proc.stdout).text();
+  const stderr = await new Response(proc.stderr).text();
+  const exitCode = await proc.exited;
+
+  if (exitCode !== 0) {
+    throw new Error(`Exit code ${exitCode}: ${stderr || stdout}`);
+  }
+
+  return stdout.trim();
+}
+```
+
+**GitHub Secret:** `ANTHROPIC_AUTH_TOKEN` - Your long-lived OAuth token from Max subscription
+
+**DO NOT use:**
+
+- `@anthropic-ai/sdk` with OAuth tokens (doesn't work)
+- `--no-config` flag (doesn't exist)
+- `ANTHROPIC_API_KEY` with OAuth tokens
+
 ## Related Documentation
 
 詳細な仕様については以下を参照：
 
 - `.claude/PROJECT.md` - プロジェクト仕様書（コンセプト、デザイン原則）
 - `.claude/BUSINESS.md` - ビジネスロジック仕様書（料金体系、引き継ぎフロー）
+- `docs/DESIGN_DOC.md` - 技術設計書（アーキテクチャ、実装ロードマップ）
 
 ## Current Phase
 

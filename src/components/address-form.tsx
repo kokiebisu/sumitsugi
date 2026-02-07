@@ -1,11 +1,8 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { ChevronDown, Lock, ChevronRight } from "lucide-react";
-import {
-  type JapaneseAddress,
-  PREFECTURES,
-} from "@/lib/geocoding-service";
+import { useState } from 'react';
+import { ChevronDown, Lock, ChevronRight } from 'lucide-react';
+import { type JapaneseAddress, PREFECTURES } from '@/lib/geocoding-service';
 
 interface AddressFormProps {
   address: JapaneseAddress;
@@ -20,10 +17,7 @@ export function AddressForm({
 }: AddressFormProps) {
   const [showDetailedAddress, setShowDetailedAddress] = useState(false);
 
-  const handleFieldChange = (
-    field: keyof JapaneseAddress,
-    value: string
-  ) => {
+  const handleFieldChange = (field: keyof JapaneseAddress, value: string) => {
     onChange({
       ...address,
       [field]: value,
@@ -34,10 +28,10 @@ export function AddressForm({
     w-full px-4 py-2 bg-background border-0
     text-base focus:outline-none
     placeholder:text-muted-foreground
-    ${isLoading ? "animate-pulse bg-muted" : ""}
+    ${isLoading ? 'animate-pulse bg-muted' : ''}
   `;
 
-  const labelClasses = "text-xs text-muted-foreground mb-1";
+  const labelClasses = 'text-xs text-muted-foreground mb-1';
 
   // エリアレベルの住所が入力されているかチェック
   const hasBasicAddress = address.prefecture && address.city;
@@ -55,7 +49,9 @@ export function AddressForm({
       {/* Step 1: Basic Address (Area Level) */}
       <div className="border border-border rounded-xl overflow-hidden">
         <div className="px-4 py-3 bg-muted/30 border-b border-border">
-          <span className="text-sm font-medium text-foreground">エリア情報</span>
+          <span className="text-sm font-medium text-foreground">
+            エリア情報
+          </span>
         </div>
 
         <div className="divide-y divide-border">
@@ -73,7 +69,7 @@ export function AddressForm({
             <label className={labelClasses}>都道府県</label>
             <select
               value={address.prefecture}
-              onChange={(e) => handleFieldChange("prefecture", e.target.value)}
+              onChange={(e) => handleFieldChange('prefecture', e.target.value)}
               className={`${inputClasses} appearance-none cursor-pointer`}
               disabled={isLoading}
             >
@@ -93,7 +89,7 @@ export function AddressForm({
               type="text"
               placeholder="渋谷区"
               value={address.city}
-              onChange={(e) => handleFieldChange("city", e.target.value)}
+              onChange={(e) => handleFieldChange('city', e.target.value)}
               className={inputClasses}
               disabled={isLoading}
             />
@@ -106,7 +102,7 @@ export function AddressForm({
               type="text"
               placeholder="恵比寿"
               value={address.district}
-              onChange={(e) => handleFieldChange("district", e.target.value)}
+              onChange={(e) => handleFieldChange('district', e.target.value)}
               className={inputClasses}
               disabled={isLoading}
             />
@@ -132,7 +128,7 @@ export function AddressForm({
             </div>
             <ChevronRight
               className={`w-5 h-5 text-muted-foreground transition-transform ${
-                showDetailedAddress ? "rotate-90" : ""
+                showDetailedAddress ? 'rotate-90' : ''
               }`}
             />
           </button>
@@ -146,7 +142,9 @@ export function AddressForm({
                   type="text"
                   placeholder="123-4567"
                   value={address.postalCode}
-                  onChange={(e) => handleFieldChange("postalCode", e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange('postalCode', e.target.value)
+                  }
                   className={inputClasses}
                   maxLength={8}
                   disabled={isLoading}
@@ -160,7 +158,9 @@ export function AddressForm({
                   type="text"
                   placeholder="1-2-3"
                   value={address.streetAddress}
-                  onChange={(e) => handleFieldChange("streetAddress", e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange('streetAddress', e.target.value)
+                  }
                   className={inputClasses}
                   disabled={isLoading}
                 />
@@ -168,14 +168,14 @@ export function AddressForm({
 
               {/* Building Info (Optional) */}
               <div className="px-4 py-2">
-                <label className={labelClasses}>
-                  アパート名、階数、建物名
-                </label>
+                <label className={labelClasses}>アパート名、階数、建物名</label>
                 <input
                   type="text"
                   placeholder="○○マンション 101号室"
-                  value={address.buildingInfo || ""}
-                  onChange={(e) => handleFieldChange("buildingInfo", e.target.value)}
+                  value={address.buildingInfo || ''}
+                  onChange={(e) =>
+                    handleFieldChange('buildingInfo', e.target.value)
+                  }
                   className={inputClasses}
                   disabled={isLoading}
                 />

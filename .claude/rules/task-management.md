@@ -7,12 +7,14 @@
 ### When to Update Linear
 
 **タスク完了時（必須）:**
+
 - チーム会議でタスクを完了した時
 - 実装・開発タスクを完了した時
 - ドキュメントを作成・更新した時
 - 意思決定が完了した時
 
 **更新しない場合:**
+
 - 軽微な修正（typo、コメント追加）
 - 探索的な作業（調査、リサーチ）
 - ユーザーとの会話のみ
@@ -21,89 +23,63 @@
 
 ## Linear Update Workflow
 
-### 1. 環境変数の読み込み
+Helper scripts are available in `scripts/` directory to simplify Linear integration.
+
+### 1. List Open Tasks
 
 ```bash
-source .env.local
+./scripts/linear-list.sh
 ```
 
-`LINEAR_API_KEY` が `.env.local` に設定されている必要があります。
+Shows all open tasks with their identifiers, states, and assignees.
 
-### 2. 完了したタスクをDoneに更新
+### 2. Mark Tasks as Done
 
 ```bash
-# スクリプトを作成
-cat > /tmp/update_linear.sh << 'EOF'
-#!/bin/bash
-source .env.local
+# Single task
+./scripts/linear-done.sh TSU-123
 
-# Get Done state ID
-DONE_STATE_ID=$(curl -s -X POST \
-  -H "Content-Type: application/json" \
-  -H "Authorization: $LINEAR_API_KEY" \
-  -d '{"query":"query { workflowStates { nodes { id name } } }"}' \
-  https://api.linear.app/graphql | jq -r '.data.workflowStates.nodes[] | select(.name == "Done") | .id' | head -1)
-
-# 完了したタスクのID（複数可）
-TASKS=(
-  "TASK_ID_1"
-  "TASK_ID_2"
-)
-
-for TASK_ID in "${TASKS[@]}"; do
-  curl -s -X POST \
-    -H "Content-Type: application/json" \
-    -H "Authorization: $LINEAR_API_KEY" \
-    -d "{\"query\":\"mutation { issueUpdate(id: \\\"$TASK_ID\\\", input: { stateId: \\\"$DONE_STATE_ID\\\" }) { success issue { title state { name } } } }\"}" \
-    https://api.linear.app/graphql | jq -r '.data.issueUpdate | "\(.success) - \(.issue.title) (\(.issue.state.name))"'
-done
-EOF
-
-chmod +x /tmp/update_linear.sh && /tmp/update_linear.sh
+# Multiple tasks
+./scripts/linear-done.sh TSU-123 TSU-124 TSU-125
 ```
 
-### 3. タスクにコメントを追加
+Automatically updates tasks to "Done" state.
 
-進捗や決定事項をコメントとして追加：
+### 3. Assign Project to Issues
 
 ```bash
-cat > /tmp/add_comment.sh << 'EOF'
-#!/bin/bash
-source .env.local
+# Assign all project-less open issues to Development (default)
+./scripts/linear-set-project.sh
 
-TASK_ID="YOUR_TASK_ID"
-COMMENT="コメント内容"
-
-curl -s -X POST \
-  -H "Content-Type: application/json" \
-  -H "Authorization: $LINEAR_API_KEY" \
-  -d "{\"query\":\"mutation { commentCreate(input: { issueId: \\\"$TASK_ID\\\", body: \\\"$COMMENT\\\" }) { success } }\"}" \
-  https://api.linear.app/graphql | jq -r '.data.commentCreate.success'
-EOF
-
-chmod +x /tmp/add_comment.sh && /tmp/add_comment.sh
+# Assign to a specific project
+./scripts/linear-set-project.sh Business
 ```
+
+**CRITICAL: After `bd linear sync --push`, ALWAYS run `./scripts/linear-set-project.sh` to ensure new issues are assigned to the Development project.**
+
+### 4. Add Comments to Tasks
+
+```bash
+./scripts/linear-comment.sh TSU-123 "Implementation completed successfully"
+```
+
+Adds a comment to the specified task.
 
 ---
 
-## Task ID の取得方法
+## Beads → Linear 同期ワークフロー (CRITICAL)
 
-### オープンタスクの一覧を取得
+Beadsでタスクを作成・更新した後は、必ずLinearに同期し、プロジェクトを紐づけること。
 
 ```bash
-cat > /tmp/linear_query.sh << 'EOF'
-#!/bin/bash
-source .env.local
+# 1. Beadsの変更をLinearにpush
+bd linear sync --push --create-only
 
-curl -s -X POST \
-  -H "Content-Type: application/json" \
-  -H "Authorization: $LINEAR_API_KEY" \
-  -d '{"query":"query { issues(filter: { state: { name: { nin: [\"Done\", \"Canceled\"] } } }) { nodes { id title state { name } } } }"}' \
-  https://api.linear.app/graphql
-EOF
-
-chmod +x /tmp/linear_query.sh && /tmp/linear_query.sh | jq -r '.data.issues.nodes[] | "\(.id) - \(.title) (\(.state.name))"'
+# 2. 新規issueにDevelopmentプロジェクトを紐づけ（必須）
+./scripts/linear-set-project.sh
 ```
+
+**この2ステップは常にセットで実行すること。** `linear-set-project.sh` を忘れるとLinear上でプロジェクト未設定のissueが残る。
 
 ---
 
@@ -122,45 +98,14 @@ chmod +x /tmp/linear_query.sh && /tmp/linear_query.sh | jq -r '.data.issues.node
 ## 例: チーム会議でタスクを完了した場合
 
 ```bash
-# 1. 環境変数を読み込み
-source .env.local
+# 1. オープンタスクを確認
+./scripts/linear-list.sh
 
-# 2. オープンタスクを確認
-cat > /tmp/linear_query.sh << 'EOF'
-#!/bin/bash
-source .env.local
-curl -s -X POST \
-  -H "Content-Type: application/json" \
-  -H "Authorization: $LINEAR_API_KEY" \
-  -d '{"query":"query { issues(filter: { state: { name: { nin: [\"Done\", \"Canceled\"] } } }) { nodes { id title state { name } } } }"}' \
-  https://api.linear.app/graphql
-EOF
-chmod +x /tmp/linear_query.sh && /tmp/linear_query.sh | jq -r '.data.issues.nodes[] | "\(.id) - \(.title)"'
+# 2. 完了したタスクをDoneに更新
+./scripts/linear-done.sh TSU-123 TSU-124
 
-# 3. 完了したタスクをDoneに更新
-cat > /tmp/update_linear.sh << 'EOF'
-#!/bin/bash
-source .env.local
-DONE_STATE_ID=$(curl -s -X POST \
-  -H "Content-Type: application/json" \
-  -H "Authorization: $LINEAR_API_KEY" \
-  -d '{"query":"query { workflowStates { nodes { id name } } }"}' \
-  https://api.linear.app/graphql | jq -r '.data.workflowStates.nodes[] | select(.name == "Done") | .id' | head -1)
-
-TASKS=(
-  "TASK_ID_1"
-  "TASK_ID_2"
-)
-
-for TASK_ID in "${TASKS[@]}"; do
-  curl -s -X POST \
-    -H "Content-Type: application/json" \
-    -H "Authorization: $LINEAR_API_KEY" \
-    -d "{\"query\":\"mutation { issueUpdate(id: \\\"$TASK_ID\\\", input: { stateId: \\\"$DONE_STATE_ID\\\" }) { success issue { title state { name } } } }\"}" \
-    https://api.linear.app/graphql | jq -r '.data.issueUpdate | "\(.success) - \(.issue.title) (\(.issue.state.name))"'
-done
-EOF
-chmod +x /tmp/update_linear.sh && /tmp/update_linear.sh
+# 3. 必要に応じてコメントを追加
+./scripts/linear-comment.sh TSU-123 "チーム会議で決定・承認済み"
 
 # 4. DASHBOARDを更新
 # 5. ユーザーに報告
@@ -173,19 +118,30 @@ chmod +x /tmp/update_linear.sh && /tmp/update_linear.sh
 ### Q1: Linearが更新されない場合は？
 
 A: 以下を確認：
-1. `.env.local` に `LINEAR_API_KEY` が設定されているか
-2. `source .env.local` を実行したか
-3. タスクIDが正しいか
+
+1. `.env.local` に `LINEAR_API_KEY` と `LINEAR_TEAM_ID` が設定されているか
+2. スクリプトに実行権限があるか (`chmod +x scripts/linear-*.sh`)
+3. タスク識別子が正しいか (例: `TSU-123`)
 4. ネットワーク接続が正常か
 
 ### Q2: 複数のタスクを一度に更新できるか？
 
-A: 可能。`TASKS=()` 配列に複数のタスクIDを追加すればOK。
+A: 可能。`./scripts/linear-done.sh TSU-123 TSU-124 TSU-125` のように複数指定できる。
 
-### Q3: タスクIDはどこで確認できるか？
+### Q3: タスク識別子(identifier)はどこで確認できるか？
 
 A: Linear UI で issue を開き、URL の最後の部分（例: `TSU-123`）。
-   または、上記の「オープンタスクの一覧を取得」スクリプトで確認。
+または、`./scripts/linear-list.sh` で確認。
+
+### Q4: Helper scriptsがない場合は？
+
+A: プロジェクトルートから以下を実行：
+
+```bash
+ls -la scripts/linear-*.sh
+```
+
+存在しない場合は、Linear MCP統合のセットアップが必要。
 
 ---
 

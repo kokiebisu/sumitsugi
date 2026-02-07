@@ -13,18 +13,21 @@ Automated daily cleanup system that identifies and removes irrelevant files acro
 ### Three-Tier Cleanup System
 
 **Tier 1: Immediate Deletion (Pattern-Based)**
+
 - **Targets:** Temporary test files (`TEST_*.md`, `test-results/**/error-context.md`), build artifacts
 - **Detection:** Regex patterns and file age checks
 - **Action:** Delete immediately, log in cleanup report
 - **Risk:** Low (files are regenerated or clearly temporary)
 
 **Tier 2: Archive & Delayed Deletion (AI-Assisted)**
+
 - **Targets:** Documentation files in `docs/plans/`, `.claude/notes/`, old design docs
 - **Detection:** Claude API analyzes content against git history and current codebase state
 - **Action:** Move to `.archive/YYYY-MM-DD/`, delete after 30 days
 - **Risk:** Medium (may contain useful context, so we archive first)
 
 **Tier 3: Dead Code Review (Tool-Assisted)**
+
 - **Targets:** Unused TypeScript files, unreferenced components, dead dependencies
 - **Detection:** `knip` (dead code), `depcheck` (unused deps), `ts-prune` (unused exports)
 - **Action:** Create PR with findings for manual review
@@ -72,6 +75,7 @@ Files scoring "should_archive" are moved to `.archive/YYYY-MM-DD/filename.md` wi
 ### Tier 3: Static Analysis Tools
 
 Runs three tools in parallel:
+
 - **knip** - Detects unused files, exports, dependencies
 - **depcheck** - Finds unused npm packages
 - **ts-prune** - Identifies unused TypeScript exports
@@ -89,7 +93,7 @@ name: Daily Codebase Cleanup
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Daily at midnight UTC
+    - cron: '0 0 * * *' # Daily at midnight UTC
   workflow_dispatch:
 
 permissions:
@@ -100,8 +104,8 @@ jobs:
   cleanup:
     runs-on: ubuntu-latest
     env:
-      CLEANUP_DATE: ""
-      BRANCH_NAME: ""
+      CLEANUP_DATE: ''
+      BRANCH_NAME: ''
     steps:
       # Setup: checkout, install deps, set date
       # Tier 1: Pattern-based deletion
@@ -170,6 +174,7 @@ Runs on the 1st of each month, deletes `.archive/*` folders older than 30 days.
 ### Manual Override
 
 Run locally with interactive prompts:
+
 ```bash
 npm run cleanup:manual
 ```
@@ -179,6 +184,7 @@ npm run cleanup:manual
 ### Integration with Existing Systems
 
 1. **Beads Task Tracker:** When Tier 3 finds dead code, optionally create Beads tasks:
+
    ```bash
    bd create "Review dead code: src/components/OldComponent.tsx"
    ```
@@ -195,20 +201,24 @@ npm run cleanup:manual
 # Cleanup Report 2026-02-02
 
 ## Summary
+
 - **Tier 1:** 5 files deleted (12.3 KB freed)
 - **Tier 2:** 3 files archived
 - **Tier 3:** 2 unused files found (PR #123 created)
 
 ## Tier 1: Immediate Deletion
+
 - ✓ TEST_FIXES.md (2.1 KB)
 - ✓ TEST_RESULTS_FINAL.md (3.4 KB)
-- ✓ test-results/auth-*/error-context.md (15 files, 6.8 KB)
+- ✓ test-results/auth-\*/error-context.md (15 files, 6.8 KB)
 
 ## Tier 2: Archived
+
 - 📦 docs/plans/2026-01-15-old-feature.md → .archive/2026-02-02/
   Reason: Feature completed in commit abc123
 
 ## Tier 3: Dead Code Review
+
 - PR #123: Review 2 unused exports in src/lib/
 ```
 
@@ -238,24 +248,28 @@ npm run cleanup:manual
 ## Implementation Phases
 
 ### Phase 1: Tier 1 (Pattern-Based Cleanup)
+
 - Implement pattern matching logic
 - Create basic workflow structure
 - Test with dry-run mode
 - Deploy and monitor for 1 week
 
 ### Phase 2: Tier 2 (AI-Assisted Documentation)
+
 - Add Claude API integration
 - Implement archival system
 - Create monthly cleanup workflow
 - Test with dry-run mode
 
 ### Phase 3: Tier 3 (Dead Code Analysis)
+
 - Install and configure static analysis tools
 - Implement PR generation logic
 - Test with various code patterns
 - Fine-tune confidence thresholds
 
 ### Phase 4: Integration & Polish
+
 - Add Beads integration
 - Create npm scripts
 - Update CLAUDE.md documentation
@@ -270,13 +284,13 @@ npm run cleanup:manual
 
 ## Risks & Mitigations
 
-| Risk | Mitigation |
-|------|------------|
+| Risk                                   | Mitigation                                                        |
+| -------------------------------------- | ----------------------------------------------------------------- |
 | Accidental deletion of important files | Whitelist system, archive before delete, git history preservation |
-| AI misclassification of docs | Archive instead of delete, 30-day retention, easy restoration |
-| Static analysis false positives | Manual PR review required, no auto-merge for Tier 3 |
-| API costs for Claude | Batch requests, cache results, skip large files |
-| Workflow timeout | Set 30-min timeout, split into separate jobs if needed |
+| AI misclassification of docs           | Archive instead of delete, 30-day retention, easy restoration     |
+| Static analysis false positives        | Manual PR review required, no auto-merge for Tier 3               |
+| API costs for Claude                   | Batch requests, cache results, skip large files                   |
+| Workflow timeout                       | Set 30-min timeout, split into separate jobs if needed            |
 
 ## Future Enhancements
 

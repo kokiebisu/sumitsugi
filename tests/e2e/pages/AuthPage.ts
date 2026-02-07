@@ -1,79 +1,92 @@
-import { Page, Locator, expect } from '@playwright/test'
-import { BasePage } from './BasePage'
+import { Page, Locator, expect } from '@playwright/test';
+import { BasePage } from './BasePage';
 
 /**
  * Auth Page Object Model
  * Handles authentication dialogs and login/signup flows
  */
 export class AuthPage extends BasePage {
-  readonly signupDialog: Locator
-  readonly dialogTitle: Locator
-  readonly emailInput: Locator
-  readonly phoneInput: Locator
-  readonly continueButton: Locator
-  readonly phoneButton: Locator // Deprecated: UI no longer has this button
-  readonly socialButtons: { // Deprecated: UI no longer has social login
-    facebook: Locator
-    google: Locator
-    apple: Locator
-  }
-  readonly closeButton: Locator
-  readonly processingIndicator: Locator
-  readonly menuLoginButton: Locator
-  readonly menuLogoutButton: Locator
-  readonly becomeSellerButton: Locator
+  readonly signupDialog: Locator;
+  readonly dialogTitle: Locator;
+  readonly emailInput: Locator;
+  readonly phoneInput: Locator;
+  readonly continueButton: Locator;
+  readonly phoneButton: Locator; // Deprecated: UI no longer has this button
+  readonly socialButtons: {
+    // Deprecated: UI no longer has social login
+    facebook: Locator;
+    google: Locator;
+    apple: Locator;
+  };
+  readonly closeButton: Locator;
+  readonly processingIndicator: Locator;
+  readonly menuLoginButton: Locator;
+  readonly menuLogoutButton: Locator;
+  readonly becomeSellerButton: Locator;
 
   constructor(page: Page) {
-    super(page)
-    this.signupDialog = page.locator('.fixed.inset-0.z-50')
-    this.dialogTitle = this.signupDialog.locator('h2')
-    this.emailInput = this.signupDialog.locator('input[type="email"]')
-    this.phoneInput = this.signupDialog.locator('input[type="tel"]')
-    this.continueButton = this.signupDialog.locator('button[type="submit"]')
-    this.phoneButton = this.signupDialog.locator('button:has-text("電話番号で続行")')
+    super(page);
+    this.signupDialog = page.locator('.fixed.inset-0.z-50');
+    this.dialogTitle = this.signupDialog.locator('h2');
+    this.emailInput = this.signupDialog.locator('input[type="email"]');
+    this.phoneInput = this.signupDialog.locator('input[type="tel"]');
+    this.continueButton = this.signupDialog.locator('button[type="submit"]');
+    this.phoneButton = this.signupDialog.locator(
+      'button:has-text("電話番号で続行")'
+    );
     this.socialButtons = {
       facebook: this.signupDialog.locator('button:has(svg[fill="#1877F2"])'),
       google: this.signupDialog.locator('button:has(svg path[fill="#4285F4"])'),
       apple: this.signupDialog.locator('button:has(svg path[d*="M17.05"])'),
-    }
-    this.closeButton = this.signupDialog.locator('button:has(svg.h-4.w-4)')
-    this.processingIndicator = this.signupDialog.locator('text=処理中...')
-    this.menuLoginButton = page.locator('[role="menuitem"]:has-text("ログインまたは登録")')
-    this.menuLogoutButton = page.locator('[role="menuitem"]:has-text("ログアウト")')
-    this.becomeSellerButton = page.locator('button:has-text("暮らしを譲る"), [role="menuitem"]:has-text("暮らしを譲る")')
+    };
+    this.closeButton = this.signupDialog.locator('button:has(svg.h-4.w-4)');
+    this.processingIndicator = this.signupDialog.locator('text=処理中...');
+    this.menuLoginButton = page.locator(
+      '[role="menuitem"]:has-text("ログインまたは登録")'
+    );
+    this.menuLogoutButton = page.locator(
+      '[role="menuitem"]:has-text("ログアウト")'
+    );
+    this.becomeSellerButton = page.locator(
+      'button:has-text("暮らしを譲る"), [role="menuitem"]:has-text("暮らしを譲る")'
+    );
   }
 
   /**
    * Open the login/signup dialog via header menu
    */
   async openLoginDialog() {
-    await this.openMenu()
-    await this.menuLoginButton.click()
-    await expect(this.signupDialog).toBeVisible()
+    await this.openMenu();
+    await this.menuLoginButton.click();
+    await expect(this.signupDialog).toBeVisible();
   }
 
   /**
    * Login with email and phone
    */
   async loginWithEmail(email: string, phone: string = '09012345678') {
-    await this.emailInput.fill(email)
-    await this.phoneInput.fill(phone)
-    await this.continueButton.click()
+    await this.emailInput.fill(email);
+    await this.phoneInput.fill(phone);
+    await this.continueButton.click();
     // Wait for processing to complete
-    await this.processingIndicator.waitFor({ state: 'visible' }).catch(() => {})
-    await this.processingIndicator.waitFor({ state: 'hidden', timeout: 10000 })
-    await this.signupDialog.waitFor({ state: 'hidden', timeout: 5000 })
+    await this.processingIndicator
+      .waitFor({ state: 'visible' })
+      .catch(() => {});
+    await this.processingIndicator.waitFor({ state: 'hidden', timeout: 10000 });
+    await this.signupDialog.waitFor({ state: 'hidden', timeout: 5000 });
   }
 
   /**
    * Login with social provider (Facebook, Google, Apple)
    */
   async loginWithSocial(provider: 'facebook' | 'google' | 'apple') {
-    await this.socialButtons[provider].click()
+    await this.socialButtons[provider].click();
     // Wait for processing to complete
-    await this.processingIndicator.waitFor({ state: 'visible' }).catch(() => {})
-    await this.processingIndicator.waitFor({ state: 'hidden', timeout: 10000 })
-    await this.signupDialog.waitFor({ state: 'hidden', timeout: 5000 })
+    await this.processingIndicator
+      .waitFor({ state: 'visible' })
+      .catch(() => {});
+    await this.processingIndicator.waitFor({ state: 'hidden', timeout: 10000 });
+    await this.signupDialog.waitFor({ state: 'hidden', timeout: 5000 });
   }
 
   /**
@@ -81,8 +94,8 @@ export class AuthPage extends BasePage {
    */
   async closeDialog() {
     if (await this.signupDialog.isVisible()) {
-      await this.closeButton.click()
-      await this.signupDialog.waitFor({ state: 'hidden' })
+      await this.closeButton.click();
+      await this.signupDialog.waitFor({ state: 'hidden' });
     }
   }
 
@@ -90,17 +103,17 @@ export class AuthPage extends BasePage {
    * Logout the current user
    */
   async logout() {
-    await this.openMenu()
-    await this.menuLogoutButton.click()
-    await this.page.waitForLoadState('networkidle')
-    await this.page.waitForTimeout(500) // Give time for React state to update
+    await this.openMenu();
+    await this.menuLogoutButton.click();
+    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForTimeout(500); // Give time for React state to update
   }
 
   /**
    * Check if signup dialog is visible
    */
   async isDialogVisible(): Promise<boolean> {
-    return await this.signupDialog.isVisible()
+    return await this.signupDialog.isVisible();
   }
 
   /**
@@ -109,14 +122,18 @@ export class AuthPage extends BasePage {
    */
   async clickBecomeSeller() {
     // First check if it's in header (not logged in, not a seller)
-    const headerButton = this.page.locator('header button:has-text("暮らしを譲る")')
+    const headerButton = this.page.locator(
+      'header button:has-text("暮らしを譲る")'
+    );
     if (await headerButton.isVisible()) {
-      await headerButton.click()
+      await headerButton.click();
     } else {
       // Try via menu
-      await this.openMenu()
-      const menuItem = this.page.locator('[role="menuitem"]:has-text("暮らしを譲る")')
-      await menuItem.click()
+      await this.openMenu();
+      const menuItem = this.page.locator(
+        '[role="menuitem"]:has-text("暮らしを譲る")'
+      );
+      await menuItem.click();
     }
   }
 
@@ -124,18 +141,18 @@ export class AuthPage extends BasePage {
    * Complete a full login flow with email
    */
   async completeEmailLogin(email: string = 'test@example.com') {
-    await this.openLoginDialog()
-    await this.loginWithEmail(email)
-    await this.page.waitForLoadState('networkidle')
+    await this.openLoginDialog();
+    await this.loginWithEmail(email);
+    await this.page.waitForLoadState('networkidle');
   }
 
   /**
    * Check if user menu shows logged-in state
    */
   async isUserLoggedIn(): Promise<boolean> {
-    await this.openMenu()
-    const hasLogout = await this.menuLogoutButton.isVisible()
-    await this.page.keyboard.press('Escape')
-    return hasLogout
+    await this.openMenu();
+    const hasLogout = await this.menuLogoutButton.isVisible();
+    await this.page.keyboard.press('Escape');
+    return hasLogout;
   }
 }

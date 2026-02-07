@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import Image from "next/image";
-import { useAuth } from "@/contexts/auth-context";
-import { ImageGallery } from "@/components/image-gallery";
-import { Button } from "@/components/ui/button";
-import { Lock, Eye, User } from "lucide-react";
+import { useState } from 'react';
+import Image from 'next/image';
+import { useAuth } from '@/contexts/auth-context';
+import { ImageGallery } from '@/components/image-gallery';
+import { Button } from '@/components/ui/button';
+import { Lock, Eye, User } from 'lucide-react';
 
 interface ProgressiveImageGalleryProps {
   images: string[];
@@ -48,7 +48,7 @@ export function ProgressiveImageGallery({
           {/* メイン画像 */}
           <div className="relative col-span-1 row-span-2 overflow-hidden rounded-l-xl md:col-span-2 h-[400px] md:h-full">
             <Image
-              src={images[0] || "/placeholder.svg"}
+              src={images[0] || '/placeholder.svg'}
               alt={`${title} - メイン写真`}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
@@ -62,8 +62,8 @@ export function ProgressiveImageGallery({
             <div
               key={index}
               className={`relative hidden h-full overflow-hidden md:block ${
-                index === 2 ? "rounded-tr-xl" : ""
-              } ${index === 4 ? "rounded-br-xl" : ""}`}
+                index === 2 ? 'rounded-tr-xl' : ''
+              } ${index === 4 ? 'rounded-br-xl' : ''}`}
               onClick={() => setShowLoginPrompt(true)}
             >
               {images[index] ? (
@@ -127,7 +127,7 @@ export function ProgressiveImageGallery({
                 className="w-full bg-coral hover:bg-coral/90 text-white"
                 onClick={() => {
                   // ログインページへ遷移（実際の実装では適切なパスに）
-                  window.location.href = "/login";
+                  window.location.href = '/login';
                 }}
               >
                 ログイン / 新規登録

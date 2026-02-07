@@ -1,9 +1,11 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { useAuth } from "@/contexts/auth-context";
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Header } from '@/components/header';
+import { Footer } from '@/components/footer';
+import { useAuth } from '@/contexts/auth-context';
 import {
   Check,
   Clock,
@@ -12,23 +14,31 @@ import {
   ArrowRight,
   Eye,
   FileText,
-} from "lucide-react";
+} from 'lucide-react';
 
 // 引き継ぎ申し込みの進捗ステップ（9段階ステータス対応）
 const inquirySteps = [
-  { id: "pending", label: "申し込み", icon: Clock },
-  { id: "reviewing", label: "確認中", icon: Eye },
-  { id: "approved", label: "承認済み", icon: Check },
-  { id: "viewing_scheduled", label: "内見予定", icon: Calendar },
-  { id: "viewing_completed", label: "内見完了", icon: Check },
-  { id: "agreement_pending", label: "合意待ち", icon: FileText },
-  { id: "agreement_signed", label: "署名完了", icon: Check },
-  { id: "contract_in_progress", label: "契約手続き中", icon: FileText },
-  { id: "completed", label: "完了", icon: Home },
+  { id: 'pending', label: '申し込み', icon: Clock },
+  { id: 'reviewing', label: '確認中', icon: Eye },
+  { id: 'approved', label: '承認済み', icon: Check },
+  { id: 'viewing_scheduled', label: '内見予定', icon: Calendar },
+  { id: 'viewing_completed', label: '内見完了', icon: Check },
+  { id: 'agreement_pending', label: '合意待ち', icon: FileText },
+  { id: 'agreement_signed', label: '署名完了', icon: Check },
+  { id: 'contract_in_progress', label: '契約手続き中', icon: FileText },
+  { id: 'completed', label: '完了', icon: Home },
 ];
 
 export default function DashboardPage() {
-  const { user, inquiries } = useAuth();
+  const router = useRouter();
+  const { user, inquiries, isLoading } = useAuth();
+
+  useEffect(() => {
+    // Wait for auth to initialize before redirecting
+    if (!isLoading && !user) {
+      router.push('/');
+    }
+  }, [user, isLoading, router]);
 
   const userInquiries = user
     ? inquiries.filter((inq) => inq.applicantEmail === user.email)
@@ -36,26 +46,26 @@ export default function DashboardPage() {
 
   const getStepIndex = (status: string) => {
     switch (status) {
-      case "pending":
+      case 'pending':
         return 0;
-      case "reviewing":
+      case 'reviewing':
         return 1;
-      case "approved":
+      case 'approved':
         return 2;
-      case "viewing_scheduled":
+      case 'viewing_scheduled':
         return 3;
-      case "viewing_completed":
+      case 'viewing_completed':
         return 4;
-      case "agreement_pending":
+      case 'agreement_pending':
         return 5;
-      case "agreement_signed":
+      case 'agreement_signed':
         return 6;
-      case "contract_in_progress":
+      case 'contract_in_progress':
         return 7;
-      case "completed":
+      case 'completed':
         return 8;
-      case "rejected":
-      case "cancelled":
+      case 'rejected':
+      case 'cancelled':
         return -1; // 失敗状態は特別扱い
       default:
         return 0;
@@ -64,36 +74,36 @@ export default function DashboardPage() {
 
   const getNextAction = (status: string) => {
     switch (status) {
-      case "pending":
-        return "前の住人からのご連絡をお待ちください";
-      case "reviewing":
-        return "前の住人が内容を確認中です";
-      case "approved":
-        return "内見の日程調整をお待ちください";
-      case "viewing_scheduled":
-        return "内見予定日が確定しました";
-      case "viewing_completed":
-        return "前の住人が引き継ぎ内容を準備中です";
-      case "agreement_pending":
-        return "引き継ぎ内容を確認して受諾してください";
-      case "agreement_signed":
-        return "残置物同意書の署名が完了しました";
-      case "contract_in_progress":
-        return "引き継ぎの準備を進めましょう";
-      case "completed":
-        return "引き継ぎが完了しました";
-      case "rejected":
-        return "申し訳ございません。今回はお断りとなりました";
-      case "cancelled":
-        return "申し込みがキャンセルされました";
+      case 'pending':
+        return '前の住人からのご連絡をお待ちください';
+      case 'reviewing':
+        return '前の住人が内容を確認中です';
+      case 'approved':
+        return '内見の日程調整をお待ちください';
+      case 'viewing_scheduled':
+        return '内見予定日が確定しました';
+      case 'viewing_completed':
+        return '前の住人が引き継ぎ内容を準備中です';
+      case 'agreement_pending':
+        return '引き継ぎ内容を確認して受諾してください';
+      case 'agreement_signed':
+        return '残置物同意書の署名が完了しました';
+      case 'contract_in_progress':
+        return '引き継ぎの準備を進めましょう';
+      case 'completed':
+        return '引き継ぎが完了しました';
+      case 'rejected':
+        return '申し訳ございません。今回はお断りとなりました';
+      case 'cancelled':
+        return '申し込みがキャンセルされました';
       default:
-        return "お待ちください";
+        return 'お待ちください';
     }
   };
 
   const getActionButton = (status: string, inquiryId: string) => {
     switch (status) {
-      case "viewing_scheduled":
+      case 'viewing_scheduled':
         return (
           <Link
             href={`/inquiry/${inquiryId}/viewing-complete`}
@@ -103,7 +113,7 @@ export default function DashboardPage() {
             <ArrowRight className="ml-1 h-4 w-4" />
           </Link>
         );
-      case "agreement_pending":
+      case 'agreement_pending':
         return (
           <Link
             href={`/inquiry/${inquiryId}/agreement`}
@@ -154,12 +164,13 @@ export default function DashboardPage() {
               {userInquiries.map((inquiry) => {
                 const currentStepIndex = getStepIndex(inquiry.status);
                 const isFailureStatus =
-                  inquiry.status === "rejected" ||
-                  inquiry.status === "cancelled";
+                  inquiry.status === 'rejected' ||
+                  inquiry.status === 'cancelled';
 
                 return (
                   <div
                     key={inquiry.id}
+                    data-testid="inquiry-card"
                     className="rounded-xl border border-border bg-background p-6 shadow-sm"
                   >
                     {/* 物件情報 */}
@@ -172,9 +183,9 @@ export default function DashboardPage() {
                           {inquiry.propertyTitle}
                         </Link>
                         <p className="mt-1 text-sm text-muted-foreground">
-                          申込日:{" "}
+                          申込日:{' '}
                           {new Date(inquiry.submittedAt).toLocaleDateString(
-                            "ja-JP",
+                            'ja-JP'
                           )}
                         </p>
                       </div>
@@ -210,29 +221,29 @@ export default function DashboardPage() {
                                     <div
                                       className={`flex items-center justify-center rounded-full border-2 transition-all duration-300 relative ${
                                         isPast
-                                          ? "h-10 w-10 border-coral bg-coral"
+                                          ? 'h-10 w-10 border-coral bg-coral'
                                           : isCurrent
-                                            ? "h-12 w-12 border-coral bg-white shadow-lg"
-                                            : "h-10 w-10 border-gray-300 bg-white"
+                                            ? 'h-12 w-12 border-coral bg-white shadow-lg'
+                                            : 'h-10 w-10 border-gray-300 bg-white'
                                       }`}
                                     >
                                       <StepIcon
-                                        className={`${isCurrent ? "h-6 w-6" : "h-5 w-5"} ${
+                                        className={`${isCurrent ? 'h-6 w-6' : 'h-5 w-5'} ${
                                           isPast
-                                            ? "text-gray-400"
+                                            ? 'text-gray-400'
                                             : isCurrent
-                                              ? "text-coral"
-                                              : "text-gray-400"
+                                              ? 'text-coral'
+                                              : 'text-gray-400'
                                         }`}
                                       />
                                     </div>
                                     <p
                                       className={`mt-2 text-xs font-medium text-center whitespace-nowrap ${
                                         isCurrent
-                                          ? "text-coral font-bold"
+                                          ? 'text-coral font-bold'
                                           : isPast
-                                            ? "text-foreground"
-                                            : "text-muted-foreground"
+                                            ? 'text-foreground'
+                                            : 'text-muted-foreground'
                                       }`}
                                     >
                                       {step.label}
@@ -249,33 +260,33 @@ export default function DashboardPage() {
                     {/* 次のアクション */}
                     <div
                       className={`rounded-lg p-4 ${
-                        inquiry.status === "pending" ||
-                        inquiry.status === "reviewing"
-                          ? "bg-amber-50 border border-amber-200"
-                          : inquiry.status === "completed"
-                            ? "bg-green-50 border border-green-200"
-                            : inquiry.status === "rejected" ||
-                                inquiry.status === "cancelled"
-                              ? "bg-red-50 border border-red-200"
-                              : "bg-blue-50 border border-blue-200"
+                        inquiry.status === 'pending' ||
+                        inquiry.status === 'reviewing'
+                          ? 'bg-amber-50 border border-amber-200'
+                          : inquiry.status === 'completed'
+                            ? 'bg-green-50 border border-green-200'
+                            : inquiry.status === 'rejected' ||
+                                inquiry.status === 'cancelled'
+                              ? 'bg-red-50 border border-red-200'
+                              : 'bg-blue-50 border border-blue-200'
                       }`}
                     >
                       <p
                         className={`flex items-center gap-2 text-sm font-semibold ${
-                          inquiry.status === "pending" ||
-                          inquiry.status === "reviewing"
-                            ? "text-amber-900"
-                            : inquiry.status === "completed"
-                              ? "text-green-900"
-                              : inquiry.status === "rejected" ||
-                                  inquiry.status === "cancelled"
-                                ? "text-red-900"
-                                : "text-blue-900"
+                          inquiry.status === 'pending' ||
+                          inquiry.status === 'reviewing'
+                            ? 'text-amber-900'
+                            : inquiry.status === 'completed'
+                              ? 'text-green-900'
+                              : inquiry.status === 'rejected' ||
+                                  inquiry.status === 'cancelled'
+                                ? 'text-red-900'
+                                : 'text-blue-900'
                         }`}
                       >
-                        {inquiry.status === "pending" ? (
+                        {inquiry.status === 'pending' ? (
                           <Clock className="h-5 w-5 animate-pulse" />
-                        ) : inquiry.status === "completed" ? (
+                        ) : inquiry.status === 'completed' ? (
                           <Check className="h-5 w-5" />
                         ) : (
                           <ArrowRight className="h-5 w-5" />

@@ -1,5 +1,6 @@
 'use server';
 
+import { randomUUID } from 'crypto';
 import { stripe } from '@/lib/stripe/server';
 import { db } from '@/db';
 import { stripeAccounts } from '@/db/schema';
@@ -46,6 +47,7 @@ export async function createConnectAccount(
 
     // Save to database
     await db.insert(stripeAccounts).values({
+      id: randomUUID(),
       userId,
       stripeAccountId: account.id,
       accountType: 'express',
@@ -111,7 +113,9 @@ export async function getConnectAccountStatus(userId: string) {
     }
 
     // Fetch latest status from Stripe
-    const stripeAccount = await stripe.accounts.retrieve(account.stripeAccountId);
+    const stripeAccount = await stripe.accounts.retrieve(
+      account.stripeAccountId
+    );
 
     // Update local database
     await db

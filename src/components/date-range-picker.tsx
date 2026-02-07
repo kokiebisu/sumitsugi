@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Keyboard } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useState, useMemo } from 'react';
+import { ChevronLeft, ChevronRight, Keyboard } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface DateRangePickerProps {
   startDate: Date | null;
@@ -24,11 +24,21 @@ interface SingleDatePickerProps {
 
 // 月の日本語名
 const MONTH_NAMES = [
-  "1月", "2月", "3月", "4月", "5月", "6月",
-  "7月", "8月", "9月", "10月", "11月", "12月"
+  '1月',
+  '2月',
+  '3月',
+  '4月',
+  '5月',
+  '6月',
+  '7月',
+  '8月',
+  '9月',
+  '10月',
+  '11月',
+  '12月',
 ];
 
-const WEEKDAY_NAMES = ["日", "月", "火", "水", "木", "金", "土"];
+const WEEKDAY_NAMES = ['日', '月', '火', '水', '木', '金', '土'];
 
 // 月のデータを生成
 function getMonthData(year: number, month: number) {
@@ -43,9 +53,11 @@ function getMonthData(year: number, month: number) {
 // 日付を比較（日付のみ）
 function isSameDay(d1: Date | null, d2: Date | null): boolean {
   if (!d1 || !d2) return false;
-  return d1.getFullYear() === d2.getFullYear() &&
-         d1.getMonth() === d2.getMonth() &&
-         d1.getDate() === d2.getDate();
+  return (
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
+  );
 }
 
 // 日付が範囲内かチェック
@@ -94,7 +106,7 @@ export function DateRangePicker({
 
   // 前の月へ
   const handlePrevMonth = () => {
-    setBaseMonth(prev => {
+    setBaseMonth((prev) => {
       let month = prev.month - 1;
       let year = prev.year;
       if (month < 0) {
@@ -107,7 +119,7 @@ export function DateRangePicker({
 
   // 次の月へ
   const handleNextMonth = () => {
-    setBaseMonth(prev => {
+    setBaseMonth((prev) => {
       let month = prev.month + 1;
       let year = prev.year;
       if (month > 11) {
@@ -145,21 +157,27 @@ export function DateRangePicker({
   };
 
   // タイトル・サブタイトルを生成
-  const displayTitle = title || (startDate && endDate
-    ? `${startDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })} - ${endDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })}`
-    : startDate
-    ? "終了日を選択"
-    : "日程を選択");
+  const displayTitle =
+    title ||
+    (startDate && endDate
+      ? `${startDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })} - ${endDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })}`
+      : startDate
+        ? '終了日を選択'
+        : '日程を選択');
 
-  const displaySubtitle = subtitle || (startDate && endDate
-    ? `${Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))}日間`
-    : "開始日と終了日を選択してください");
+  const displaySubtitle =
+    subtitle ||
+    (startDate && endDate
+      ? `${Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))}日間`
+      : '開始日と終了日を選択してください');
 
   return (
     <div className="bg-white rounded-2xl p-8 space-y-6">
       {/* ヘッダー */}
       <div>
-        <h3 className="text-2xl font-semibold text-foreground">{displayTitle}</h3>
+        <h3 className="text-2xl font-semibold text-foreground">
+          {displayTitle}
+        </h3>
         <p className="text-sm text-muted-foreground mt-1">{displaySubtitle}</p>
       </div>
 
@@ -186,7 +204,10 @@ export function DateRangePicker({
         {/* 3ヶ月カレンダー */}
         <div className="grid grid-cols-3 gap-16">
           {months.map((monthData, index) => (
-            <div key={`${monthData.year}-${monthData.month}`} className="min-w-[280px]">
+            <div
+              key={`${monthData.year}-${monthData.month}`}
+              className="min-w-[280px]"
+            >
               {/* 月タイトル */}
               <div className="text-center mb-4">
                 <span className="text-base font-semibold">
@@ -197,7 +218,10 @@ export function DateRangePicker({
               {/* 曜日ヘッダー */}
               <div className="grid grid-cols-7 mb-2">
                 {WEEKDAY_NAMES.map((day) => (
-                  <div key={day} className="text-center text-sm text-muted-foreground py-2">
+                  <div
+                    key={day}
+                    className="text-center text-sm text-muted-foreground py-2"
+                  >
                     {day}
                   </div>
                 ))}
@@ -223,17 +247,28 @@ export function DateRangePicker({
                   return (
                     <button
                       key={day}
-                      onClick={() => handleDateClick(monthData.year, monthData.month, day)}
+                      onClick={() =>
+                        handleDateClick(monthData.year, monthData.month, day)
+                      }
                       disabled={isDisabled}
                       className={cn(
-                        "h-12 w-full text-base font-medium transition-colors relative",
-                        isDisabled && "text-muted-foreground/40 cursor-not-allowed line-through",
-                        !isDisabled && !isSelected && !inRange && "hover:bg-muted rounded-full",
-                        isSelected && "bg-foreground text-white rounded-full z-10",
-                        inRange && "bg-muted/80",
-                        isStart && endDate && "rounded-l-full rounded-r-none bg-foreground text-white",
-                        isEnd && startDate && "rounded-r-full rounded-l-none bg-foreground text-white",
-                        isStart && !endDate && "rounded-full",
+                        'h-12 w-full text-base font-medium transition-colors relative',
+                        isDisabled &&
+                          'text-muted-foreground/40 cursor-not-allowed line-through',
+                        !isDisabled &&
+                          !isSelected &&
+                          !inRange &&
+                          'hover:bg-muted rounded-full',
+                        isSelected &&
+                          'bg-foreground text-white rounded-full z-10',
+                        inRange && 'bg-muted/80',
+                        isStart &&
+                          endDate &&
+                          'rounded-l-full rounded-r-none bg-foreground text-white',
+                        isEnd &&
+                          startDate &&
+                          'rounded-r-full rounded-l-none bg-foreground text-white',
+                        isStart && !endDate && 'rounded-full'
                       )}
                     >
                       {day}
@@ -248,7 +283,10 @@ export function DateRangePicker({
 
       {/* フッター */}
       <div className="flex items-center justify-between pt-4 border-t border-border">
-        <button className="p-2 hover:bg-muted rounded-lg transition-colors" aria-label="キーボードショートカット">
+        <button
+          className="p-2 hover:bg-muted rounded-lg transition-colors"
+          aria-label="キーボードショートカット"
+        >
           <Keyboard className="w-5 h-5 text-muted-foreground" />
         </button>
         <button
@@ -295,7 +333,7 @@ export function SingleDatePicker({
 
   // 前の月へ
   const handlePrevMonth = () => {
-    setBaseMonth(prev => {
+    setBaseMonth((prev) => {
       let month = prev.month - 1;
       let year = prev.year;
       if (month < 0) {
@@ -308,7 +346,7 @@ export function SingleDatePicker({
 
   // 次の月へ
   const handleNextMonth = () => {
-    setBaseMonth(prev => {
+    setBaseMonth((prev) => {
       let month = prev.month + 1;
       let year = prev.year;
       if (month > 11) {
@@ -360,17 +398,19 @@ export function SingleDatePicker({
       // 単体が選択されている（以降）
       return `${selectedDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })}以降`;
     }
-    return "日程を選択";
+    return '日程を選択';
   };
 
   const generateDefaultSubtitle = () => {
     if (selectedDate && endDate) {
-      const days = Math.ceil((endDate.getTime() - selectedDate.getTime()) / (1000 * 60 * 60 * 24));
+      const days = Math.ceil(
+        (endDate.getTime() - selectedDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
       return `${days}日間`;
     } else if (selectedDate) {
-      return "この日以降（終了日を追加で選択可能）";
+      return 'この日以降（終了日を追加で選択可能）';
     }
-    return "開始日を選択してください";
+    return '開始日を選択してください';
   };
 
   const displayTitle = title || generateDefaultTitle();
@@ -380,7 +420,9 @@ export function SingleDatePicker({
     <div className="bg-white rounded-2xl p-8 space-y-6">
       {/* ヘッダー */}
       <div>
-        <h3 className="text-2xl font-semibold text-foreground">{displayTitle}</h3>
+        <h3 className="text-2xl font-semibold text-foreground">
+          {displayTitle}
+        </h3>
         <p className="text-sm text-muted-foreground mt-1">{displaySubtitle}</p>
       </div>
 
@@ -407,7 +449,10 @@ export function SingleDatePicker({
         {/* 3ヶ月カレンダー */}
         <div className="grid grid-cols-3 gap-16">
           {months.map((monthData) => (
-            <div key={`${monthData.year}-${monthData.month}`} className="min-w-[280px]">
+            <div
+              key={`${monthData.year}-${monthData.month}`}
+              className="min-w-[280px]"
+            >
               {/* 月タイトル */}
               <div className="text-center mb-4">
                 <span className="text-base font-semibold">
@@ -418,7 +463,10 @@ export function SingleDatePicker({
               {/* 曜日ヘッダー */}
               <div className="grid grid-cols-7 mb-2">
                 {WEEKDAY_NAMES.map((day) => (
-                  <div key={day} className="text-center text-sm text-muted-foreground py-2">
+                  <div
+                    key={day}
+                    className="text-center text-sm text-muted-foreground py-2"
+                  >
                     {day}
                   </div>
                 ))}
@@ -439,23 +487,39 @@ export function SingleDatePicker({
                   const isStart = isSameDay(date, selectedDate);
                   const isEnd = isSameDay(date, endDate ?? null);
                   const isSelected = isStart || isEnd;
-                  const inRange = isInRange(date, selectedDate, endDate ?? null);
+                  const inRange = isInRange(
+                    date,
+                    selectedDate,
+                    endDate ?? null
+                  );
 
                   return (
                     <button
                       key={day}
-                      onClick={() => handleDateClick(monthData.year, monthData.month, day)}
+                      onClick={() =>
+                        handleDateClick(monthData.year, monthData.month, day)
+                      }
                       disabled={isDisabled}
                       className={cn(
-                        "h-12 w-full text-base font-medium transition-colors relative",
-                        isDisabled && "text-muted-foreground/40 cursor-not-allowed line-through",
-                        !isDisabled && !isSelected && !inRange && "hover:bg-muted rounded-full",
+                        'h-12 w-full text-base font-medium transition-colors relative',
+                        isDisabled &&
+                          'text-muted-foreground/40 cursor-not-allowed line-through',
+                        !isDisabled &&
+                          !isSelected &&
+                          !inRange &&
+                          'hover:bg-muted rounded-full',
                         // 単体モード（endDateがない場合）
-                        isStart && !endDate && "bg-foreground text-white rounded-full",
+                        isStart &&
+                          !endDate &&
+                          'bg-foreground text-white rounded-full',
                         // 範囲モード（endDateがある場合）
-                        isStart && endDate && "rounded-l-full rounded-r-none bg-foreground text-white",
-                        isEnd && selectedDate && "rounded-r-full rounded-l-none bg-foreground text-white",
-                        inRange && "bg-muted/80",
+                        isStart &&
+                          endDate &&
+                          'rounded-l-full rounded-r-none bg-foreground text-white',
+                        isEnd &&
+                          selectedDate &&
+                          'rounded-r-full rounded-l-none bg-foreground text-white',
+                        inRange && 'bg-muted/80'
                       )}
                     >
                       {day}
@@ -470,7 +534,10 @@ export function SingleDatePicker({
 
       {/* フッター */}
       <div className="flex items-center justify-between pt-4 border-t border-border">
-        <button className="p-2 hover:bg-muted rounded-lg transition-colors" aria-label="キーボードショートカット">
+        <button
+          className="p-2 hover:bg-muted rounded-lg transition-colors"
+          aria-label="キーボードショートカット"
+        >
           <Keyboard className="w-5 h-5 text-muted-foreground" />
         </button>
         <button
@@ -499,19 +566,20 @@ export function DateRangeInput({
   const [isOpen, setIsOpen] = useState(false);
 
   const formatDate = (date: Date | null) => {
-    if (!date) return "";
+    if (!date) return '';
     return date.toLocaleDateString('ja-JP', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
-  const displayValue = startDate && endDate
-    ? `${formatDate(startDate)} - ${formatDate(endDate)}`
-    : startDate
-    ? `${formatDate(startDate)} -`
-    : "日程を選択";
+  const displayValue =
+    startDate && endDate
+      ? `${formatDate(startDate)} - ${formatDate(endDate)}`
+      : startDate
+        ? `${formatDate(startDate)} -`
+        : '日程を選択';
 
   return (
     <div className="relative">
@@ -525,7 +593,9 @@ export function DateRangeInput({
         onClick={() => setIsOpen(!isOpen)}
         className="w-full px-4 py-3 border border-border rounded-xl text-base text-left focus:outline-none focus:ring-2 focus:ring-foreground"
       >
-        <span className={startDate ? "text-foreground" : "text-muted-foreground"}>
+        <span
+          className={startDate ? 'text-foreground' : 'text-muted-foreground'}
+        >
           {displayValue}
         </span>
       </button>

@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
-import Link from "next/link";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/auth-context";
-import { ArrowLeft, Check, FileText } from "lucide-react";
-import { mockHandoverAgreements } from "@/lib/data";
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
+import { Header } from '@/components/header';
+import { Footer } from '@/components/footer';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/auth-context';
+import { ArrowLeft, Check, FileText } from 'lucide-react';
+import { mockHandoverAgreements } from '@/lib/data';
 
 export default function SignPage() {
   const router = useRouter();
@@ -16,7 +16,7 @@ export default function SignPage() {
   const inquiryId = params.id as string;
   const { user, isLoading } = useAuth();
 
-  const [signatureName, setSignatureName] = useState("");
+  const [signatureName, setSignatureName] = useState('');
   const [agreements, setAgreements] = useState({
     currentCondition: false,
     disposalResponsibility: false,
@@ -30,7 +30,7 @@ export default function SignPage() {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/");
+      router.push('/');
     }
   }, [user, isLoading, router]);
 
@@ -81,22 +81,21 @@ export default function SignPage() {
 
   const agreementItems = [
     {
-      key: "currentCondition" as const,
-      label: "現状有姿での譲渡に同意します",
-      description:
-        "引き継ぎ品目は内見時に確認した状態のままで譲渡されます。",
+      key: 'currentCondition' as const,
+      label: '現状有姿での譲渡に同意します',
+      description: '引き継ぎ品目は内見時に確認した状態のままで譲渡されます。',
     },
     {
-      key: "disposalResponsibility" as const,
-      label: "退去時の処分責任を負うことに同意します",
+      key: 'disposalResponsibility' as const,
+      label: '退去時の処分責任を負うことに同意します',
       description:
-        "引き継いだ品目は、退去時にご自身の責任で処分または次の方へ引き継いでください。",
+        '引き継いだ品目は、退去時にご自身の責任で処分または次の方へ引き継いでください。',
     },
     {
-      key: "noWarranty" as const,
-      label: "大家・管理会社への免責に同意します",
+      key: 'noWarranty' as const,
+      label: '大家・管理会社への免責に同意します',
       description:
-        "引き継ぎ品目に関するトラブルについて、大家・管理会社は責任を負いません。",
+        '引き継ぎ品目に関するトラブルについて、大家・管理会社は責任を負いません。',
     },
   ];
 
@@ -147,8 +146,8 @@ export default function SignPage() {
                   }
                   className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
                     agreements[item.key]
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-muted-foreground"
+                      ? 'border-primary bg-primary text-primary-foreground'
+                      : 'border-muted-foreground'
                   }`}
                 >
                   {agreements[item.key] && <Check className="h-3 w-3" />}
@@ -187,8 +186,11 @@ export default function SignPage() {
             <Button variant="outline" asChild>
               <Link href={`/inquiry/${inquiryId}/agreement/accept`}>戻る</Link>
             </Button>
-            <Button onClick={handleSubmit} disabled={!canSubmit || isSubmitting}>
-              {isSubmitting ? "署名中..." : "署名して完了"}
+            <Button
+              onClick={handleSubmit}
+              disabled={!canSubmit || isSubmitting}
+            >
+              {isSubmitting ? '署名中...' : '署名して完了'}
             </Button>
           </div>
         </div>

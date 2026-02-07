@@ -31,7 +31,11 @@ vi.mock('@/lib/stripe/server', () => ({
       additionalCleaningFee: 8000,
       landlordIncentive: Math.max(Math.round(amount * 0.01), 3000),
       platformFee: Math.round(amount * 0.15),
-      previousTenantReceives: amount - 8000 - Math.max(Math.round(amount * 0.01), 3000) - Math.round(amount * 0.15),
+      previousTenantReceives:
+        amount -
+        8000 -
+        Math.max(Math.round(amount * 0.01), 3000) -
+        Math.round(amount * 0.15),
       applicationFee: 20000,
       deposit,
       remaining: amount - deposit,
@@ -156,7 +160,9 @@ describe('Payment Actions', () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Previous tenant does not have a Stripe account');
+      expect(result.error).toBe(
+        'Previous tenant does not have a Stripe account'
+      );
     });
 
     it('should fail if previous tenant account is not ready', async () => {
@@ -180,7 +186,9 @@ describe('Payment Actions', () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Previous tenant Stripe account is not ready to receive payments');
+      expect(result.error).toBe(
+        'Previous tenant Stripe account is not ready to receive payments'
+      );
     });
 
     it('should handle Stripe API errors', async () => {
@@ -244,7 +252,9 @@ describe('Payment Actions', () => {
       } as any);
 
       // Mock database operations
-      const mockInsertReturning = vi.fn().mockResolvedValue([{ id: 'txn-123' }]);
+      const mockInsertReturning = vi
+        .fn()
+        .mockResolvedValue([{ id: 'txn-123' }]);
       vi.mocked(db.insert).mockReturnValue({
         values: vi.fn().mockReturnValue({
           returning: mockInsertReturning,
@@ -311,6 +321,7 @@ describe('Payment Actions', () => {
         status: 'public',
         handoverFee: mockHandoverFee,
         additionalCleaningFee: 8000,
+        coreSetPrice: null,
         rent: 80000,
         managementFee: 5000,
         deposit: '1',
@@ -322,11 +333,16 @@ describe('Payment Actions', () => {
         layout: '1K',
         occupancy: 1,
         style: 'modern',
-        furniture: [],
+        furnitureItems: [],
         condition: 'good',
         estimatedDuration: '2〜4ヶ月',
-        landlordConsent: true,
+        landlordConsent: { status: 'approved' as const },
         amenities: [],
+        moveOutDate: null,
+        moveOutReason: null,
+        managementCompanyName: null,
+        managementConsultedAt: null,
+        pdfUrls: null,
         furnitureDescription: null,
         story: null,
         conditions: null,
@@ -420,6 +436,7 @@ describe('Payment Actions', () => {
         status: 'public',
         handoverFee: mockHandoverFee,
         additionalCleaningFee: 8000,
+        coreSetPrice: null,
         rent: 80000,
         managementFee: 5000,
         deposit: '1',
@@ -431,11 +448,16 @@ describe('Payment Actions', () => {
         layout: '1K',
         occupancy: 1,
         style: 'modern',
-        furniture: [],
+        furnitureItems: [],
         condition: 'good',
         estimatedDuration: '2〜4ヶ月',
-        landlordConsent: true,
+        landlordConsent: { status: 'approved' as const },
         amenities: [],
+        moveOutDate: null,
+        moveOutReason: null,
+        managementCompanyName: null,
+        managementConsultedAt: null,
+        pdfUrls: null,
         furnitureDescription: null,
         story: null,
         conditions: null,
@@ -524,6 +546,7 @@ describe('Payment Actions', () => {
         status: 'public',
         handoverFee: highHandoverFee,
         additionalCleaningFee: 8000,
+        coreSetPrice: null,
         rent: 80000,
         managementFee: 5000,
         deposit: '1',
@@ -535,11 +558,16 @@ describe('Payment Actions', () => {
         layout: '1K',
         occupancy: 1,
         style: 'modern',
-        furniture: [],
+        furnitureItems: [],
         condition: 'good',
         estimatedDuration: '2〜4ヶ月',
-        landlordConsent: true,
+        landlordConsent: { status: 'approved' as const },
         amenities: [],
+        moveOutDate: null,
+        moveOutReason: null,
+        managementCompanyName: null,
+        managementConsultedAt: null,
+        pdfUrls: null,
         furnitureDescription: null,
         story: null,
         conditions: null,

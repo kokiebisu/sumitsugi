@@ -1,187 +1,249 @@
-"use client"
+'use client';
 
-import { useState, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { Loader2, Check, Building2, Home, DoorOpen, Users, Upload, X, Music, Palette, Leaf, Coffee, Book, Camera, Dumbbell, Gamepad2, UtensilsCrossed, Wine, Plane, Cat, Baby, Sparkles, TreePine, Sofa } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { siteConfig } from "@/lib/site-config"
-import { useAuth } from "@/contexts/auth-context"
-import { Header } from "@/components/header"
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import {
+  Loader2,
+  Check,
+  Building2,
+  Home,
+  DoorOpen,
+  Users,
+  Upload,
+  X,
+  Music,
+  Palette,
+  Leaf,
+  Coffee,
+  Book,
+  Camera,
+  Dumbbell,
+  Gamepad2,
+  UtensilsCrossed,
+  Wine,
+  Plane,
+  Cat,
+  Baby,
+  Sparkles,
+  TreePine,
+  Sofa,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { siteConfig } from '@/lib/site-config';
+import { useAuth } from '@/contexts/auth-context';
+import { Header } from '@/components/header';
 
-type Step = "intro" | "type" | "lifestyle" | "basic" | "photos" | "interior" | "confirm"
+type Step =
+  | 'intro'
+  | 'type'
+  | 'lifestyle'
+  | 'basic'
+  | 'photos'
+  | 'interior'
+  | 'confirm';
 
-const steps: Step[] = ["intro", "type", "lifestyle", "basic", "photos", "interior", "confirm"]
+const steps: Step[] = [
+  'intro',
+  'type',
+  'lifestyle',
+  'basic',
+  'photos',
+  'interior',
+  'confirm',
+];
 
 // 2つのフェーズにステップをグループ化（Airbnb風）
 const phases = [
-  { name: "物件について", steps: ["intro", "type", "lifestyle"] },
-  { name: "詳細情報", steps: ["basic", "photos", "interior", "confirm"] },
-]
+  { name: '物件について', steps: ['intro', 'type', 'lifestyle'] },
+  { name: '詳細情報', steps: ['basic', 'photos', 'interior', 'confirm'] },
+];
 
 // 物件タイプ（フラットなLucideアイコン使用）
 const PROPERTY_TYPES = [
-  { id: "apartment", label: "マンション", Icon: Building2 },
-  { id: "house", label: "一戸建て", Icon: Home },
-  { id: "studio", label: "ワンルーム", Icon: DoorOpen },
-  { id: "share", label: "シェアハウス", Icon: Users },
-]
+  { id: 'apartment', label: 'マンション', Icon: Building2 },
+  { id: 'house', label: '一戸建て', Icon: Home },
+  { id: 'studio', label: 'ワンルーム', Icon: DoorOpen },
+  { id: 'share', label: 'シェアハウス', Icon: Users },
+];
 
 // ライフスタイル（アイコン付き）
 const LIFESTYLES = [
-  { id: "dj", label: "DJ・音楽", Icon: Music },
-  { id: "art", label: "アート", Icon: Palette },
-  { id: "plant", label: "植物・ボタニカル", Icon: Leaf },
-  { id: "cafe", label: "カフェ風", Icon: Coffee },
-  { id: "reading", label: "読書・書斎", Icon: Book },
-  { id: "photo", label: "写真・映像", Icon: Camera },
-  { id: "fitness", label: "フィットネス", Icon: Dumbbell },
-  { id: "gaming", label: "ゲーミング", Icon: Gamepad2 },
-  { id: "cooking", label: "料理好き", Icon: UtensilsCrossed },
-  { id: "wine", label: "ワイン・お酒", Icon: Wine },
-  { id: "travel", label: "旅行・海外", Icon: Plane },
-  { id: "pet", label: "ペットと暮らす", Icon: Cat },
-  { id: "family", label: "ファミリー向け", Icon: Baby },
-  { id: "minimal", label: "ミニマル", Icon: Sparkles },
-  { id: "scandinavian", label: "北欧", Icon: TreePine },
-  { id: "vintage", label: "ヴィンテージ", Icon: Sofa },
-]
+  { id: 'dj', label: 'DJ・音楽', Icon: Music },
+  { id: 'art', label: 'アート', Icon: Palette },
+  { id: 'plant', label: '植物・ボタニカル', Icon: Leaf },
+  { id: 'cafe', label: 'カフェ風', Icon: Coffee },
+  { id: 'reading', label: '読書・書斎', Icon: Book },
+  { id: 'photo', label: '写真・映像', Icon: Camera },
+  { id: 'fitness', label: 'フィットネス', Icon: Dumbbell },
+  { id: 'gaming', label: 'ゲーミング', Icon: Gamepad2 },
+  { id: 'cooking', label: '料理好き', Icon: UtensilsCrossed },
+  { id: 'wine', label: 'ワイン・お酒', Icon: Wine },
+  { id: 'travel', label: '旅行・海外', Icon: Plane },
+  { id: 'pet', label: 'ペットと暮らす', Icon: Cat },
+  { id: 'family', label: 'ファミリー向け', Icon: Baby },
+  { id: 'minimal', label: 'ミニマル', Icon: Sparkles },
+  { id: 'scandinavian', label: '北欧', Icon: TreePine },
+  { id: 'vintage', label: 'ヴィンテージ', Icon: Sofa },
+];
 
 // 各ステップに対応する画像
 const stepImages: Record<Step, string> = {
-  intro: "", // イントロはイラストを使用
-  type: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1920&auto=format&fit=crop&q=90",
-  lifestyle: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1920&auto=format&fit=crop&q=90",
-  basic: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1920&auto=format&fit=crop&q=90",
-  photos: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&auto=format&fit=crop&q=90",
-  interior: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1920&auto=format&fit=crop&q=90",
-  confirm: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1920&auto=format&fit=crop&q=90",
-}
+  intro: '', // イントロはイラストを使用
+  type: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1920&auto=format&fit=crop&q=90',
+  lifestyle:
+    'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1920&auto=format&fit=crop&q=90',
+  basic:
+    'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1920&auto=format&fit=crop&q=90',
+  photos:
+    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&auto=format&fit=crop&q=90',
+  interior:
+    'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1920&auto=format&fit=crop&q=90',
+  confirm:
+    'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1920&auto=format&fit=crop&q=90',
+};
 
 export default function NewListingPage() {
-  const router = useRouter()
-  const { user, isLoading } = useAuth()
-  const [step, setStep] = useState<Step>("intro")
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter();
+  const { user, isLoading } = useAuth();
+  const [step, setStep] = useState<Step>('intro');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form state
-  const [propertyType, setPropertyType] = useState("")
-  const [selectedLifestyles, setSelectedLifestyles] = useState<string[]>([])
-  const [address, setAddress] = useState("")
-  const [area, setArea] = useState("")
-  const [rooms, setRooms] = useState("")
-  const [rent, setRent] = useState("")
-  const [photos, setPhotos] = useState<string[]>([])
-  const [interiorDescription, setInteriorDescription] = useState("")
+  const [propertyType, setPropertyType] = useState('');
+  const [selectedLifestyles, setSelectedLifestyles] = useState<string[]>([]);
+  const [address, setAddress] = useState('');
+  const [area, setArea] = useState('');
+  const [rooms, setRooms] = useState('');
+  const [rent, setRent] = useState('');
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [interiorDescription, setInteriorDescription] = useState('');
 
-  const currentStepIndex = steps.indexOf(step)
+  const currentStepIndex = steps.indexOf(step);
 
   // 現在のフェーズを計算
   const getCurrentPhase = () => {
     for (let i = 0; i < phases.length; i++) {
       if (phases[i].steps.includes(step)) {
-        return i
+        return i;
       }
     }
-    return 0
-  }
+    return 0;
+  };
 
   // 認証チェック
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/")
+      router.push('/');
     }
-  }, [user, isLoading, router])
+  }, [user, isLoading, router]);
 
   const handleBack = () => {
     if (currentStepIndex > 0) {
-      setStep(steps[currentStepIndex - 1])
+      setStep(steps[currentStepIndex - 1]);
     } else {
-      router.push("/listing")
+      router.push('/listing');
     }
-  }
+  };
 
   const handleNext = () => {
     if (currentStepIndex < steps.length - 1) {
-      setStep(steps[currentStepIndex + 1])
+      setStep(steps[currentStepIndex + 1]);
     }
-  }
+  };
 
   const handleSubmit = async () => {
-    setIsSubmitting(true)
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    setIsSubmitting(false)
-    router.push("/listing")
-  }
+    setIsSubmitting(true);
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    setIsSubmitting(false);
+    router.push('/listing');
+  };
 
   const handleClose = () => {
-    router.push("/listing")
-  }
+    router.push('/listing');
+  };
 
   const canProceed = useCallback(() => {
     switch (step) {
-      case "intro":
-        return true
-      case "type":
-        return propertyType !== ""
-      case "lifestyle":
-        return selectedLifestyles.length > 0
-      case "basic":
-        return address.trim() !== "" && area.trim() !== "" && rooms.trim() !== "" && rent.trim() !== ""
-      case "photos":
-        return true // 写真は任意
-      case "interior":
-        return true // 説明は任意
-      case "confirm":
-        return true
+      case 'intro':
+        return true;
+      case 'type':
+        return propertyType !== '';
+      case 'lifestyle':
+        return selectedLifestyles.length > 0;
+      case 'basic':
+        return (
+          address.trim() !== '' &&
+          area.trim() !== '' &&
+          rooms.trim() !== '' &&
+          rent.trim() !== ''
+        );
+      case 'photos':
+        return true; // 写真は任意
+      case 'interior':
+        return true; // 説明は任意
+      case 'confirm':
+        return true;
       default:
-        return false
+        return false;
     }
-  }, [step, propertyType, selectedLifestyles.length, address, area, rooms, rent])
+  }, [
+    step,
+    propertyType,
+    selectedLifestyles.length,
+    address,
+    area,
+    rooms,
+    rent,
+  ]);
 
   // Enterキーで次へ
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Enter" && !e.shiftKey && canProceed()) {
-        if ((e.target as HTMLElement)?.tagName === "TEXTAREA") {
-          return
+      if (e.key === 'Enter' && !e.shiftKey && canProceed()) {
+        if ((e.target as HTMLElement)?.tagName === 'TEXTAREA') {
+          return;
         }
-        e.preventDefault()
-        if (step === "confirm") {
-          handleSubmit()
+        e.preventDefault();
+        if (step === 'confirm') {
+          handleSubmit();
         } else {
-          handleNext()
+          handleNext();
         }
       }
-    }
+    };
 
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [canProceed, step])
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [canProceed, step]);
 
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="animate-pulse text-muted-foreground">読み込み中...</div>
       </div>
-    )
+    );
   }
 
   if (!user) {
-    return null
+    return null;
   }
 
-  const currentPhase = getCurrentPhase()
+  const currentPhase = getCurrentPhase();
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
       {/* Header */}
       <header className="flex items-center justify-between border-b px-6 py-4">
         <span className="text-xl font-bold text-coral">{siteConfig.name}</span>
-        <Button variant="outline" onClick={handleClose} className="rounded-full">
+        <Button
+          variant="outline"
+          onClick={handleClose}
+          className="rounded-full"
+        >
           保存して終了
         </Button>
       </header>
@@ -189,7 +251,7 @@ export default function NewListingPage() {
       {/* Main Content */}
       <main className="flex-1 overflow-hidden">
         {/* Step: Intro */}
-        {step === "intro" && (
+        {step === 'intro' && (
           <div className="flex min-h-full">
             <div className="flex flex-1 flex-col justify-center px-12 py-16 lg:px-24">
               <p className="text-sm text-muted-foreground mb-2">ステップ1</p>
@@ -199,8 +261,7 @@ export default function NewListingPage() {
                 教えてください
               </h1>
               <p className="text-lg text-muted-foreground max-w-md">
-                このステップでは、物件の種類や
-                ライフスタイルを選びます。
+                このステップでは、物件の種類や ライフスタイルを選びます。
                 あなたの空間の雰囲気が伝わる情報を入力しましょう。
               </p>
             </div>
@@ -332,7 +393,7 @@ export default function NewListingPage() {
         )}
 
         {/* Step: Type */}
-        {step === "type" && (
+        {step === 'type' && (
           <div className="flex min-h-full">
             <div className="flex flex-1 flex-col justify-center px-12 py-16 lg:px-24">
               <p className="text-sm text-muted-foreground mb-2">ステップ1</p>
@@ -345,13 +406,16 @@ export default function NewListingPage() {
                     key={id}
                     onClick={() => setPropertyType(id)}
                     className={cn(
-                      "flex flex-col items-start p-5 rounded-xl border-2 transition-all text-left",
+                      'flex flex-col items-start p-5 rounded-xl border-2 transition-all text-left',
                       propertyType === id
-                        ? "border-foreground bg-muted"
-                        : "border-border hover:border-foreground/40"
+                        ? 'border-foreground bg-muted'
+                        : 'border-border hover:border-foreground/40'
                     )}
                   >
-                    <Icon className="w-8 h-8 mb-3 text-foreground" strokeWidth={1.5} />
+                    <Icon
+                      className="w-8 h-8 mb-3 text-foreground"
+                      strokeWidth={1.5}
+                    />
                     <span className="text-base font-medium">{label}</span>
                   </button>
                 ))}
@@ -368,49 +432,58 @@ export default function NewListingPage() {
         )}
 
         {/* Step: Lifestyle */}
-        {step === "lifestyle" && (
+        {step === 'lifestyle' && (
           <div className="flex min-h-full">
             <div className="flex flex-1 flex-col px-12 py-16 lg:px-24">
               <p className="text-sm text-muted-foreground mb-2">ステップ1</p>
               <h1 className="text-3xl font-semibold mb-3">
                 あなたの暮らしのスタイルは？
               </h1>
-              <p className="text-muted-foreground mb-8">
-                複数選択可能です
-              </p>
+              <p className="text-muted-foreground mb-8">複数選択可能です</p>
               <div className="relative flex-1 min-h-0">
                 <div className="absolute inset-0 overflow-y-auto pb-16">
                   <div className="grid grid-cols-3 gap-4 max-w-xl">
                     {LIFESTYLES.map(({ id, label, Icon }) => {
-                      const isSelected = selectedLifestyles.includes(id)
+                      const isSelected = selectedLifestyles.includes(id);
                       return (
                         <button
                           key={id}
                           onClick={() => {
                             if (isSelected) {
-                              setSelectedLifestyles(selectedLifestyles.filter((l) => l !== id))
+                              setSelectedLifestyles(
+                                selectedLifestyles.filter((l) => l !== id)
+                              );
                             } else {
-                              setSelectedLifestyles([...selectedLifestyles, id])
+                              setSelectedLifestyles([
+                                ...selectedLifestyles,
+                                id,
+                              ]);
                             }
                           }}
                           className={cn(
-                            "flex flex-col items-start p-5 rounded-xl border-2 transition-all text-left",
+                            'flex flex-col items-start p-5 rounded-xl border-2 transition-all text-left',
                             isSelected
-                              ? "border-foreground bg-muted"
-                              : "border-border hover:border-foreground/40"
+                              ? 'border-foreground bg-muted'
+                              : 'border-border hover:border-foreground/40'
                           )}
                         >
-                          <Icon className="w-8 h-8 mb-3 text-foreground" strokeWidth={1.5} />
+                          <Icon
+                            className="w-8 h-8 mb-3 text-foreground"
+                            strokeWidth={1.5}
+                          />
                           <span className="text-sm font-medium">{label}</span>
                         </button>
-                      )
+                      );
                     })}
                   </div>
                 </div>
                 {/* 下部の白グラデーション */}
                 <div
                   className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
-                  style={{ background: 'linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%)' }}
+                  style={{
+                    background:
+                      'linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%)',
+                  }}
                 />
               </div>
             </div>
@@ -425,13 +498,11 @@ export default function NewListingPage() {
         )}
 
         {/* Step: Basic Info */}
-        {step === "basic" && (
+        {step === 'basic' && (
           <div className="flex min-h-full">
             <div className="flex flex-1 flex-col justify-center px-12 py-16 lg:px-24">
               <p className="text-sm text-muted-foreground mb-2">ステップ2</p>
-              <h1 className="text-3xl font-semibold mb-8">
-                物件の基本情報
-              </h1>
+              <h1 className="text-3xl font-semibold mb-8">物件の基本情報</h1>
               <div className="space-y-6 max-w-md">
                 <div className="space-y-2">
                   <Label htmlFor="address">住所（市区町村まで）</Label>
@@ -488,7 +559,7 @@ export default function NewListingPage() {
         )}
 
         {/* Step: Photos */}
-        {step === "photos" && (
+        {step === 'photos' && (
           <div className="flex min-h-full">
             <div className="flex flex-1 flex-col justify-center px-12 py-16 lg:px-24">
               <p className="text-sm text-muted-foreground mb-2">ステップ2</p>
@@ -511,10 +582,19 @@ export default function NewListingPage() {
                 {photos.length > 0 && (
                   <div className="mt-6 grid grid-cols-3 gap-4">
                     {photos.map((photo, i) => (
-                      <div key={i} className="relative aspect-square rounded-lg overflow-hidden">
-                        <img src={photo} alt="" className="w-full h-full object-cover" />
+                      <div
+                        key={i}
+                        className="relative aspect-square rounded-lg overflow-hidden"
+                      >
+                        <img
+                          src={photo}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
                         <button
-                          onClick={() => setPhotos(photos.filter((_, idx) => idx !== i))}
+                          onClick={() =>
+                            setPhotos(photos.filter((_, idx) => idx !== i))
+                          }
                           className="absolute top-2 right-2 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center"
                         >
                           <X className="w-4 h-4 text-white" />
@@ -536,7 +616,7 @@ export default function NewListingPage() {
         )}
 
         {/* Step: Interior */}
-        {step === "interior" && (
+        {step === 'interior' && (
           <div className="flex min-h-full">
             <div className="flex flex-1 flex-col justify-center px-12 py-16 lg:px-24">
               <p className="text-sm text-muted-foreground mb-2">ステップ2</p>
@@ -566,7 +646,7 @@ export default function NewListingPage() {
         )}
 
         {/* Step: Confirm */}
-        {step === "confirm" && (
+        {step === 'confirm' && (
           <div className="flex min-h-full">
             <div className="flex flex-1 flex-col justify-center px-12 py-16 lg:px-24 overflow-y-auto">
               <p className="text-sm text-muted-foreground mb-2">ステップ3</p>
@@ -582,11 +662,13 @@ export default function NewListingPage() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">ライフスタイル</p>
+                    <p className="text-sm text-muted-foreground">
+                      ライフスタイル
+                    </p>
                     <p className="font-medium">
                       {selectedLifestyles
                         .map((id) => LIFESTYLES.find((l) => l.id === id)?.label)
-                        .join("、")}
+                        .join('、')}
                     </p>
                   </div>
                   <div>
@@ -629,12 +711,12 @@ export default function NewListingPage() {
             <div
               key={phase.name}
               className={cn(
-                "h-1 flex-1 rounded-full transition-colors",
+                'h-1 flex-1 rounded-full transition-colors',
                 index < currentPhase
-                  ? "bg-foreground"
+                  ? 'bg-foreground'
                   : index === currentPhase
-                  ? "bg-foreground"
-                  : "bg-border"
+                    ? 'bg-foreground'
+                    : 'bg-border'
               )}
             />
           ))}
@@ -650,7 +732,7 @@ export default function NewListingPage() {
             戻る
           </Button>
 
-          {step === "confirm" ? (
+          {step === 'confirm' ? (
             <Button
               onClick={handleSubmit}
               disabled={isSubmitting}
@@ -682,5 +764,5 @@ export default function NewListingPage() {
         </div>
       </footer>
     </div>
-  )
+  );
 }

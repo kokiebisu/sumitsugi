@@ -1,70 +1,72 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import type { SellerListing } from "@/lib/data"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Calendar, Mail, User, Phone, MapPin, Home } from "lucide-react"
+import { useState } from 'react';
+import type { SellerListing } from '@/lib/data';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Calendar, Mail, User, Phone, MapPin, Home } from 'lucide-react';
 
 interface SellerListingListProps {
-  listings: SellerListing[]
+  listings: SellerListing[];
 }
 
 const statusColors = {
-  pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  approved: "bg-blue-100 text-blue-800 border-blue-200",
-  published: "bg-green-100 text-green-800 border-green-200",
-  rejected: "bg-gray-100 text-gray-800 border-gray-200",
-}
+  pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  approved: 'bg-blue-100 text-blue-800 border-blue-200',
+  published: 'bg-green-100 text-green-800 border-green-200',
+  rejected: 'bg-gray-100 text-gray-800 border-gray-200',
+};
 
 const statusLabels = {
-  pending: "新規申込",
-  approved: "承認済み",
-  published: "掲載中",
-  rejected: "却下",
-}
+  pending: '新規申込',
+  approved: '承認済み',
+  published: '掲載中',
+  rejected: '却下',
+};
 
 export function SellerListingList({ listings }: SellerListingListProps) {
-  const [filterStatus, setFilterStatus] = useState<string>("all")
+  const [filterStatus, setFilterStatus] = useState<string>('all');
 
   const filteredListings =
-    filterStatus === "all" ? listings : listings.filter((listing) => listing.status === filterStatus)
+    filterStatus === 'all'
+      ? listings
+      : listings.filter((listing) => listing.status === filterStatus);
 
   return (
     <div className="space-y-6">
       {/* Filters */}
       <div className="flex flex-wrap gap-2">
         <Button
-          variant={filterStatus === "all" ? "default" : "outline"}
+          variant={filterStatus === 'all' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setFilterStatus("all")}
+          onClick={() => setFilterStatus('all')}
           className="rounded-full"
         >
           すべて ({listings.length})
         </Button>
         <Button
-          variant={filterStatus === "pending" ? "default" : "outline"}
+          variant={filterStatus === 'pending' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setFilterStatus("pending")}
+          onClick={() => setFilterStatus('pending')}
           className="rounded-full"
         >
-          新規 ({listings.filter((l) => l.status === "pending").length})
+          新規 ({listings.filter((l) => l.status === 'pending').length})
         </Button>
         <Button
-          variant={filterStatus === "approved" ? "default" : "outline"}
+          variant={filterStatus === 'approved' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setFilterStatus("approved")}
+          onClick={() => setFilterStatus('approved')}
           className="rounded-full"
         >
-          承認済み ({listings.filter((l) => l.status === "approved").length})
+          承認済み ({listings.filter((l) => l.status === 'approved').length})
         </Button>
         <Button
-          variant={filterStatus === "published" ? "default" : "outline"}
+          variant={filterStatus === 'published' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setFilterStatus("published")}
+          onClick={() => setFilterStatus('published')}
           className="rounded-full"
         >
-          掲載中 ({listings.filter((l) => l.status === "published").length})
+          掲載中 ({listings.filter((l) => l.status === 'published').length})
         </Button>
       </div>
 
@@ -83,15 +85,21 @@ export function SellerListingList({ listings }: SellerListingListProps) {
               <div className="mb-4 flex items-start justify-between">
                 <div className="flex-1">
                   <div className="mb-2 flex items-center gap-2">
-                    <Badge className={statusColors[listing.status]}>{statusLabels[listing.status]}</Badge>
+                    <Badge className={statusColors[listing.status]}>
+                      {statusLabels[listing.status]}
+                    </Badge>
                     <span className="text-xs text-muted-foreground">
-                      {new Date(listing.submittedAt).toLocaleDateString("ja-JP")}
+                      {new Date(listing.submittedAt).toLocaleDateString(
+                        'ja-JP'
+                      )}
                     </span>
                   </div>
                   <h3 className="mb-1 text-lg font-semibold text-foreground">
                     {listing.propertyAddress} の物件
                   </h3>
-                  <p className="text-sm text-muted-foreground">ID: {listing.id}</p>
+                  <p className="text-sm text-muted-foreground">
+                    ID: {listing.id}
+                  </p>
                 </div>
               </div>
 
@@ -102,13 +110,19 @@ export function SellerListingList({ listings }: SellerListingListProps) {
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Mail className="h-4 w-4 text-muted-foreground" />
-                  <a href={`mailto:${listing.sellerEmail}`} className="text-coral hover:underline">
+                  <a
+                    href={`mailto:${listing.sellerEmail}`}
+                    className="text-coral hover:underline"
+                  >
                     {listing.sellerEmail}
                   </a>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Phone className="h-4 w-4 text-muted-foreground" />
-                  <a href={`tel:${listing.sellerPhone}`} className="text-coral hover:underline">
+                  <a
+                    href={`tel:${listing.sellerPhone}`}
+                    className="text-coral hover:underline"
+                  >
                     {listing.sellerPhone}
                   </a>
                 </div>
@@ -119,12 +133,17 @@ export function SellerListingList({ listings }: SellerListingListProps) {
                 {listing.handoverFee && (
                   <div className="flex items-center gap-2 text-sm">
                     <Home className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-semibold">引き継ぎ費用: ¥{listing.handoverFee.toLocaleString()}</span>
+                    <span className="font-semibold">
+                      引き継ぎ費用: ¥{listing.handoverFee.toLocaleString()}
+                    </span>
                   </div>
                 )}
                 <div className="flex items-center gap-2 text-sm">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span>退去予定: {new Date(listing.moveOutDate).toLocaleDateString("ja-JP")}</span>
+                  <span>
+                    退去予定:{' '}
+                    {new Date(listing.moveOutDate).toLocaleDateString('ja-JP')}
+                  </span>
                 </div>
               </div>
 
@@ -134,30 +153,44 @@ export function SellerListingList({ listings }: SellerListingListProps) {
                     <Home className="h-4 w-4" />
                     引き継ぐ家具・インテリア
                   </div>
-                  <p className="text-sm leading-relaxed text-foreground/90">{listing.furnitureDescription}</p>
+                  <p className="text-sm leading-relaxed text-foreground/90">
+                    {listing.furnitureDescription}
+                  </p>
                 </div>
 
                 <div className="rounded-lg bg-muted/50 p-4">
-                  <div className="mb-2 text-sm font-semibold text-foreground">掲載したい理由</div>
-                  <p className="text-sm leading-relaxed text-foreground/90">{listing.whyListing}</p>
+                  <div className="mb-2 text-sm font-semibold text-foreground">
+                    掲載したい理由
+                  </div>
+                  <p className="text-sm leading-relaxed text-foreground/90">
+                    {listing.whyListing}
+                  </p>
                 </div>
 
                 <div className="rounded-lg bg-green-50 p-4">
                   <div className="flex items-center gap-2 text-sm font-semibold text-green-800">
-                    {listing.landlordConsent.hasLandlordConsent ? "大家さんの承諾済み" : "大家さんの承諾未確認"}
+                    {listing.landlordConsent.hasLandlordConsent
+                      ? '大家さんの承諾済み'
+                      : '大家さんの承諾未確認'}
                   </div>
                 </div>
 
                 {listing.notes && (
                   <div className="rounded-lg bg-blue-50 p-4">
-                    <div className="mb-2 text-sm font-semibold text-foreground">運営メモ</div>
-                    <p className="text-sm leading-relaxed text-foreground/90">{listing.notes}</p>
+                    <div className="mb-2 text-sm font-semibold text-foreground">
+                      運営メモ
+                    </div>
+                    <p className="text-sm leading-relaxed text-foreground/90">
+                      {listing.notes}
+                    </p>
                   </div>
                 )}
 
                 {listing.publishedPropertyId && (
                   <div className="rounded-lg bg-green-50 p-4">
-                    <div className="mb-2 text-sm font-semibold text-green-800">掲載中の物件</div>
+                    <div className="mb-2 text-sm font-semibold text-green-800">
+                      掲載中の物件
+                    </div>
                     <a
                       href={`/listings/${listing.publishedPropertyId}`}
                       target="_blank"
@@ -181,16 +214,17 @@ export function SellerListingList({ listings }: SellerListingListProps) {
                 <Button size="sm" variant="outline">
                   メール送信
                 </Button>
-                {listing.status === "approved" && !listing.publishedPropertyId && (
-                  <Button size="sm" variant="default">
-                    物件として掲載
-                  </Button>
-                )}
+                {listing.status === 'approved' &&
+                  !listing.publishedPropertyId && (
+                    <Button size="sm" variant="default">
+                      物件として掲載
+                    </Button>
+                  )}
               </div>
             </div>
           ))
         )}
       </div>
     </div>
-  )
+  );
 }

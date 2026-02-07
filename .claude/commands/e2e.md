@@ -21,6 +21,7 @@ This command invokes the **e2e-runner** agent to generate, maintain, and execute
 ## When to Use
 
 Use `/e2e` when:
+
 - Testing critical user journeys (login, trading, payments)
 - Verifying multi-step flows work end-to-end
 - Testing UI interactions and navigation
@@ -42,7 +43,7 @@ The e2e-runner agent will:
 
 ## Example Usage
 
-```
+````
 User: /e2e Test the market search and view flow
 
 Agent (e2e-runner):
@@ -160,7 +161,7 @@ test.describe('Market Search and View Flow', () => {
     expect(finalCount).toBe(initialCount)
   })
 })
-```
+````
 
 ## Running Tests
 
@@ -206,7 +207,8 @@ View report: npx playwright show-report
 ```
 
 ✅ E2E test suite ready for CI/CD integration!
-```
+
+````
 
 ## Test Artifacts
 
@@ -234,7 +236,7 @@ npx playwright show-trace artifacts/trace-abc123.zip
 
 # Screenshots are saved in artifacts/ directory
 open artifacts/search-results.png
-```
+````
 
 ## Flaky Test Detection
 
@@ -260,6 +262,7 @@ Quarantine recommendation: Mark as test.fixme() until fixed
 ## Browser Configuration
 
 Tests run on multiple browsers by default:
+
 - ✅ Chromium (Desktop Chrome)
 - ✅ Firefox (Desktop)
 - ✅ WebKit (Desktop Safari)
@@ -292,6 +295,7 @@ Add to your CI pipeline:
 For PMX, prioritize these E2E tests:
 
 **🔴 CRITICAL (Must Always Pass):**
+
 1. User can connect wallet
 2. User can browse markets
 3. User can search markets (semantic search)
@@ -301,6 +305,7 @@ For PMX, prioritize these E2E tests:
 7. User can withdraw funds
 
 **🟡 IMPORTANT:**
+
 1. Market creation flow
 2. User profile updates
 3. Real-time price updates
@@ -311,6 +316,7 @@ For PMX, prioritize these E2E tests:
 ## Best Practices
 
 **DO:**
+
 - ✅ Use Page Object Model for maintainability
 - ✅ Use data-testid attributes for selectors
 - ✅ Wait for API responses, not arbitrary timeouts
@@ -319,6 +325,7 @@ For PMX, prioritize these E2E tests:
 - ✅ Review artifacts when tests fail
 
 **DON'T:**
+
 - ❌ Use brittle selectors (CSS classes can change)
 - ❌ Test implementation details
 - ❌ Run tests against production
@@ -329,6 +336,7 @@ For PMX, prioritize these E2E tests:
 ## Important Notes
 
 **CRITICAL for PMX:**
+
 - E2E tests involving real money MUST run on testnet/staging only
 - Never run trading tests against production
 - Set `test.skip(process.env.NODE_ENV === 'production')` for financial tests

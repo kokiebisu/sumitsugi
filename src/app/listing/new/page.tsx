@@ -1,15 +1,33 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useAuth } from "@/contexts/auth-context";
-import type { LargeFurnitureType } from "@/lib/data";
-import { Button } from "@/components/ui/button";
-import { LocationPicker, type StationInfo, type LocationWithAddress } from "@/components/location-picker";
-import { EstimateCard } from "@/components/estimate-card";
-import { SingleDatePicker } from "@/components/date-range-picker";
-import { cn } from "@/lib/utils";
+import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useAuth } from '@/contexts/auth-context';
+import type { LargeFurnitureType } from '@/lib/data';
+import {
+  getCoreFurniture,
+  getAdditionalFurniture,
+  getLayerLabel,
+} from '@/lib/furniture-layers';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import {
+  LocationPicker,
+  type StationInfo,
+  type LocationWithAddress,
+} from '@/components/location-picker';
+import { EstimateCard } from '@/components/estimate-card';
+import { PricingGuidance } from '@/components/listing/pricing-guidance';
+import { SingleDatePicker } from '@/components/date-range-picker';
+import { cn } from '@/lib/utils';
 import {
   X,
   Plus,
@@ -18,47 +36,52 @@ import {
   Monitor,
   Archive,
   Table2,
+  UtensilsCrossed,
   Shirt,
   Tv,
   Refrigerator,
   Users,
-} from "lucide-react";
+  CalendarDays,
+  AlertTriangle,
+  XCircle,
+} from 'lucide-react';
 
 // 間取りの選択肢
 const LAYOUT_OPTIONS = [
-  "1R",
-  "1K",
-  "1DK",
-  "1LDK",
-  "2K",
-  "2DK",
-  "2LDK",
-  "3K",
-  "3DK",
-  "3LDK",
-  "4K",
-  "4DK",
-  "4LDK",
+  '1R',
+  '1K',
+  '1DK',
+  '1LDK',
+  '2K',
+  '2DK',
+  '2LDK',
+  '3K',
+  '3DK',
+  '3LDK',
+  '4K',
+  '4DK',
+  '4LDK',
 ];
 
 // 居住人数の選択肢
 const OCCUPANTS_OPTIONS = [
-  { value: "1", label: "1人" },
-  { value: "2", label: "2人" },
-  { value: "3", label: "3人" },
-  { value: "4", label: "4人以上" },
+  { value: '1', label: '1人' },
+  { value: '2', label: '2人' },
+  { value: '3', label: '3人' },
+  { value: '4', label: '4人以上' },
 ];
 
 // 引き継ぎ対象の大型家具
 const FURNITURE_ITEMS = [
-  { id: "bed", label: "ベッド", Icon: BedDouble },
-  { id: "sofa", label: "ソファ", Icon: Sofa },
-  { id: "desk", label: "デスク", Icon: Monitor },
-  { id: "storage", label: "収納", Icon: Archive },
-  { id: "table", label: "テーブル", Icon: Table2 },
-  { id: "wardrobe", label: "ワードローブ", Icon: Shirt },
-  { id: "tv", label: "テレビ台", Icon: Tv },
-  { id: "fridge", label: "冷蔵庫", Icon: Refrigerator },
+  { id: 'bed', label: 'ベッド', Icon: BedDouble },
+  { id: 'sofa', label: 'ソファ', Icon: Sofa },
+  { id: 'desk', label: 'デスク', Icon: Monitor },
+  { id: 'storage', label: '収納', Icon: Archive },
+  { id: 'table', label: 'テーブル', Icon: Table2 },
+  { id: 'dining', label: 'ダイニング', Icon: UtensilsCrossed },
+  { id: 'wardrobe', label: 'ワードローブ', Icon: Shirt },
+  { id: 'tv', label: 'テレビ台', Icon: Tv },
+  { id: 'fridge', label: '冷蔵庫', Icon: Refrigerator },
 ];
 
 export default function NewListingPage() {
@@ -66,26 +89,49 @@ export default function NewListingPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [roomPhotos, setRoomPhotos] = useState<string[]>([]);
-  const [handoverFee, setHandoverFee] = useState<string>("");
-  const [rent, setRent] = useState<string>("");
-  const [layout, setLayout] = useState<string>("");
+  const [handoverFee, setHandoverFee] = useState<string>('');
+  const [rent, setRent] = useState<string>('');
+  const [layout, setLayout] = useState<string>('');
   const [location, setLocation] = useState<LocationWithAddress | null>(null);
-  const [managementFee, setManagementFee] = useState<string>("");
+  const [managementFee, setManagementFee] = useState<string>('');
   const [selectedFurniture, setSelectedFurniture] = useState<string[]>([]);
+  const [coreSetPrice, setCoreSetPrice] = useState<string>('');
+  const [moveOutDate, setMoveOutDate] = useState<Date | null>(null);
   const [viewingDate, setViewingDate] = useState<Date | null>(null);
   const [viewingEndDate, setViewingEndDate] = useState<Date | null>(null);
   const [moveInDate, setMoveInDate] = useState<Date | null>(null);
   const [moveInEndDate, setMoveInEndDate] = useState<Date | null>(null);
   const [stations, setStations] = useState<StationInfo[]>([
-    { name: "", walkingMinutes: "" },
+    { name: '', walkingMinutes: '' },
   ]);
-  const [occupants, setOccupants] = useState<string>("");
+  const [occupants, setOccupants] = useState<string>('');
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [pendingPhotos, setPendingPhotos] = useState<string[]>([]);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
+  const [showGracePeriodWarning, setShowGracePeriodWarning] = useState(false);
   const totalSteps = 7;
+
+  // 退去日までの残り日数を計算（F-502）
+  const daysUntilMoveOut = useMemo(() => {
+    if (!moveOutDate) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const moveOut = new Date(moveOutDate);
+    moveOut.setHours(0, 0, 0, 0);
+    return Math.ceil(
+      (moveOut.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+    );
+  }, [moveOutDate]);
+
+  // 猶予期間のステータス
+  const gracePeriodStatus = useMemo(() => {
+    if (daysUntilMoveOut === null) return 'unknown';
+    if (daysUntilMoveOut < 30) return 'blocked';
+    if (daysUntilMoveOut < 60) return 'warning';
+    return 'ok';
+  }, [daysUntilMoveOut]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -96,7 +142,7 @@ export default function NewListingPage() {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/");
+      router.push('/');
     }
   }, [user, isLoading, router]);
 
@@ -110,13 +156,13 @@ export default function NewListingPage() {
   const generateTitle = () => {
     // 間取りから暮らしタイプを判定
     const getLivingType = () => {
-      if (!layout) return "";
+      if (!layout) return '';
       // 1R, 1K, 1DK, 1LDK は一人暮らし
-      if (layout.startsWith("1")) return "一人暮らしの";
+      if (layout.startsWith('1')) return '一人暮らしの';
       // 2K, 2DK, 2LDK は二人暮らし
-      if (layout.startsWith("2")) return "二人暮らしの";
+      if (layout.startsWith('2')) return '二人暮らしの';
       // 3K以上はファミリー向け
-      return "ファミリー向けの";
+      return 'ファミリー向けの';
     };
 
     const livingType = getLivingType();
@@ -143,10 +189,10 @@ export default function NewListingPage() {
   const formatDateRange = (start: Date | null, end: Date | null) => {
     if (!start) return undefined;
     const formatDate = (d: Date) =>
-      d.toLocaleDateString("ja-JP", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
+      d.toLocaleDateString('ja-JP', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
       });
     if (end) {
       return `${formatDate(start)} - ${formatDate(end)}`;
@@ -154,41 +200,49 @@ export default function NewListingPage() {
     return `${formatDate(start)}以降`;
   };
 
+  const saveListing = (status: 'published' | 'draft') => {
+    addListing({
+      status,
+      title: generateTitle(),
+      roomStyle: null,
+      roomPhotos,
+      handoverFee: handoverFee ? parseInt(handoverFee, 10) : undefined,
+      rent: rent ? parseInt(rent, 10) : undefined,
+      managementFee: managementFee ? parseInt(managementFee, 10) : undefined,
+      layout: layout || undefined,
+      occupants: occupants ? parseInt(occupants, 10) : undefined,
+      area: location?.neighborhood || '東京',
+      furniture:
+        selectedFurniture.length > 0
+          ? (selectedFurniture as LargeFurnitureType[])
+          : undefined,
+      coreSetPrice: coreSetPrice ? parseInt(coreSetPrice, 10) : undefined,
+      moveOutDate: moveOutDate
+        ? moveOutDate.toISOString().split('T')[0]
+        : undefined,
+      viewingAvailableFrom: formatDateRange(viewingDate, viewingEndDate),
+      moveInAvailableFrom: formatDateRange(moveInDate, moveInEndDate),
+      stations: stations
+        .filter((s) => s.name)
+        .map((s) => ({
+          name: s.name,
+          walkingMinutes: s.walkingMinutes ? parseInt(s.walkingMinutes, 10) : 0,
+        })),
+    });
+    router.push('/listing');
+  };
+
   const handleNext = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     } else {
-      // ステップ7: 住所詳細が入力されていれば公開、そうでなければ下書き保存
+      // ステップ7: 公開前に猶予期間チェック（F-502）
       const shouldPublish = hasDetailedAddress();
-      addListing({
-        status: shouldPublish ? "published" : "draft",
-        title: generateTitle(),
-        roomStyle: null,
-        roomPhotos,
-        handoverFee: handoverFee ? parseInt(handoverFee, 10) : undefined,
-        rent: rent ? parseInt(rent, 10) : undefined,
-        managementFee: managementFee ? parseInt(managementFee, 10) : undefined,
-        layout: layout || undefined,
-        occupants: occupants ? parseInt(occupants, 10) : undefined,
-        area: location?.neighborhood || "東京",
-        furniture:
-          selectedFurniture.length > 0
-            ? (selectedFurniture as LargeFurnitureType[])
-            : undefined,
-        viewingAvailableFrom: formatDateRange(viewingDate, viewingEndDate),
-        moveInAvailableFrom: formatDateRange(moveInDate, moveInEndDate),
-        stations: stations
-          .filter((s) => s.name)
-          .map((s) => ({
-            name: s.name,
-            walkingMinutes: s.walkingMinutes
-              ? parseInt(s.walkingMinutes, 10)
-              : 0,
-          })),
-      });
-
-      // 公開・下書きどちらも部屋一覧へ遷移
-      router.push("/listing");
+      if (shouldPublish && gracePeriodStatus === 'warning') {
+        setShowGracePeriodWarning(true);
+        return;
+      }
+      saveListing(shouldPublish ? 'published' : 'draft');
     }
   };
 
@@ -196,42 +250,17 @@ export default function NewListingPage() {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     } else {
-      router.push("/listing");
+      router.push('/listing');
     }
   };
 
   const handleSaveAndExit = () => {
     const hasData = roomPhotos.length > 0 || handoverFee.length > 0;
-
     if (hasData) {
-      addListing({
-        status: "draft",
-        title: generateTitle(),
-        roomStyle: null,
-        roomPhotos,
-        handoverFee: handoverFee ? parseInt(handoverFee, 10) : undefined,
-        rent: rent ? parseInt(rent, 10) : undefined,
-        managementFee: managementFee ? parseInt(managementFee, 10) : undefined,
-        layout: layout || undefined,
-        area: location?.neighborhood || "東京",
-        furniture:
-          selectedFurniture.length > 0
-            ? (selectedFurniture as LargeFurnitureType[])
-            : undefined,
-        viewingAvailableFrom: formatDateRange(viewingDate, viewingEndDate),
-        moveInAvailableFrom: formatDateRange(moveInDate, moveInEndDate),
-        stations: stations
-          .filter((s) => s.name)
-          .map((s) => ({
-            name: s.name,
-            walkingMinutes: s.walkingMinutes
-              ? parseInt(s.walkingMinutes, 10)
-              : 0,
-          })),
-      });
+      saveListing('draft');
+    } else {
+      router.push('/listing');
     }
-
-    router.push("/listing");
   };
 
   const canProceed = () => {
@@ -243,7 +272,7 @@ export default function NewListingPage() {
       case 4:
         return rent.length > 0 && layout.length > 0;
       case 5:
-        return true; // スケジュールは任意
+        return moveOutDate !== null && gracePeriodStatus !== 'blocked'; // 退去日は必須、30日未満は出品不可（F-501, F-502）
       case 6:
         return selectedFurniture.length > 0 && handoverFee.length > 0;
       default:
@@ -374,35 +403,35 @@ export default function NewListingPage() {
                   className="absolute left-0 top-0 bottom-0 w-24 z-10 pointer-events-none"
                   style={{
                     background:
-                      "linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%)",
+                      'linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%)',
                   }}
                 />
                 <div
                   className="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none"
                   style={{
                     background:
-                      "linear-gradient(to left, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%)",
+                      'linear-gradient(to left, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%)',
                   }}
                 />
                 <div
                   className={cn(
-                    "flex gap-5 overflow-x-auto py-2 scrollbar-hide",
-                    roomPhotos.length === 0 && "justify-center",
+                    'flex gap-5 overflow-x-auto py-2 scrollbar-hide',
+                    roomPhotos.length === 0 && 'justify-center'
                   )}
                   style={{
-                    scrollSnapType: "x mandatory",
-                    WebkitOverflowScrolling: "touch",
+                    scrollSnapType: 'x mandatory',
+                    WebkitOverflowScrolling: 'touch',
                     paddingLeft:
                       roomPhotos.length === 0
-                        ? "2rem"
-                        : "max(2rem, calc((100vw - 1200px) / 2))",
+                        ? '2rem'
+                        : 'max(2rem, calc((100vw - 1200px) / 2))',
                   }}
                 >
                   {roomPhotos.map((photo, index) => (
                     <div
                       key={index}
                       className="relative flex-shrink-0 w-[400px] h-[280px] rounded-2xl overflow-hidden group"
-                      style={{ scrollSnapAlign: "center" }}
+                      style={{ scrollSnapAlign: 'center' }}
                     >
                       <img
                         src={photo}
@@ -426,7 +455,7 @@ export default function NewListingPage() {
                     <button
                       onClick={openUploadDialog}
                       className="flex-shrink-0 w-[400px] h-[280px] border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center hover:border-foreground/40 transition-colors cursor-pointer"
-                      style={{ scrollSnapAlign: "center" }}
+                      style={{ scrollSnapAlign: 'center' }}
                     >
                       <Plus className="w-10 h-10 mb-2 text-muted-foreground" />
                       <span className="text-base text-muted-foreground font-medium">
@@ -437,7 +466,7 @@ export default function NewListingPage() {
                   {roomPhotos.length > 0 && (
                     <div
                       className="flex-shrink-0"
-                      style={{ width: "max(2rem, calc((100vw - 1200px) / 2))" }}
+                      style={{ width: 'max(2rem, calc((100vw - 1200px) / 2))' }}
                       aria-hidden="true"
                     />
                   )}
@@ -445,10 +474,10 @@ export default function NewListingPage() {
               </div>
               <div className="text-center mt-4">
                 <p
-                  className={`text-sm font-medium ${roomPhotos.length >= 3 ? "text-green-600" : "text-muted-foreground"}`}
+                  className={`text-sm font-medium ${roomPhotos.length >= 3 ? 'text-green-600' : 'text-muted-foreground'}`}
                 >
                   {roomPhotos.length} / 5 枚（最低5枚必要）
-                  {roomPhotos.length >= 3 ? " ✓" : ""}
+                  {roomPhotos.length >= 3 ? ' ✓' : ''}
                 </p>
               </div>
             </div>
@@ -472,7 +501,11 @@ export default function NewListingPage() {
               <div className="w-full max-w-2xl">
                 <LocationPicker
                   onLocationSelect={setLocation}
-                  initialLocation={location ? { lat: location.lat, lng: location.lng } : undefined}
+                  initialLocation={
+                    location
+                      ? { lat: location.lat, lng: location.lng }
+                      : undefined
+                  }
                   initialAddress={location?.address}
                   initialNeighborhood={location?.neighborhood}
                   stations={stations}
@@ -535,10 +568,10 @@ export default function NewListingPage() {
                         type="button"
                         onClick={() => setLayout(option)}
                         className={cn(
-                          "px-4 py-2 rounded-full border-2 text-sm font-medium transition-all",
+                          'px-4 py-2 rounded-full border-2 text-sm font-medium transition-all',
                           layout === option
-                            ? "border-foreground bg-foreground text-white"
-                            : "border-border hover:border-foreground/40",
+                            ? 'border-foreground bg-foreground text-white'
+                            : 'border-border hover:border-foreground/40'
                         )}
                       >
                         {option}
@@ -557,10 +590,10 @@ export default function NewListingPage() {
                         type="button"
                         onClick={() => setOccupants(option.value)}
                         className={cn(
-                          "px-4 py-2 rounded-full border-2 text-sm font-medium transition-all",
+                          'px-4 py-2 rounded-full border-2 text-sm font-medium transition-all',
                           occupants === option.value
-                            ? "border-foreground bg-foreground text-white"
-                            : "border-border hover:border-foreground/40",
+                            ? 'border-foreground bg-foreground text-white'
+                            : 'border-border hover:border-foreground/40'
                         )}
                       >
                         {option.label}
@@ -589,6 +622,58 @@ export default function NewListingPage() {
               </p>
 
               <div className="w-full space-y-8">
+                {/* 退去日（必須） */}
+                <div>
+                  <SingleDatePicker
+                    selectedDate={moveOutDate}
+                    endDate={null}
+                    onDateChange={(start) => {
+                      setMoveOutDate(start);
+                    }}
+                    title={
+                      moveOutDate
+                        ? `退去日: ${moveOutDate.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })}`
+                        : '退去予定日を選択（必須）'
+                    }
+                    subtitle={
+                      moveOutDate ? undefined : '現在の住居を退去する予定日'
+                    }
+                    minDate={new Date()}
+                  />
+                  {/* 猶予期間バリデーション表示（F-502） */}
+                  {moveOutDate && gracePeriodStatus === 'blocked' && (
+                    <div className="mt-3 flex items-start gap-2 rounded-lg bg-red-50 p-3 dark:bg-red-950/30">
+                      <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium text-red-800 dark:text-red-200">
+                          退去日まで{daysUntilMoveOut}日のため出品できません
+                        </p>
+                        <p className="text-xs text-red-600 dark:text-red-300 mt-1">
+                          出品には退去日まで30日以上の猶予が必要です。退去日を変更してください。
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {moveOutDate && gracePeriodStatus === 'warning' && (
+                    <div className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 p-3 dark:bg-amber-950/30">
+                      <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                          退去日まで{daysUntilMoveOut}日です
+                        </p>
+                        <p className="text-xs text-amber-600 dark:text-amber-300 mt-1">
+                          出品は可能ですが、公開時に確認が必要です。引き継ぎの準備が十分か確認してください。
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {moveOutDate && gracePeriodStatus === 'ok' && (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      退去日まで{daysUntilMoveOut}日 — 十分な猶予があります
+                    </p>
+                  )}
+                </div>
+
                 {/* 内見可能日 */}
                 <div>
                   <SingleDatePicker
@@ -600,12 +685,16 @@ export default function NewListingPage() {
                     }}
                     title={
                       viewingDate && viewingEndDate
-                        ? `${viewingDate.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })} - ${viewingEndDate.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}`
+                        ? `${viewingDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })} - ${viewingEndDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })}`
                         : viewingDate
-                        ? `${viewingDate.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}以降`
-                        : "内見可能日を選択"
+                          ? `${viewingDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })}以降`
+                          : '内見可能日を選択'
                     }
-                    subtitle={viewingEndDate ? undefined : "この日以降、内見を受け付けます"}
+                    subtitle={
+                      viewingEndDate
+                        ? undefined
+                        : 'この日以降、内見を受け付けます'
+                    }
                   />
                 </div>
 
@@ -620,12 +709,16 @@ export default function NewListingPage() {
                     }}
                     title={
                       moveInDate && moveInEndDate
-                        ? `${moveInDate.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })} - ${moveInEndDate.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}`
+                        ? `${moveInDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })} - ${moveInEndDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })}`
                         : moveInDate
-                        ? `${moveInDate.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}以降`
-                        : "引き継ぎ可能日を選択"
+                          ? `${moveInDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })}以降`
+                          : '引き継ぎ可能日を選択'
                     }
-                    subtitle={moveInEndDate ? undefined : "この日以降、引き継ぎが可能です"}
+                    subtitle={
+                      moveInEndDate
+                        ? undefined
+                        : 'この日以降、引き継ぎが可能です'
+                    }
                   />
                 </div>
               </div>
@@ -648,13 +741,19 @@ export default function NewListingPage() {
                 家具を選んで、引き継ぎ費用を決めましょう
               </p>
               <div className="w-full max-w-md space-y-6">
-                {/* 大型家具チェック */}
+                {/* コアセット（基本セット） */}
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-3">
-                    引き継ぐ大型家具（複数選択可） <span className="text-coral">*</span>
+                  <label className="block text-sm font-semibold text-foreground mb-1">
+                    {getLayerLabel('core')}
                   </label>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    部屋の基本家具。セット価格で一括引き継ぎされます
+                  </p>
                   <div className="grid grid-cols-4 gap-3">
-                    {FURNITURE_ITEMS.map(({ id, label, Icon }) => {
+                    {getCoreFurniture().map(({ id, label }) => {
+                      const Icon =
+                        FURNITURE_ITEMS.find((f) => f.id === id)?.Icon ||
+                        Table2;
                       const isSelected = selectedFurniture.includes(id);
                       return (
                         <button
@@ -664,14 +763,14 @@ export default function NewListingPage() {
                             setSelectedFurniture((prev) =>
                               isSelected
                                 ? prev.filter((f) => f !== id)
-                                : [...prev, id],
+                                : [...prev, id]
                             );
                           }}
                           className={cn(
-                            "flex flex-col items-center p-3 rounded-xl border-2 transition-all",
+                            'flex flex-col items-center p-3 rounded-xl border-2 transition-all',
                             isSelected
-                              ? "border-foreground bg-muted"
-                              : "border-border hover:border-foreground/40",
+                              ? 'border-foreground bg-muted'
+                              : 'border-border hover:border-foreground/40'
                           )}
                         >
                           <Icon
@@ -683,21 +782,93 @@ export default function NewListingPage() {
                       );
                     })}
                   </div>
+                  {/* コアセット価格 */}
+                  {selectedFurniture.some((id) =>
+                    getCoreFurniture().some((f) => f.id === id)
+                  ) && (
+                    <div className="mt-3">
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        コアセット価格（円）
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="1000000"
+                        step="1000"
+                        placeholder="例: 30000"
+                        value={coreSetPrice}
+                        onChange={(e) => setCoreSetPrice(e.target.value)}
+                        className="w-full px-4 py-3 border border-border rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-foreground"
+                      />
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        選択したコアセット家具のセット価格
+                      </p>
+                    </div>
+                  )}
+                </div>
 
-                  {/* 内見時合意の注意書き */}
-                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                    <p className="text-sm text-blue-800">
-                      <span className="font-medium">ご注意：</span>
-                      ここで選択した家具は掲載時の参考情報です。
-                      最終的な譲渡内容や金額は内見時に双方で確認・合意します。
-                    </p>
+                {/* 追加家具（個別オプション） */}
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1">
+                    {getLayerLabel('additional')}
+                  </label>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    次の住人が個別に選択できるオプション家具
+                  </p>
+                  <div className="grid grid-cols-4 gap-3">
+                    {getAdditionalFurniture().map(({ id, label }) => {
+                      const Icon =
+                        FURNITURE_ITEMS.find((f) => f.id === id)?.Icon ||
+                        Archive;
+                      const isSelected = selectedFurniture.includes(id);
+                      return (
+                        <button
+                          key={id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedFurniture((prev) =>
+                              isSelected
+                                ? prev.filter((f) => f !== id)
+                                : [...prev, id]
+                            );
+                          }}
+                          className={cn(
+                            'flex flex-col items-center p-3 rounded-xl border-2 transition-all',
+                            isSelected
+                              ? 'border-foreground bg-muted'
+                              : 'border-border hover:border-foreground/40'
+                          )}
+                        >
+                          <Icon
+                            className="w-6 h-6 mb-1 text-foreground"
+                            strokeWidth={1.5}
+                          />
+                          <span className="text-xs font-medium">{label}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
+
+                {/* 内見時合意の注意書き */}
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                  <p className="text-sm text-blue-800">
+                    <span className="font-medium">ご注意：</span>
+                    コアセットはセット価格で一括引き継ぎ、追加家具は個別に選択できます。
+                    最終的な譲渡内容や金額は内見時に双方で確認・合意します。
+                  </p>
+                </div>
+
+                {/* 値付けガイダンス（F-105） */}
+                <PricingGuidance
+                  selectedFurniture={selectedFurniture}
+                  handoverFee={handoverFee}
+                />
 
                 {/* AI見積もりカード */}
                 <EstimateCard
                   furniture={selectedFurniture}
-                  area={location?.neighborhood || "東京"}
+                  area={location?.neighborhood || '東京'}
                   rent={rent ? parseInt(rent, 10) : undefined}
                   layout={layout}
                   onEstimateComplete={(suggestedFee) => {
@@ -804,7 +975,7 @@ export default function NewListingPage() {
                   <p className="mt-1 text-base font-normal text-foreground">
                     {[location?.neighborhood, layout]
                       .filter(Boolean)
-                      .join(" / ")}
+                      .join(' / ')}
                   </p>
                 </div>
 
@@ -908,7 +1079,7 @@ export default function NewListingPage() {
                             居住人数
                           </p>
                           <p className="text-base font-semibold text-foreground">
-                            {occupants === "4" ? "4人以上" : `${occupants}人`}
+                            {occupants === '4' ? '4人以上' : `${occupants}人`}
                           </p>
                         </div>
                       </div>
@@ -917,12 +1088,29 @@ export default function NewListingPage() {
                 </section>
 
                 {/* 引き継ぎスケジュール */}
-                {(viewingDate || moveInDate) && (
+                {(moveOutDate || viewingDate || moveInDate) && (
                   <section className="py-8">
                     <h3 className="mb-6 text-xl font-semibold text-foreground">
                       引き継ぎスケジュール
                     </h3>
                     <div className="space-y-4">
+                      {moveOutDate && (
+                        <div className="flex items-start gap-3">
+                          <CalendarDays className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-sm text-muted-foreground">
+                              退去予定日
+                            </p>
+                            <p className="text-base font-semibold text-foreground">
+                              {moveOutDate.toLocaleDateString('ja-JP', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                              })}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                       {viewingDate && (
                         <div className="flex items-start gap-3">
                           <Tv className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
@@ -966,7 +1154,7 @@ export default function NewListingPage() {
               key={index}
               className="h-[2px] flex-1"
               style={{
-                backgroundColor: index < currentStep ? "#222222" : "#DDDDDD",
+                backgroundColor: index < currentStep ? '#222222' : '#DDDDDD',
               }}
             />
           ))}
@@ -984,15 +1172,15 @@ export default function NewListingPage() {
             disabled={!canProceed()}
             className={`rounded-lg px-6 py-3 text-base font-medium text-white h-12 disabled:opacity-50 ${
               currentStep === totalSteps && hasDetailedAddress()
-                ? "bg-[#E61E4D] hover:bg-[#D01346]"
-                : "bg-[#222222] hover:bg-[#000000]"
+                ? 'bg-[#E61E4D] hover:bg-[#D01346]'
+                : 'bg-[#222222] hover:bg-[#000000]'
             }`}
           >
             {currentStep === totalSteps
               ? hasDetailedAddress()
-                ? "公開する"
-                : "登録する"
-              : "次へ"}
+                ? '公開する'
+                : '登録する'
+              : '次へ'}
           </Button>
         </div>
       </footer>
@@ -1019,7 +1207,7 @@ export default function NewListingPage() {
                 <p className="text-sm text-muted-foreground">
                   {pendingPhotos.length > 0
                     ? `${pendingPhotos.length}枚選択中`
-                    : "アイテムが選択されていません"}
+                    : 'アイテムが選択されていません'}
                 </p>
               </div>
               <label className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted cursor-pointer">
@@ -1070,7 +1258,7 @@ export default function NewListingPage() {
               ) : pendingPhotos.length > 0 || isLoadingFiles ? (
                 <div
                   className="overflow-x-auto scrollbar-hide"
-                  style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                   <style jsx>{`
                     .scrollbar-hide::-webkit-scrollbar {
@@ -1079,7 +1267,7 @@ export default function NewListingPage() {
                   `}</style>
                   <div
                     className="flex gap-3"
-                    style={{ minWidth: "min-content" }}
+                    style={{ minWidth: 'min-content' }}
                   >
                     {pendingPhotos.map((photo, index) => (
                       <div
@@ -1223,10 +1411,10 @@ export default function NewListingPage() {
                 onClick={handleUploadConfirm}
                 disabled={pendingPhotos.length === 0 || isUploading}
                 className={cn(
-                  "rounded-lg px-6 py-2 text-sm font-medium",
+                  'rounded-lg px-6 py-2 text-sm font-medium',
                   pendingPhotos.length > 0
-                    ? "bg-foreground text-white hover:bg-foreground/90"
-                    : "bg-[#DDDDDD] text-muted-foreground cursor-not-allowed",
+                    ? 'bg-foreground text-white hover:bg-foreground/90'
+                    : 'bg-[#DDDDDD] text-muted-foreground cursor-not-allowed'
                 )}
               >
                 アップロード
@@ -1235,6 +1423,40 @@ export default function NewListingPage() {
           </div>
         </div>
       )}
+      {/* 猶予期間警告ダイアログ（F-502: 30-60日） */}
+      <Dialog
+        open={showGracePeriodWarning}
+        onOpenChange={setShowGracePeriodWarning}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              退去日までの猶予が短めです
+            </DialogTitle>
+            <DialogDescription>
+              退去日まで{daysUntilMoveOut}
+              日です。引き継ぎの準備（内見対応・家具引き渡し・清掃など）に十分な時間を確保できますか？
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setShowGracePeriodWarning(false)}
+            >
+              戻って確認する
+            </Button>
+            <Button
+              onClick={() => {
+                setShowGracePeriodWarning(false);
+                saveListing('published');
+              }}
+            >
+              このまま公開する
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

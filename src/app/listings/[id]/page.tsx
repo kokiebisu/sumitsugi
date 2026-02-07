@@ -1,20 +1,19 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { ImageGallery } from "@/components/image-gallery";
-import { PropertySidebar } from "@/components/property-sidebar";
-import { PropertyMap } from "@/components/property-map";
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import { Header } from '@/components/header';
+import { Footer } from '@/components/footer';
+import { ImageGallery } from '@/components/image-gallery';
+import { PropertySidebar } from '@/components/property-sidebar';
+import { PropertyMap } from '@/components/property-map';
 import {
   getPropertyById,
   getPublicProperties,
   furnitureLabels,
-} from "@/lib/data";
+} from '@/lib/data';
+import { isCoreFurniture, getLayerLabel } from '@/lib/furniture-layers';
 import {
   ArrowLeft,
   Home,
-  CheckCircle2,
-  XCircle,
   BedDouble,
   Sofa,
   Monitor,
@@ -25,7 +24,10 @@ import {
   Refrigerator,
   Coffee,
   Users,
-} from "lucide-react";
+} from 'lucide-react';
+import { isUrgentMoveIn } from '@/lib/utils';
+import { UrgentMoveInBadge } from '@/components/urgent-move-in-badge';
+import { ConsentBadge } from '@/components/consent-badge';
 
 const FURNITURE_ICONS: Record<string, typeof BedDouble> = {
   bed: BedDouble,
@@ -56,7 +58,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PropertyDetailPageProps) {
   const { id } = await params;
   const property = getPropertyById(id);
-  if (!property) return { title: "物件が見つかりません" };
+  if (!property) return { title: '物件が見つかりません' };
 
   return {
     title: `${property.title} | tsumugi`,
@@ -70,7 +72,7 @@ export default async function PropertyDetailPage({
   const { id } = await params;
   const property = getPropertyById(id);
 
-  if (!property || property.status !== "public") {
+  if (!property || property.status !== 'public') {
     notFound();
   }
 
@@ -102,16 +104,28 @@ export default async function PropertyDetailPage({
             <div className="lg:col-span-3">
               {/* Title and Location */}
               <div className="pb-6 border-b border-border">
-                <h1 className="text-[26px] font-medium text-foreground">
-                  {property.title}
-                </h1>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-[26px] font-medium text-foreground">
+                    {property.title}
+                  </h1>
+                  {isUrgentMoveIn(property.moveOutDate) && (
+                    <UrgentMoveInBadge variant="inline" />
+                  )}
+                  {property.consentStatus &&
+                    property.consentStatus !== 'pending' && (
+                      <ConsentBadge
+                        status={property.consentStatus}
+                        variant="inline"
+                      />
+                    )}
+                </div>
                 <p className="mt-1 text-base font-normal text-foreground">
                   {[
                     property.location?.neighborhood || property.area,
                     property.layout,
                   ]
                     .filter(Boolean)
-                    .join(" / ")}
+                    .join(' / ')}
                 </p>
               </div>
 
@@ -154,36 +168,81 @@ export default async function PropertyDetailPage({
                 </div>
               </section>
 
-              {/* Furniture Section */}
+              {/* Furniture Section - 2-layer structure */}
               <section className="py-8 border-b border-border">
                 <h2 className="mb-4 text-xl font-semibold text-foreground">
                   引き継ぎ対象の大型家具
                 </h2>
 
-                {/* Large Furniture Icons */}
                 {property.furniture && property.furniture.length > 0 && (
-                  <div className="mb-6">
-                    <div className="flex gap-6">
-                      {property.furniture.map((item, index) => {
-                        const Icon = FURNITURE_ICONS[item] || Home;
-                        return (
-                          <div
-                            key={index}
-                            className="flex flex-col items-center gap-2"
-                          >
-                            <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center">
-                              <Icon
-                                className="h-7 w-7 text-foreground"
-                                strokeWidth={1.5}
-                              />
-                            </div>
-                            <span className="text-sm text-foreground">
-                              {furnitureLabels[item] || item}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
+                  <div className="space-y-6">
+                    {/* Core Set */}
+                    {property.furniture.some((item) =>
+                      isCoreFurniture(item)
+                    ) && (
+                      <div>
+                        <h3 className="text-sm font-semibold text-foreground mb-3">
+                          {getLayerLabel('core')}
+                        </h3>
+                        <div className="flex gap-6">
+                          {property.furniture
+                            .filter((item) => isCoreFurniture(item))
+                            .map((item, index) => {
+                              const Icon = FURNITURE_ICONS[item] || Home;
+                              return (
+                                <div
+                                  key={index}
+                                  className="flex flex-col items-center gap-2"
+                                >
+                                  <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center">
+                                    <Icon
+                                      className="h-7 w-7 text-foreground"
+                                      strokeWidth={1.5}
+                                    />
+                                  </div>
+                                  <span className="text-sm text-foreground">
+                                    {furnitureLabels[item] || item}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Additional Furniture */}
+                    {property.furniture.some(
+                      (item) => !isCoreFurniture(item)
+                    ) && (
+                      <div>
+                        <h3 className="text-sm font-semibold text-foreground mb-3">
+                          {getLayerLabel('additional')}
+                        </h3>
+                        <div className="flex gap-6">
+                          {property.furniture
+                            .filter((item) => !isCoreFurniture(item))
+                            .map((item, index) => {
+                              const Icon = FURNITURE_ICONS[item] || Home;
+                              return (
+                                <div
+                                  key={index}
+                                  className="flex flex-col items-center gap-2"
+                                >
+                                  <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center">
+                                    <Icon
+                                      className="h-7 w-7 text-foreground"
+                                      strokeWidth={1.5}
+                                    />
+                                  </div>
+                                  <span className="text-sm text-foreground">
+                                    {furnitureLabels[item] || item}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </section>
@@ -202,7 +261,7 @@ export default async function PropertyDetailPage({
                 </h2>
                 <p className="mb-4 text-base text-foreground">
                   {property.location.neighborhood
-                    ? `日本東京都${property.location.neighborhood.replace("区", "区 ")}`
+                    ? `日本東京都${property.location.neighborhood.replace('区', '区 ')}`
                     : property.area}
                 </p>
                 <PropertyMap

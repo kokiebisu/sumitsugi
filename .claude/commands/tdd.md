@@ -17,6 +17,7 @@ This command invokes the **tdd-guide** agent to enforce test-driven development 
 ## When to Use
 
 Use `/tdd` when:
+
 - Implementing new features
 - Adding new functions/components
 - Fixing bugs (write test that reproduces bug first)
@@ -48,7 +49,7 @@ REPEAT:   Next feature/scenario
 
 ## Example Usage
 
-```
+````
 User: /tdd I need a function to calculate market liquidity score
 
 Agent (tdd-guide):
@@ -69,13 +70,13 @@ export function calculateLiquidityScore(market: MarketData): number {
   // TODO: Implementation
   throw new Error('Not implemented')
 }
-```
+````
 
 ## Step 2: Write Failing Test (RED)
 
 ```typescript
 // lib/liquidity.test.ts
-import { calculateLiquidityScore } from './liquidity'
+import { calculateLiquidityScore } from './liquidity';
 
 describe('calculateLiquidityScore', () => {
   it('should return high score for liquid market', () => {
@@ -83,48 +84,48 @@ describe('calculateLiquidityScore', () => {
       totalVolume: 100000,
       bidAskSpread: 0.01,
       activeTraders: 500,
-      lastTradeTime: new Date()
-    }
+      lastTradeTime: new Date(),
+    };
 
-    const score = calculateLiquidityScore(market)
+    const score = calculateLiquidityScore(market);
 
-    expect(score).toBeGreaterThan(80)
-    expect(score).toBeLessThanOrEqual(100)
-  })
+    expect(score).toBeGreaterThan(80);
+    expect(score).toBeLessThanOrEqual(100);
+  });
 
   it('should return low score for illiquid market', () => {
     const market = {
       totalVolume: 100,
       bidAskSpread: 0.5,
       activeTraders: 2,
-      lastTradeTime: new Date(Date.now() - 86400000) // 1 day ago
-    }
+      lastTradeTime: new Date(Date.now() - 86400000), // 1 day ago
+    };
 
-    const score = calculateLiquidityScore(market)
+    const score = calculateLiquidityScore(market);
 
-    expect(score).toBeLessThan(30)
-    expect(score).toBeGreaterThanOrEqual(0)
-  })
+    expect(score).toBeLessThan(30);
+    expect(score).toBeGreaterThanOrEqual(0);
+  });
 
   it('should handle edge case: zero volume', () => {
     const market = {
       totalVolume: 0,
       bidAskSpread: 0,
       activeTraders: 0,
-      lastTradeTime: new Date()
-    }
+      lastTradeTime: new Date(),
+    };
 
-    const score = calculateLiquidityScore(market)
+    const score = calculateLiquidityScore(market);
 
-    expect(score).toBe(0)
-  })
-})
+    expect(score).toBe(0);
+  });
+});
 ```
 
 ## Step 3: Run Tests - Verify FAIL
 
 ```bash
-npm test lib/liquidity.test.ts
+bun run test lib/liquidity.test.ts
 
 FAIL lib/liquidity.test.ts
   ✕ should return high score for liquid market (2 ms)
@@ -142,34 +143,34 @@ FAIL lib/liquidity.test.ts
 export function calculateLiquidityScore(market: MarketData): number {
   // Handle zero volume edge case
   if (market.totalVolume === 0) {
-    return 0
+    return 0;
   }
 
   // Calculate component scores (0-100 scale)
-  const volumeScore = Math.min(market.totalVolume / 1000, 100)
-  const spreadScore = Math.max(100 - (market.bidAskSpread * 1000), 0)
-  const traderScore = Math.min(market.activeTraders / 10, 100)
+  const volumeScore = Math.min(market.totalVolume / 1000, 100);
+  const spreadScore = Math.max(100 - market.bidAskSpread * 1000, 0);
+  const traderScore = Math.min(market.activeTraders / 10, 100);
 
   // Recent activity bonus
-  const hoursSinceLastTrade = (Date.now() - market.lastTradeTime.getTime()) / (1000 * 60 * 60)
-  const recencyScore = Math.max(100 - (hoursSinceLastTrade * 10), 0)
+  const hoursSinceLastTrade =
+    (Date.now() - market.lastTradeTime.getTime()) / (1000 * 60 * 60);
+  const recencyScore = Math.max(100 - hoursSinceLastTrade * 10, 0);
 
   // Weighted average
-  const score = (
+  const score =
     volumeScore * 0.4 +
     spreadScore * 0.3 +
     traderScore * 0.2 +
-    recencyScore * 0.1
-  )
+    recencyScore * 0.1;
 
-  return Math.min(Math.max(score, 0), 100) // Clamp to 0-100
+  return Math.min(Math.max(score, 0), 100); // Clamp to 0-100
 }
 ```
 
 ## Step 5: Run Tests - Verify PASS
 
 ```bash
-npm test lib/liquidity.test.ts
+bun run test lib/liquidity.test.ts
 
 PASS lib/liquidity.test.ts
   ✓ should return high score for liquid market (3 ms)
@@ -190,43 +191,55 @@ const WEIGHTS = {
   SPREAD: 0.3,
   TRADERS: 0.2,
   RECENCY: 0.1,
-} as const
+} as const;
 
 const SCALE_FACTORS = {
   VOLUME: 1000,
   SPREAD: 1000,
   TRADERS: 10,
   RECENCY_PENALTY: 10,
-} as const
+} as const;
 
 function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), max)
+  return Math.min(Math.max(value, min), max);
 }
 
 export function calculateLiquidityScore(market: MarketData): number {
-  if (market.totalVolume === 0) return 0
+  if (market.totalVolume === 0) return 0;
 
-  const volumeScore = Math.min(market.totalVolume / SCALE_FACTORS.VOLUME, 100)
-  const spreadScore = clamp(100 - (market.bidAskSpread * SCALE_FACTORS.SPREAD), 0, 100)
-  const traderScore = Math.min(market.activeTraders / SCALE_FACTORS.TRADERS, 100)
+  const volumeScore = Math.min(market.totalVolume / SCALE_FACTORS.VOLUME, 100);
+  const spreadScore = clamp(
+    100 - market.bidAskSpread * SCALE_FACTORS.SPREAD,
+    0,
+    100
+  );
+  const traderScore = Math.min(
+    market.activeTraders / SCALE_FACTORS.TRADERS,
+    100
+  );
 
-  const hoursSinceLastTrade = (Date.now() - market.lastTradeTime.getTime()) / (1000 * 60 * 60)
-  const recencyScore = clamp(100 - (hoursSinceLastTrade * SCALE_FACTORS.RECENCY_PENALTY), 0, 100)
+  const hoursSinceLastTrade =
+    (Date.now() - market.lastTradeTime.getTime()) / (1000 * 60 * 60);
+  const recencyScore = clamp(
+    100 - hoursSinceLastTrade * SCALE_FACTORS.RECENCY_PENALTY,
+    0,
+    100
+  );
 
   const weightedScore =
     volumeScore * WEIGHTS.VOLUME +
     spreadScore * WEIGHTS.SPREAD +
     traderScore * WEIGHTS.TRADERS +
-    recencyScore * WEIGHTS.RECENCY
+    recencyScore * WEIGHTS.RECENCY;
 
-  return clamp(weightedScore, 0, 100)
+  return clamp(weightedScore, 0, 100);
 }
 ```
 
 ## Step 7: Verify Tests Still Pass
 
 ```bash
-npm test lib/liquidity.test.ts
+bun run test lib/liquidity.test.ts
 
 PASS lib/liquidity.test.ts
   ✓ should return high score for liquid market (3 ms)
@@ -241,7 +254,7 @@ PASS lib/liquidity.test.ts
 ## Step 8: Check Coverage
 
 ```bash
-npm test -- --coverage lib/liquidity.test.ts
+bun run test -- --coverage lib/liquidity.test.ts
 
 File           | % Stmts | % Branch | % Funcs | % Lines
 ---------------|---------|----------|---------|--------
@@ -251,6 +264,7 @@ Coverage: 100% ✅ (Target: 80%)
 ```
 
 ✅ TDD session complete!
+
 ```
 
 ## TDD Best Practices
@@ -324,3 +338,4 @@ This command invokes the `tdd-guide` agent located at:
 
 And can reference the `tdd-workflow` skill at:
 `~/.claude/skills/tdd-workflow/`
+```

@@ -15,6 +15,7 @@
 ## Task 1: Modify dev Script for Claude Auto-Start
 
 **Files:**
+
 - Modify: `dev` (lines 31-35)
 
 **Step 1: Read current dev script**
@@ -44,6 +45,7 @@ fi
 ```
 
 **What this does:**
+
 - `bash -c "claude; exec bash"` runs Claude first
 - Semicolon (`;`) continues to next command when Claude exits
 - `exec bash` replaces shell process with bash (no nesting)
@@ -82,6 +84,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ## Task 2: Update CLAUDE.md Documentation
 
 **Files:**
+
 - Modify: `CLAUDE.md` (line 31, Commands section)
 
 **Step 1: Read current CLAUDE.md**
@@ -96,10 +99,12 @@ Change the description to mention Claude auto-start:
 
 ```markdown
 # Current
-./dev                    # Open devcontainer shell (auto-installs CLI if needed)
+
+./dev # Open devcontainer shell (auto-installs CLI if needed)
 
 # New
-./dev                    # Open devcontainer with Claude Code (auto-starts)
+
+./dev # Open devcontainer with Claude Code (auto-starts)
 ```
 
 **Step 3: Verify the change**
@@ -124,6 +129,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ## Task 3: Update README Quick Start
 
 **Files:**
+
 - Modify: `README.md` (Quick Start section, line ~19)
 
 **Step 1: Read current README Quick Start**
@@ -138,9 +144,11 @@ Change step 2 to indicate Claude starts automatically:
 
 ```markdown
 # Current
+
 2. Run `./dev` to enter devcontainer
 
 # New
+
 2. Run `./dev` (Claude Code starts automatically)
 ```
 
@@ -167,6 +175,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ## Summary
 
 **Files Modified:**
+
 - `dev` - Modified shell opening command to auto-start Claude
 - `CLAUDE.md` - Updated `./dev` command description
 - `README.md` - Updated Quick Start step 2
@@ -175,6 +184,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 Users run `./dev` and immediately enter Claude Code. When they exit Claude (Ctrl+D or `/exit`), they drop to a bash shell where they can continue working or type `claude` to restart.
 
 **User Workflow:**
+
 ```bash
 # Host machine
 ./dev
@@ -189,6 +199,7 @@ node@container:/workspaces/tsumugi$
 
 **Testing:**
 Since the `dev` script runs on the host machine (not inside devcontainer), full testing requires:
+
 1. Exit devcontainer if currently inside
 2. Run `./dev` from host
 3. Verify Claude starts automatically
@@ -198,6 +209,7 @@ Since the `dev` script runs on the host machine (not inside devcontainer), full 
 7. Type `exit` to return to host
 
 **Notes:**
+
 - This implementation assumes PR #115 has been merged
 - Claude Code is already installed in devcontainer via `postCreateCommand`
 - If Claude isn't installed, user sees error but still gets bash shell
