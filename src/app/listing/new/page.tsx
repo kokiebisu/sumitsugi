@@ -20,6 +20,7 @@ import {
   type LocationWithAddress,
 } from '@/components/location-picker';
 import { EstimateCard } from '@/components/estimate-card';
+import { PricingGuidance } from '@/components/listing/pricing-guidance';
 import { SingleDatePicker } from '@/components/date-range-picker';
 import { cn } from '@/lib/utils';
 import {
@@ -777,6 +778,12 @@ export default function NewListingPage() {
                     </p>
                   </div>
                 </div>
+
+                {/* 値付けガイダンス（F-105） */}
+                <PricingGuidance
+                  selectedFurniture={selectedFurniture}
+                  handoverFee={handoverFee}
+                />
 
                 {/* AI見積もりカード */}
                 <EstimateCard
