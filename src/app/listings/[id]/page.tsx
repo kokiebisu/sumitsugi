@@ -26,6 +26,8 @@ import {
   Coffee,
   Users,
 } from 'lucide-react';
+import { isUrgentMoveIn } from '@/lib/utils';
+import { UrgentMoveInBadge } from '@/components/urgent-move-in-badge';
 
 const FURNITURE_ICONS: Record<string, typeof BedDouble> = {
   bed: BedDouble,
@@ -102,9 +104,14 @@ export default async function PropertyDetailPage({
             <div className="lg:col-span-3">
               {/* Title and Location */}
               <div className="pb-6 border-b border-border">
-                <h1 className="text-[26px] font-medium text-foreground">
-                  {property.title}
-                </h1>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-[26px] font-medium text-foreground">
+                    {property.title}
+                  </h1>
+                  {isUrgentMoveIn(property.moveOutDate) && (
+                    <UrgentMoveInBadge variant="inline" />
+                  )}
+                </div>
                 <p className="mt-1 text-base font-normal text-foreground">
                   {[
                     property.location?.neighborhood || property.area,

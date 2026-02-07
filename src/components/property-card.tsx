@@ -7,6 +7,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Heart, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Property } from '@/lib/data';
+import { isUrgentMoveIn } from '@/lib/utils';
+import { UrgentMoveInBadge } from '@/components/urgent-move-in-badge';
 
 function parseLocation(neighborhood: string | undefined): {
   ward?: string;
@@ -70,6 +72,9 @@ export function PropertyCard({ property }: PropertyCardProps) {
           onLoad={() => setImageLoaded(true)}
           priority={false}
         />
+
+        {/* 即入居可能バッジ（F-507） */}
+        {isUrgentMoveIn(property.moveOutDate) && <UrgentMoveInBadge />}
 
         {/* Heart button */}
         <button
