@@ -153,6 +153,58 @@ describe('cancellation-penalty', () => {
     });
   });
 
+  describe('edge cases', () => {
+    it('caps penalty at totalPaid when totalPaid < minimum penalty', () => {
+      const input: CancellationInput = {
+        cancelledBy: 'buyer',
+        phase: 'post_remaining_payment',
+        handoverFee: 50000,
+        depositPaid: DEPOSIT_AMOUNT,
+        remainingPaid: 5000,
+      };
+      const result = calculatePenalty(input);
+      // totalPaid = 25000, rawPenalty = 10000, clamped to 30000, but capped at 25000
+      expect(result.penaltyAmount).toBe(25000);
+      expect(result.refundAmount).toBe(0);
+    });
+
+    it('rejects negative depositPaid', () => {
+      expect(() =>
+        calculatePenalty({
+          cancelledBy: 'buyer',
+          phase: 'post_deposit',
+          handoverFee: 80000,
+          depositPaid: -5000,
+          remainingPaid: 0,
+        })
+      ).toThrow('金額は0以上');
+    });
+
+    it('rejects negative remainingPaid', () => {
+      expect(() =>
+        calculatePenalty({
+          cancelledBy: 'seller',
+          phase: 'post_remaining_payment',
+          handoverFee: 80000,
+          depositPaid: DEPOSIT_AMOUNT,
+          remainingPaid: -1000,
+        })
+      ).toThrow('金額は0以上');
+    });
+
+    it('rejects negative handoverFee', () => {
+      expect(() =>
+        calculatePenalty({
+          cancelledBy: 'buyer',
+          phase: 'post_remaining_payment',
+          handoverFee: -10000,
+          depositPaid: DEPOSIT_AMOUNT,
+          remainingPaid: 0,
+        })
+      ).toThrow('金額は0以上');
+    });
+  });
+
   describe('result structure', () => {
     it('includes all required fields', () => {
       const input: CancellationInput = {

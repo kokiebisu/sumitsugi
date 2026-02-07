@@ -58,6 +58,11 @@ export interface CancellationResult {
  */
 export function calculatePenalty(input: CancellationInput): CancellationResult {
   const { cancelledBy, phase, handoverFee, depositPaid, remainingPaid } = input;
+
+  if (depositPaid < 0 || remainingPaid < 0 || handoverFee < 0) {
+    throw new Error('金額は0以上である必要があります');
+  }
+
   const totalPaid = depositPaid + remainingPaid;
 
   // Pre-viewing: always free
@@ -109,10 +114,11 @@ export function calculatePenalty(input: CancellationInput): CancellationResult {
 
   // Buyer cancellation post-remaining payment
   const rawPenalty = handoverFee * PENALTY_RATE;
-  const penaltyAmount = Math.min(
+  const clampedPenalty = Math.min(
     PENALTY_MAX,
     Math.max(PENALTY_MIN, rawPenalty)
   );
+  const penaltyAmount = Math.min(totalPaid, clampedPenalty);
   const refundAmount = totalPaid - penaltyAmount;
 
   return {
