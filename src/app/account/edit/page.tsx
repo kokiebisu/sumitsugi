@@ -93,7 +93,7 @@ export default function AccountEditPage() {
       avatarUrl: formData.avatarUrl || undefined,
     };
 
-    // クリエイタープロフィールの更新
+    // 前の住人プロフィールの更新
     if (user.isSeller && user.sellerProfile) {
       updates.sellerProfile = {
         ...user.sellerProfile,
@@ -283,12 +283,12 @@ export default function AccountEditPage() {
               />
             </div>
 
-            {/* クリエイタープロフィール（セラーのみ） */}
+            {/* 前の住人プロフィール（セラーのみ） */}
             {user.isSeller && (
               <>
                 <div className="pt-6">
                   <h2 className="text-xl font-semibold text-foreground mb-6">
-                    クリエイタープロフィール
+                    前の住人プロフィール
                   </h2>
                 </div>
 

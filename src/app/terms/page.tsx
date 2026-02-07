@@ -39,19 +39,19 @@ export default function TermsPage() {
             <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
               <li>
                 <strong>「本サービス」</strong>
-                とは、クリエイターが作り上げた暮らし（家具・インテリアを含む居住空間）を次のクリエイターへ引き継ぐためのマッチングプラットフォームを指します。
+                とは、前の住人が作り上げた暮らし（家具・インテリアを含む居住空間）を次の住人へ引き継ぐためのマッチングプラットフォームを指します。
               </li>
               <li>
                 <strong>「ユーザー」</strong>
                 とは、本サービスを利用するすべての方を指します。
               </li>
               <li>
-                <strong>「クリエイター」</strong>
+                <strong>「前の住人」</strong>
                 とは、本サービスにおいて自身の居住空間を出品する方を指します。
               </li>
               <li>
                 <strong>「引き継ぎ希望者」</strong>
-                とは、本サービスにおいてクリエイターの居住空間の引き継ぎを希望する方を指します。
+                とは、本サービスにおいて前の住人の居住空間の引き継ぎを希望する方を指します。
               </li>
               <li>
                 <strong>「物品」</strong>
@@ -91,7 +91,7 @@ export default function TermsPage() {
             </h2>
             <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
               <li>
-                本サービスは、クリエイターと引き継ぎ希望者のマッチングの場を提供するものです。
+                本サービスは、前の住人と引き継ぎ希望者のマッチングの場を提供するものです。
               </li>
               <li>
                 当社は、ユーザー間の取引の当事者とはならず、取引に関する交渉、契約締結、履行等はユーザー間で直接行うものとします。
@@ -104,11 +104,11 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-xl font-semibold mt-8 mb-4">
-              第5条（クリエイターの責任）
+              第5条（前の住人の責任）
             </h2>
             <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
               <li>
-                クリエイターは、出品にあたり以下の事項を遵守するものとします。
+                前の住人は、出品にあたり以下の事項を遵守するものとします。
                 <ul className="list-disc list-inside ml-4 mt-2 space-y-1">
                   <li>
                     物件の所有者（大家）に対し、本サービスを通じた引き継ぎについて事前に説明し、承諾を得ること
@@ -122,7 +122,7 @@ export default function TermsPage() {
                 </ul>
               </li>
               <li>
-                クリエイターは、出品する物品の安全性について責任を負うものとします。
+                前の住人は、出品する物品の安全性について責任を負うものとします。
               </li>
               <li>
                 以下の物品の出品は禁止します。

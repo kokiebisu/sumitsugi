@@ -58,7 +58,7 @@ export function Header() {
         </Link>
 
         <div className="flex items-center gap-2">
-          {/* クリエイターになる / クリエイターモード Button - 非ホストのみ表示 */}
+          {/* 前の住人になる / 引き継ぎ側モード Button - 非ホストのみ表示 */}
           {(!user || !user.isSeller) && (
             <button
               onClick={handleBecomeCreatorClick}
