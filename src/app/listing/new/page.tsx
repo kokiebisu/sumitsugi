@@ -1,11 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/auth-context';
 import type { LargeFurnitureType } from '@/lib/data';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import {
   LocationPicker,
   type StationInfo,
@@ -27,6 +35,8 @@ import {
   Refrigerator,
   Users,
   CalendarDays,
+  AlertTriangle,
+  XCircle,
 } from 'lucide-react';
 
 // 間取りの選択肢
@@ -91,7 +101,28 @@ export default function NewListingPage() {
   const [pendingPhotos, setPendingPhotos] = useState<string[]>([]);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
+  const [showGracePeriodWarning, setShowGracePeriodWarning] = useState(false);
   const totalSteps = 7;
+
+  // 退去日までの残り日数を計算（F-502）
+  const daysUntilMoveOut = useMemo(() => {
+    if (!moveOutDate) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const moveOut = new Date(moveOutDate);
+    moveOut.setHours(0, 0, 0, 0);
+    return Math.ceil(
+      (moveOut.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+    );
+  }, [moveOutDate]);
+
+  // 猶予期間のステータス
+  const gracePeriodStatus = useMemo(() => {
+    if (daysUntilMoveOut === null) return 'unknown';
+    if (daysUntilMoveOut < 30) return 'blocked';
+    if (daysUntilMoveOut < 60) return 'warning';
+    return 'ok';
+  }, [daysUntilMoveOut]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -160,44 +191,48 @@ export default function NewListingPage() {
     return `${formatDate(start)}以降`;
   };
 
+  const saveListing = (status: 'published' | 'draft') => {
+    addListing({
+      status,
+      title: generateTitle(),
+      roomStyle: null,
+      roomPhotos,
+      handoverFee: handoverFee ? parseInt(handoverFee, 10) : undefined,
+      rent: rent ? parseInt(rent, 10) : undefined,
+      managementFee: managementFee ? parseInt(managementFee, 10) : undefined,
+      layout: layout || undefined,
+      occupants: occupants ? parseInt(occupants, 10) : undefined,
+      area: location?.neighborhood || '東京',
+      furniture:
+        selectedFurniture.length > 0
+          ? (selectedFurniture as LargeFurnitureType[])
+          : undefined,
+      moveOutDate: moveOutDate
+        ? moveOutDate.toISOString().split('T')[0]
+        : undefined,
+      viewingAvailableFrom: formatDateRange(viewingDate, viewingEndDate),
+      moveInAvailableFrom: formatDateRange(moveInDate, moveInEndDate),
+      stations: stations
+        .filter((s) => s.name)
+        .map((s) => ({
+          name: s.name,
+          walkingMinutes: s.walkingMinutes ? parseInt(s.walkingMinutes, 10) : 0,
+        })),
+    });
+    router.push('/listing');
+  };
+
   const handleNext = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     } else {
-      // ステップ7: 住所詳細が入力されていれば公開、そうでなければ下書き保存
+      // ステップ7: 公開前に猶予期間チェック（F-502）
       const shouldPublish = hasDetailedAddress();
-      addListing({
-        status: shouldPublish ? 'published' : 'draft',
-        title: generateTitle(),
-        roomStyle: null,
-        roomPhotos,
-        handoverFee: handoverFee ? parseInt(handoverFee, 10) : undefined,
-        rent: rent ? parseInt(rent, 10) : undefined,
-        managementFee: managementFee ? parseInt(managementFee, 10) : undefined,
-        layout: layout || undefined,
-        occupants: occupants ? parseInt(occupants, 10) : undefined,
-        area: location?.neighborhood || '東京',
-        furniture:
-          selectedFurniture.length > 0
-            ? (selectedFurniture as LargeFurnitureType[])
-            : undefined,
-        moveOutDate: moveOutDate
-          ? moveOutDate.toISOString().split('T')[0]
-          : undefined,
-        viewingAvailableFrom: formatDateRange(viewingDate, viewingEndDate),
-        moveInAvailableFrom: formatDateRange(moveInDate, moveInEndDate),
-        stations: stations
-          .filter((s) => s.name)
-          .map((s) => ({
-            name: s.name,
-            walkingMinutes: s.walkingMinutes
-              ? parseInt(s.walkingMinutes, 10)
-              : 0,
-          })),
-      });
-
-      // 公開・下書きどちらも部屋一覧へ遷移
-      router.push('/listing');
+      if (shouldPublish && gracePeriodStatus === 'warning') {
+        setShowGracePeriodWarning(true);
+        return;
+      }
+      saveListing(shouldPublish ? 'published' : 'draft');
     }
   };
 
@@ -211,39 +246,11 @@ export default function NewListingPage() {
 
   const handleSaveAndExit = () => {
     const hasData = roomPhotos.length > 0 || handoverFee.length > 0;
-
     if (hasData) {
-      addListing({
-        status: 'draft',
-        title: generateTitle(),
-        roomStyle: null,
-        roomPhotos,
-        handoverFee: handoverFee ? parseInt(handoverFee, 10) : undefined,
-        rent: rent ? parseInt(rent, 10) : undefined,
-        managementFee: managementFee ? parseInt(managementFee, 10) : undefined,
-        layout: layout || undefined,
-        area: location?.neighborhood || '東京',
-        furniture:
-          selectedFurniture.length > 0
-            ? (selectedFurniture as LargeFurnitureType[])
-            : undefined,
-        moveOutDate: moveOutDate
-          ? moveOutDate.toISOString().split('T')[0]
-          : undefined,
-        viewingAvailableFrom: formatDateRange(viewingDate, viewingEndDate),
-        moveInAvailableFrom: formatDateRange(moveInDate, moveInEndDate),
-        stations: stations
-          .filter((s) => s.name)
-          .map((s) => ({
-            name: s.name,
-            walkingMinutes: s.walkingMinutes
-              ? parseInt(s.walkingMinutes, 10)
-              : 0,
-          })),
-      });
+      saveListing('draft');
+    } else {
+      router.push('/listing');
     }
-
-    router.push('/listing');
   };
 
   const canProceed = () => {
@@ -255,7 +262,7 @@ export default function NewListingPage() {
       case 4:
         return rent.length > 0 && layout.length > 0;
       case 5:
-        return moveOutDate !== null; // 退去日は必須（F-501）
+        return moveOutDate !== null && gracePeriodStatus !== 'blocked'; // 退去日は必須、30日未満は出品不可（F-501, F-502）
       case 6:
         return selectedFurniture.length > 0 && handoverFee.length > 0;
       default:
@@ -623,6 +630,38 @@ export default function NewListingPage() {
                     }
                     minDate={new Date()}
                   />
+                  {/* 猶予期間バリデーション表示（F-502） */}
+                  {moveOutDate && gracePeriodStatus === 'blocked' && (
+                    <div className="mt-3 flex items-start gap-2 rounded-lg bg-red-50 p-3 dark:bg-red-950/30">
+                      <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium text-red-800 dark:text-red-200">
+                          退去日まで{daysUntilMoveOut}日のため出品できません
+                        </p>
+                        <p className="text-xs text-red-600 dark:text-red-300 mt-1">
+                          出品には退去日まで30日以上の猶予が必要です。退去日を変更してください。
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {moveOutDate && gracePeriodStatus === 'warning' && (
+                    <div className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 p-3 dark:bg-amber-950/30">
+                      <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                          退去日まで{daysUntilMoveOut}日です
+                        </p>
+                        <p className="text-xs text-amber-600 dark:text-amber-300 mt-1">
+                          出品は可能ですが、公開時に確認が必要です。引き継ぎの準備が十分か確認してください。
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {moveOutDate && gracePeriodStatus === 'ok' && (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      退去日まで{daysUntilMoveOut}日 — 十分な猶予があります
+                    </p>
+                  )}
                 </div>
 
                 {/* 内見可能日 */}
@@ -1297,6 +1336,40 @@ export default function NewListingPage() {
           </div>
         </div>
       )}
+      {/* 猶予期間警告ダイアログ（F-502: 30-60日） */}
+      <Dialog
+        open={showGracePeriodWarning}
+        onOpenChange={setShowGracePeriodWarning}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              退去日までの猶予が短めです
+            </DialogTitle>
+            <DialogDescription>
+              退去日まで{daysUntilMoveOut}
+              日です。引き継ぎの準備（内見対応・家具引き渡し・清掃など）に十分な時間を確保できますか？
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setShowGracePeriodWarning(false)}
+            >
+              戻って確認する
+            </Button>
+            <Button
+              onClick={() => {
+                setShowGracePeriodWarning(false);
+                saveListing('published');
+              }}
+            >
+              このまま公開する
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
