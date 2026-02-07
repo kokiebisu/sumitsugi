@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Check, Loader2, AlertCircle, Clock, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,10 +38,14 @@ export function HandoverConfirmation({
         : 'idle'
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const isSubmitting = useRef(false);
 
   const roleLabel = role === 'buyer' ? '次の住人' : '前の住人';
 
   const handleConfirm = useCallback(async () => {
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
+
     setState('loading');
     setErrorMessage(null);
 
@@ -59,6 +63,8 @@ export function HandoverConfirmation({
       setErrorMessage(
         'ネットワークエラーが発生しました。もう一度お試しください。'
       );
+    } finally {
+      isSubmitting.current = false;
     }
   }, [propertyId, userId, role]);
 
