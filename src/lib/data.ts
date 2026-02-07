@@ -230,6 +230,7 @@ export interface UserListing {
   // MVP後に追加検討
   furniture?: LargeFurnitureType[]; // 大型家具（旧形式、互換性のため）
   furnitureItems?: FurnitureItem[]; // 家具アイテム（写真付き）
+  coreSetPrice?: number; // コアセット一括価格
   story?: string;
   consentStatus?: ConsentStatus; // 大家承認ステータス（§7.4）
   // 公開前確認

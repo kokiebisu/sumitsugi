@@ -5,6 +5,11 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/auth-context';
 import type { LargeFurnitureType } from '@/lib/data';
+import {
+  getCoreFurniture,
+  getAdditionalFurniture,
+  getLayerLabel,
+} from '@/lib/furniture-layers';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -88,6 +93,7 @@ export default function NewListingPage() {
   const [location, setLocation] = useState<LocationWithAddress | null>(null);
   const [managementFee, setManagementFee] = useState<string>('');
   const [selectedFurniture, setSelectedFurniture] = useState<string[]>([]);
+  const [coreSetPrice, setCoreSetPrice] = useState<string>('');
   const [moveOutDate, setMoveOutDate] = useState<Date | null>(null);
   const [viewingDate, setViewingDate] = useState<Date | null>(null);
   const [viewingEndDate, setViewingEndDate] = useState<Date | null>(null);
@@ -208,6 +214,7 @@ export default function NewListingPage() {
         selectedFurniture.length > 0
           ? (selectedFurniture as LargeFurnitureType[])
           : undefined,
+      coreSetPrice: coreSetPrice ? parseInt(coreSetPrice, 10) : undefined,
       moveOutDate: moveOutDate
         ? moveOutDate.toISOString().split('T')[0]
         : undefined,
@@ -732,14 +739,19 @@ export default function NewListingPage() {
                 家具を選んで、引き継ぎ費用を決めましょう
               </p>
               <div className="w-full max-w-md space-y-6">
-                {/* 大型家具チェック */}
+                {/* コアセット（基本セット） */}
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-3">
-                    引き継ぐ大型家具（複数選択可）{' '}
-                    <span className="text-coral">*</span>
+                  <label className="block text-sm font-semibold text-foreground mb-1">
+                    {getLayerLabel('core')}
                   </label>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    部屋の基本家具。セット価格で一括引き継ぎされます
+                  </p>
                   <div className="grid grid-cols-4 gap-3">
-                    {FURNITURE_ITEMS.map(({ id, label, Icon }) => {
+                    {getCoreFurniture().map(({ id, label }) => {
+                      const Icon =
+                        FURNITURE_ITEMS.find((f) => f.id === id)?.Icon ||
+                        Table2;
                       const isSelected = selectedFurniture.includes(id);
                       return (
                         <button
@@ -768,15 +780,78 @@ export default function NewListingPage() {
                       );
                     })}
                   </div>
+                  {/* コアセット価格 */}
+                  {selectedFurniture.some((id) =>
+                    getCoreFurniture().some((f) => f.id === id)
+                  ) && (
+                    <div className="mt-3">
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        コアセット価格（円）
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="例: 30000"
+                        value={coreSetPrice}
+                        onChange={(e) => setCoreSetPrice(e.target.value)}
+                        className="w-full px-4 py-3 border border-border rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-foreground"
+                      />
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        選択したコアセット家具のセット価格
+                      </p>
+                    </div>
+                  )}
+                </div>
 
-                  {/* 内見時合意の注意書き */}
-                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                    <p className="text-sm text-blue-800">
-                      <span className="font-medium">ご注意：</span>
-                      ここで選択した家具は掲載時の参考情報です。
-                      最終的な譲渡内容や金額は内見時に双方で確認・合意します。
-                    </p>
+                {/* 追加家具（個別オプション） */}
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1">
+                    {getLayerLabel('additional')}
+                  </label>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    次の住人が個別に選択できるオプション家具
+                  </p>
+                  <div className="grid grid-cols-4 gap-3">
+                    {getAdditionalFurniture().map(({ id, label }) => {
+                      const Icon =
+                        FURNITURE_ITEMS.find((f) => f.id === id)?.Icon ||
+                        Archive;
+                      const isSelected = selectedFurniture.includes(id);
+                      return (
+                        <button
+                          key={id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedFurniture((prev) =>
+                              isSelected
+                                ? prev.filter((f) => f !== id)
+                                : [...prev, id]
+                            );
+                          }}
+                          className={cn(
+                            'flex flex-col items-center p-3 rounded-xl border-2 transition-all',
+                            isSelected
+                              ? 'border-foreground bg-muted'
+                              : 'border-border hover:border-foreground/40'
+                          )}
+                        >
+                          <Icon
+                            className="w-6 h-6 mb-1 text-foreground"
+                            strokeWidth={1.5}
+                          />
+                          <span className="text-xs font-medium">{label}</span>
+                        </button>
+                      );
+                    })}
                   </div>
+                </div>
+
+                {/* 内見時合意の注意書き */}
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                  <p className="text-sm text-blue-800">
+                    <span className="font-medium">ご注意：</span>
+                    コアセットはセット価格で一括引き継ぎ、追加家具は個別に選択できます。
+                    最終的な譲渡内容や金額は内見時に双方で確認・合意します。
+                  </p>
                 </div>
 
                 {/* 値付けガイダンス（F-105） */}
