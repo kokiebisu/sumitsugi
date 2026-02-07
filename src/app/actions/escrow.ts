@@ -16,6 +16,7 @@ import {
 } from '@/db/schema';
 import { eq, and, inArray } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import zod from 'zod';
 
 export interface EscrowReleaseResult {
   success: boolean;
@@ -185,6 +186,12 @@ export async function releaseEscrowAndDistribute(
   }
 }
 
+const confirmHandoverSchema = zod.object({
+  propertyId: zod.string().min(1, 'Property ID is required'),
+  userId: zod.string().min(1, 'User ID is required'),
+  role: zod.enum(['buyer', 'seller']),
+});
+
 /**
  * Confirm handover completion from buyer or seller side.
  *
@@ -192,7 +199,8 @@ export async function releaseEscrowAndDistribute(
  * When both buyer and seller have confirmed, bothConfirmed=true is returned
  * and the caller can trigger escrow release (Phase 1: immediate release).
  *
- * TODO: Add authentication/authorization checks when auth system is implemented.
+ * TODO Phase 2: Replace userId param with session-based auth (getSession)
+ * TODO Phase 2: Verify user has claimed role for property (seller = property.userId, buyer = inquiry/thread)
  *
  * @param propertyId - Property ID for the handover
  * @param userId - User ID confirming completion
@@ -204,19 +212,20 @@ export async function confirmHandoverCompletion(
   role: 'buyer' | 'seller'
 ): Promise<HandoverConfirmationResult> {
   try {
+    const validated = confirmHandoverSchema.parse({ propertyId, userId, role });
     const now = new Date();
     const confirmationId = randomUUID();
 
     const setFields =
-      role === 'buyer'
-        ? { buyerId: userId, buyerConfirmedAt: now }
-        : { sellerId: userId, sellerConfirmedAt: now };
+      validated.role === 'buyer'
+        ? { buyerId: validated.userId, buyerConfirmedAt: now }
+        : { sellerId: validated.userId, sellerConfirmedAt: now };
 
     const [record] = await db
       .insert(handoverConfirmations)
       .values({
         id: confirmationId,
-        propertyId,
+        propertyId: validated.propertyId,
         ...setFields,
         createdAt: now,
       })
@@ -230,13 +239,19 @@ export async function confirmHandoverCompletion(
       record.buyerConfirmedAt && record.sellerConfirmedAt
     );
 
-    revalidatePath(`/properties/${propertyId}`);
+    revalidatePath(`/properties/${validated.propertyId}`);
 
     return {
       success: true,
       bothConfirmed,
     };
   } catch (error) {
+    if (error instanceof zod.ZodError) {
+      return {
+        success: false,
+        error: error.errors.map((e) => e.message).join(', '),
+      };
+    }
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred',

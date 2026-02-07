@@ -130,6 +130,22 @@ describe('confirmHandoverCompletion', () => {
     expect(result.bothConfirmed).toBe(false);
   });
 
+  it('should reject empty propertyId', async () => {
+    const result = await confirmHandoverCompletion('', 'buyer-456', 'buyer');
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('Property ID is required');
+    expect(db.insert).not.toHaveBeenCalled();
+  });
+
+  it('should reject empty userId', async () => {
+    const result = await confirmHandoverCompletion('prop-123', '', 'buyer');
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('User ID is required');
+    expect(db.insert).not.toHaveBeenCalled();
+  });
+
   it('should handle database errors gracefully', async () => {
     vi.mocked(db.insert).mockImplementation(() => {
       throw new Error('Database connection failed');
