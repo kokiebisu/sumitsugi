@@ -8,6 +8,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: e2e-tests-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
   pull-requests: write
@@ -162,8 +166,7 @@ jobs:
         env:
           NODE_ENV: production
           DATABASE_URL: postgresql://tsumugi:tsumugi@localhost:5432/tsumugi_test
-          NEXTAUTH_URL: http://localhost:3000
-          NEXTAUTH_SECRET: test-secret-for-ci-builds-only
+          BETTER_AUTH_SECRET: test-secret-for-ci-builds-only
           S3_ENDPOINT: http://localhost:4566
           R2_BUCKET_NAME: tsumugi
 
@@ -181,6 +184,7 @@ jobs:
           CI: true
           BASE_URL: http://localhost:3000
           DATABASE_URL: postgresql://tsumugi:tsumugi@localhost:5432/tsumugi_test
+          BETTER_AUTH_SECRET: test-secret-for-ci-builds-only
           S3_ENDPOINT: http://localhost:4566
           R2_BUCKET_NAME: tsumugi
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
@@ -282,6 +286,7 @@ jobs:
 
       - name: Deploy Playwright Report to GitHub Pages
         if: always()
+        timeout-minutes: 3
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
