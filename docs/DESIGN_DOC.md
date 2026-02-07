@@ -2,7 +2,7 @@
 
 > 技術的な「How」を記述するドキュメント。「What」（要件・仕様）は `REQUIREMENTS.md` を参照。
 
-最終更新日: 2026-02-07（REQUIREMENTS.mdとの整合性整理・座談会#4〜#7反映）
+最終更新日: 2026-02-07（座談会#4〜#9反映：メッセージング・値付けガイダンス・内見フロー追加）
 
 ---
 
@@ -10,12 +10,14 @@
 
 MVP実装に向けた技術選定。`/meeting:tech`（技術会議 2026-02-06）で決定。
 
-| #   | 残論点                       | 決定                                                                                                 | 関連機能            | ステータス |
-| --- | ---------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------- | ---------- |
-| T-1 | PDF自動生成の技術選定        | **`@react-pdf/renderer`** — サーバーサイド`renderToBuffer()` + R2保存。日本語フォント: Noto Sans JP  | F-611, F-612, F-616 | 解決済み   |
-| T-2 | メール送信サービスの技術選定 | **Resend + React Email** — 導入済み（Better-auth magic linkで使用中）。MVP無料枠（3,000通/月）で十分 | F-204, F-205        | 解決済み   |
-| T-3 | 定期実行（Cron）の技術選定   | **Vercel Cron Jobs** — `vercel.json`にcron定義。毎日実行でリマインドチェック + 期限切れチェック      | F-205, F-206        | 解決済み   |
-| T-4 | DBスキーマ拡張               | **Drizzleマイグレーション** — `landlordConsent`をJSONB構造化、`moveOutDate`等のフィールド追加        | F-501, F-611        | 解決済み   |
+| #   | 残論点                       | 決定                                                                                                                                                                                                          | 関連機能                  | ステータス |
+| --- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | ---------- |
+| T-1 | PDF自動生成の技術選定        | **`@react-pdf/renderer`** — サーバーサイド`renderToBuffer()` + R2保存。日本語フォント: Noto Sans JP                                                                                                           | F-611, F-612, F-616       | 解決済み   |
+| T-2 | メール送信サービスの技術選定 | **Resend + React Email** — 導入済み（Better-auth magic linkで使用中）。MVP無料枠（3,000通/月）で十分                                                                                                          | F-204, F-205              | 解決済み   |
+| T-3 | 定期実行（Cron）の技術選定   | **Vercel Cron Jobs** — `vercel.json`にcron定義。毎日実行でリマインドチェック + 期限切れチェック                                                                                                               | F-205, F-206              | 解決済み   |
+| T-4 | DBスキーマ拡張               | **Drizzleマイグレーション** — `landlordConsent`をJSONB構造化、`moveOutDate`等のフィールド追加。座談会#9で`handoverFee`(Property)、`brand`/`newPrice`/`yearsUsed`/`pin`/`furnitureCategory`(FurnitureItem)追加 | F-501, F-611, F-XXX(§7.7) | 解決済み   |
+| T-5 | 簡易メッセージ機能の技術選定 | **DB + Server Actions** — messagesテーブル + threadsテーブル。ポーリングベース（MVP）。メール通知はResend既存パイプライン活用                                                                                 | F-XXX(§3.1メッセージ)     | 解決済み   |
+| T-6 | 値付けガイダンスの実装方式   | **クライアントサイド計算** — FurnitureItemのnewPrice・yearsUsedから減価テーブルで目安レンジを算出。バックエンド不要                                                                                           | F-XXX(§7.10)              | 解決済み   |
 
 ---
 
@@ -48,12 +50,15 @@ MVP実装に向けた技術選定。`/meeting:tech`（技術会議 2026-02-06）
 
 **テンプレート配置:** `src/lib/email/templates/` に React Email コンポーネント
 
-| メール種別         | トリガー                  | 宛先     | Reply-to           | 機能ID |
-| ------------------ | ------------------------- | -------- | ------------------ | ------ |
-| 問い合わせ確認     | 問い合わせ送信時          | 次の住人 | —                  | F-204  |
-| 新着問い合わせ通知 | 問い合わせ送信時          | 前の住人 | 問い合わせ者メアド | F-204  |
-| 承認リマインド     | 退去日確定後 7/14/21/27日 | 前の住人 | —                  | F-205  |
-| 自動非公開化通知   | 退去日確定後 30日         | 前の住人 | —                  | F-206  |
+| メール種別           | トリガー                     | 宛先     | Reply-to           | 機能ID |
+| -------------------- | ---------------------------- | -------- | ------------------ | ------ |
+| 問い合わせ確認       | 問い合わせ送信時             | 次の住人 | —                  | F-204  |
+| 新着問い合わせ通知   | 問い合わせ送信時             | 前の住人 | 問い合わせ者メアド | F-204  |
+| 承認リマインド       | 退去日確定後 7/14/21/27日    | 前の住人 | —                  | F-205  |
+| 自動非公開化通知     | 退去日確定後 30日            | 前の住人 | —                  | F-206  |
+| 新着メッセージ通知   | メッセージ受信時             | 相手方   | —                  | T-5    |
+| 内見フォローメール   | 内見翌日（自動送信）         | 次の住人 | —                  | §11    |
+| 管理会社紹介テンプレ | 契約手続き開始時（手動送信） | 管理会社 | 前の住人メアド     | §11    |
 
 **リマインドメール文面出し分け（座談会#6）:**
 
@@ -79,37 +84,96 @@ MVP実装に向けた技術選定。`/meeting:tech`（技術会議 2026-02-06）
 
 REQUIREMENTS.md セクション7のデータモデル定義に基づく。
 
-| 変更内容                          | テーブル   | 説明                                                                          |
-| --------------------------------- | ---------- | ----------------------------------------------------------------------------- |
-| `moveOutDate` 追加                | properties | 退去日（nullable Date）                                                       |
-| `moveOutReason` 追加              | properties | 引越し理由（MoveOutReason enum、REQUIREMENTS.md 7.6参照）                     |
-| `managementCompanyName` 追加      | properties | 管理会社名（nullable string）                                                 |
-| `managementConsultedAt` 追加      | properties | 管理会社相談日時（nullable timestamp）                                        |
-| `landlordConsent` をJSONBに構造化 | properties | boolean → ConsentStatus構造体                                                 |
-| `pdfUrls` 追加                    | properties | 生成済みPDFのR2 URL格納（JSONB）                                              |
-| `furnitureItems` 変更             | listings   | 旧`furniture: string[]` → `FurnitureItem[]`（JSONB、REQUIREMENTS.md 7.7参照） |
-| `coreSetPrice` 追加               | listings   | コアセット一括価格（nullable number）                                         |
-| `agreedFurnitureIds` 変更         | inquiries  | 旧`agreedFurniture: string[]` → 確定家具IDリスト                              |
-| `duration` 追加                   | inquiries  | 希望契約期間（string）                                                        |
+| 変更内容                          | テーブル   | 説明                                                                           |
+| --------------------------------- | ---------- | ------------------------------------------------------------------------------ |
+| `moveOutDate` 追加                | properties | 退去日（nullable Date）                                                        |
+| `moveOutReason` 追加              | properties | 引越し理由（MoveOutReason enum、REQUIREMENTS.md 7.6参照）                      |
+| `managementCompanyName` 追加      | properties | 管理会社名（nullable string）                                                  |
+| `managementConsultedAt` 追加      | properties | 管理会社相談日時（nullable timestamp）                                         |
+| `landlordConsent` をJSONBに構造化 | properties | boolean → ConsentStatus構造体                                                  |
+| `pdfUrls` 追加                    | properties | 生成済みPDFのR2 URL格納（JSONB）                                               |
+| `furnitureItems` 変更             | listings   | 旧`furniture: string[]` → `FurnitureItem[]`（JSONB、REQUIREMENTS.md 7.7参照）  |
+| `coreSetPrice` 追加               | listings   | コアセット一括価格（nullable number）                                          |
+| `handoverFee` 追加                | properties | 引越し費用（number、REQUIREMENTS.md §7.1参照）                                 |
+| `agreedFurnitureIds` 変更         | inquiries  | 旧`agreedFurniture: string[]` → 確定家具IDリスト                               |
+| `duration` 追加                   | inquiries  | 希望契約期間（string）                                                         |
+| `brand` 追加                      | listings   | FurnitureItem内ブランド名（nullable string、§7.7）                             |
+| `newPrice` 追加                   | listings   | FurnitureItem内新品価格（nullable number、カテゴリデフォルト自動セット、§7.7） |
+| `yearsUsed` 追加                  | listings   | FurnitureItem内使用年数（nullable number、§7.7）                               |
+| `furnitureCategory` 追加          | listings   | FurnitureItem内カテゴリenum（FurnitureCategory、§7.7.1）                       |
+| `pin` 追加                        | listings   | FurnitureItem内写真タグ座標（nullable JSONB、§7.7）                            |
+
+### 2.5 T-5: 簡易メッセージ機能アーキテクチャ
+
+座談会#8でMVP格上げ決定。個人メアド非公開・内見日程調整に必須。
+
+```
+[次の住人] → メッセージ送信 (Server Action)
+  → messagesテーブルにINSERT
+  → Resendで相手に通知メール（「新着メッセージがあります」+ tsumugiリンク）
+  → [前の住人] がtsumugi上で閲覧・返信
+```
+
+**データモデル:**
+
+| テーブル | 主要フィールド                                  | 説明                 |
+| -------- | ----------------------------------------------- | -------------------- |
+| threads  | id, propertyId, sellerId, buyerId, createdAt    | 物件×ペアで1スレッド |
+| messages | id, threadId, senderId, body, createdAt, readAt | テキストメッセージ   |
+
+**実装方針:**
+
+- Server Actionsで送受信（API Route不要）
+- ポーリングベース（MVP）: 画面表示時にfetch、30秒間隔で新着チェック
+- 日程調整テンプレート: 定型文ボタン（「内見候補日: ①○月○日 ②○月○日 ③○月○日」）
+- メール通知: 新着メッセージ時にResendで通知（本文は含めず、リンクのみ）
+- ファイル配置: `src/app/(main)/messages/`, `src/lib/actions/message.ts`
+
+**Phase 2移行:** WebSocket/SSEでリアルタイム化、既読表示、画像添付
+
+### 2.6 T-6: 値付けガイダンス実装
+
+座談会#9で決定。クライアントサイドのみで完結。
+
+```
+[出品フォーム]
+  → FurnitureItemのcategory選択 → デフォルトnewPriceを自動セット
+  → yearsUsed入力 → 減価テーブルで目安レンジ計算
+  → 「参考値: ¥XX,XXX 〜 ¥YY,YYY」を表示
+
+[物件詳細ページ]
+  → 各FurnitureItemのnewPrice合計 → 「新品で揃えた場合: 約○万円」
+  → handoverFee / newPrice合計 → 「新品の○%の価格で引き継ぎ」
+```
+
+**実装メモ:**
+
+- 減価テーブル（REQUIREMENTS.md §7.10.1）はconstオブジェクトで定義: `src/lib/pricing.ts`
+- カテゴリ別デフォルト新品価格もconstオブジェクトで定義（同ファイル）
+- UIコンポーネント: `src/components/listing/pricing-guidance.tsx`
+- バックエンド不要（計算はすべてクライアント）
 
 ---
 
 ## 3. MVP実装ロードマップ
 
-技術会議（2026-02-06）で合意。
+技術会議（2026-02-06）で合意。座談会#8・#9の追加決定を反映（2026-02-07更新）。
 
 ```
 Phase 0: インフラ整備（1週間）
 ├── DBスキーマ拡張（moveOutDate, moveOutReason, landlordConsent構造化, furnitureItems等）
+├── DBスキーマ拡張 追加（handoverFee, FurnitureItem新フィールド: brand/newPrice/yearsUsed/furnitureCategory/pin）
 ├── Resendメールテンプレート基盤
 └── @react-pdf/renderer セットアップ + 日本語フォント + POC検証
 
 Phase 1: コア機能強化（2週間）
 ├── F-501/F-502: 退去日フィールド + バリデーション
-├── 出品フォーム改修（必須/任意フィールド整理、FurnitureItem入力UI）
+├── 出品フォーム改修（必須/任意フィールド整理、FurnitureItem入力UI、カテゴリ選択+デフォルト新品価格）
+├── 値付けガイダンス（T-6: 減価テーブル目安レンジ表示、比較表示）
 ├── 大家承認ステータス表示（バッジ・バナー 5パターン）
 ├── F-204: 問い合わせ通知メール（Resend）
-└── F-701: 使い方ガイドページ（静的ページ）
+├── F-701: 使い方ガイドページ（静的ページ）
+└── 内見フロー基盤（家具チェックリストUI、内見フォローメール自動送信 — §11 step 4-5）
 
 Phase 2: PDF + B2B（2-3週間）
 ├── F-611: 残置物引き継ぎ相談資料PDF（結論ファースト・A4 3枚以内）
@@ -117,10 +181,11 @@ Phase 2: PDF + B2B（2-3週間）
 ├── F-615: 管理会社向けFAQ（静的ページ）
 └── PDF生成トリガー（退去日設定時に自動生成）
 
-Phase 3: 自動化（1週間）
+Phase 3: 自動化 + メッセージング（2週間）
 ├── F-205: 承認リマインド通知（4段階: 7/14/21/27日、文面出し分け）
 ├── F-206: 承認期限切れ自動処理（30日で一時停止）
-└── F-612: 残置物同意書PDF（家具リスト確定時）
+├── F-612: 残置物同意書PDF（家具リスト確定時）
+└── T-5: 簡易メッセージ機能（threads/messagesテーブル、Server Actions、日程調整テンプレート、メール通知）
 
 Phase 4: 決済基盤 — Stripe Connect（2-3週間）
 ├── Stripe Connectプラットフォーム設定（APIキー・Webhook endpoint・環境変数）
@@ -129,7 +194,7 @@ Phase 4: 決済基盤 — Stripe Connect（2-3週間）
 ├── Webhook処理（payment_intent.succeeded, account.updated, transfer.created等）
 └── 管理者エスクロー解放（手動トリガーのAdmin画面 — 引き継ぎ完了確認後に実行）
 
-合計: 約8-10週間
+合計: 約9-11週間
 ```
 
 ---
@@ -168,7 +233,7 @@ Phase 4: 決済基盤 — Stripe Connect（2-3週間）
 
 | ID     | 問題                         | 影響                     | 対応時期                                       |
 | ------ | ---------------------------- | ------------------------ | ---------------------------------------------- |
-| TD-001 | サンプルデータがハードコード | DBに切り替えれば解消     | Phase 2でDB実装時                              |
-| TD-002 | 認証がモック状態             | 本番運用には実認証が必要 | Phase 2でBetter-auth本格導入時                 |
+| TD-001 | サンプルデータがハードコード | DBに切り替えれば解消     | Phase 0（DBスキーマ拡張）で解消予定            |
+| TD-002 | 認証がモック状態             | 本番運用には実認証が必要 | Phase 0-1でBetter-auth本番設定時に解消予定     |
 | TD-003 | 画像最適化が未実装           | 表示速度に影響しうる     | 後日対応                                       |
 | TD-004 | inquiry-list.tsxが未使用     | 不要コードが残存         | /listingページに問い合わせ管理タブ追加時に活用 |
