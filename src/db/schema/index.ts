@@ -23,6 +23,7 @@ export {
   type EmailLogStatus,
   type EmailLogMetadata,
 } from './email-logs';
+export { handoverConfirmations } from './handover-confirmations';
 
 // Define relations
 import { relations } from 'drizzle-orm';
@@ -33,6 +34,7 @@ import { threads, messages } from './messages';
 import { sessions, accounts } from './sessions';
 import { payments, transactions, stripeAccounts } from './payments';
 import { emailLogs } from './email-logs';
+import { handoverConfirmations } from './handover-confirmations';
 
 // User relations
 export const usersRelations = relations(users, ({ one, many }) => ({
@@ -69,6 +71,10 @@ export const propertiesRelations = relations(properties, ({ one, many }) => ({
   payments: many(payments),
   threads: many(threads),
   emailLogs: many(emailLogs),
+  handoverConfirmation: one(handoverConfirmations, {
+    fields: [properties.id],
+    references: [handoverConfirmations.propertyId],
+  }),
 }));
 
 // Inquiry relations
@@ -166,3 +172,14 @@ export const emailLogsRelations = relations(emailLogs, ({ one }) => ({
     references: [properties.id],
   }),
 }));
+
+// Handover Confirmation relations
+export const handoverConfirmationsRelations = relations(
+  handoverConfirmations,
+  ({ one }) => ({
+    property: one(properties, {
+      fields: [handoverConfirmations.propertyId],
+      references: [properties.id],
+    }),
+  })
+);

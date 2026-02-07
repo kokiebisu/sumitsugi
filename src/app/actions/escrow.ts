@@ -12,9 +12,11 @@ import {
   transactions,
   stripeAccounts,
   properties,
+  handoverConfirmations,
 } from '@/db/schema';
 import { eq, and, inArray } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import zod from 'zod';
 
 export interface EscrowReleaseResult {
   success: boolean;
@@ -27,6 +29,7 @@ export interface EscrowReleaseResult {
 
 export interface HandoverConfirmationResult {
   success: boolean;
+  bothConfirmed?: boolean;
   error?: string;
 }
 
@@ -183,15 +186,21 @@ export async function releaseEscrowAndDistribute(
   }
 }
 
+const confirmHandoverSchema = zod.object({
+  propertyId: zod.string().min(1, 'Property ID is required'),
+  userId: zod.string().min(1, 'User ID is required'),
+  role: zod.enum(['buyer', 'seller']),
+});
+
 /**
- * Confirm handover completion from buyer or seller side
- * TODO: Implement confirmation tracking and automatic escrow release scheduling
+ * Confirm handover completion from buyer or seller side.
  *
- * Future implementation:
- * - Track confirmations from both parties (buyer + seller)
- * - After both confirm, schedule escrow release in 24-48h
- * - Send notifications to both parties
- * - Handle dispute flow if only one party confirms
+ * Uses upsert to create or update the handover_confirmations record.
+ * When both buyer and seller have confirmed, bothConfirmed=true is returned
+ * and the caller can trigger escrow release (Phase 1: immediate release).
+ *
+ * TODO Phase 2: Replace userId param with session-based auth (getSession)
+ * TODO Phase 2: Verify user has claimed role for property (seller = property.userId, buyer = inquiry/thread)
  *
  * @param propertyId - Property ID for the handover
  * @param userId - User ID confirming completion
@@ -202,9 +211,50 @@ export async function confirmHandoverCompletion(
   userId: string,
   role: 'buyer' | 'seller'
 ): Promise<HandoverConfirmationResult> {
-  // TODO: Implement handover confirmation tracking
-  // For now, return success stub
-  return {
-    success: true,
-  };
+  try {
+    const validated = confirmHandoverSchema.parse({ propertyId, userId, role });
+    const now = new Date();
+    const confirmationId = randomUUID();
+
+    const setFields =
+      validated.role === 'buyer'
+        ? { buyerId: validated.userId, buyerConfirmedAt: now }
+        : { sellerId: validated.userId, sellerConfirmedAt: now };
+
+    const [record] = await db
+      .insert(handoverConfirmations)
+      .values({
+        id: confirmationId,
+        propertyId: validated.propertyId,
+        ...setFields,
+        createdAt: now,
+      })
+      .onConflictDoUpdate({
+        target: handoverConfirmations.propertyId,
+        set: setFields,
+      })
+      .returning();
+
+    const bothConfirmed = !!(
+      record.buyerConfirmedAt && record.sellerConfirmedAt
+    );
+
+    revalidatePath(`/properties/${validated.propertyId}`);
+
+    return {
+      success: true,
+      bothConfirmed,
+    };
+  } catch (error) {
+    if (error instanceof zod.ZodError) {
+      return {
+        success: false,
+        error: error.errors.map((e) => e.message).join(', '),
+      };
+    }
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    };
+  }
 }
