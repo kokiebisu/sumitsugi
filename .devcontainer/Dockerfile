@@ -72,6 +72,10 @@ ENV DEVCONTAINER=true
 RUN mkdir -p /workspace /home/bun/.claude && \
   chown -R bun:bun /workspace /home/bun/.claude
 
+# Create symlink so git submodule worktree path resolves inside container
+# (.git/modules/tsumugi/config has worktree = ../../../aspects/tsumugi)
+RUN mkdir -p /aspects && ln -s /workspace /aspects/tsumugi
+
 WORKDIR /workspace
 
 # Install git-delta for better diffs
