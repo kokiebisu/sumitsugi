@@ -5,6 +5,7 @@ const z = zod;
 import { auth } from '@/lib/auth';
 import { db } from '@/db';
 import { properties } from '@/db/schema';
+import { furnitureItemSchema, landlordConsentSchema } from '@/lib/validations';
 
 const createPropertySchema = z.object({
   title: z.string().min(1, 'タイトルは必須です').max(500),
@@ -22,26 +23,10 @@ const createPropertySchema = z.object({
   layout: z.string().max(50).optional(),
   occupancy: z.number().int().nonnegative().optional(),
   style: z.string().max(50).optional(),
-  furnitureItems: z.array(z.any()).optional(),
+  furnitureItems: z.array(furnitureItemSchema).optional(),
   condition: z.enum(['excellent', 'good', 'used']).optional(),
   estimatedDuration: z.string().max(50).optional(),
-  landlordConsent: z
-    .object({
-      status: z.enum([
-        'pending',
-        'approved',
-        'conditional',
-        'rejected',
-        'expired',
-      ]),
-      approvedItems: z.array(z.string()).optional(),
-      rejectedItems: z.array(z.string()).optional(),
-      conditions: z.string().optional(),
-      restorationTerms: z.string().optional(),
-      approvedAt: z.string().optional(),
-      approvedBy: z.string().optional(),
-    })
-    .default({ status: 'pending' }),
+  landlordConsent: landlordConsentSchema.default({ status: 'pending' }),
   amenities: z.array(z.string()).optional(),
   furnitureDescription: z.string().optional(),
   story: z.string().optional(),
