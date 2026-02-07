@@ -36,6 +36,21 @@ vi.mock('@/db', () => ({
         where: vi.fn(),
       })),
     })),
+    // Mock transaction to execute the callback with a mock tx object
+    transaction: vi.fn(async (cb: (_tx: any) => Promise<void>) => {
+      await cb({
+        insert: vi.fn(() => ({
+          values: vi.fn(() => ({
+            returning: vi.fn(),
+          })),
+        })),
+        update: vi.fn(() => ({
+          set: vi.fn(() => ({
+            where: vi.fn(),
+          })),
+        })),
+      });
+    }),
   },
 }));
 
@@ -74,19 +89,6 @@ describe('processRefund', () => {
       amount: 20000,
     } as any);
 
-    const mockReturning = vi.fn().mockResolvedValue([{ id: 'txn-1' }]);
-    vi.mocked(db.insert).mockReturnValue({
-      values: vi.fn().mockReturnValue({
-        returning: mockReturning,
-      }),
-    } as any);
-
-    vi.mocked(db.update).mockReturnValue({
-      set: vi.fn().mockReturnValue({
-        where: vi.fn(),
-      }),
-    } as any);
-
     const result = await processRefund({
       propertyId: mockPropertyId,
       cancelledBy: 'buyer',
@@ -123,19 +125,6 @@ describe('processRefund', () => {
         stripePaymentIntentId: 'pi_dep123',
       },
     ] as any);
-
-    const mockReturning = vi.fn().mockResolvedValue([{ id: 'txn-1' }]);
-    vi.mocked(db.insert).mockReturnValue({
-      values: vi.fn().mockReturnValue({
-        returning: mockReturning,
-      }),
-    } as any);
-
-    vi.mocked(db.update).mockReturnValue({
-      set: vi.fn().mockReturnValue({
-        where: vi.fn(),
-      }),
-    } as any);
 
     const result = await processRefund({
       propertyId: mockPropertyId,
@@ -180,19 +169,6 @@ describe('processRefund', () => {
       amount: 20000,
     } as any);
 
-    const mockReturning = vi.fn().mockResolvedValue([{ id: 'txn-1' }]);
-    vi.mocked(db.insert).mockReturnValue({
-      values: vi.fn().mockReturnValue({
-        returning: mockReturning,
-      }),
-    } as any);
-
-    vi.mocked(db.update).mockReturnValue({
-      set: vi.fn().mockReturnValue({
-        where: vi.fn(),
-      }),
-    } as any);
-
     const result = await processRefund({
       propertyId: mockPropertyId,
       cancelledBy: 'seller',
@@ -228,19 +204,6 @@ describe('processRefund', () => {
       amount: 20000,
     } as any);
 
-    const mockReturning = vi.fn().mockResolvedValue([{ id: 'txn-1' }]);
-    vi.mocked(db.insert).mockReturnValue({
-      values: vi.fn().mockReturnValue({
-        returning: mockReturning,
-      }),
-    } as any);
-
-    vi.mocked(db.update).mockReturnValue({
-      set: vi.fn().mockReturnValue({
-        where: vi.fn(),
-      }),
-    } as any);
-
     const result = await processRefund({
       propertyId: mockPropertyId,
       cancelledBy: 'screening_failure',
@@ -274,12 +237,6 @@ describe('processRefund', () => {
     vi.mocked(stripe.paymentIntents.cancel).mockResolvedValue({
       id: 'pi_dep123',
       status: 'canceled',
-    } as any);
-
-    vi.mocked(db.update).mockReturnValue({
-      set: vi.fn().mockReturnValue({
-        where: vi.fn(),
-      }),
     } as any);
 
     const result = await processRefund({

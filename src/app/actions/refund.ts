@@ -3,7 +3,7 @@
 import { randomUUID } from 'crypto';
 import { stripe } from '@/lib/stripe/server';
 import { db } from '@/db';
-import { payments, transactions } from '@/db/schema';
+import { payments, transactions, properties } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import {
@@ -36,6 +36,9 @@ export interface ProcessRefundResult {
  *   but refundable pre-viewing or when seller/screening cancels)
  * - Cancels pending (uncaptured) payments via PaymentIntent cancel
  * - Refunds succeeded payments via Stripe Refund
+ *
+ * TODO: Add authentication/authorization checks when auth system is implemented.
+ * This action should verify the caller is the buyer, seller, or admin for the property.
  */
 export async function processRefund(
   input: ProcessRefundInput
@@ -45,7 +48,7 @@ export async function processRefund(
 
     // Get property details
     const property = await db.query.properties.findFirst({
-      where: eq(payments.propertyId, propertyId),
+      where: eq(properties.id, propertyId),
     });
 
     if (!property) {
@@ -109,67 +112,73 @@ export async function processRefund(
 
     const refundIds: string[] = [];
 
-    // Cancel any pending payments first (no charge was made)
-    for (const payment of pendingPayments) {
-      await stripe.paymentIntents.cancel(payment.stripePaymentIntentId!);
-      await db
-        .update(payments)
-        .set({ status: 'canceled', updatedAt: new Date() })
-        .where(eq(payments.id, payment.id));
-    }
-
-    // Process refunds for succeeded payments
-    if (totalRefund > 0) {
-      let remainingRefund = totalRefund;
-
-      for (const payment of succeededPayments) {
-        if (remainingRefund <= 0) break;
-
-        // Skip deposit if it's forfeited
-        if (payment.type === 'deposit' && penaltyResult.depositForfeited) {
-          continue;
-        }
-
-        // Skip application fee if not eligible for refund
-        if (payment.type === 'application_fee' && !shouldRefundApplicationFee) {
-          continue;
-        }
-
-        const refundAmount = Math.min(payment.amount, remainingRefund);
-
-        const refund = await stripe.refunds.create({
-          payment_intent: payment.stripePaymentIntentId!,
-          amount: refundAmount,
-          metadata: {
-            propertyId,
-            cancelledBy,
-            phase,
-            reason: penaltyResult.reason,
-          },
-        });
-
-        refundIds.push(refund.id);
-
-        // Record refund transaction
-        await db.insert(transactions).values({
-          id: randomUUID(),
-          paymentId: payment.id,
-          recipientType: 'platform',
-          recipientId: null,
-          amount: -refundAmount,
-          stripeTransferId: refund.id,
-          status: 'completed',
-        });
-
-        // Update payment status
-        await db
+    // Use database transaction for atomicity
+    await db.transaction(async (tx) => {
+      // Cancel any pending payments first (no charge was made)
+      for (const payment of pendingPayments) {
+        await stripe.paymentIntents.cancel(payment.stripePaymentIntentId!);
+        await tx
           .update(payments)
           .set({ status: 'canceled', updatedAt: new Date() })
           .where(eq(payments.id, payment.id));
-
-        remainingRefund -= refundAmount;
       }
-    }
+
+      // Process refunds for succeeded payments
+      if (totalRefund > 0) {
+        let remainingRefund = totalRefund;
+
+        for (const payment of succeededPayments) {
+          if (remainingRefund <= 0) break;
+
+          // Skip deposit if it's forfeited
+          if (payment.type === 'deposit' && penaltyResult.depositForfeited) {
+            continue;
+          }
+
+          // Skip application fee if not eligible for refund
+          if (
+            payment.type === 'application_fee' &&
+            !shouldRefundApplicationFee
+          ) {
+            continue;
+          }
+
+          const refundAmount = Math.min(payment.amount, remainingRefund);
+
+          const refund = await stripe.refunds.create({
+            payment_intent: payment.stripePaymentIntentId!,
+            amount: refundAmount,
+            metadata: {
+              propertyId,
+              cancelledBy,
+              phase,
+              reason: penaltyResult.reason,
+            },
+          });
+
+          refundIds.push(refund.id);
+
+          // Record refund transaction
+          await tx.insert(transactions).values({
+            id: randomUUID(),
+            paymentId: payment.id,
+            recipientType: 'platform',
+            recipientId: null,
+            amount: -refundAmount,
+            stripeTransferId: refund.id,
+            status: 'completed',
+          });
+
+          // Update payment status to 'refunded' (distinct from 'canceled')
+          await tx
+            .update(payments)
+            .set({ status: 'refunded', updatedAt: new Date() })
+            .where(eq(payments.id, payment.id));
+
+          remainingRefund -= refundAmount;
+        }
+      }
+    });
 
     revalidatePath(`/properties/${propertyId}`);
 
