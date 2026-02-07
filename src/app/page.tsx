@@ -8,9 +8,14 @@ import {
   Property,
   convertUserListingToProperty,
 } from '@/lib/data';
-import { isUrgentMoveIn, getDaysUntilMoveOut } from '@/lib/utils';
+import {
+  isUrgentMoveIn,
+  getDaysUntilMoveOut,
+  isAvailableFromMonth,
+} from '@/lib/utils';
 import { useAuth } from '@/contexts/auth-context';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { CalendarDays, X } from 'lucide-react';
 
 // neighborhoodから区名を抽出する関数
 function extractDistrict(neighborhood?: string): string {
@@ -107,8 +112,33 @@ const DISTRICT_ORDER = [
   '板橋区',
 ];
 
+// 入居可能月フィルター用の選択肢を生成（今月〜6ヶ月先）
+function generateMonthOptions(): Array<{
+  year: number;
+  month: number;
+  label: string;
+}> {
+  const options: Array<{ year: number; month: number; label: string }> = [];
+  const now = new Date();
+  for (let i = 0; i < 6; i++) {
+    const date = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    options.push({
+      year: date.getFullYear(),
+      month: date.getMonth() + 1,
+      label: `${date.getFullYear()}年${date.getMonth() + 1}月`,
+    });
+  }
+  return options;
+}
+
 export default function HomePage() {
   const { listings } = useAuth();
+  const [moveInFilter, setMoveInFilter] = useState<{
+    year: number;
+    month: number;
+  } | null>(null);
+
+  const monthOptions = useMemo(() => generateMonthOptions(), []);
 
   const properties = useMemo(() => {
     const staticProperties = getPublicProperties();
@@ -120,8 +150,18 @@ export default function HomePage() {
     return [...staticProperties, ...publishedUserListings];
   }, [listings]);
 
-  // 東京の物件のみをフィルタリング
-  const tokyoProperties = properties.filter((p) => p.area === '東京');
+  // 東京の物件のみをフィルタリング + 入居可能日フィルター（F-508）
+  const tokyoProperties = properties.filter((p) => {
+    if (p.area !== '東京') return false;
+    if (moveInFilter) {
+      return isAvailableFromMonth(
+        p.moveOutDate,
+        moveInFilter.year,
+        moveInFilter.month
+      );
+    }
+    return true;
+  });
 
   // 区ごとにグループ化し、即入居可能物件を優先表示（F-507）
   const propertiesByDistrict = useMemo(() => {
@@ -169,6 +209,49 @@ export default function HomePage() {
       <Header />
 
       <main className="flex-1">
+        {/* 入居可能日フィルター（F-508） */}
+        <div className="mx-auto max-w-7xl px-6 pt-6 pb-2">
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <CalendarDays className="h-4 w-4" />
+              <span>入居可能月</span>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {monthOptions.map((opt) => {
+                const isActive =
+                  moveInFilter?.year === opt.year &&
+                  moveInFilter?.month === opt.month;
+                return (
+                  <button
+                    key={`${opt.year}-${opt.month}`}
+                    onClick={() =>
+                      setMoveInFilter(
+                        isActive ? null : { year: opt.year, month: opt.month }
+                      )
+                    }
+                    className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+                      isActive
+                        ? 'bg-foreground text-background'
+                        : 'bg-muted text-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    {opt.month}月
+                  </button>
+                );
+              })}
+            </div>
+            {moveInFilter && (
+              <button
+                onClick={() => setMoveInFilter(null)}
+                className="flex items-center gap-1 rounded-full px-2.5 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="h-3 w-3" />
+                クリア
+              </button>
+            )}
+          </div>
+        </div>
+
         <div className="py-8">
           {tokyoProperties.length > 0 ? (
             <>

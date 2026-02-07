@@ -26,3 +26,21 @@ export function isUrgentMoveIn(moveOutDate: string | undefined): boolean {
   const days = getDaysUntilMoveOut(moveOutDate);
   return days >= 0 && days <= 30;
 }
+
+/**
+ * 指定年月以降に入居可能かどうか判定（F-508）
+ * moveOutDate（退去日）が指定月の末日以前であれば、その月以降に入居可能とみなす
+ */
+export function isAvailableFromMonth(
+  moveOutDate: string | undefined,
+  year: number,
+  month: number
+): boolean {
+  if (!moveOutDate) return false;
+  const moveOut = new Date(moveOutDate);
+  moveOut.setHours(0, 0, 0, 0);
+  // 指定月の末日を計算（month is 1-indexed）
+  const endOfMonth = new Date(year, month, 0);
+  endOfMonth.setHours(23, 59, 59, 999);
+  return moveOut.getTime() <= endOfMonth.getTime();
+}
