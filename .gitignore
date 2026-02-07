@@ -23,3 +23,6 @@ test-results/
 tests/e2e/artifacts/
 !tests/e2e/artifacts/.gitkeep
 .serena/
+
+# OpenClaw setup (local/personal)
+docs/setup/openclaw-mobile-dev-setup.md
