@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { eq, desc, sql } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
 import zod from 'zod';
 const z = zod;
@@ -141,6 +142,50 @@ export async function POST(request: Request) {
     }
     return NextResponse.json(
       { error: 'プロパティの作成に失敗しました' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+    const limit = Math.min(
+      100,
+      Math.max(1, parseInt(searchParams.get('limit') || '20', 10))
+    );
+    const offset = (page - 1) * limit;
+
+    const [items, countResult] = await Promise.all([
+      db
+        .select()
+        .from(properties)
+        .where(eq(properties.status, 'public'))
+        .orderBy(desc(properties.createdAt))
+        .limit(limit)
+        .offset(offset),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(properties)
+        .where(eq(properties.status, 'public')),
+    ]);
+
+    const total = Number(countResult[0]?.count ?? 0);
+
+    return NextResponse.json({
+      data: items,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    console.error('Failed to fetch properties:', error);
+    return NextResponse.json(
+      { error: 'プロパティの取得に失敗しました' },
       { status: 500 }
     );
   }
