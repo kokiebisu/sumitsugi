@@ -35,6 +35,9 @@ export const inquiries = pgTable(
     // Content
     reason: text('reason').notNull(),
     questions: text('questions'),
+    duration: varchar('duration', { length: 100 }), // 希望契約期間（§7.2）
+    agreedFurnitureIds: text('agreed_furniture_ids').array(), // 確定家具IDリスト（§7.2）
+    viewingDate: timestamp('viewing_date', { withTimezone: true }), // 内見日時（§7.2）
 
     // Viewing Confirmation (JSONB)
     viewingConfirmation: jsonb('viewing_confirmation')

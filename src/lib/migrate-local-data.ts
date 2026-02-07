@@ -34,7 +34,7 @@ export async function migrateLocalDataAction(
             area: listing.area,
             layout: listing.layout,
             occupancy: listing.occupants,
-            furniture: listing.furniture,
+            furnitureItems: [], // Legacy migration: furniture text[] → FurnitureItem[] (empty default)
             story: listing.story,
             handoverDetails: {
               viewingAvailableFrom: listing.viewingAvailableFrom,
