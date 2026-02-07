@@ -36,6 +36,7 @@ import {
   Monitor,
   Archive,
   Table2,
+  UtensilsCrossed,
   Shirt,
   Tv,
   Refrigerator,
@@ -77,6 +78,7 @@ const FURNITURE_ITEMS = [
   { id: 'desk', label: 'デスク', Icon: Monitor },
   { id: 'storage', label: '収納', Icon: Archive },
   { id: 'table', label: 'テーブル', Icon: Table2 },
+  { id: 'dining', label: 'ダイニング', Icon: UtensilsCrossed },
   { id: 'wardrobe', label: 'ワードローブ', Icon: Shirt },
   { id: 'tv', label: 'テレビ台', Icon: Tv },
   { id: 'fridge', label: '冷蔵庫', Icon: Refrigerator },
@@ -790,6 +792,9 @@ export default function NewListingPage() {
                       </label>
                       <input
                         type="number"
+                        min="0"
+                        max="1000000"
+                        step="1000"
                         placeholder="例: 30000"
                         value={coreSetPrice}
                         onChange={(e) => setCoreSetPrice(e.target.value)}

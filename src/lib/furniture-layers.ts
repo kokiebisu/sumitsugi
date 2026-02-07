@@ -26,6 +26,12 @@ export const FURNITURE_LAYER_ITEMS: readonly FurnitureLayerItem[] = [
   { id: 'sofa', label: 'ソファ', layer: 'core', iconName: 'Sofa' },
   { id: 'desk', label: 'デスク', layer: 'core', iconName: 'Monitor' },
   { id: 'table', label: 'テーブル', layer: 'core', iconName: 'Table2' },
+  {
+    id: 'dining',
+    label: 'ダイニング',
+    layer: 'core',
+    iconName: 'UtensilsCrossed',
+  },
   // 追加家具（個別オプション）
   { id: 'storage', label: '収納', layer: 'additional', iconName: 'Archive' },
   {
