@@ -236,7 +236,7 @@ function parseContentSlide(title: string, content: string): SlideConfig {
     if (isBullet) {
       if (currentBullet) bulletLines.push(currentBullet);
       currentBullet = trimmed;
-    } else if (currentBullet && trimmed.startsWith('  ')) {
+    } else if (currentBullet && line.startsWith('  ')) {
       currentBullet += ' ' + trimmed.trim();
     } else {
       if (currentBullet) {
