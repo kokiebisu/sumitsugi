@@ -8,6 +8,7 @@ import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Button } from '@/components/ui/button';
 import { StarRating } from '@/components/ui/star-rating';
+import { isValidRating } from '@/lib/review-types';
 
 export default function ReviewConfirmPage() {
   const params = useParams();
@@ -55,7 +56,7 @@ export default function ReviewConfirmPage() {
     );
   }
 
-  if (!rating || rating < 1 || rating > 5) {
+  if (!isValidRating(rating)) {
     router.push(`/viewing/${viewingId}/review`);
     return null;
   }
