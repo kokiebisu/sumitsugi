@@ -19,6 +19,7 @@ import {
   ChevronRight,
   Edit,
 } from 'lucide-react';
+import { ProfileReviews } from '@/components/profile-reviews';
 
 export default function AccountPage() {
   const { user, isLoading } = useAuth();
@@ -209,6 +210,9 @@ export default function AccountPage() {
               </div>
             </div>
           )}
+
+          {/* 受けたレビュー */}
+          <ProfileReviews userId={user.id} />
 
           {/* 前の住人になる（非ホストのみ） */}
           {!user.isSeller && (
