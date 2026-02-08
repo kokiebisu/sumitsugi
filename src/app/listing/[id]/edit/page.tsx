@@ -40,6 +40,7 @@ import {
   Shirt,
   Tv,
   Refrigerator,
+  ShieldCheck,
 } from 'lucide-react';
 
 // 間取りの選択肢
@@ -103,6 +104,7 @@ export default function EditListingPage() {
   const [viewingEndDate, setViewingEndDate] = useState<Date | null>(null);
   const [moveInStartDate, setMoveInStartDate] = useState<Date | null>(null);
   const [moveInEndDate, setMoveInEndDate] = useState<Date | null>(null);
+  const [hasLandlordConsent, setHasLandlordConsent] = useState(false);
 
   // リスティングデータを読み込み
   useEffect(() => {
@@ -113,6 +115,9 @@ export default function EditListingPage() {
       setManagementFee(listing.managementFee?.toString() || '');
       setLayout(listing.layout || '');
       setHandoverFee(listing.handoverFee?.toString() || '');
+      setHasLandlordConsent(
+        listing.landlordConsent?.hasLandlordConsent || false
+      );
       if (listing.stations && listing.stations.length > 0) {
         setStations(
           listing.stations.map((s) => ({
@@ -209,6 +214,8 @@ export default function EditListingPage() {
           name: s.name,
           walkingMinutes: s.walkingMinutes ? parseInt(s.walkingMinutes, 10) : 0,
         })),
+      landlordConsent: { hasLandlordConsent },
+      consentStatus: hasLandlordConsent ? 'approved' : 'pending',
     });
 
     setIsSaving(false);
@@ -467,6 +474,33 @@ export default function EditListingPage() {
                 subtitle="引越しを希望する期間を選択してください"
               />
             </div>
+          </section>
+
+          {/* 大家承認 */}
+          <section>
+            <h2 className="text-xl font-semibold mb-2">大家さんの承認</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              家具の引き継ぎについて大家さんの承認を得ていますか？（任意）
+            </p>
+            <label className="flex items-start gap-3 p-4 rounded-xl border-2 border-border hover:border-foreground/40 transition-colors cursor-pointer">
+              <input
+                type="checkbox"
+                checked={hasLandlordConsent}
+                onChange={(e) => setHasLandlordConsent(e.target.checked)}
+                className="mt-0.5 w-5 h-5 rounded border-border text-foreground focus:ring-foreground"
+              />
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-green-600" />
+                  <span className="text-sm font-medium text-foreground">
+                    大家さんから承認を得ています
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  大家さんの承認があると、次の住人の安心につながります。後から変更することもできます。
+                </p>
+              </div>
+            </label>
           </section>
 
           {/* 引き継ぎ費用 */}
