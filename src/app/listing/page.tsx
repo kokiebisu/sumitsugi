@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Header } from '@/components/header';
@@ -15,33 +15,42 @@ import {
   Trash2,
   MessageSquare,
   Home,
-  ShieldCheck,
 } from 'lucide-react';
 import { InquiryList } from '@/components/admin/inquiry-list';
 import { ConsentBadge } from '@/components/consent-badge';
 
+interface ApiListing {
+  id: string;
+  title: string;
+  status: string;
+  images: string[];
+  publishedAt: string | null;
+  landlordConsent: { status?: string } | null;
+  [key: string]: unknown;
+}
+
 // 無限スクロール用の画像データ（Unsplash - 明るいインテリア・部屋の写真）
 const scrollImages = {
   row1: [
-    'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop', // 明るいリビング（白基調）
-    'https://images.unsplash.com/photo-1484101403633-562f891dc89a?w=800&h=600&fit=crop', // 日当たりの良いリビング
-    'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800&h=600&fit=crop', // 白いキッチン
-    'https://images.unsplash.com/photo-1523755231516-e43fd2e8dca5?w=800&h=600&fit=crop', // ナチュラルインテリア
-    'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=800&h=600&fit=crop', // 明るいベッドルーム
+    'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1484101403633-562f891dc89a?w=800&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1523755231516-e43fd2e8dca5?w=800&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=800&h=600&fit=crop',
   ],
   row2: [
-    'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=800&h=600&fit=crop', // 白いダイニング
-    'https://images.unsplash.com/photo-1556020685-ae41abfc9365?w=800&h=600&fit=crop', // リビング
-    'https://images.unsplash.com/photo-1486304873000-235643847519?w=800&h=600&fit=crop', // ミニマルリビング
-    'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?w=800&h=600&fit=crop', // 植物のあるリビング
-    'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800&h=600&fit=crop', // 明るいワンルーム
+    'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=800&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1556020685-ae41abfc9365?w=800&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1486304873000-235643847519?w=800&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?w=800&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800&h=600&fit=crop',
   ],
   row3: [
-    'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=800&h=600&fit=crop', // モダンリビング（明るい）
-    'https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=800&h=600&fit=crop', // 白い壁のキッチン
-    'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800&h=600&fit=crop', // ナチュラルな部屋
-    'https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=800&h=600&fit=crop', // 明るいワークスペース
-    'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=800&h=600&fit=crop', // 白いベッドルーム
+    'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=800&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=800&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=800&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=800&h=600&fit=crop',
   ],
 };
 
@@ -100,27 +109,20 @@ function ScrollingRow({
   );
 }
 
-// リスティングカードコンポーネント
 function ListingCard({
   listing,
   onDelete,
 }: {
-  listing: {
-    id: string;
-    title: string;
-    status: string;
-    roomPhotos?: string[];
-    publishedAt?: string;
-    consentStatus?: string;
-  };
+  listing: ApiListing;
   onDelete: (id: string) => void;
 }) {
   const [showMenu, setShowMenu] = useState(false);
-  const firstPhoto = listing.roomPhotos?.[0];
+  const firstPhoto = listing.images?.[0];
+  const displayStatus = listing.status === 'public' ? 'published' : 'draft';
+  const consentStatus = listing.landlordConsent?.status;
 
   return (
     <div className="group relative bg-white rounded-2xl overflow-hidden border border-border hover:shadow-lg transition-shadow">
-      {/* 画像 */}
       <div className="aspect-[4/3] bg-muted relative">
         {firstPhoto ? (
           <img
@@ -133,21 +135,20 @@ function ListingCard({
             <span className="text-4xl">🏠</span>
           </div>
         )}
-        {/* ステータスバッジ */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5">
           <span
             className={`px-3 py-1 rounded-full text-xs font-medium ${
-              listing.status === 'published'
+              displayStatus === 'published'
                 ? 'bg-green-100 text-green-700'
                 : 'bg-gray-100 text-gray-600'
             }`}
           >
-            {listing.status === 'published' ? '公開中' : '下書き'}
+            {displayStatus === 'published' ? '公開中' : '下書き'}
           </span>
-          {listing.consentStatus && (
+          {consentStatus && (
             <ConsentBadge
               status={
-                listing.consentStatus as
+                consentStatus as
                   | 'pending'
                   | 'conditional'
                   | 'approved'
@@ -158,7 +159,6 @@ function ListingCard({
             />
           )}
         </div>
-        {/* メニューボタン */}
         <div className="absolute top-3 right-3">
           <button
             onClick={() => setShowMenu(!showMenu)}
@@ -204,7 +204,6 @@ function ListingCard({
           )}
         </div>
       </div>
-      {/* 情報 */}
       <div className="p-4">
         <h3 className="font-semibold text-foreground mb-1">{listing.title}</h3>
         <p className="text-sm text-muted-foreground">
@@ -218,17 +217,52 @@ function ListingCard({
 }
 
 export default function ListingPage() {
-  const { user, isLoading, listings, deleteListing, inquiries } = useAuth();
+  const { user, isLoading, inquiries } = useAuth();
   const router = useRouter();
   const [isVisible, setIsVisible] = useState(false);
   const [activeTab, setActiveTab] = useState<'listings' | 'inquiries'>(
     'listings'
   );
+  const [userListings, setUserListings] = useState<ApiListing[]>([]);
+  const [isFetchingListings, setIsFetchingListings] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
-  // ユーザーのリスティングのみフィルター
-  const userListings = listings.filter((l) => l.userId === user?.id);
+  const fetchListings = useCallback(async () => {
+    setFetchError(null);
+    setIsFetchingListings(true);
+    try {
+      const res = await fetch('/api/properties/my');
+      if (!res.ok) {
+        throw new Error('リスティングの取得に失敗しました');
+      }
+      const json = (await res.json()) as { data?: ApiListing[] };
+      setUserListings(json.data ?? []);
+    } catch (err) {
+      setFetchError(
+        err instanceof Error ? err.message : 'リスティングの取得に失敗しました'
+      );
+    } finally {
+      setIsFetchingListings(false);
+    }
+  }, []);
 
-  // ユーザーのリスティングに対する問い合わせをフィルター
+  useEffect(() => {
+    if (!isLoading && user) {
+      fetchListings();
+    }
+  }, [isLoading, user, fetchListings]);
+
+  const handleDelete = async (id: string) => {
+    try {
+      const res = await fetch(`/api/properties/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setUserListings((prev) => prev.filter((l) => l.id !== id));
+      }
+    } catch {
+      setUserListings((prev) => prev.filter((l) => l.id !== id));
+    }
+  };
+
   const userListingIds = userListings.map((l) => l.id);
   const userInquiries = inquiries.filter((inq) =>
     userListingIds.includes(inq.propertyId)
@@ -241,18 +275,16 @@ export default function ListingPage() {
   }, [user, isLoading, router]);
 
   useEffect(() => {
-    // ページ読み込み後にフェードインを開始
     const timer = setTimeout(() => setIsVisible(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
-  if (isLoading) {
+  if (isLoading || isFetchingListings) {
     return (
       <div className="flex min-h-screen flex-col">
         <Header />
         <main className="flex-1 bg-background">
           <div className="mx-auto max-w-7xl px-6 py-10">
-            {/* ヘッダースケルトン */}
             <div className="flex items-center justify-between mb-8">
               <div>
                 <div className="h-9 w-40 bg-muted rounded-lg animate-pulse" />
@@ -260,17 +292,13 @@ export default function ListingPage() {
               </div>
               <div className="h-10 w-28 bg-muted rounded-lg animate-pulse" />
             </div>
-
-            {/* カードグリッドスケルトン */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {[...Array(8)].map((_, i) => (
                 <div
                   key={i}
                   className="bg-white rounded-2xl overflow-hidden border border-border"
                 >
-                  {/* 画像スケルトン */}
                   <div className="aspect-[4/3] bg-muted animate-pulse" />
-                  {/* 情報スケルトン */}
                   <div className="p-4">
                     <div className="h-5 w-3/4 bg-muted rounded animate-pulse mb-2" />
                     <div className="h-4 w-1/2 bg-muted rounded animate-pulse" />
@@ -289,15 +317,33 @@ export default function ListingPage() {
     return null;
   }
 
+  if (fetchError) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="flex-1 bg-background">
+          <div className="flex flex-col items-center justify-center py-20">
+            <p className="text-red-600 mb-4">{fetchError}</p>
+            <button
+              onClick={fetchListings}
+              className="px-4 py-2 bg-foreground text-white rounded-lg hover:bg-foreground/90 text-sm font-medium"
+            >
+              再試行
+            </button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
 
       <main className="flex-1 bg-background">
         {userListings.length === 0 ? (
-          /* 空状態 */
           <div className="flex flex-col items-center justify-center">
-            {/* キャッチフレーズ */}
             <div
               className={`text-center pt-16 pb-20 transition-all duration-700 ease-out ${
                 isVisible
@@ -315,7 +361,6 @@ export default function ListingPage() {
                 最初のリスティングをはじめよう。
               </h1>
             </div>
-            {/* 無限スクロール画像 */}
             <div
               className={`relative w-full mb-12 transition-all duration-700 ease-out delay-200 ${
                 isVisible
@@ -323,7 +368,6 @@ export default function ListingPage() {
                   : 'opacity-0 translate-y-4'
               }`}
             >
-              {/* 左側のグラデーション */}
               <div
                 className="absolute left-0 top-0 bottom-0 w-24 z-10 pointer-events-none"
                 style={{
@@ -331,7 +375,6 @@ export default function ListingPage() {
                     'linear-gradient(to right, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 100%)',
                 }}
               />
-              {/* 右側のグラデーション */}
               <div
                 className="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none"
                 style={{
@@ -357,8 +400,6 @@ export default function ListingPage() {
                 />
               </div>
             </div>
-
-            {/* ボタン */}
             <Link
               href="/listing/new"
               className={`mb-16 transition-all duration-700 ease-out delay-400 ${
@@ -376,9 +417,7 @@ export default function ListingPage() {
             </Link>
           </div>
         ) : (
-          /* リスティング一覧 */
           <div className="mx-auto max-w-7xl px-6 py-10">
-            {/* ヘッダー */}
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold text-foreground">
                 ダッシュボード
@@ -390,8 +429,6 @@ export default function ListingPage() {
                 </Button>
               </Link>
             </div>
-
-            {/* タブ */}
             <div className="flex gap-2 mb-8 border-b border-border">
               <button
                 onClick={() => setActiveTab('listings')}
@@ -422,39 +459,17 @@ export default function ListingPage() {
                 </span>
               </button>
             </div>
-
-            {/* 大家承認バナー */}
-            {activeTab === 'listings' &&
-              userListings.some(
-                (l) => !l.consentStatus || l.consentStatus === 'pending'
-              ) && (
-                <div className="mb-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
-                  <ShieldCheck className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
-                  <div>
-                    <p className="text-sm font-medium text-amber-800">
-                      大家さんの承認を取得しましょう
-                    </p>
-                    <p className="mt-1 text-xs text-amber-700">
-                      大家さんの承認があると、次の住人の安心感が高まり、引き継ぎがスムーズに進みます。各リスティングの編集ページから承認状況を更新できます。
-                    </p>
-                  </div>
-                </div>
-              )}
-
-            {/* コンテンツ */}
             {activeTab === 'listings' ? (
-              /* リスティンググリッド */
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {userListings.map((listing) => (
                   <ListingCard
                     key={listing.id}
                     listing={listing}
-                    onDelete={deleteListing}
+                    onDelete={handleDelete}
                   />
                 ))}
               </div>
             ) : (
-              /* 問い合わせ一覧 */
               <InquiryList inquiries={userInquiries} />
             )}
           </div>
