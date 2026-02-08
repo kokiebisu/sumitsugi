@@ -458,3 +458,17 @@ jobs:
               repo: context.repo.repo,
               body: comment
             });
+
+  # Aggregate status check required by branch protection
+  ci:
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [determine-tests, e2e-tests]
+    steps:
+      - name: Check results
+        run: |
+          if [[ "${{ needs.e2e-tests.result }}" == "failure" ]]; then
+            echo "E2E tests failed"
+            exit 1
+          fi
+          echo "CI passed"

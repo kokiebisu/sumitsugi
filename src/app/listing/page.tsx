@@ -15,6 +15,7 @@ import {
   Trash2,
   MessageSquare,
   Home,
+  ShieldCheck,
 } from 'lucide-react';
 import { InquiryList } from '@/components/admin/inquiry-list';
 import { ConsentBadge } from '@/components/consent-badge';
@@ -421,6 +422,24 @@ export default function ListingPage() {
                 </span>
               </button>
             </div>
+
+            {/* 大家承認バナー */}
+            {activeTab === 'listings' &&
+              userListings.some(
+                (l) => !l.consentStatus || l.consentStatus === 'pending'
+              ) && (
+                <div className="mb-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
+                  <ShieldCheck className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
+                  <div>
+                    <p className="text-sm font-medium text-amber-800">
+                      大家さんの承認を取得しましょう
+                    </p>
+                    <p className="mt-1 text-xs text-amber-700">
+                      大家さんの承認があると、次の住人の安心感が高まり、引き継ぎがスムーズに進みます。各リスティングの編集ページから承認状況を更新できます。
+                    </p>
+                  </div>
+                </div>
+              )}
 
             {/* コンテンツ */}
             {activeTab === 'listings' ? (
