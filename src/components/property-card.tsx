@@ -10,6 +10,8 @@ import type { Property } from '@/lib/data';
 import { isUrgentMoveIn } from '@/lib/utils';
 import { UrgentMoveInBadge } from '@/components/urgent-move-in-badge';
 import { ConsentBadge } from '@/components/consent-badge';
+import { StarRating } from '@/components/ui/star-rating';
+import { getPropertyRating } from '@/lib/review-data';
 
 function parseLocation(neighborhood: string | undefined): {
   ward?: string;
@@ -31,6 +33,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
   const [currentImage, setCurrentImage] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const rating = getPropertyRating(property.id);
 
   const nextImage = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -136,6 +139,17 @@ export function PropertyCard({ property }: PropertyCardProps) {
         <h3 className="font-medium text-foreground line-clamp-1">
           {property.title}
         </h3>
+
+        {rating.reviewCount > 0 && (
+          <div className="mt-1">
+            <StarRating
+              value={rating.averageRating}
+              size={14}
+              showValue
+              reviewCount={rating.reviewCount}
+            />
+          </div>
+        )}
 
         <p className="mt-1.5 text-sm">
           <span className="text-muted-foreground">引き継ぎ費用 </span>

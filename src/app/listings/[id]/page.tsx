@@ -28,6 +28,8 @@ import {
 import { isUrgentMoveIn } from '@/lib/utils';
 import { UrgentMoveInBadge } from '@/components/urgent-move-in-badge';
 import { ConsentBadge } from '@/components/consent-badge';
+import { ReviewList } from '@/components/review-list';
+import { getPropertyReviews, getPropertyRating } from '@/lib/review-data';
 
 const FURNITURE_ICONS: Record<string, typeof BedDouble> = {
   bed: BedDouble,
@@ -71,6 +73,8 @@ export default async function PropertyDetailPage({
 }: PropertyDetailPageProps) {
   const { id } = await params;
   const property = getPropertyById(id);
+  const propertyReviews = getPropertyReviews(id);
+  const propertyRating = getPropertyRating(id);
 
   if (!property || property.status !== 'public') {
     notFound();
@@ -269,6 +273,16 @@ export default async function PropertyDetailPage({
                   lng={property.location.lng}
                   neighborhood={property.location.neighborhood}
                   title={property.title}
+                />
+              </div>
+            )}
+
+            {/* Reviews Section */}
+            {propertyReviews.length > 0 && (
+              <div className="lg:col-span-5 pt-8 border-t border-border">
+                <ReviewList
+                  reviews={propertyReviews}
+                  aggregate={propertyRating}
                 />
               </div>
             )}
