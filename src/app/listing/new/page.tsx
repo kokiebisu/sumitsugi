@@ -85,7 +85,7 @@ const FURNITURE_ITEMS = [
 ];
 
 export default function NewListingPage() {
-  const { user, isLoading, addListing } = useAuth();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [roomPhotos, setRoomPhotos] = useState<string[]>([]);
@@ -110,7 +110,10 @@ export default function NewListingPage() {
   const [pendingPhotos, setPendingPhotos] = useState<string[]>([]);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [showGracePeriodWarning, setShowGracePeriodWarning] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const totalSteps = 7;
 
   // 退去日までの残り日数を計算（F-502）
@@ -200,39 +203,59 @@ export default function NewListingPage() {
     return `${formatDate(start)}以降`;
   };
 
-  const saveListing = (status: 'published' | 'draft') => {
-    addListing({
-      status,
-      title: generateTitle(),
-      roomStyle: null,
-      roomPhotos,
-      handoverFee: handoverFee ? parseInt(handoverFee, 10) : undefined,
-      rent: rent ? parseInt(rent, 10) : undefined,
-      managementFee: managementFee ? parseInt(managementFee, 10) : undefined,
-      layout: layout || undefined,
-      occupants: occupants ? parseInt(occupants, 10) : undefined,
-      area: location?.neighborhood || '東京',
-      furniture:
-        selectedFurniture.length > 0
-          ? (selectedFurniture as LargeFurnitureType[])
-          : undefined,
-      coreSetPrice: coreSetPrice ? parseInt(coreSetPrice, 10) : undefined,
-      moveOutDate: moveOutDate
-        ? moveOutDate.toISOString().split('T')[0]
-        : undefined,
-      viewingAvailableFrom: formatDateRange(viewingDate, viewingEndDate),
-      moveInAvailableFrom: formatDateRange(moveInDate, moveInEndDate),
-      stations: stations
-        .filter((s) => s.name)
-        .map((s) => ({
-          name: s.name,
-          walkingMinutes: s.walkingMinutes ? parseInt(s.walkingMinutes, 10) : 0,
-        })),
-    });
-    router.push('/listing');
+  const saveListing = async (status: 'published' | 'draft') => {
+    setIsSaving(true);
+    setSaveError(null);
+    try {
+      const res = await fetch('/api/properties', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: generateTitle(),
+          images: roomPhotos,
+          handoverFee: handoverFee ? parseInt(handoverFee, 10) : undefined,
+          rent: rent ? parseInt(rent, 10) : undefined,
+          managementFee: managementFee
+            ? parseInt(managementFee, 10)
+            : undefined,
+          layout: layout || undefined,
+          occupancy: occupants ? parseInt(occupants, 10) : undefined,
+          area: location?.neighborhood || '東京',
+          neighborhood: location?.neighborhood || undefined,
+          lat: location?.lat?.toString(),
+          lng: location?.lng?.toString(),
+          style: undefined,
+          furnitureItems:
+            selectedFurniture.length > 0
+              ? selectedFurniture.map((id) => ({
+                  id,
+                  name: id,
+                  category: 'core' as const,
+                  furnitureCategory: id as 'sofa',
+                }))
+              : undefined,
+          handoverDetails: {
+            viewingAvailableFrom: formatDateRange(viewingDate, viewingEndDate),
+            moveInAvailableFrom: formatDateRange(moveInDate, moveInEndDate),
+          },
+        }),
+      });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(
+          (json as { error?: string }).error || '物件の作成に失敗しました'
+        );
+      }
+      router.push('/listing');
+    } catch (err) {
+      setSaveError(
+        err instanceof Error ? err.message : '物件の作成に失敗しました'
+      );
+      setIsSaving(false);
+    }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -242,7 +265,7 @@ export default function NewListingPage() {
         setShowGracePeriodWarning(true);
         return;
       }
-      saveListing(shouldPublish ? 'published' : 'draft');
+      await saveListing(shouldPublish ? 'published' : 'draft');
     }
   };
 
@@ -314,22 +337,36 @@ export default function NewListingPage() {
     if (!files) return;
 
     setIsLoadingFiles(true);
-    const fileArray = Array.from(files);
+    setUploadError(null);
 
-    for (const file of fileArray) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+    try {
+      const formData = new FormData();
+      const fileArray = Array.from(files);
+      for (const file of fileArray) {
+        formData.append('files', file);
+      }
 
-      const result = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          resolve(reader.result as string);
-        };
-        reader.readAsDataURL(file);
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
       });
 
-      setPendingPhotos((prev) => [...prev, result]);
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(
+          (json as { error?: string }).error || 'アップロードに失敗しました'
+        );
+      }
+
+      const json = (await res.json()) as { urls: string[] };
+      setPendingPhotos((prev) => [...prev, ...json.urls]);
+    } catch (err) {
+      setUploadError(
+        err instanceof Error ? err.message : 'アップロードに失敗しました'
+      );
+    } finally {
+      setIsLoadingFiles(false);
     }
-    setIsLoadingFiles(false);
   };
 
   if (isLoading || isInitialLoading || !user) {
@@ -1167,21 +1204,26 @@ export default function NewListingPage() {
           >
             戻る
           </button>
-          <Button
-            onClick={handleNext}
-            disabled={!canProceed()}
-            className={`rounded-lg px-6 py-3 text-base font-medium text-white h-12 disabled:opacity-50 ${
-              currentStep === totalSteps && hasDetailedAddress()
-                ? 'bg-[#E61E4D] hover:bg-[#D01346]'
-                : 'bg-[#222222] hover:bg-[#000000]'
-            }`}
-          >
-            {currentStep === totalSteps
-              ? hasDetailedAddress()
-                ? '公開する'
-                : '登録する'
-              : '次へ'}
-          </Button>
+          <div className="flex items-center gap-3">
+            {saveError && <p className="text-sm text-red-600">{saveError}</p>}
+            <Button
+              onClick={handleNext}
+              disabled={!canProceed() || isSaving}
+              className={`rounded-lg px-6 py-3 text-base font-medium text-white h-12 disabled:opacity-50 ${
+                currentStep === totalSteps && hasDetailedAddress()
+                  ? 'bg-[#E61E4D] hover:bg-[#D01346]'
+                  : 'bg-[#222222] hover:bg-[#000000]'
+              }`}
+            >
+              {isSaving
+                ? '保存中...'
+                : currentStep === totalSteps
+                  ? hasDetailedAddress()
+                    ? '公開する'
+                    : '登録する'
+                  : '次へ'}
+            </Button>
+          </div>
         </div>
       </footer>
 
@@ -1209,6 +1251,9 @@ export default function NewListingPage() {
                     ? `${pendingPhotos.length}枚選択中`
                     : 'アイテムが選択されていません'}
                 </p>
+                {uploadError && (
+                  <p className="text-xs text-red-600 mt-1">{uploadError}</p>
+                )}
               </div>
               <label className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted cursor-pointer">
                 <Plus className="w-5 h-5" />
