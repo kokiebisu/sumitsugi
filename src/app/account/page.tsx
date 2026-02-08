@@ -18,8 +18,8 @@ import {
   Sparkles,
   ChevronRight,
   Edit,
+  CreditCard,
 } from 'lucide-react';
-import { ProfileReviews } from '@/components/profile-reviews';
 
 export default function AccountPage() {
   const { user, isLoading } = useAuth();
@@ -211,8 +211,28 @@ export default function AccountPage() {
             </div>
           )}
 
-          {/* 受けたレビュー */}
-          <ProfileReviews userId={user.id} />
+          {/* Stripe Connect設定（ホストのみ） */}
+          {user.isSeller && (
+            <Link
+              href="/account/stripe-setup"
+              className="mb-6 flex items-center justify-between rounded-xl border border-border bg-background p-6 shadow-sm transition-shadow hover:shadow-md"
+            >
+              <div className="flex items-center gap-4">
+                <div className="rounded-full bg-green-100 dark:bg-green-950 p-3">
+                  <CreditCard className="h-6 w-6 text-green-600 dark:text-green-500" />
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground">
+                    報酬受取口座の設定
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Stripe Connectで報酬の受取口座を設定
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </Link>
+          )}
 
           {/* 前の住人になる（非ホストのみ） */}
           {!user.isSeller && (
