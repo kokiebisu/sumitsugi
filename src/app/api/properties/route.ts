@@ -11,6 +11,7 @@ import { furnitureItemSchema, landlordConsentSchema } from '@/lib/validations';
 const createPropertySchema = z.object({
   title: z.string().min(1, 'タイトルは必須です').max(500),
   summary: z.string().optional(),
+  status: z.enum(['draft', 'public']).optional().default('draft'),
   images: z.array(z.string()).default([]),
   handoverFee: z.number().int().nonnegative().optional(),
   rent: z.number().int().nonnegative().optional(),
@@ -105,7 +106,7 @@ export async function POST(request: Request) {
         title: data.title,
         summary: data.summary,
         images: data.images,
-        status: 'draft',
+        status: data.status,
         handoverFee: data.handoverFee,
         rent: data.rent,
         managementFee: data.managementFee,

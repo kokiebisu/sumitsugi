@@ -272,7 +272,7 @@ describe('POST /api/properties', () => {
     );
   });
 
-  it('forces status to draft', async () => {
+  it('defaults status to draft when not provided', async () => {
     const { POST } = await import('../route');
     const { auth } = await import('@/lib/auth');
     vi.mocked(auth.api.getSession).mockResolvedValue({
@@ -288,11 +288,35 @@ describe('POST /api/properties', () => {
     const req = new Request('http://localhost/api/properties', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ title: 'テスト', status: 'public' }),
+      body: JSON.stringify({ title: 'テスト' }),
     });
     await POST(req);
     expect(mockValues).toHaveBeenCalledWith(
       expect.objectContaining({ status: 'draft' })
+    );
+  });
+
+  it('accepts public status from client', async () => {
+    const { POST } = await import('../route');
+    const { auth } = await import('@/lib/auth');
+    vi.mocked(auth.api.getSession).mockResolvedValue({
+      session: { id: 's1', userId: 'u1' },
+      user: { id: 'u1' },
+    } as any);
+    const { db } = await import('@/db');
+    const mockReturning = vi
+      .fn()
+      .mockResolvedValue([{ id: 'x', status: 'public' }]);
+    const mockValues = vi.fn().mockReturnValue({ returning: mockReturning });
+    vi.mocked(db.insert).mockReturnValue({ values: mockValues } as any);
+    const req = new Request('http://localhost/api/properties', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ title: 'テスト', status: 'public' }),
+    });
+    await POST(req);
+    expect(mockValues).toHaveBeenCalledWith(
+      expect.objectContaining({ status: 'public' })
     );
   });
 });
