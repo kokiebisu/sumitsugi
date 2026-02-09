@@ -59,6 +59,9 @@ export default async function PropertyDetailPage({
                       円
                     </span>
                   </p>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    ※ 別途、賃貸初期費用（敷金・礼金・仲介手数料等）がかかります
+                  </p>
                 </div>
               )}
 
