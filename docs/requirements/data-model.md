@@ -1,50 +1,52 @@
 # データモデル
 
-> 旧 REQUIREMENTS.md §7 | Feature IDs: — | DESIGN_DOC参照: T-4 | 最終更新: 2026-02-07
+> 旧 REQUIREMENTS.md §7 | Feature IDs: — | DESIGN_DOC参照: T-4 | 最終更新: 2026-02-09
 
 ---
 
 ## 7.1 Property（物件）
 
-| フィールド            | 型                  | 必須 | 説明                                                                              |
-| --------------------- | ------------------- | ---- | --------------------------------------------------------------------------------- |
-| id                    | string              | ○    | 物件ID                                                                            |
-| title                 | string              | ○    | 物件タイトル                                                                      |
-| images                | string[]            | ○    | 物件画像URL配列                                                                   |
-| estimatedDuration     | string              | ○    | 契約期間（例：「2〜4ヶ月」）                                                      |
-| status                | 'draft' \| 'public' | ○    | 公開ステータス                                                                    |
-| taste                 | string              | -    | テイスト（例：北欧風、ミニマル、和モダン）                                        |
-| concept               | string              | -    | 空間のコンセプト・ストーリー                                                      |
-| lifestyle             | string              | -    | 暮らし方の説明                                                                    |
-| videoTourUrl          | string              | -    | 動画ツアーURL                                                                     |
-| faq                   | FAQ[]               | -    | よくある質問（下記7.5参照）                                                       |
-| coordinatorId         | string              | -    | コーディネーターのユーザーID                                                      |
-| landlordConsent       | LandlordConsent     | ○    | 大家承認情報（下記7.4参照）                                                       |
-| handoverFee           | number              | ○    | 引越し費用（円）。内訳は[payment.md §12.3](./payment.md#123-引越し費用の構成)参照 |
-| moveOutDate           | Date \| null        | ○    | 退去（引き渡し）予定日                                                            |
-| moveOutReason         | MoveOutReason       | -    | 引越し理由（下記7.6参照）                                                         |
-| managementCompanyName | string              | -    | 管理会社名（前の住人が入力。ポストのシール・管理アプリ等で確認）                  |
-| managementConsultedAt | Date \| null        | -    | 管理会社に残置物相談を行った日時（前の住人が自己申告）                            |
-| pdfUrls               | object \| null      | -    | 生成済みPDFのURL格納（F-611/F-612/F-616のR2 URL）                                 |
+| フィールド            | 型                  | 必須 | 説明                                                                                                                                 |
+| --------------------- | ------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| id                    | string              | ○    | 物件ID                                                                                                                               |
+| title                 | string              | ○    | 物件タイトル                                                                                                                         |
+| images                | string[]            | ○    | 物件画像URL配列                                                                                                                      |
+| estimatedDuration     | string              | ○    | 契約期間（例：「2〜4ヶ月」）                                                                                                         |
+| status                | 'draft' \| 'public' | ○    | 公開ステータス                                                                                                                       |
+| taste                 | string              | -    | テイスト（例：北欧風、ミニマル、和モダン）                                                                                           |
+| tasteCategory         | TasteCategory       | -    | テイストカテゴリ（enum型。将来AIマッチング用特徴量）— [技術会議#13 CAIO推奨](../design/meetings/2026-02-09-tech-meeting-13-delta.md) |
+| concept               | string              | -    | 空間のコンセプト・ストーリー                                                                                                         |
+| lifestyle             | string              | -    | 暮らし方の説明                                                                                                                       |
+| videoTourUrl          | string              | -    | 動画ツアーURL                                                                                                                        |
+| faq                   | FAQ[]               | -    | よくある質問（下記7.5参照）                                                                                                          |
+| coordinatorId         | string              | -    | コーディネーターのユーザーID                                                                                                         |
+| landlordConsent       | LandlordConsent     | ○    | 大家承認情報（下記7.4参照）                                                                                                          |
+| handoverFee           | number              | ○    | 引越し費用（円）。内訳は[payment.md §12.3](./payment.md#123-引越し費用の構成)参照                                                    |
+| moveOutDate           | Date \| null        | ○    | 退去（引き渡し）予定日                                                                                                               |
+| moveOutReason         | MoveOutReason       | -    | 引越し理由（下記7.6参照）                                                                                                            |
+| managementCompanyName | string              | -    | 管理会社名（前の住人が入力。ポストのシール・管理アプリ等で確認）                                                                     |
+| managementConsultedAt | Date \| null        | -    | 管理会社に残置物相談を行った日時（前の住人が自己申告）                                                                               |
+| pdfUrls               | object \| null      | -    | 生成済みPDFのURL格納（F-611/F-612/F-616のR2 URL）                                                                                    |
 
 ## 7.2 Inquiry（問い合わせ）
 
-| フィールド         | 型            | 必須 | 説明                                                                                   |
-| ------------------ | ------------- | ---- | -------------------------------------------------------------------------------------- |
-| id                 | string        | ○    | 問い合わせID                                                                           |
-| propertyId         | string        | ○    | 物件ID                                                                                 |
-| propertyTitle      | string        | ○    | 物件タイトル                                                                           |
-| status             | InquiryStatus | ○    | ステータス                                                                             |
-| applicantName      | string        | ○    | 申込者氏名                                                                             |
-| applicantEmail     | string        | ○    | メールアドレス                                                                         |
-| reason             | string        | ○    | 興味を持った理由                                                                       |
-| duration           | string        | -    | 希望契約期間                                                                           |
-| questions          | string        | -    | 質問                                                                                   |
-| viewingDate        | string        | -    | 内見日時                                                                               |
-| agreedFurnitureIds | string[]      | -    | 確定家具IDリスト（内見後に前の住人・次の住人が合意した引き継ぎ対象のFurnitureItem ID） |
-| submittedAt        | string        | ○    | 送信日時                                                                               |
-| updatedAt          | string        | ○    | 更新日時                                                                               |
-| notes              | string        | -    | 運営メモ                                                                               |
+| フィールド         | 型             | 必須 | 説明                                                                                                                                |
+| ------------------ | -------------- | ---- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| id                 | string         | ○    | 問い合わせID                                                                                                                        |
+| propertyId         | string         | ○    | 物件ID                                                                                                                              |
+| propertyTitle      | string         | ○    | 物件タイトル                                                                                                                        |
+| status             | InquiryStatus  | ○    | ステータス                                                                                                                          |
+| applicantName      | string         | ○    | 申込者氏名                                                                                                                          |
+| applicantEmail     | string         | ○    | メールアドレス                                                                                                                      |
+| reason             | string         | ○    | 興味を持った理由                                                                                                                    |
+| duration           | string         | -    | 希望契約期間                                                                                                                        |
+| questions          | string         | -    | 質問                                                                                                                                |
+| viewingDate        | string         | -    | 内見日時                                                                                                                            |
+| agreedFurnitureIds | string[]       | -    | 確定家具IDリスト（内見後に前の住人・次の住人が合意した引き継ぎ対象のFurnitureItem ID）                                              |
+| submittedAt        | string         | ○    | 送信日時                                                                                                                            |
+| updatedAt          | string         | ○    | 更新日時                                                                                                                            |
+| notes              | string         | -    | 運営メモ                                                                                                                            |
+| userPreferences    | object \| null | -    | ユーザー嗜好データ（JSONB。将来AI学習データ蓄積用）— [技術会議#13 CAIO推奨](../design/meetings/2026-02-09-tech-meeting-13-delta.md) |
 
 ## 7.3 UserListing（ユーザー作成リスティング）
 
@@ -200,3 +202,20 @@ booleanではなく構造化データとして管理。条件付き承認や原�
 
 - **MVP:** 家具ごとにブランド名入力（任意・自由テキスト）→ 物件詳細ページで表示
 - **Phase 2:** デザイナーズ/ヴィンテージバッジ（ブランドDBとの照合で信憑性を担保）
+
+## 7.11 TasteCategory（テイストカテゴリ）
+
+座談会#14でサムネイルベースのテイスト検索を決定。技術会議#13でenum型での構造化を確定（CAIO推奨: 将来AIマッチング用特徴量）。
+
+| 値        | UI表示       | 説明                                     |
+| --------- | ------------ | ---------------------------------------- |
+| `natural` | ナチュラル   | 木目や自然素材を活かした温かみのある空間 |
+| `modern`  | モダン       | シンプルで洗練されたデザイン             |
+| `nordic`  | 北欧         | 北欧デザインの明るく機能的な空間         |
+| `vintage` | ヴィンテージ | アンティーク・レトロな雰囲気             |
+| `minimal` | ミニマル     | 必要最小限の物で構成されたシンプルな空間 |
+| `japandi` | 和モダン     | 和のテイストとモダンデザインの融合       |
+
+- 参照: [技術会議#13](../design/meetings/2026-02-09-tech-meeting-13-delta.md)
+- サムネイル画像はMVPでは手動キュレーション（`public/images/taste/`に配置）
+- 将来Phase 2でAIマッチングの入力特徴量として利用
