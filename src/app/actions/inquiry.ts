@@ -38,6 +38,7 @@ export interface SubmitInquiryResult {
  *
  * Phase 1: Uses mock data for property lookup.
  * TODO Phase 2: Replace with database lookup and auth checks.
+ * TODO Phase 2: Add rate limiting to prevent email flooding.
  */
 export async function submitInquiry(
   input: SubmitInquiryInput
@@ -56,31 +57,50 @@ export async function submitInquiry(
     const dashboardUrl = `${baseUrl}/dashboard`;
     const message = validated.questions ?? validated.reason;
 
-    // Send notification to seller (前の住人)
-    await sendEmail({
-      to: siteConfig.company.email,
-      subject: `【tsumugi】${property.title}に問い合わせが届きました`,
-      react: InquiryNotification({
-        sellerName,
-        buyerName: validated.applicantName,
-        propertyTitle: property.title,
-        dashboardUrl,
-        message,
+    // Send both emails concurrently for better performance
+    const [sellerResult, applicantResult] = await Promise.allSettled([
+      sendEmail({
+        to: siteConfig.company.email,
+        subject: `【tsumugi】${property.title}に問い合わせが届きました`,
+        react: InquiryNotification({
+          sellerName,
+          buyerName: validated.applicantName,
+          propertyTitle: property.title,
+          dashboardUrl,
+          message,
+        }),
+        replyTo: validated.applicantEmail,
       }),
-      replyTo: validated.applicantEmail,
-    });
+      sendEmail({
+        to: validated.applicantEmail,
+        subject: `【tsumugi】${property.title}への問い合わせを受け付けました`,
+        react: InquiryConfirmation({
+          buyerName: validated.applicantName,
+          propertyTitle: property.title,
+          propertyUrl,
+          message,
+        }),
+      }),
+    ]);
 
-    // Send confirmation to applicant (次の住人候補)
-    await sendEmail({
-      to: validated.applicantEmail,
-      subject: `【tsumugi】${property.title}への問い合わせを受け付けました`,
-      react: InquiryConfirmation({
-        buyerName: validated.applicantName,
-        propertyTitle: property.title,
-        propertyUrl,
-        message: validated.questions,
-      }),
-    });
+    if (
+      sellerResult.status === 'rejected' &&
+      applicantResult.status === 'rejected'
+    ) {
+      return {
+        success: false,
+        error:
+          'お問い合わせの送信に失敗しました。しばらくしてからお試しください。',
+      };
+    }
+
+    if (sellerResult.status === 'rejected') {
+      return {
+        success: false,
+        error:
+          'お問い合わせの送信に失敗しました。しばらくしてからお試しください。',
+      };
+    }
 
     return { success: true };
   } catch (error) {
@@ -92,7 +112,8 @@ export async function submitInquiry(
     }
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
+      error:
+        'お問い合わせの送信に失敗しました。しばらくしてからお試しください。',
     };
   }
 }
