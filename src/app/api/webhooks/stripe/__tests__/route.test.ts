@@ -1,8 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '../route';
 import { stripe } from '@/lib/stripe/server';
-import { db } from '@/db';
-import { payments } from '@/db/schema';
 
 // Mock dependencies
 vi.mock('@/lib/stripe/server', () => ({
@@ -30,35 +28,25 @@ vi.mock('@/lib/stripe/config', () => ({
   },
 }));
 
-vi.mock('@/db', () => ({
-  db: {
-    query: {
-      payments: {
-        findFirst: vi.fn(),
-      },
-      stripeAccounts: {
-        findFirst: vi.fn(),
-      },
-    },
-    update: vi.fn(() => ({
-      set: vi.fn(() => ({
-        where: vi.fn(() => Promise.resolve()),
-      })),
-    })),
-  },
-}));
+// Mock the extracted webhook handlers
+const mockHandlePaymentIntentSucceeded = vi.fn();
+const mockHandlePaymentIntentFailed = vi.fn();
+const mockHandleAccountUpdated = vi.fn();
+const mockHandleTransferCreated = vi.fn();
+const mockIsEventProcessed = vi.fn().mockReturnValue(false);
+const mockMarkEventProcessed = vi.fn();
 
-vi.mock('@/db/schema', () => ({
-  payments: { stripePaymentIntentId: 'stripe_payment_intent_id', id: 'id' },
-  stripeAccounts: { stripeAccountId: 'stripe_account_id', id: 'id' },
-}));
-
-vi.mock('@/app/actions/payment', () => ({
-  processApplicationFeeTransfer: vi.fn(),
-}));
-
-vi.mock('drizzle-orm', () => ({
-  eq: vi.fn((a: unknown, b: unknown) => ({ field: a, value: b })),
+vi.mock('@/lib/stripe/webhooks', () => ({
+  handlePaymentIntentSucceeded: (...args: unknown[]) =>
+    mockHandlePaymentIntentSucceeded(...args),
+  handlePaymentIntentFailed: (...args: unknown[]) =>
+    mockHandlePaymentIntentFailed(...args),
+  handleAccountUpdated: (...args: unknown[]) =>
+    mockHandleAccountUpdated(...args),
+  handleTransferCreated: (...args: unknown[]) =>
+    mockHandleTransferCreated(...args),
+  isEventProcessed: (...args: unknown[]) => mockIsEventProcessed(...args),
+  markEventProcessed: (...args: unknown[]) => mockMarkEventProcessed(...args),
 }));
 
 function createRequest(body: object, headers?: Record<string, string>) {
@@ -75,6 +63,7 @@ function createRequest(body: object, headers?: Record<string, string>) {
 describe('POST /api/webhooks/stripe', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockIsEventProcessed.mockReturnValue(false);
   });
 
   describe('signature verification', () => {
@@ -107,72 +96,65 @@ describe('POST /api/webhooks/stripe', () => {
     });
   });
 
+  describe('idempotency', () => {
+    it('should skip duplicate events', async () => {
+      mockIsEventProcessed.mockReturnValue(true);
+
+      const mockEvent = {
+        id: 'evt_duplicate',
+        type: 'payment_intent.succeeded',
+        data: { object: { id: 'pi_123' } },
+      };
+
+      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
+        mockEvent as any
+      );
+
+      const request = createRequest(mockEvent, {
+        'stripe-signature': 'valid-signature',
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data).toEqual({ received: true, duplicate: true });
+      expect(mockHandlePaymentIntentSucceeded).not.toHaveBeenCalled();
+    });
+
+    it('should mark event as processed after handling', async () => {
+      const mockEvent = {
+        id: 'evt_new',
+        type: 'transfer.updated',
+        data: { object: { id: 'tr_123' } },
+      };
+
+      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
+        mockEvent as any
+      );
+
+      const request = createRequest(mockEvent, {
+        'stripe-signature': 'valid-signature',
+      });
+
+      await POST(request);
+
+      expect(mockMarkEventProcessed).toHaveBeenCalledWith('evt_new');
+    });
+  });
+
   describe('payment_intent.succeeded event', () => {
-    it('should update payment status and trigger transfer for application_fee', async () => {
-      const mockPayment = {
-        id: 'payment-123',
-        type: 'application_fee',
-        stripePaymentIntentId: 'pi_123',
-      };
-
+    it('should call handlePaymentIntentSucceeded', async () => {
       const mockEvent = {
+        id: 'evt_pi_success',
         type: 'payment_intent.succeeded',
         data: {
-          object: {
-            id: 'pi_123',
-            metadata: { paymentType: 'application_fee' },
-          },
+          object: { id: 'pi_123', metadata: {} },
         },
       };
 
       vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
         mockEvent as any
-      );
-      vi.mocked(db.query.payments.findFirst).mockResolvedValue(
-        mockPayment as any
-      );
-
-      const { processApplicationFeeTransfer } =
-        await import('@/app/actions/payment');
-      vi.mocked(processApplicationFeeTransfer).mockResolvedValue({
-        success: true,
-        transferId: 'tr_123',
-      });
-
-      const request = createRequest(mockEvent, {
-        'stripe-signature': 'valid-signature',
-      });
-
-      const response = await POST(request);
-      const data = await response.json();
-
-      expect(response.status).toBe(200);
-      expect(data).toEqual({ received: true });
-      expect(processApplicationFeeTransfer).toHaveBeenCalledWith('payment-123');
-    });
-
-    it('should update payment status for deposit payment', async () => {
-      const mockPayment = {
-        id: 'payment-456',
-        type: 'deposit',
-        stripePaymentIntentId: 'pi_456',
-      };
-
-      const mockEvent = {
-        type: 'payment_intent.succeeded',
-        data: {
-          object: {
-            id: 'pi_456',
-            metadata: { paymentType: 'deposit' },
-          },
-        },
-      };
-
-      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
-        mockEvent as any
-      );
-      vi.mocked(db.query.payments.findFirst).mockResolvedValue(
-        mockPayment as any
       );
 
       const request = createRequest(mockEvent, {
@@ -184,64 +166,52 @@ describe('POST /api/webhooks/stripe', () => {
 
       expect(response.status).toBe(200);
       expect(data).toEqual({ received: true });
-      expect(db.update).toHaveBeenCalledWith(payments);
+      expect(mockHandlePaymentIntentSucceeded).toHaveBeenCalledWith(
+        mockEvent.data.object
+      );
     });
 
-    it('should return 404 if payment not found', async () => {
+    it('should return 404 if handler throws Payment not found', async () => {
       const mockEvent = {
+        id: 'evt_pi_404',
         type: 'payment_intent.succeeded',
-        data: {
-          object: {
-            id: 'pi_nonexistent',
-            metadata: { paymentType: 'application_fee' },
-          },
-        },
+        data: { object: { id: 'pi_missing' } },
       };
 
       vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
         mockEvent as any
       );
-      vi.mocked(db.query.payments.findFirst).mockResolvedValue(undefined);
+      mockHandlePaymentIntentSucceeded.mockRejectedValueOnce(
+        new Error('Payment not found for PaymentIntent: pi_missing')
+      );
 
       const request = createRequest(mockEvent, {
         'stripe-signature': 'valid-signature',
       });
 
       const response = await POST(request);
-      const data = await response.json();
+      const data = (await response.json()) as { error: string };
 
       expect(response.status).toBe(404);
-      expect(data).toEqual({
-        error: 'Payment not found for PaymentIntent: pi_nonexistent',
-      });
+      expect(data.error).toContain('Payment not found');
     });
   });
 
   describe('payment_intent.payment_failed event', () => {
-    it('should update payment status to failed', async () => {
-      const mockPayment = {
-        id: 'payment-789',
-        type: 'deposit',
-        stripePaymentIntentId: 'pi_789',
-      };
-
+    it('should call handlePaymentIntentFailed', async () => {
       const mockEvent = {
+        id: 'evt_pi_fail',
         type: 'payment_intent.payment_failed',
         data: {
           object: {
             id: 'pi_789',
-            last_payment_error: {
-              message: 'Card declined',
-            },
+            last_payment_error: { message: 'Card declined' },
           },
         },
       };
 
       vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
         mockEvent as any
-      );
-      vi.mocked(db.query.payments.findFirst).mockResolvedValue(
-        mockPayment as any
       );
 
       const request = createRequest(mockEvent, {
@@ -253,21 +223,16 @@ describe('POST /api/webhooks/stripe', () => {
 
       expect(response.status).toBe(200);
       expect(data).toEqual({ received: true });
-      expect(db.update).toHaveBeenCalledWith(payments);
+      expect(mockHandlePaymentIntentFailed).toHaveBeenCalledWith(
+        mockEvent.data.object
+      );
     });
   });
 
-  describe('account.updated event (Stripe Connect)', () => {
-    it('should update stripe account capabilities when account is found', async () => {
-      const mockAccount = {
-        id: 'sa_123',
-        stripeAccountId: 'acct_123',
-        chargesEnabled: false,
-        payoutsEnabled: false,
-        detailsSubmitted: false,
-      };
-
+  describe('account.updated event', () => {
+    it('should call handleAccountUpdated', async () => {
       const mockEvent = {
+        id: 'evt_acct_update',
         type: 'account.updated',
         data: {
           object: {
@@ -282,9 +247,6 @@ describe('POST /api/webhooks/stripe', () => {
       vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
         mockEvent as any
       );
-      vi.mocked(db.query.stripeAccounts.findFirst).mockResolvedValue(
-        mockAccount as any
-      );
 
       const request = createRequest(mockEvent, {
         'stripe-signature': 'valid-signature',
@@ -295,90 +257,18 @@ describe('POST /api/webhooks/stripe', () => {
 
       expect(response.status).toBe(200);
       expect(data).toEqual({ received: true });
-      expect(db.update).toHaveBeenCalled();
-    });
-
-    it('should return 200 even when connected account is not found in db', async () => {
-      const mockEvent = {
-        type: 'account.updated',
-        data: {
-          object: {
-            id: 'acct_unknown',
-            charges_enabled: true,
-            payouts_enabled: true,
-            details_submitted: true,
-          },
-        },
-      };
-
-      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
-        mockEvent as any
+      expect(mockHandleAccountUpdated).toHaveBeenCalledWith(
+        mockEvent.data.object
       );
-      vi.mocked(db.query.stripeAccounts.findFirst).mockResolvedValue(undefined);
-
-      const request = createRequest(mockEvent, {
-        'stripe-signature': 'valid-signature',
-      });
-
-      const response = await POST(request);
-      const data = await response.json();
-
-      // account.updated for unknown accounts should not fail
-      expect(response.status).toBe(200);
-      expect(data).toEqual({ received: true });
-    });
-
-    it('should handle account with charges disabled', async () => {
-      const mockAccount = {
-        id: 'sa_456',
-        stripeAccountId: 'acct_456',
-        chargesEnabled: true,
-        payoutsEnabled: true,
-        detailsSubmitted: true,
-      };
-
-      const mockEvent = {
-        type: 'account.updated',
-        data: {
-          object: {
-            id: 'acct_456',
-            charges_enabled: false,
-            payouts_enabled: false,
-            details_submitted: true,
-          },
-        },
-      };
-
-      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
-        mockEvent as any
-      );
-      vi.mocked(db.query.stripeAccounts.findFirst).mockResolvedValue(
-        mockAccount as any
-      );
-
-      const request = createRequest(mockEvent, {
-        'stripe-signature': 'valid-signature',
-      });
-
-      const response = await POST(request);
-      const data = await response.json();
-
-      expect(response.status).toBe(200);
-      expect(data).toEqual({ received: true });
-      expect(db.update).toHaveBeenCalled();
     });
   });
 
   describe('transfer events', () => {
-    it('should handle transfer.created event', async () => {
+    it('should call handleTransferCreated for transfer.created', async () => {
       const mockEvent = {
+        id: 'evt_tr_created',
         type: 'transfer.created',
-        data: {
-          object: {
-            id: 'tr_123',
-            amount: 20000,
-          },
-        },
+        data: { object: { id: 'tr_123', amount: 20000 } },
       };
 
       vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
@@ -394,17 +284,16 @@ describe('POST /api/webhooks/stripe', () => {
 
       expect(response.status).toBe(200);
       expect(data).toEqual({ received: true });
+      expect(mockHandleTransferCreated).toHaveBeenCalledWith(
+        mockEvent.data.object
+      );
     });
 
-    it('should handle transfer.updated event', async () => {
+    it('should handle transfer.updated without calling handler', async () => {
       const mockEvent = {
+        id: 'evt_tr_updated',
         type: 'transfer.updated',
-        data: {
-          object: {
-            id: 'tr_456',
-            amount: 30000,
-          },
-        },
+        data: { object: { id: 'tr_456', amount: 30000 } },
       };
 
       vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
@@ -426,12 +315,9 @@ describe('POST /api/webhooks/stripe', () => {
   describe('unhandled events', () => {
     it('should return 200 for unhandled event types', async () => {
       const mockEvent = {
+        id: 'evt_unhandled',
         type: 'customer.created',
-        data: {
-          object: {
-            id: 'cus_123',
-          },
-        },
+        data: { object: { id: 'cus_123' } },
       };
 
       vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
@@ -453,18 +339,15 @@ describe('POST /api/webhooks/stripe', () => {
   describe('error handling', () => {
     it('should return 500 for unexpected errors', async () => {
       const mockEvent = {
+        id: 'evt_error',
         type: 'payment_intent.succeeded',
-        data: {
-          object: {
-            id: 'pi_error',
-          },
-        },
+        data: { object: { id: 'pi_error' } },
       };
 
       vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
         mockEvent as any
       );
-      vi.mocked(db.query.payments.findFirst).mockRejectedValue(
+      mockHandlePaymentIntentSucceeded.mockRejectedValueOnce(
         new Error('Database connection error')
       );
 
