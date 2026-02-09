@@ -77,6 +77,7 @@ describe('Webhook Handlers', () => {
       const mockPayment = {
         id: 'pay_123',
         type: 'deposit',
+        status: 'pending',
         metadata: { customerNotes: 'test' },
       };
 
@@ -99,6 +100,7 @@ describe('Webhook Handlers', () => {
       const mockPayment = {
         id: 'pay_456',
         type: 'application_fee',
+        status: 'pending',
         metadata: {},
       };
 
@@ -134,6 +136,7 @@ describe('Webhook Handlers', () => {
       const mockPayment = {
         id: 'pay_789',
         type: 'deposit',
+        status: 'pending',
         metadata: {},
       };
 
@@ -152,12 +155,35 @@ describe('Webhook Handlers', () => {
         await import('@/app/actions/payment');
       expect(processApplicationFeeTransfer).not.toHaveBeenCalled();
     });
+
+    it('should skip if payment already succeeded (DB-level idempotency)', async () => {
+      const mockPayment = {
+        id: 'pay_already',
+        type: 'application_fee',
+        status: 'succeeded',
+        metadata: {},
+      };
+
+      vi.mocked(db.query.payments.findFirst).mockResolvedValue(
+        mockPayment as any
+      );
+
+      const paymentIntent = {
+        id: 'pi_already',
+        amount_received: 20000,
+      } as unknown as Stripe.PaymentIntent;
+
+      await handlePaymentIntentSucceeded(paymentIntent);
+
+      expect(db.update).not.toHaveBeenCalled();
+    });
   });
 
   describe('handlePaymentIntentFailed', () => {
     it('should update payment status to failed with reason', async () => {
       const mockPayment = {
         id: 'pay_fail',
+        status: 'pending',
         metadata: {},
       };
 
@@ -178,6 +204,7 @@ describe('Webhook Handlers', () => {
     it('should use "Unknown error" when no error message', async () => {
       const mockPayment = {
         id: 'pay_fail2',
+        status: 'pending',
         metadata: {},
       };
 
@@ -205,6 +232,27 @@ describe('Webhook Handlers', () => {
       await expect(handlePaymentIntentFailed(paymentIntent)).rejects.toThrow(
         'Payment not found for PaymentIntent: pi_missing2'
       );
+    });
+
+    it('should skip if payment already in terminal state (DB-level idempotency)', async () => {
+      const mockPayment = {
+        id: 'pay_term',
+        status: 'failed',
+        metadata: {},
+      };
+
+      vi.mocked(db.query.payments.findFirst).mockResolvedValue(
+        mockPayment as any
+      );
+
+      const paymentIntent = {
+        id: 'pi_term',
+        last_payment_error: { message: 'Card declined' },
+      } as unknown as Stripe.PaymentIntent;
+
+      await handlePaymentIntentFailed(paymentIntent);
+
+      expect(db.update).not.toHaveBeenCalled();
     });
   });
 
@@ -249,8 +297,6 @@ describe('Webhook Handlers', () => {
 
   describe('handleTransferCreated', () => {
     it('should record transfer in transactions table', async () => {
-      vi.mocked(db.query.transactions.findFirst).mockResolvedValue(undefined);
-
       const transfer = {
         id: 'tr_123',
         amount: 15000,
@@ -277,22 +323,35 @@ describe('Webhook Handlers', () => {
       expect(db.insert).not.toHaveBeenCalled();
     });
 
-    it('should skip when transaction already exists (idempotent)', async () => {
-      vi.mocked(db.query.transactions.findFirst).mockResolvedValue({
-        id: 'txn_tr_dup',
+    it('should handle PK violation gracefully (atomic idempotency)', async () => {
+      vi.mocked(db.insert).mockReturnValue({
+        values: vi.fn().mockRejectedValue({ code: '23505' }),
       } as any);
 
       const transfer = {
         id: 'tr_dup',
         amount: 20000,
-        metadata: {
-          paymentId: 'pay_dup',
-        },
+        metadata: { paymentId: 'pay_dup' },
       } as unknown as Stripe.Transfer;
 
-      await handleTransferCreated(transfer);
+      // Should not throw
+      await expect(handleTransferCreated(transfer)).resolves.toBeUndefined();
+    });
 
-      expect(db.insert).not.toHaveBeenCalled();
+    it('should re-throw non-PK-violation errors', async () => {
+      vi.mocked(db.insert).mockReturnValue({
+        values: vi.fn().mockRejectedValue({ code: '42P01' }),
+      } as any);
+
+      const transfer = {
+        id: 'tr_err',
+        amount: 10000,
+        metadata: { paymentId: 'pay_err' },
+      } as unknown as Stripe.Transfer;
+
+      await expect(handleTransferCreated(transfer)).rejects.toEqual({
+        code: '42P01',
+      });
     });
   });
 });
