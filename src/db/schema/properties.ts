@@ -3,6 +3,7 @@ import {
   varchar,
   text,
   integer,
+  boolean,
   timestamp,
   jsonb,
   decimal,
@@ -164,6 +165,9 @@ export const properties = pgTable(
         tiktok?: string;
       };
     }>(),
+
+    // Pro Coordination (B2B)
+    isProCoordinated: boolean('is_pro_coordinated').default(false).notNull(),
 
     // Internal Management
     issueRecord: jsonb('issue_record')

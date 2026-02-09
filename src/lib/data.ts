@@ -300,6 +300,8 @@ export interface Property {
     question: string;
     answer: string;
   }>;
+  // プロコーディネート物件（B2B）
+  isProCoordinated?: boolean;
   // 内部品質管理用（非公開）
   issueRecord?: Array<{
     issue: string;

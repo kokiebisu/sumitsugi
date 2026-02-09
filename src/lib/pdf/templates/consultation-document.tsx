@@ -7,6 +7,8 @@ import {
   Link,
 } from '@react-pdf/renderer';
 
+const FAQ_URL = 'https://tsumugi.com/faq/management';
+
 const styles = StyleSheet.create({
   page: {
     fontFamily: 'Noto Sans JP',
@@ -17,17 +19,16 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 20,
-    borderBottom: '2 solid #FF5A5F',
+    borderBottom: '1 solid #dddddd',
     paddingBottom: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
   },
-  logo: {
-    fontSize: 20,
+  headerPropertyName: {
+    fontSize: 12,
     fontWeight: 700,
-    color: '#FF5A5F',
-    letterSpacing: -0.5,
+    color: '#333333',
   },
   headerDate: {
     fontSize: 9,
@@ -146,8 +147,11 @@ const styles = StyleSheet.create({
     right: 44,
     borderTop: '1 solid #eeeeee',
     paddingTop: 8,
+  },
+  footerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   footerText: {
     fontSize: 7,
@@ -157,6 +161,15 @@ const styles = StyleSheet.create({
     fontSize: 7,
     color: '#FF5A5F',
     textDecoration: 'none',
+  },
+  footerFaqRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 4,
+  },
+  footerFaqText: {
+    fontSize: 7,
+    color: '#666666',
   },
 });
 
@@ -201,9 +214,9 @@ export function ConsultationDocument({
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Header */}
+        {/* Header — property name and date only */}
         <View style={styles.header}>
-          <Text style={styles.logo}>tsumugi</Text>
+          <Text style={styles.headerPropertyName}>{propertyName}</Text>
           <Text style={styles.headerDate}>作成日: {createdDate}</Text>
         </View>
 
@@ -298,14 +311,22 @@ export function ConsultationDocument({
           </Text>
         </View>
 
-        {/* Footer */}
+        {/* Footer — minimal tsumugi annotation + FAQ URL */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>
-            © {new Date().getFullYear()} tsumugi. All rights reserved.
-          </Text>
-          <Link src="https://tsumugi.com" style={styles.footerLink}>
-            https://tsumugi.com
-          </Link>
+          <View style={styles.footerRow}>
+            <Text style={styles.footerText}>
+              本資料は tsumugi（紡ぎ）を通じて作成されました
+            </Text>
+            <Link src="https://tsumugi.com" style={styles.footerLink}>
+              https://tsumugi.com
+            </Link>
+          </View>
+          <View style={styles.footerFaqRow}>
+            <Text style={styles.footerFaqText}>よくある質問: </Text>
+            <Link src={FAQ_URL} style={styles.footerLink}>
+              {FAQ_URL}
+            </Link>
+          </View>
         </View>
       </Page>
     </Document>
