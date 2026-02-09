@@ -15,6 +15,7 @@ interface CreateListingFlowProps {
 
 interface ListingData {
   moveOutDate?: string;
+  isProCoordinated: boolean;
 }
 
 type Step = 'intro' | 'details' | 'confirm';
@@ -27,6 +28,7 @@ export function CreateListingFlow({
 }: CreateListingFlowProps) {
   const [step, setStep] = useState<Step>('intro');
   const [moveOutDate, setMoveOutDate] = useState('');
+  const [isProCoordinated, setIsProCoordinated] = useState(false);
 
   const currentStepIndex = steps.indexOf(step);
 
@@ -47,6 +49,7 @@ export function CreateListingFlow({
   const handleSubmit = async () => {
     const listingData: ListingData = {
       moveOutDate: moveOutDate || undefined,
+      isProCoordinated,
     };
     onComplete(listingData);
   };
@@ -137,6 +140,17 @@ export function CreateListingFlow({
                   value={moveOutDate}
                   onChange={setMoveOutDate}
                 />
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isProCoordinated}
+                    onChange={(e) => setIsProCoordinated(e.target.checked)}
+                    className="h-4 w-4 rounded border-border accent-coral"
+                  />
+                  <span className="text-sm">
+                    プロにコーディネートされた部屋ですか？
+                  </span>
+                </label>
               </div>
             </div>
             <div className="hidden lg:block flex-1">
