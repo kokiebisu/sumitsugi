@@ -43,7 +43,8 @@ export function validateMoveOutDate(
     };
   }
 
-  const moveOutDate = new Date(dateString);
+  // Parse as local time to avoid UTC offset issues with date-only strings
+  const moveOutDate = new Date(dateString + 'T00:00:00');
   if (isNaN(moveOutDate.getTime())) {
     return {
       valid: false,

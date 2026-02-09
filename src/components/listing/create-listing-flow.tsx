@@ -162,11 +162,14 @@ export function CreateListingFlow({
                 <div className="mb-6 rounded-lg border p-4">
                   <p className="text-sm text-muted-foreground">退去予定日</p>
                   <p className="text-lg font-medium">
-                    {new Date(moveOutDate).toLocaleDateString('ja-JP', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
+                    {new Date(moveOutDate + 'T00:00:00').toLocaleDateString(
+                      'ja-JP',
+                      {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      }
+                    )}
                   </p>
                 </div>
               )}
