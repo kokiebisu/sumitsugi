@@ -8,7 +8,7 @@
 
 **問題:** 技術ミーティング開始時にREQUIREMENTS.md（1100行超）を毎回全文読み直していた。プロダクトミーティングで何が変わったかを見つけるのに時間がかかる。
 
-**解決策:** `/meeting:product` のPhase 4.5でデルタサマリー（`docs/meetings/YYYY-MM-DD-product-meeting-N-delta.md`）を自動生成。新規追加・変更・フェーズ移動・削除・未変更の5セクション + 技術ミーティングへの引き継ぎ事項。
+**解決策:** `/meeting:product` のPhase 4.5でデルタサマリー（`docs/requirements/meetings/YYYY-MM-DD-product-meeting-N-delta.md`）を自動生成。新規追加・変更・フェーズ移動・削除・未変更の5セクション + 技術ミーティングへの引き継ぎ事項。
 
 **対象スキル:** `meeting:product.md`, `meeting:tech.md`
 
