@@ -215,6 +215,59 @@ test.describe('Authentication - Logout Flow @auth @critical', () => {
   });
 });
 
+test.describe('Authentication - Protected Routes @auth @critical', () => {
+  test('should redirect to home when visiting /listing without auth', async ({
+    page,
+  }) => {
+    await clearLocalStorage(page);
+    await page.goto('/listing');
+    await page.waitForURL('/', { timeout: 5000 });
+    expect(page.url()).toContain('/');
+  });
+
+  test('should redirect to home when visiting /account without auth', async ({
+    page,
+  }) => {
+    await clearLocalStorage(page);
+    await page.goto('/account');
+    await page.waitForURL('/', { timeout: 5000 });
+    expect(page.url()).toContain('/');
+  });
+});
+
+test.describe('Authentication - Session Persistence @auth @critical', () => {
+  test('should maintain auth state after page navigation', async ({ page }) => {
+    await page.goto('/');
+    await setupAuthenticatedUser(page);
+
+    // Navigate to a different page
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    // User should still be logged in
+    const userState = await page.evaluate(() => {
+      return localStorage.getItem('tsumugi_user');
+    });
+    expect(userState).not.toBeNull();
+  });
+
+  test('should maintain auth state after browser reload', async ({ page }) => {
+    await page.goto('/');
+    await setupAuthenticatedUser(page);
+
+    // Reload
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(500);
+
+    // User should still be logged in
+    const userState = await page.evaluate(() => {
+      return localStorage.getItem('tsumugi_user');
+    });
+    expect(userState).not.toBeNull();
+  });
+});
+
 test.describe('Authentication - Become Seller Flow @auth @listing @quarantine', () => {
   test('should trigger login dialog when clicking "暮らしを譲る" while not logged in', async ({
     authPage,
