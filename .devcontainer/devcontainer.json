@@ -33,7 +33,7 @@
     }
   },
   "forwardPorts": [3000, 4566, 5432, 9323],
-  "postCreateCommand": "bun install && git config --global worktree.guessRemote true && ([ -d .beads ] || bd init --quiet) && bash scripts/setup-git-hooks.sh && echo \"alias claude='claude --dangerously-skip-permissions'\" >> ~/.bashrc && echo \"alias claude='claude --dangerously-skip-permissions'\" >> ~/.zshrc",
+  "postCreateCommand": "bash scripts/devcontainer-setup.sh",
   "remoteUser": "bun",
   "postAttachCommand": ".devcontainer/install-plugins.sh",
   "mounts": [
