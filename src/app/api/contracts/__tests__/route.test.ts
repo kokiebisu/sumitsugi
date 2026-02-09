@@ -65,18 +65,6 @@ const validContractInput = {
 
 const mockInquiry = { id: 'inq-1', propertyId: 'prop-1', userId: 'buyer-1' };
 
-function setupAuth() {
-  return vi
-    .mocked(
-      (require('@/lib/auth') as { auth: { api: { getSession: any } } }).auth.api
-        .getSession
-    )
-    .mockResolvedValue({
-      session: { id: 's1', userId: 'u1' },
-      user: { id: 'u1' },
-    } as any);
-}
-
 describe('POST /api/contracts', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -271,6 +259,7 @@ describe('POST /api/contracts', () => {
     const mockValues = vi.fn().mockReturnValue({ returning: mockReturning });
     vi.mocked(db.insert).mockReturnValue({ values: mockValues } as any);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { contractType: _ct, ...inputWithoutType } = validContractInput;
     const req = new Request('http://localhost/api/contracts', {
       method: 'POST',
