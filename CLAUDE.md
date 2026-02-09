@@ -4,402 +4,67 @@
 
 ## Quick Reference
 
-**プロジェクト:** tsumugi（紡ぎ）
-**技術スタック:** Next.js 16 (App Router) / TypeScript / Tailwind CSS / shadcn/ui
-**ランタイム:** Bun 1.x
-**パッケージマネージャー:** bun
-
-## Task Management (CRITICAL)
-
-**タスク完了時は必ずLinearも更新すること。**
-
-詳細は `.claude/rules/task-management.md` を参照。
-
-**クイックワークフロー:**
-
-1. タスクを完了
-2. DASHBOARDを更新
-3. **LinearでタスクをDoneに更新**
-4. ユーザーに報告
-
----
-
-## Environment Variables
-
-**Always load `.env.local` before running commands that need API keys:**
-
-```bash
-source .env.local
-```
-
-Available keys in `.env.local`:
-
-- `LINEAR_API_KEY` - Linear API for issue tracking sync (タスク完了時に使用)
-- `LINEAR_TEAM_ID` - Linear team ID (Tsumugi team)
-- Other project-specific secrets
+**Stack:** Next.js 16 (App Router) / TypeScript / Tailwind CSS / shadcn/ui / Bun 1.x
 
 ## Commands
 
 ```bash
-bun dev                  # 開発サーバー起動 (localhost:3000)
-bun run build            # プロダクションビルド
-bun start                # プロダクションサーバー起動
-bun lint                 # ESLintでコードチェック
-./dev                    # Open devcontainer with Claude Code (auto-starts)
-
-# Testing (IMPORTANT: Use "bun run test", NOT "bun test")
-bun run test             # Run unit tests with Vitest (watch mode)
-bun run test:run         # Run unit tests once and exit
-bun run test:ui          # Run tests with Vitest UI
-bun run test:e2e:install # Install Playwright Chromium (required before first E2E run)
-bun run test:e2e         # Run E2E tests with Playwright
-
-# Git Worktrees (with devcontainer support)
-bun run worktree:create  # 新しいworktreeを作成
-bun run worktree:list    # worktree一覧を表示
-bun run worktree:prune   # 削除済みworktreeをクリーンアップ
-
-# Branch Cleanup (automated)
-bun run cleanup:branches # マージ済みブランチと削除済みリモートブランチを削除
-bun run cleanup:all      # 完全クリーンアップ（ブランチ + worktree + stash）
-
-# Linear Integration (task tracking)
-./scripts/linear-list.sh              # オープンタスクを一覧表示
-./scripts/linear-done.sh TSU-123      # タスクをDoneに更新
-./scripts/linear-comment.sh TSU-123 "comment"  # タスクにコメント追加
-./scripts/linear-set-project.sh               # 未設定issueをDevelopmentプロジェクトに紐づけ
-
-# Beads → Linear sync (ALWAYS run set-project after sync)
-bd linear sync --push --create-only && ./scripts/linear-set-project.sh
+bun dev                  # Dev server (localhost:3000)
+bun run build            # Production build
+bun lint                 # ESLint
+bun run test:run         # Unit tests (Vitest, once)
+bun run test:e2e         # E2E tests (Playwright)
+bun run worktree:create  # Create git worktree
+bun run cleanup:branches # Clean merged branches
 ```
 
-## Prerequisites
+**Task tracking:** `bd ready` / `bd create` / `bd close <id>` / `bd show <id>`
+**Linear:** `./scripts/linear-list.sh` / `./scripts/linear-done.sh TSU-xxx` / `./scripts/linear-set-project.sh`
+**Beads→Linear sync:** `bd linear sync --push --create-only && ./scripts/linear-set-project.sh`
 
-**Bun Runtime:** This project uses Bun instead of Node.js for faster performance.
-
-**Local development (outside devcontainer):**
-
-```bash
-# Install Bun
-curl -fsSL https://bun.sh/install | bash
-
-# Install dependencies
-bun install
-
-# Start dev server
-bun dev
-```
-
-**Devcontainer:** Bun is pre-installed in the devcontainer.
-
-## Development Tools
-
-### Beads Task Tracker
-
-Use the `bd` command for AI-friendly task tracking instead of markdown TODOs:
-
-```bash
-bd ready              # Show tasks with no blockers
-bd create "Task"      # Create new task
-bd status --json      # Get JSON output for agents
-bd close <id>         # Mark task complete
-bd show <id>          # Show task details and dependencies
-```
-
-Tasks are stored in the `.beads/` directory and shared across git worktrees. Beads provides persistent, structured memory for AI agents with dependency tracking and merge-conflict-free task IDs.
-
-See [Beads documentation](https://github.com/steveyegge/beads) for details.
-
-### Claude Code & Plugins
-
-This project includes Claude Code CLI auto-installation in the devcontainer.
-
-**Authentication Persistence:**
-
-- Claude config directory (`~/.claude`) is mounted from your host machine
-- Authentication persists across devcontainer restarts and rebuilds
-- One-time authentication that persists permanently
-
-**Setup:**
-
-- Claude Code CLI: Auto-installed during devcontainer build
-- First-time auth: Run `claude` to authenticate via browser (one-time, persists)
-- Plugins: Configured in `.claude/settings.json` and auto-enabled
-
-**Enabled Plugins:**
-
-- `superpowers` - TDD, planning, and review workflows
-- `context7` - Enhanced context management
-- `typescript-lsp` - TypeScript language server integration
-- `ralph-loop` - Interactive development loop
-- `code-review` - Automated code review
-- `security-guidance` - Security best practices
-- And more (see `.claude/settings.json` for full list)
-
-**Integration:** Superpowers formalizes the TDD, planning, and review workflows already defined in `.claude/rules/` and `.claude/agents/`, providing additional structure through composable skills.
-
-**Workflow Example:**
-
-```bash
-/superpowers:write-plan    # Create structured implementation plan
-bd create "Task from plan" # Create Beads tasks from plan
-bd ready                   # Check available work
-```
-
-## Git Workflow
-
-**Git Worktrees for Isolated Development**
-
-Use git worktrees (via Superpowers' `using-git-worktrees` skill or bun scripts) when:
-
-- Implementing complex features
-- Working from an implementation plan
-- Needing isolation from current workspace
-- Making changes that span multiple files/components
-
-**Skip worktrees for:**
-
-- Single-line typo fixes
-- Documentation-only changes
-- Simple, low-risk edits
-
-**Workflow:** Create worktree (when needed) → implement → `/commit` → `/pr`
-
-### Manual Worktree Commands
-
-You can create worktrees manually with:
-
-```bash
-bun run worktree:create feature-name  # Creates worktree with devcontainer support
-bun run worktree:list                 # List all worktrees
-bun run worktree:prune                # Clean up removed worktrees
-```
-
-Worktrees are created in `.worktrees/<branch-name>/` with automatic devcontainer symlink setup.
-
-See [.devcontainer/WORKTREE.md](.devcontainer/WORKTREE.md) for detailed documentation.
-
-### Automated Branch Cleanup
-
-**Automatic cleanup is enabled** to keep your repository clean:
-
-**GitHub Auto-Delete:**
-
-- Branches are automatically deleted on GitHub after PR merge
-- Enabled via repository settings
-
-**GitHub Actions (Daily):**
-
-- Runs daily at 00:00 UTC
-- Deletes merged branches
-- Removes branches marked as [gone] (deleted on remote)
-- Can be triggered manually: `gh workflow run "Cleanup Merged Branches"`
-
-**Post-Merge Hook (Automatic):**
-
-- After every `git pull`, local branches marked [gone] are auto-deleted
-- Installed by `scripts/setup-git-hooks.sh` (runs in devcontainer `postCreateCommand`)
-- No manual action needed
-
-**Local Cleanup Commands (manual, if needed):**
-
-```bash
-bun run cleanup:branches  # Delete merged and [gone] branches
-bun run cleanup:all       # Full cleanup: branches + worktrees + stashes
-```
+**IMPORTANT:** Use `bun run test`, NOT `bun test`. Always `source .env.local` before commands needing API keys.
 
 ## Directory Structure
 
 ```
-src/
-├── app/                  # Next.js App Router pages
-│   ├── page.tsx          # ホームページ
-│   ├── layout.tsx        # ルートレイアウト
-│   ├── properties/       # 物件一覧・詳細
-│   ├── listing/          # 前の住人向けリスティング管理
-│   └── account/          # ユーザーアカウント
-├── components/           # Reactコンポーネント
-│   ├── ui/               # shadcn/ui コンポーネント
-│   ├── auth/             # 認証関連
-│   └── listing/          # リスティング作成フロー
-├── contexts/             # Reactコンテキスト
-│   └── auth-context.tsx  # 認証状態管理
-└── lib/                  # ユーティリティ・データ層
-    ├── data.ts           # 物件データ、型定義
-    ├── utils.ts          # ユーティリティ関数
-    └── site-config.ts    # サイト設定
+src/app/          # Pages (properties/, listing/, account/)
+src/components/   # React components (ui/, auth/, listing/)
+src/contexts/     # React contexts (auth-context.tsx)
+src/lib/          # Utils & data (data.ts, utils.ts, site-config.ts)
 ```
+
+Import: `@/lib/utils` → `src/lib/utils`, `@/components/ui/button`
 
 ## Key Concepts
 
-### 用語ガイドライン（重要）
+**UI用語:** セラー→**前の住人**, 次の住人, インテリア利用料→**引越し費用**, セラー歴→**活動歴**
+(データ構造は内部用語`seller`等を使用、UI表示のみ日本語)
 
-**UIで使う用語：**
+**物件ステータス:** `'draft'`(非表示) | `'public'`(公開)
 
-- ❌ セラー（内部用語） → ✅ **前の住人**（UI表示）
-- **次の住人** - 暮らしを引き継ぐ側
-- ❌ インテリア利用料 → ✅ **引越し費用**
-- ❌ セラー歴 / ホスティング歴 → ✅ **活動歴**
+## Design
 
-**注意:** データ構造のフィールド名（`seller`, `sellerProfile`, `yearsSelling`など）は内部用語として使用し、UI表示では常に「前の住人」を使用する
+Airbnb風クリーンUI / アクセント: `#FF5A5F` / Lucide React / shadcn/ui / ダークモード: classベース
 
-### 物件ステータス
+## GitHub Actions (CRITICAL)
 
-```typescript
-status: 'draft' | 'public';
-```
-
-- `draft`: 下書き状態、一覧には非表示
-- `public`: 公開状態、誰でも閲覧可能
-
-## Design Guidelines
-
-- **テーマ:** Airbnb風のクリーンなUI
-- **アクセントカラー:** コーラル色 `#FF5A5F`
-- **アイコン:** Lucide React
-- **UIコンポーネント:** shadcn/ui (Radix UIベース)
-- **ダークモード:** classベース
-
-## Key Files
-
-| ファイル                           | 説明                                                     |
-| ---------------------------------- | -------------------------------------------------------- |
-| `src/lib/data.ts`                  | Property, User, SellerProfile などの型定義とモックデータ |
-| `src/contexts/auth-context.tsx`    | 認証状態管理（localStorage永続化）                       |
-| `src/components/header.tsx`        | グローバルヘッダー                                       |
-| `src/components/property-card.tsx` | 物件カードコンポーネント                                 |
-
-## Import Aliases
-
-```typescript
-import { something } from '@/lib/utils'; // → src/lib/utils
-import { Button } from '@/components/ui/button';
-```
+Claude Code CLI (`claude -p`) を使用。Anthropic SDKはOAuthトークン非対応。
+Secret: `ANTHROPIC_AUTH_TOKEN`, env: `CLAUDE_CODE_OAUTH_TOKEN`
 
 ## Automated Workflows
 
-### Daily Requirements Audit
+- `autonomous-developer.yml` — 4時間ごとにBeadsタスク実装
+- `daily-standup.yml` — 毎日09:00 JSTに進捗報告
+- `weekly-retrospective.yml` — 毎週日曜振り返り
+- 一時停止: `touch .github/PAUSE_AUTONOMOUS` or label `autonomous:pause`
 
-GitHub Actionsで毎日午前9時(JST)に自動実行。REQUIREMENTS.mdとコードを比較し、実装漏れを検出。
+## Related Docs
 
-**動作:**
-
-1. REQUIREMENTS.md / BUSINESS.md を読み込み
-2. 実際のコードと比較（Claude API使用）
-3. 差分（ギャップ）があればBeadsタスクとして登録
-4. ギャップがある場合のみPRを作成（`YYYY-MM-DD Daily Audit`）
-5. PRを自動マージ
-6. ギャップがなければPR作成をスキップ
-
-**手動実行:**
-
-```bash
-gh workflow run "Requirements Audit"
-```
-
-**必要なSecret:** `ANTHROPIC_API_KEY`
-
-### Autonomous Development System
-
-リポジトリは自律的に開発を進めます。人間の介入なしで、タスクの選択→実装→PR作成→マージを自動実行。
-
-**ワークフロー:**
-
-1. `autonomous-developer.yml` - 4時間ごとにBeadsタスクを実装
-2. `daily-standup.yml` - 毎日09:00 JSTにCTOへ進捗報告
-3. `weekly-retrospective.yml` - 毎週日曜に振り返りレポート
-
-**動作:**
-
-1. Beadsからオープンタスクを取得
-2. 優先度順にタスクを選択
-3. Claude Codeで実装
-4. PRを作成してCIを待つ
-5. CI通過後に自動マージ
-6. CTOにレポート作成
-
-**一時停止する方法:**
-
-```bash
-# ファイルで停止
-touch .github/PAUSE_AUTONOMOUS && git add -A && git commit -m "pause" && git push
-
-# ラベルで停止
-gh issue create --title "Pause" --label "autonomous:pause"
-```
-
-**詳細:** `.github/AUTONOMOUS_DEVELOPMENT.md`
-
-### Using Claude in GitHub Actions (CRITICAL)
-
-**ALWAYS use Claude Code CLI instead of Anthropic SDK for GitHub Actions scripts.**
-
-The Anthropic SDK does NOT support Max subscription OAuth tokens (`sk-ant-oat01-...`). Use Claude Code CLI in print mode instead.
-
-**Required Pattern:**
-
-1. **Workflow setup** - Install Claude Code CLI and set token:
-
-```yaml
-steps:
-  - name: Setup Node.js
-    uses: actions/setup-node@v4
-    with:
-      node-version: '20'
-
-  - name: Install Claude Code CLI
-    run: npm install -g @anthropic-ai/claude-code
-
-  - name: Run script
-    env:
-      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
-    run: bun run scripts/your-script.ts
-```
-
-2. **Script pattern** - Use `Bun.spawn` to capture stdout/stderr:
-
-```typescript
-async function callClaude(prompt: string): Promise<string> {
-  const proc = Bun.spawn(['claude', '-p', prompt], {
-    stdout: 'pipe',
-    stderr: 'pipe',
-  });
-
-  const stdout = await new Response(proc.stdout).text();
-  const stderr = await new Response(proc.stderr).text();
-  const exitCode = await proc.exited;
-
-  if (exitCode !== 0) {
-    throw new Error(`Exit code ${exitCode}: ${stderr || stdout}`);
-  }
-
-  return stdout.trim();
-}
-```
-
-**GitHub Secret:** `ANTHROPIC_AUTH_TOKEN` - Your long-lived OAuth token from Max subscription
-
-**DO NOT use:**
-
-- `@anthropic-ai/sdk` with OAuth tokens (doesn't work)
-- `--no-config` flag (doesn't exist)
-- `ANTHROPIC_API_KEY` with OAuth tokens
-
-## Related Documentation
-
-詳細な仕様については以下を参照：
-
-- `.claude/PROJECT.md` - プロジェクト仕様書（コンセプト、デザイン原則）
-- `.claude/BUSINESS.md` - ビジネスロジック仕様書（料金体系、引き継ぎフロー）
-- `docs/DESIGN_DOC.md` - 技術設計書（アーキテクチャ、実装ロードマップ）
+- `.claude/PROJECT.md` — コンセプト・デザイン原則
+- `.claude/BUSINESS.md` — 料金体系・引き継ぎフロー
+- `docs/DESIGN_DOC.md` — アーキテクチャ・ロードマップ
 
 ## Current Phase
 
-**フェーズ1（現在）:** 物件情報の表示、基本的な引き継ぎフロー
-
-**次期開発予定（フェーズ2）:**
-
-- ユーザー登録・ログイン機能
-- メッセージング機能
-- 決済機能統合
-- 電子契約書機能
+**Phase 1:** 物件情報表示、基本引き継ぎフロー
+**Phase 2 (next):** ユーザー登録、メッセージ、決済、電子契約
