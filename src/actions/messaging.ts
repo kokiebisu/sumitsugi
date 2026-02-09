@@ -1,5 +1,8 @@
 'use server';
 
+// TODO: Add server-side auth (getSession) to verify caller identity
+// and replace client-provided senderId with session.user.id (Phase 2)
+
 import zod from 'zod';
 import {
   createThread,

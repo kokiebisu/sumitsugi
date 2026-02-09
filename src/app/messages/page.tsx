@@ -5,6 +5,7 @@ import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { ThreadList } from '@/components/messaging/thread-list';
 import { MessageThread } from '@/components/messaging/message-thread';
+import { useAuth } from '@/contexts/auth-context';
 import {
   getThreadsByUserAction,
   getThreadMessagesAction,
@@ -13,19 +14,22 @@ import {
 import type { Thread, Message } from '@/lib/messaging';
 
 const POLL_MS = 5000;
-const CURRENT_USER_ID = 'demo-user-1'; // TODO: replace with auth
 
 export default function MessagesPage() {
+  const { user, isLoading: authLoading } = useAuth();
   const [threads, setThreads] = useState<Thread[]>([]);
   const [selected, setSelected] = useState<Thread | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const userId = user?.id;
+
   const loadThreads = useCallback(async () => {
-    const r = await getThreadsByUserAction(CURRENT_USER_ID);
+    if (!userId) return;
+    const r = await getThreadsByUserAction(userId);
     if (r.success) setThreads(r.data);
     setLoading(false);
-  }, []);
+  }, [userId]);
 
   const loadMessages = useCallback(async (threadId: string) => {
     const r = await getThreadMessagesAction(threadId);
@@ -33,8 +37,9 @@ export default function MessagesPage() {
   }, []);
 
   useEffect(() => {
-    loadThreads();
-  }, [loadThreads]);
+    if (!authLoading && userId) loadThreads();
+    if (!authLoading && !userId) setLoading(false);
+  }, [authLoading, userId, loadThreads]);
 
   useEffect(() => {
     if (!selected) return;
@@ -45,17 +50,31 @@ export default function MessagesPage() {
 
   const handleSend = useCallback(
     async (body: string, messageType?: 'text' | 'template') => {
-      if (!selected) return;
+      if (!selected || !userId) return;
       const r = await sendMessageAction({
         threadId: selected.id,
-        senderId: CURRENT_USER_ID,
+        senderId: userId,
         body,
         messageType,
       });
       if (r.success) await loadMessages(selected.id);
     },
-    [selected, loadMessages]
+    [selected, userId, loadMessages]
   );
+
+  if (!authLoading && !user) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="flex-1 bg-background flex items-center justify-center">
+          <p className="text-muted-foreground">
+            メッセージを表示するにはログインが必要です
+          </p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -85,7 +104,7 @@ export default function MessagesPage() {
                     setSelected(t);
                     setMessages([]);
                   }}
-                  currentUserId={CURRENT_USER_ID}
+                  currentUserId={userId ?? ''}
                 />
               )}
             </div>
@@ -93,7 +112,7 @@ export default function MessagesPage() {
               {selected ? (
                 <MessageThread
                   messages={messages}
-                  currentUserId={CURRENT_USER_ID}
+                  currentUserId={userId ?? ''}
                   onSend={handleSend}
                 />
               ) : (
