@@ -128,7 +128,11 @@ iptables -P OUTPUT DROP
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 
-# Then allow only specific outbound traffic to allowed domains
+# Allow outbound HTTP/HTTPS to all destinations (for web fetching, docs, etc.)
+iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT
+
+# Then allow only specific outbound traffic to allowed domains (non-HTTP protocols)
 iptables -A OUTPUT -m set --match-set allowed-domains dst -j ACCEPT
 
 # Explicitly REJECT all other outbound traffic for immediate feedback
