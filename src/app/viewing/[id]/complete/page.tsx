@@ -26,7 +26,7 @@ export default function ViewingCompletePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Simulate current user role (in production, from auth context)
-  const currentUserRole: 'host' | 'visitor' = 'visitor';
+  const currentUserRole = 'visitor' as 'host' | 'visitor';
 
   const isCurrentUserConfirmed =
     currentUserRole === 'host'
