@@ -72,7 +72,7 @@
 詳細は各役員のSTRATEGY.mdを参照：
 
 - [CEO戦略](ceo/STRATEGY.md)
-- [CPO戦略](cpo/STRATEGY.md)
+- CPO戦略（統合予定）
 - [CMO戦略](cmo/STRATEGY.md)
 - [CFO戦略](cfo/STRATEGY.md)
 - [CTO戦略](cto/STRATEGY.md)

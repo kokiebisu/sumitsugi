@@ -113,7 +113,8 @@ if labels_needed:
             print(f"  [DRY RUN] Would create: {lbl}")
             label_map[lbl] = f"dry-run-{lbl}"
         else:
-            query = 'mutation { issueLabelCreate(input: { name: "%s", teamId: "%s" }) { success issueLabel { id name } } }' % (lbl, team_id)
+            safe_lbl = lbl.replace('\\', '\\\\').replace('"', '\\"')
+            query = 'mutation { issueLabelCreate(input: { name: "%s", teamId: "%s" }) { success issueLabel { id name } } }' % (safe_lbl, team_id)
             result = graphql(query)
             created = result.get("data", {}).get("issueLabelCreate", {})
             if created.get("success"):
