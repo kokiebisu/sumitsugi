@@ -197,6 +197,81 @@ describe('POST /api/properties', () => {
     );
   });
 
+  it('returns 400 for invalid landlordConsent status', async () => {
+    const { POST } = await import('../route');
+    const { auth } = await import('@/lib/auth');
+    vi.mocked(auth.api.getSession).mockResolvedValue({
+      session: { id: 's1', userId: 'u1' },
+      user: { id: 'u1' },
+    } as any);
+    const req = new Request('http://localhost/api/properties', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        title: 'テスト',
+        landlordConsent: { status: 'unknown' },
+      }),
+    });
+    expect((await POST(req)).status).toBe(400);
+  });
+
+  it('defaults landlordConsent to pending when not provided', async () => {
+    const { POST } = await import('../route');
+    const { auth } = await import('@/lib/auth');
+    vi.mocked(auth.api.getSession).mockResolvedValue({
+      session: { id: 's1', userId: 'u1' },
+      user: { id: 'u1' },
+    } as any);
+    const { db } = await import('@/db');
+    const mockReturning = vi
+      .fn()
+      .mockResolvedValue([{ id: 'x', status: 'draft' }]);
+    const mockValues = vi.fn().mockReturnValue({ returning: mockReturning });
+    vi.mocked(db.insert).mockReturnValue({ values: mockValues } as any);
+    const req = new Request('http://localhost/api/properties', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ title: 'テスト' }),
+    });
+    await POST(req);
+    expect(mockValues).toHaveBeenCalledWith(
+      expect.objectContaining({
+        landlordConsent: { status: 'pending' },
+      })
+    );
+  });
+
+  it('accepts landlordConsent with conditional status and fields', async () => {
+    const { POST } = await import('../route');
+    const { auth } = await import('@/lib/auth');
+    vi.mocked(auth.api.getSession).mockResolvedValue({
+      session: { id: 's1', userId: 'u1' },
+      user: { id: 'u1' },
+    } as any);
+    const { db } = await import('@/db');
+    const mockReturning = vi
+      .fn()
+      .mockResolvedValue([{ id: 'x', status: 'draft' }]);
+    const mockValues = vi.fn().mockReturnValue({ returning: mockReturning });
+    vi.mocked(db.insert).mockReturnValue({ values: mockValues } as any);
+    const consent = {
+      status: 'conditional',
+      approvedItems: ['sofa'],
+      rejectedItems: ['lighting'],
+      conditions: '退去時清掃必要',
+    };
+    const req = new Request('http://localhost/api/properties', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ title: 'テスト', landlordConsent: consent }),
+    });
+    const res = await POST(req);
+    expect(res.status).toBe(201);
+    expect(mockValues).toHaveBeenCalledWith(
+      expect.objectContaining({ landlordConsent: consent })
+    );
+  });
+
   it('forces status to draft', async () => {
     const { POST } = await import('../route');
     const { auth } = await import('@/lib/auth');

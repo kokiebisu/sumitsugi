@@ -15,6 +15,7 @@ import {
   Trash2,
   MessageSquare,
   Home,
+  AlertTriangle,
 } from 'lucide-react';
 import { InquiryList } from '@/components/admin/inquiry-list';
 import { ConsentBadge } from '@/components/consent-badge';
@@ -418,6 +419,26 @@ export default function ListingPage() {
           </div>
         ) : (
           <div className="mx-auto max-w-7xl px-6 py-10">
+            {userListings.some(
+              (l) =>
+                !l.landlordConsent?.status ||
+                l.landlordConsent.status === 'pending'
+            ) && (
+              <div
+                className="mb-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4"
+                data-testid="landlord-consent-banner"
+              >
+                <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
+                <div>
+                  <p className="text-sm font-medium text-amber-800">
+                    大家承認が未確認のリスティングがあります
+                  </p>
+                  <p className="mt-1 text-sm text-amber-700">
+                    公開前に大家さんの承認を確認してください。リスティングの編集画面から承認ステータスを更新できます。
+                  </p>
+                </div>
+              </div>
+            )}
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold text-foreground">
                 ダッシュボード
