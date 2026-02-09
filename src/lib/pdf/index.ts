@@ -8,6 +8,8 @@ export { ManagementFaq } from './templates/management-faq';
 export {
   buildConsentFormProps,
   mapChecklistToConsentItems,
+  generateConsentPdf,
+  generateAndUploadConsentPdf,
 } from './consent-generator';
 export { buildAgreementPdfProps, generateAgreementPdf } from './agreement-pdf';
 export {
