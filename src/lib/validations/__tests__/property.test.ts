@@ -6,6 +6,10 @@ import {
   furnitureItemSchema,
   landlordConsentSchema,
   furniturePinSchema,
+  tasteCategorySchema,
+  listingFormSchema,
+  type TasteCategoryInput,
+  type ListingFormInput,
 } from '../property';
 
 describe('consentStatusSchema', () => {
@@ -171,5 +175,98 @@ describe('landlordConsentSchema', () => {
 
   it('rejects invalid status', () => {
     expect(() => landlordConsentSchema.parse({ status: 'maybe' })).toThrow();
+  });
+});
+
+describe('tasteCategorySchema', () => {
+  it('accepts valid taste categories', () => {
+    const validCategories: TasteCategoryInput[] = [
+      'minimal',
+      'natural',
+      'modern',
+      'japanese',
+      'industrial',
+      'vintage',
+    ];
+    for (const cat of validCategories) {
+      expect(tasteCategorySchema.parse(cat)).toBe(cat);
+    }
+  });
+
+  it('rejects invalid taste category', () => {
+    expect(() => tasteCategorySchema.parse('gothic')).toThrow();
+  });
+});
+
+describe('listingFormSchema', () => {
+  const validInput: ListingFormInput = {
+    title: 'テスト物件',
+    images: ['https://example.com/photo.jpg'],
+    area: '渋谷区',
+    status: 'draft',
+  };
+
+  it('accepts valid minimal input (required fields only)', () => {
+    const result = listingFormSchema.parse(validInput);
+    expect(result.title).toBe('テスト物件');
+    expect(result.images).toHaveLength(1);
+    expect(result.area).toBe('渋谷区');
+    expect(result.status).toBe('draft');
+  });
+
+  it('accepts valid input with optional fields', () => {
+    const input = {
+      ...validInput,
+      status: 'public' as const,
+      tasteCategory: 'minimal' as const,
+      moveOutReason: 'job_transfer' as const,
+      managementCompanyName: '管理会社テスト',
+      summary: 'テストサマリー',
+      story: 'テストストーリー',
+    };
+    const result = listingFormSchema.parse(input);
+    expect(result.tasteCategory).toBe('minimal');
+    expect(result.moveOutReason).toBe('job_transfer');
+    expect(result.managementCompanyName).toBe('管理会社テスト');
+  });
+
+  it('rejects missing title', () => {
+    const { title: _, ...noTitle } = validInput;
+    expect(() => listingFormSchema.parse(noTitle)).toThrow();
+  });
+
+  it('rejects empty title', () => {
+    expect(() =>
+      listingFormSchema.parse({ ...validInput, title: '' })
+    ).toThrow();
+  });
+
+  it('rejects empty images array', () => {
+    expect(() =>
+      listingFormSchema.parse({ ...validInput, images: [] })
+    ).toThrow();
+  });
+
+  it('rejects missing area', () => {
+    const { area: _, ...noArea } = validInput;
+    expect(() => listingFormSchema.parse(noArea)).toThrow();
+  });
+
+  it('rejects invalid status', () => {
+    expect(() =>
+      listingFormSchema.parse({ ...validInput, status: 'archived' })
+    ).toThrow();
+  });
+
+  it('defaults status to draft when not provided', () => {
+    const { status: _, ...noStatus } = validInput;
+    const result = listingFormSchema.parse(noStatus);
+    expect(result.status).toBe('draft');
+  });
+
+  it('rejects invalid tasteCategory', () => {
+    expect(() =>
+      listingFormSchema.parse({ ...validInput, tasteCategory: 'gothic' })
+    ).toThrow();
   });
 });

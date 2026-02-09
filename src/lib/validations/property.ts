@@ -68,9 +68,45 @@ export const landlordConsentSchema = z.object({
   approvedBy: z.string().optional(),
 });
 
+// TasteCategory enum (interior style categories)
+export const tasteCategorySchema = z.enum([
+  'minimal',
+  'natural',
+  'modern',
+  'japanese',
+  'industrial',
+  'vintage',
+]);
+
+// Property status
+export const propertyStatusSchema = z.enum(['draft', 'public']);
+
+// Listing form validation schema (required/optional field separation)
+export const listingFormSchema = z.object({
+  // Required fields
+  title: z.string().min(1, 'タイトルは必須です'),
+  images: z.array(z.string().url()).min(1, '画像は1枚以上必要です'),
+  area: z.string().min(1, 'エリアは必須です'),
+
+  // Status with default
+  status: propertyStatusSchema.default('draft'),
+
+  // Optional fields
+  tasteCategory: tasteCategorySchema.optional(),
+  moveOutReason: moveOutReasonSchema.optional(),
+  managementCompanyName: z.string().optional(),
+  summary: z.string().optional(),
+  story: z.string().optional(),
+  furnitureDescription: z.string().optional(),
+  conditions: z.string().optional(),
+});
+
 // Inferred types (for use outside DB schema context)
 export type ConsentStatusInput = zod.infer<typeof consentStatusSchema>;
 export type MoveOutReasonInput = zod.infer<typeof moveOutReasonSchema>;
 export type FurnitureCategoryInput = zod.infer<typeof furnitureCategorySchema>;
 export type FurnitureItemInput = zod.infer<typeof furnitureItemSchema>;
 export type LandlordConsentInput = zod.infer<typeof landlordConsentSchema>;
+export type TasteCategoryInput = zod.infer<typeof tasteCategorySchema>;
+export type PropertyStatusInput = zod.infer<typeof propertyStatusSchema>;
+export type ListingFormInput = zod.infer<typeof listingFormSchema>;
