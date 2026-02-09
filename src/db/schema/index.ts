@@ -24,6 +24,12 @@ export {
   type EmailLogMetadata,
 } from './email-logs';
 export { handoverConfirmations } from './handover-confirmations';
+export {
+  electronicContracts,
+  type SignatureData,
+  type AuditEntry,
+  type ContractItem,
+} from './electronic-contracts';
 
 // Define relations
 import { relations } from 'drizzle-orm';
@@ -35,6 +41,7 @@ import { sessions, accounts } from './sessions';
 import { payments, transactions, stripeAccounts } from './payments';
 import { emailLogs } from './email-logs';
 import { handoverConfirmations } from './handover-confirmations';
+import { electronicContracts } from './electronic-contracts';
 
 // User relations
 export const usersRelations = relations(users, ({ one, many }) => ({
@@ -180,6 +187,31 @@ export const handoverConfirmationsRelations = relations(
     property: one(properties, {
       fields: [handoverConfirmations.propertyId],
       references: [properties.id],
+    }),
+  })
+);
+
+// Electronic Contract relations
+export const electronicContractsRelations = relations(
+  electronicContracts,
+  ({ one }) => ({
+    property: one(properties, {
+      fields: [electronicContracts.propertyId],
+      references: [properties.id],
+    }),
+    inquiry: one(inquiries, {
+      fields: [electronicContracts.inquiryId],
+      references: [inquiries.id],
+    }),
+    seller: one(users, {
+      fields: [electronicContracts.sellerId],
+      references: [users.id],
+      relationName: 'contractSeller',
+    }),
+    buyer: one(users, {
+      fields: [electronicContracts.buyerId],
+      references: [users.id],
+      relationName: 'contractBuyer',
     }),
   })
 );
