@@ -4,27 +4,43 @@ vi.mock('@/lib/auth', () => ({
   auth: { api: { getSession: vi.fn() } },
 }));
 
+// Track mock select results - use different results for different calls
+let selectCallIndex = 0;
+let mockSelectResults: unknown[][] = [];
+
+const createMockSelectChain = () => ({
+  from: vi.fn(() => ({
+    where: vi.fn(() => ({
+      limit: vi.fn(() => {
+        const result = mockSelectResults[selectCallIndex] || [];
+        selectCallIndex++;
+        return result;
+      }),
+      orderBy: vi.fn(() => ({
+        limit: vi.fn(() => ({
+          offset: vi.fn(() => {
+            const result = mockSelectResults[selectCallIndex] || [];
+            selectCallIndex++;
+            return result;
+          }),
+        })),
+      })),
+    })),
+  })),
+});
+
 vi.mock('@/db', () => ({
   db: {
     insert: vi.fn(() => ({
       values: vi.fn(() => ({ returning: vi.fn() })),
     })),
-    select: vi.fn(() => ({
-      from: vi.fn(() => ({
-        where: vi.fn(() => ({
-          orderBy: vi.fn(() => ({
-            limit: vi.fn(() => ({
-              offset: vi.fn(),
-            })),
-          })),
-        })),
-      })),
-    })),
+    select: vi.fn(() => createMockSelectChain()),
   },
 }));
 
 vi.mock('@/db/schema', () => ({
-  electronicContracts: {},
+  electronicContracts: { id: 'electronicContracts' },
+  inquiries: { id: 'inquiries' },
 }));
 
 const validContractInput = {
@@ -47,9 +63,25 @@ const validContractInput = {
   ],
 };
 
+const mockInquiry = { id: 'inq-1', propertyId: 'prop-1', userId: 'buyer-1' };
+
+function setupAuth() {
+  return vi
+    .mocked(
+      (require('@/lib/auth') as { auth: { api: { getSession: any } } }).auth.api
+        .getSession
+    )
+    .mockResolvedValue({
+      session: { id: 's1', userId: 'u1' },
+      user: { id: 'u1' },
+    } as any);
+}
+
 describe('POST /api/contracts', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    selectCallIndex = 0;
+    mockSelectResults = [];
   });
 
   it('returns 401 if not authenticated', async () => {
@@ -139,13 +171,39 @@ describe('POST /api/contracts', () => {
     expect((await POST(req)).status).toBe(400);
   });
 
-  it('creates contract with valid input', async () => {
+  it('returns 403 if no inquiry relationship exists', async () => {
     const { POST } = await import('../route');
     const { auth } = await import('@/lib/auth');
     vi.mocked(auth.api.getSession).mockResolvedValue({
       session: { id: 's1', userId: 'u1' },
       user: { id: 'u1' },
     } as any);
+
+    // Return empty array = no inquiry found
+    mockSelectResults = [[]];
+
+    const req = new Request('http://localhost/api/contracts', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(validContractInput),
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(403);
+    const data = (await res.json()) as { error: string };
+    expect(data.error).toContain('問い合わせ');
+  });
+
+  it('creates contract with valid input and existing inquiry', async () => {
+    const { POST } = await import('../route');
+    const { auth } = await import('@/lib/auth');
+    vi.mocked(auth.api.getSession).mockResolvedValue({
+      session: { id: 's1', userId: 'u1' },
+      user: { id: 'u1' },
+    } as any);
+
+    // First select: inquiry relationship check returns a valid inquiry
+    mockSelectResults = [[mockInquiry]];
 
     const created = {
       id: 'contract-1',
@@ -179,6 +237,9 @@ describe('POST /api/contracts', () => {
       user: { id: 'u1' },
     } as any);
 
+    // Inquiry check passes
+    mockSelectResults = [[mockInquiry]];
+
     const { db } = await import('@/db');
     const mockReturning = vi.fn().mockRejectedValue(new Error('DB fail'));
     const mockValues = vi.fn().mockReturnValue({ returning: mockReturning });
@@ -201,6 +262,8 @@ describe('POST /api/contracts', () => {
       user: { id: 'u1' },
     } as any);
 
+    mockSelectResults = [[mockInquiry]];
+
     const { db } = await import('@/db');
     const mockReturning = vi
       .fn()
@@ -208,7 +271,7 @@ describe('POST /api/contracts', () => {
     const mockValues = vi.fn().mockReturnValue({ returning: mockReturning });
     vi.mocked(db.insert).mockReturnValue({ values: mockValues } as any);
 
-    const { contractType: _, ...inputWithoutType } = validContractInput;
+    const { contractType: _ct, ...inputWithoutType } = validContractInput;
     const req = new Request('http://localhost/api/contracts', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -228,6 +291,8 @@ describe('POST /api/contracts', () => {
       session: { id: 's1', userId: 'u1' },
       user: { id: 'u1' },
     } as any);
+
+    mockSelectResults = [[mockInquiry]];
 
     const { db } = await import('@/db');
     const mockReturning = vi
@@ -256,6 +321,8 @@ describe('POST /api/contracts', () => {
       user: { id: 'u1' },
     } as any);
 
+    mockSelectResults = [[mockInquiry]];
+
     const { db } = await import('@/db');
     const mockReturning = vi
       .fn()
@@ -280,6 +347,8 @@ describe('POST /api/contracts', () => {
 describe('GET /api/contracts', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    selectCallIndex = 0;
+    mockSelectResults = [];
   });
 
   it('returns 401 if not authenticated', async () => {

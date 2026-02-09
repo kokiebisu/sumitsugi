@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { eq, desc, or, sql } from 'drizzle-orm';
+import { eq, and, desc, or, sql } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
 import zod from 'zod';
 const z = zod;
 import { auth } from '@/lib/auth';
 import { db } from '@/db';
-import { electronicContracts } from '@/db/schema';
+import { electronicContracts, inquiries } from '@/db/schema';
 
 const createContractSchema = z.object({
   propertyId: z.string().min(1),
@@ -54,6 +54,26 @@ export async function POST(request: Request) {
     }
 
     const data = parsed.data;
+
+    // Verify buyer relationship: an inquiry must exist between seller and buyer
+    const [relationship] = await db
+      .select()
+      .from(inquiries)
+      .where(
+        and(
+          eq(inquiries.propertyId, data.propertyId),
+          eq(inquiries.userId, data.buyerId)
+        )
+      )
+      .limit(1);
+
+    if (!relationship) {
+      return NextResponse.json(
+        { error: 'この買主との間に有効な問い合わせがありません' },
+        { status: 403 }
+      );
+    }
+
     const id = randomUUID();
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
