@@ -1,7 +1,18 @@
 // 値付けガイダンス（F-105）
 // カテゴリ別の参考価格帯と状態による補正
+// 減価テーブル: 使用年数×新品価格による目安レンジ
 
 export type FurnitureCondition = 'excellent' | 'good' | 'fair';
+
+export type FurnitureCategory =
+  | 'bed'
+  | 'sofa'
+  | 'desk'
+  | 'table'
+  | 'storage'
+  | 'wardrobe'
+  | 'tv'
+  | 'fridge';
 
 export interface PriceRange {
   min: number;
@@ -127,4 +138,121 @@ export function getTotalPriceRange(
   }
 
   return { min: totalMin, max: totalMax };
+}
+
+// === 減価テーブル（使用年数→残価率） ===
+// カテゴリ別に使用年数から残価率を算出
+// 家具: 耐用年数5-8年、家電: 耐用年数6-10年を目安
+
+type DepreciationRates = Record<number, number>;
+
+export const DEPRECIATION_TABLE: Record<FurnitureCategory, DepreciationRates> =
+  {
+    bed: { 0: 1.0, 1: 0.8, 2: 0.65, 3: 0.5, 5: 0.3, 7: 0.15, 10: 0.1 },
+    sofa: { 0: 1.0, 1: 0.75, 2: 0.6, 3: 0.45, 5: 0.25, 7: 0.15, 10: 0.1 },
+    desk: { 0: 1.0, 1: 0.85, 2: 0.7, 3: 0.55, 5: 0.35, 7: 0.2, 10: 0.1 },
+    table: { 0: 1.0, 1: 0.8, 2: 0.65, 3: 0.5, 5: 0.3, 7: 0.15, 10: 0.1 },
+    storage: {
+      0: 1.0,
+      1: 0.85,
+      2: 0.7,
+      3: 0.55,
+      5: 0.35,
+      7: 0.2,
+      10: 0.1,
+    },
+    wardrobe: {
+      0: 1.0,
+      1: 0.85,
+      2: 0.7,
+      3: 0.55,
+      5: 0.35,
+      7: 0.2,
+      10: 0.1,
+    },
+    tv: { 0: 1.0, 1: 0.7, 2: 0.5, 3: 0.35, 5: 0.2, 7: 0.1, 10: 0.05 },
+    fridge: { 0: 1.0, 1: 0.8, 2: 0.65, 3: 0.5, 5: 0.35, 7: 0.2, 10: 0.1 },
+  };
+
+// 使用年数からカテゴリ別の残価率を取得（線形補間）
+export function getResidualRate(
+  category: FurnitureCategory,
+  yearsOfUse: number
+): number {
+  const rates = DEPRECIATION_TABLE[category];
+  if (!rates) return 0.1;
+
+  if (yearsOfUse <= 0) return 1.0;
+
+  const years = Object.keys(rates)
+    .map(Number)
+    .sort((a, b) => a - b);
+
+  // 最大年数を超えた場合は最低残価率を返す
+  const maxYear = years[years.length - 1];
+  if (yearsOfUse >= maxYear) return rates[maxYear];
+
+  // 該当年数がテーブルにある場合
+  if (rates[yearsOfUse] !== undefined) return rates[yearsOfUse];
+
+  // 線形補間
+  let lowerYear = 0;
+  let upperYear = maxYear;
+  for (const y of years) {
+    if (y < yearsOfUse) lowerYear = y;
+    if (y > yearsOfUse && y < upperYear) upperYear = y;
+  }
+
+  const lowerRate = rates[lowerYear];
+  const upperRate = rates[upperYear];
+  const fraction = (yearsOfUse - lowerYear) / (upperYear - lowerYear);
+  return lowerRate + (upperRate - lowerRate) * fraction;
+}
+
+// 減価計算結果
+export interface DepreciatedPriceResult {
+  newPrice: number;
+  depreciatedPrice: number;
+  residualRate: number;
+  discountRate: number;
+}
+
+// 新品価格と使用年数から減価後の目安価格を算出
+export function calculateDepreciatedPrice(
+  category: FurnitureCategory,
+  newPrice: number,
+  yearsOfUse: number
+): DepreciatedPriceResult {
+  const residualRate = getResidualRate(category, yearsOfUse);
+  const depreciatedPrice = Math.round((newPrice * residualRate) / 1000) * 1000;
+  const discountRate = calculateDiscountRate(depreciatedPrice, newPrice);
+
+  return {
+    newPrice,
+    depreciatedPrice,
+    residualRate,
+    discountRate,
+  };
+}
+
+// 家具リストの新品合計価格を計算（baseRangeの中央値を使用）
+export function calculateNewPriceTotal(furnitureIds: string[]): number {
+  return furnitureIds.reduce((total, id) => {
+    const guide = getPriceGuide(id);
+    if (!guide) return total;
+    const midpoint =
+      Math.round((guide.baseRange.min + guide.baseRange.max) / 2 / 1000) * 1000;
+    return total + midpoint;
+  }, 0);
+}
+
+// 割引率を計算（新品価格に対する割引%）
+export function calculateDiscountRate(
+  handoverFee: number,
+  newPriceTotal: number
+): number {
+  if (newPriceTotal <= 0) return 0;
+  const ratio = handoverFee / newPriceTotal;
+  const discount = Math.round((1 - ratio) * 100);
+  return Math.max(0, discount);
 }
