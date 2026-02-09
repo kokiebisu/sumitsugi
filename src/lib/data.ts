@@ -260,6 +260,8 @@ export interface Property {
   moveOutDate?: string; // 退去日（F-501）
   status: 'draft' | 'public';
   consentStatus?: ConsentStatus; // 大家承認ステータス（§7.4）
+  managementCompanyName?: string | null; // 管理会社名
+  managementConsultedAt?: string | null; // 管理会社相談日時
   // 以下は詳細ページ用（MVP後に追加検討）
   summary?: string;
   furnitureDescription?: string;
@@ -534,6 +536,8 @@ export const properties: Property[] = [
       '木製のヴィンテージデスク、レトロな照明、古い本棚。長年かけて集めた古道具たちがこの空間を彩っています。',
     status: 'public',
     consentStatus: 'pending',
+    managementCompanyName: '株式会社杉並管理',
+    managementConsultedAt: null,
     story:
       '古着屋を営みながら、仕事帰りに少しずつ集めた家具たち。この部屋で過ごす時間が一番落ち着きます。店舗を移転することになり、この空間を気に入ってくれる方に譲りたいです。',
     conditions: 'ヴィンテージ品を大切にしてくれる方。喫煙不可。',
