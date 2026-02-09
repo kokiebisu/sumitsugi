@@ -31,7 +31,7 @@ echo ""
 curl -s -X POST \
   -H "Content-Type: application/json" \
   -H "Authorization: $LINEAR_API_KEY" \
-  -d "{\"query\":\"query { issues(filter: { team: { id: { eq: \\\"$LINEAR_TEAM_ID\\\" } }, state: { name: { nin: [\\\"Done\\\", \\\"Canceled\\\"] } } }, orderBy: updatedAt) { nodes { id identifier title state { name } assignee { name } createdAt updatedAt } } }\"}" \
+  -d "{\"query\":\"query { issues(filter: { team: { id: { eq: \\\"$LINEAR_TEAM_ID\\\" } }, state: { type: { nin: [\\\"completed\\\", \\\"canceled\\\"] } } }, orderBy: updatedAt) { nodes { id identifier title state { name } assignee { name } createdAt updatedAt } } }\"}" \
   https://api.linear.app/graphql | python3 -c "
 import sys, json
 from datetime import datetime
