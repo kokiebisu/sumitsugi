@@ -6,38 +6,14 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 import { furnitureLabels } from '@/lib/data';
-import type { LargeFurnitureType } from '@/lib/data';
 import {
   ArrowLeft,
   Edit2,
-  Building2,
-  Home,
-  Calendar,
-  BedDouble,
-  Sofa,
-  Monitor,
-  Archive,
-  UtensilsCrossed,
-  Shirt,
-  Tv,
-  Refrigerator,
-  Coffee,
-  Users,
-  LucideIcon,
+  CheckCircle2,
+  ImageIcon,
+  Package,
+  MapPin,
 } from 'lucide-react';
-
-// 家具アイコン
-const FURNITURE_ICONS: Record<LargeFurnitureType, LucideIcon> = {
-  bed: BedDouble,
-  sofa: Sofa,
-  desk: Monitor,
-  table: Coffee,
-  storage: Archive,
-  dining: UtensilsCrossed,
-  wardrobe: Shirt,
-  tv: Tv,
-  fridge: Refrigerator,
-};
 
 export default function PreviewListingPage() {
   const { user, isLoading, listings, publishListing } = useAuth();
@@ -84,255 +60,152 @@ export default function PreviewListingPage() {
     );
   }
 
+  const photoCount = listing.roomPhotos?.length ?? 0;
+  const furnitureCount = listing.furniture?.length ?? 0;
+  const isPublished = listing.status === 'published';
+
   return (
-    <div className="flex min-h-screen flex-col bg-white">
-      {/* ヘッダー */}
-      <header className="flex items-center justify-between px-6 py-4 md:px-12 border-b border-border">
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="flex items-center justify-between border-b border-border px-6 py-4 md:px-12">
         <Link href="/" className="flex items-center gap-2">
           <span className="text-xl font-semibold tracking-tight text-coral">
             tsumugi
           </span>
         </Link>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/listing"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground"
-          >
-            キャンセル
-          </Link>
-        </div>
+        <Link
+          href="/listing"
+          className="text-sm font-medium text-muted-foreground hover:text-foreground"
+        >
+          戻る
+        </Link>
       </header>
 
-      <main className="flex-1 pb-24">
-        {/* Back Link */}
-        <div className="mx-auto max-w-4xl px-6 pt-6">
-          <Link
-            href="/listing"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-foreground transition-colors hover:text-foreground/80"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            部屋一覧に戻る
-          </Link>
-        </div>
+      <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-8">
+        <Link
+          href="/listing"
+          className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          部屋一覧に戻る
+        </Link>
 
-        {/* プレビューラベル */}
-        <div className="mx-auto max-w-4xl px-6 pt-6 flex items-center justify-between">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-full">
-            <span className="text-sm font-medium text-amber-800">
-              {listing.status === 'published' ? '公開中' : 'プレビュー表示中'}
-            </span>
+        {/* Status badge */}
+        <div className="mb-6 flex items-center justify-between">
+          <div
+            className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium ${
+              isPublished
+                ? 'border-green-200 bg-green-50 text-green-800 dark:border-green-900 dark:bg-green-950/30 dark:text-green-200'
+                : 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200'
+            }`}
+          >
+            {isPublished ? (
+              <>
+                <CheckCircle2 className="h-4 w-4" />
+                公開中
+              </>
+            ) : (
+              '下書き'
+            )}
           </div>
           <Link href={`/listing/${listing.id}/edit`}>
             <Button variant="outline" size="sm" className="gap-2">
-              <Edit2 className="w-4 h-4" />
+              <Edit2 className="h-4 w-4" />
               編集
             </Button>
           </Link>
         </div>
 
-        {/* 画像ギャラリー - 物件詳細と同じレイアウト */}
-        {listing.roomPhotos && listing.roomPhotos.length > 0 && (
-          <div className="mx-auto max-w-4xl px-6 py-6">
-            <div className="grid grid-cols-4 grid-rows-2 gap-2 h-[400px] rounded-xl overflow-hidden">
-              <div className="col-span-2 row-span-2">
-                <img
-                  src={listing.roomPhotos[0]}
-                  alt="メイン画像"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              {listing.roomPhotos.slice(1, 5).map((photo, index) => (
-                <div key={index} className="col-span-1 row-span-1">
-                  <img
-                    src={photo}
-                    alt={`画像 ${index + 2}`}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))}
+        {/* Summary card */}
+        <div className="rounded-xl border border-border bg-card p-6">
+          {/* Title */}
+          <h1 className="text-2xl font-semibold text-foreground">
+            {listing.title || '無題のリスティング'}
+          </h1>
+
+          {/* Location & layout */}
+          {(listing.area || listing.layout) && (
+            <div className="mt-2 flex items-center gap-2 text-muted-foreground">
+              <MapPin className="h-4 w-4" />
+              <span>
+                {[listing.area, listing.layout].filter(Boolean).join(' / ')}
+              </span>
             </div>
-          </div>
-        )}
-
-        {/* コンテンツ - 物件詳細と同じレイアウト */}
-        <div className="mx-auto max-w-4xl px-6">
-          {/* タイトルと場所 */}
-          <div className="pb-6 border-b border-border">
-            <h1 className="text-[26px] font-medium text-foreground">
-              {listing.title}
-            </h1>
-            <p className="mt-1 text-base font-normal text-foreground">
-              {[listing.area?.replace(/区/, '区 / '), listing.layout]
-                .filter(Boolean)
-                .join(' / ')}
-            </p>
-          </div>
-
-          {/* 家具セクション */}
-          {listing.furniture && listing.furniture.length > 0 && (
-            <section className="py-8 border-b border-border">
-              <h2 className="mb-4 text-xl font-semibold text-foreground">
-                引き継ぎできる大型家具
-              </h2>
-              <div className="flex gap-6">
-                {listing.furniture.map((furnitureId) => {
-                  const Icon = FURNITURE_ICONS[furnitureId] || Home;
-                  return (
-                    <div
-                      key={furnitureId}
-                      className="flex flex-col items-center gap-2"
-                    >
-                      <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center">
-                        <Icon
-                          className="h-7 w-7 text-foreground"
-                          strokeWidth={1.5}
-                        />
-                      </div>
-                      <span className="text-sm text-foreground">
-                        {furnitureLabels[furnitureId] || furnitureId}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
           )}
 
-          {/* 物件情報 */}
-          <section className="py-8 border-b border-border">
-            <h2 className="mb-6 text-xl font-semibold text-foreground">
-              物件情報
-            </h2>
-            <div className="grid grid-cols-2 gap-6">
-              {listing.layout && (
-                <div className="flex items-start gap-3">
-                  <Building2 className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-0.5">
-                      間取り
-                    </p>
-                    <p className="text-base font-semibold text-foreground">
-                      {listing.layout}
-                    </p>
-                  </div>
-                </div>
-              )}
-              {listing.area && (
-                <div className="flex items-start gap-3">
-                  <Home className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-0.5">
-                      エリア
-                    </p>
-                    <p className="text-base font-semibold text-foreground">
-                      {listing.area}
-                    </p>
-                  </div>
-                </div>
-              )}
-              {listing.rent && (
-                <div className="flex items-start gap-3">
-                  <Building2 className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-0.5">家賃</p>
-                    <p className="text-base font-semibold text-foreground">
-                      {listing.rent.toLocaleString()}円/月
-                    </p>
-                  </div>
-                </div>
-              )}
-              {listing.handoverFee && (
-                <div className="flex items-start gap-3">
-                  <Archive className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-0.5">
-                      引き継ぎ費用
-                    </p>
-                    <p className="text-base font-semibold text-foreground">
-                      {listing.handoverFee.toLocaleString()}円
-                    </p>
-                  </div>
-                </div>
-              )}
-              {listing.occupants && (
-                <div className="flex items-start gap-3">
-                  <Users className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-0.5">
-                      居住人数
-                    </p>
-                    <p className="text-base font-semibold text-foreground">
-                      {listing.occupants === 4
-                        ? '4人以上'
-                        : `${listing.occupants}人`}
-                    </p>
-                  </div>
-                </div>
-              )}
+          {/* Key stats */}
+          <div className="mt-6 grid grid-cols-3 gap-4">
+            <div className="rounded-lg bg-muted/50 p-4 text-center">
+              <ImageIcon className="mx-auto h-5 w-5 text-muted-foreground" />
+              <p className="mt-2 text-lg font-semibold">{photoCount}</p>
+              <p className="text-xs text-muted-foreground">写真</p>
             </div>
-          </section>
-
-          {/* 引き継ぎスケジュール */}
-          {(listing.viewingAvailableFrom || listing.moveInAvailableFrom) && (
-            <section className="py-8">
-              <h2 className="mb-6 text-xl font-semibold text-foreground">
-                引き継ぎスケジュール
-              </h2>
-              <div className="space-y-4">
-                {listing.viewingAvailableFrom && (
-                  <div className="flex items-start gap-3">
-                    <Calendar className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        内見可能日
-                      </p>
-                      <p className="text-base text-foreground">
-                        {listing.viewingAvailableFrom}
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {listing.moveInAvailableFrom && (
-                  <div className="flex items-start gap-3">
-                    <Calendar className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        退去（引き渡し）希望時期
-                      </p>
-                      <p className="text-base text-foreground">
-                        {listing.moveInAvailableFrom}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        ※実際の日程はクリーニング等により前後する場合があります
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </section>
-          )}
-        </div>
-      </main>
-
-      {/* 固定フッター - 公開ボタン（下書きの場合のみ表示） */}
-      {listing.status !== 'published' && (
-        <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-border">
-          <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">
-                内容を確認したら公開しましょう
+            <div className="rounded-lg bg-muted/50 p-4 text-center">
+              <Package className="mx-auto h-5 w-5 text-muted-foreground" />
+              <p className="mt-2 text-lg font-semibold">{furnitureCount}</p>
+              <p className="text-xs text-muted-foreground">家具</p>
+            </div>
+            <div className="rounded-lg bg-muted/50 p-4 text-center">
+              <p className="text-xs text-muted-foreground">引き継ぎ費用</p>
+              <p className="mt-1 text-lg font-semibold">
+                {listing.handoverFee
+                  ? `¥${listing.handoverFee.toLocaleString()}`
+                  : '未設定'}
               </p>
             </div>
+          </div>
+
+          {/* Furniture list */}
+          {furnitureCount > 0 && (
+            <div className="mt-6 border-t border-border pt-4">
+              <p className="mb-2 text-sm font-medium text-muted-foreground">
+                引き継ぎ家具
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {listing.furniture?.map((id) => (
+                  <span
+                    key={id}
+                    className="rounded-full bg-muted px-3 py-1 text-sm text-foreground"
+                  >
+                    {furnitureLabels[id] || id}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Thumbnail */}
+          {photoCount > 0 && listing.roomPhotos?.[0] && (
+            <div className="mt-6 overflow-hidden rounded-lg">
+              <img
+                src={listing.roomPhotos[0]}
+                alt={listing.title || 'プレビュー'}
+                className="h-48 w-full object-cover"
+              />
+              {photoCount > 1 && (
+                <p className="mt-1 text-center text-xs text-muted-foreground">
+                  他 {photoCount - 1} 枚の写真
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Publish action */}
+        {!isPublished && (
+          <div className="mt-8 rounded-xl border border-border bg-card p-6 text-center">
+            <p className="mb-4 text-sm text-muted-foreground">
+              内容を確認したら公開しましょう
+            </p>
             <Button
               onClick={handlePublish}
               disabled={isPublishing}
-              className="rounded-lg bg-[#E61E4D] hover:bg-[#D01346] text-white px-8 py-3 h-12 text-base font-medium"
+              className="h-12 rounded-lg bg-[#E61E4D] px-8 text-base font-medium text-white hover:bg-[#D01346]"
             >
               {isPublishing ? '公開中...' : '公開する'}
             </Button>
           </div>
-        </footer>
-      )}
+        )}
+      </main>
     </div>
   );
 }
