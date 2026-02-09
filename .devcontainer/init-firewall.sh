@@ -128,7 +128,11 @@ iptables -P OUTPUT DROP
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 
-# Then allow only specific outbound traffic to allowed domains
+# Allow outbound HTTP/HTTPS to all destinations (for web fetching, docs, etc.)
+iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT
+
+# Then allow only specific outbound traffic to allowed domains (non-HTTP protocols)
 iptables -A OUTPUT -m set --match-set allowed-domains dst -j ACCEPT
 
 # Explicitly REJECT all other outbound traffic for immediate feedback
@@ -136,11 +140,12 @@ iptables -A OUTPUT -j REJECT --reject-with icmp-admin-prohibited
 
 echo "Firewall configuration complete"
 echo "Verifying firewall rules..."
-if curl --connect-timeout 5 https://example.com >/dev/null 2>&1; then
-    echo "ERROR: Firewall verification failed - was able to reach https://example.com"
+# HTTP/HTTPS are intentionally open; verify non-HTTP traffic to unlisted hosts is blocked
+if nc -z -w 5 example.com 9999 2>/dev/null; then
+    echo "ERROR: Firewall verification failed - was able to reach example.com:9999"
     exit 1
 else
-    echo "Firewall verification passed - unable to reach https://example.com as expected"
+    echo "Firewall verification passed - non-HTTP traffic to unlisted hosts blocked as expected"
 fi
 
 # Verify GitHub API access
