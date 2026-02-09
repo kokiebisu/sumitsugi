@@ -1,6 +1,6 @@
 # MVP実装ロードマップ
 
-技術会議（2026-02-06）で合意。座談会#8・#9の追加決定を反映。技術会議#12でT-7/T-8反映（2026-02-07更新）。
+技術会議（2026-02-06）で合意。座談会#8・#9の追加決定を反映。技術会議#12でT-7/T-8反映（2026-02-07更新）。技術会議#13でCAIO推奨データ設計追加（2026-02-09更新）。
 
 ---
 
@@ -10,7 +10,8 @@ Phase 0: インフラ整備（1週間）
 │   ├── properties: moveOutDate, moveOutReason, managementCompanyName, managementConsultedAt, pdfUrls, coreSetPrice追加
 │   ├── properties: landlordConsent boolean→JSONB構造化（破壊的変更・データ変換SQL付き）
 │   ├── properties: furniture text[]→furnitureItems JSONB（破壊的変更・FurnitureItem[]化）
-│   ├── inquiries: duration, agreedFurnitureIds, viewingDate追加
+│   ├── inquiries: duration, agreedFurnitureIds, viewingDate, userPreferences(JSONB)追加 ← 技術会議#13 CAIO推奨
+│   ├── properties: tasteCategory(enum型)追加 ← 技術会議#13 CAIO推奨（将来AIマッチング用）
 │   └── threads/messagesテーブル新規作成（T-5スキーマ先行作成・実装はPhase 3）
 ├── Resendメールテンプレート基盤
 └── @react-pdf/renderer セットアップ + 日本語フォント + POC検証
