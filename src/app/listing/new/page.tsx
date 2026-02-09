@@ -203,7 +203,7 @@ export default function NewListingPage() {
     return `${formatDate(start)}以降`;
   };
 
-  const saveListing = async (status: 'published' | 'draft') => {
+  const saveListing = async (status: 'public' | 'draft') => {
     setIsSaving(true);
     setSaveError(null);
     try {
@@ -213,6 +213,7 @@ export default function NewListingPage() {
         body: JSON.stringify({
           title: generateTitle(),
           images: roomPhotos,
+          status,
           handoverFee: handoverFee ? parseInt(handoverFee, 10) : undefined,
           rent: rent ? parseInt(rent, 10) : undefined,
           managementFee: managementFee
@@ -1494,7 +1495,7 @@ export default function NewListingPage() {
             <Button
               onClick={() => {
                 setShowGracePeriodWarning(false);
-                saveListing('published');
+                saveListing('public');
               }}
             >
               このまま公開する

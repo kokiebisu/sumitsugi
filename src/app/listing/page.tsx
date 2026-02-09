@@ -259,8 +259,8 @@ export default function ListingPage() {
       if (res.ok) {
         setUserListings((prev) => prev.filter((l) => l.id !== id));
       }
-    } catch {
-      setUserListings((prev) => prev.filter((l) => l.id !== id));
+    } catch (error) {
+      console.error('Failed to delete listing:', error);
     }
   };
 
