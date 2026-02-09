@@ -293,7 +293,7 @@ Deadlines are derived top-down from the roadmap (`docs/design/roadmap.md`), not 
 - [ ] タスクリスト（期限付き）を大株主が承認
 - [ ] `bd create` でBeadsタスク作成
 - [ ] Linear同期でLinearに登録
-- [ ] **Linearに期限と根拠を設定**（`scripts/linear-set-deadlines.py` を更新＆実行、または直接APIで設定）
+- [ ] **Linearに期限と根拠を設定**（Linear APIで直接設定、または `./scripts/linear-comment.sh` で根拠をコメント追加）
 - [ ] 開発セッションで実装開始
 
 ---
