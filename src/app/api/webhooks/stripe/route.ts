@@ -2,18 +2,18 @@ import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/server';
 import { STRIPE_CONFIG } from '@/lib/stripe/config';
 import { db } from '@/db';
-import { payments } from '@/db/schema';
+import { payments, stripeAccounts } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { processApplicationFeeTransfer } from '@/app/actions/payment';
 import type Stripe from 'stripe';
 
 /**
- * Stripe webhook handler for payment events
- * Handles payment_intent.succeeded, payment_intent.payment_failed, and transfer events
+ * Stripe webhook handler for payment and Connect events
+ * Handles: payment_intent.succeeded, payment_intent.payment_failed,
+ *          account.updated, transfer.created, transfer.updated
  */
 export async function POST(request: Request) {
   try {
-    // Get signature from headers
     const signature = request.headers.get('stripe-signature');
     if (!signature) {
       return NextResponse.json(
@@ -22,7 +22,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Verify webhook secret is configured
     if (!STRIPE_CONFIG.webhookSecret) {
       return NextResponse.json(
         { error: 'Webhook secret not configured' },
@@ -30,10 +29,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Get raw body for signature verification
     const body = await request.text();
 
-    // Verify webhook signature
     let event: Stripe.Event;
     try {
       event = stripe.webhooks.constructEvent(
@@ -48,7 +45,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Handle event types
     try {
       switch (event.type) {
         case 'payment_intent.succeeded': {
@@ -63,27 +59,27 @@ export async function POST(request: Request) {
           break;
         }
 
-        case 'transfer.created': {
-          const transfer = event.data.object as Stripe.Transfer;
-          console.log('Transfer created:', transfer);
+        case 'account.updated': {
+          const account = event.data.object as Stripe.Account;
+          await handleAccountUpdated(account);
           break;
         }
 
+        case 'transfer.created':
         case 'transfer.updated': {
-          const transfer = event.data.object as Stripe.Transfer;
-          console.log('Transfer updated:', transfer);
+          // Transfer events are acknowledged but require no action
+          // Transfer status is tracked via payment records
           break;
         }
 
         default: {
-          // Unhandled event type - log and continue
-          // This is intentional - we don't want to fail on unhandled events
+          // Unhandled event type - acknowledge receipt without processing
+          break;
         }
       }
 
       return NextResponse.json({ received: true });
     } catch (error) {
-      // Handle payment not found errors with 404
       if (
         error instanceof Error &&
         error.message.includes('Payment not found')
@@ -91,10 +87,9 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: error.message }, { status: 404 });
       }
 
-      // All other errors return 500
       throw error;
     }
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Webhook handler failed' },
       { status: 500 }
@@ -104,13 +99,11 @@ export async function POST(request: Request) {
 
 /**
  * Handle successful payment intent
- * - Update payment status to succeeded
- * - For application_fee: trigger automatic transfer to previous tenant
+ * Updates payment status and triggers transfer for application fees
  */
 async function handlePaymentIntentSucceeded(
   paymentIntent: Stripe.PaymentIntent
 ): Promise<void> {
-  // Find payment in database
   const payment = await db.query.payments.findFirst({
     where: eq(payments.stripePaymentIntentId, paymentIntent.id),
   });
@@ -119,7 +112,6 @@ async function handlePaymentIntentSucceeded(
     throw new Error(`Payment not found for PaymentIntent: ${paymentIntent.id}`);
   }
 
-  // Update payment status
   await db
     .update(payments)
     .set({
@@ -128,7 +120,6 @@ async function handlePaymentIntentSucceeded(
     })
     .where(eq(payments.id, payment.id));
 
-  // For application fee payments, automatically trigger transfer
   if (payment.type === 'application_fee') {
     await processApplicationFeeTransfer(payment.id);
   }
@@ -136,13 +127,11 @@ async function handlePaymentIntentSucceeded(
 
 /**
  * Handle failed payment intent
- * - Update payment status to failed
- * - Store failure reason in metadata
+ * Updates payment status with failure reason
  */
 async function handlePaymentIntentFailed(
   paymentIntent: Stripe.PaymentIntent
 ): Promise<void> {
-  // Find payment in database
   const payment = await db.query.payments.findFirst({
     where: eq(payments.stripePaymentIntentId, paymentIntent.id),
   });
@@ -151,7 +140,6 @@ async function handlePaymentIntentFailed(
     throw new Error(`Payment not found for PaymentIntent: ${paymentIntent.id}`);
   }
 
-  // Update payment status with failure reason
   await db
     .update(payments)
     .set({
@@ -164,4 +152,29 @@ async function handlePaymentIntentFailed(
       updatedAt: new Date(),
     })
     .where(eq(payments.id, payment.id));
+}
+
+/**
+ * Handle Connected Account updates from Stripe Connect
+ * Syncs capability flags (charges_enabled, payouts_enabled, details_submitted)
+ */
+async function handleAccountUpdated(account: Stripe.Account): Promise<void> {
+  const existingAccount = await db.query.stripeAccounts.findFirst({
+    where: eq(stripeAccounts.stripeAccountId, account.id),
+  });
+
+  if (!existingAccount) {
+    // Account not tracked in our system - skip silently
+    return;
+  }
+
+  await db
+    .update(stripeAccounts)
+    .set({
+      chargesEnabled: account.charges_enabled ?? false,
+      payoutsEnabled: account.payouts_enabled ?? false,
+      detailsSubmitted: account.details_submitted ?? false,
+      updatedAt: new Date(),
+    })
+    .where(eq(stripeAccounts.id, existingAccount.id));
 }
