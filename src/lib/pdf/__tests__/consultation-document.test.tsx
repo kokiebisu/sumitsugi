@@ -84,7 +84,6 @@ describe('ConsultationDocument', () => {
     const json = JSON.stringify(element);
     // The header should NOT contain a standalone "tsumugi" text element as a logo
     // Header should only have property name and creation date
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const parsed = JSON.parse(json) as any;
     // Find the first view child of page (the header)
     const page = parsed.props.children;
@@ -98,7 +97,6 @@ describe('ConsultationDocument', () => {
     const element = ConsultationDocument(defaultProps);
     const json = JSON.stringify(element);
     // Header should show property name
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const parsed = JSON.parse(json) as any;
     const page = parsed.props.children;
     const header = page.props.children[0];
