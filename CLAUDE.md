@@ -62,7 +62,6 @@ Secret: `ANTHROPIC_AUTH_TOKEN`, env: `CLAUDE_CODE_OAUTH_TOKEN`
 
 - `.claude/PROJECT.md` — コンセプト・デザイン原則
 - `.claude/BUSINESS.md` — 料金体系・引き継ぎフロー
-- `docs/DESIGN_DOC.md` — アーキテクチャ・ロードマップ
 
 ## Current Phase
 
