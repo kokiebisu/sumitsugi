@@ -119,9 +119,11 @@ export async function POST(request: Request) {
     const url = await uploadWithRetry(pdfBuffer, 'consultation');
 
     return NextResponse.json({ success: true, url });
-  } catch {
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'Unknown error occurred';
     return NextResponse.json(
-      { error: 'PDF生成に失敗しました' },
+      { error: 'PDF生成に失敗しました', detail: message },
       { status: 500 }
     );
   }
