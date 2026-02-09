@@ -28,6 +28,7 @@ import {
 import { isUrgentMoveIn } from '@/lib/utils';
 import { UrgentMoveInBadge } from '@/components/urgent-move-in-badge';
 import { ConsentBadge } from '@/components/consent-badge';
+import { ConsentPendingBanner } from '@/components/consent-pending-banner';
 import { ReviewList } from '@/components/review-list';
 import { getPropertyReviews, getPropertyRating } from '@/lib/review-data';
 
@@ -131,6 +132,13 @@ export default async function PropertyDetailPage({
                     .filter(Boolean)
                     .join(' / ')}
                 </p>
+                {property.consentStatus === 'pending' && (
+                  <ConsentPendingBanner
+                    managementConsultedAt={property.managementConsultedAt}
+                    managementCompanyName={property.managementCompanyName}
+                    className="mt-4"
+                  />
+                )}
               </div>
 
               {/* Property Info Section */}
