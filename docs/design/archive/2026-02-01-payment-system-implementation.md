@@ -14,7 +14,7 @@
 - React Hook Form + Zod validation
 - shadcn/ui components
 
-**Design Reference:** See `docs/plans/2026-01-31-payment-system-design.md` for all business logic decisions.
+**Design Reference:** See `docs/design/features/payment.md` for all business logic decisions.
 
 ---
 
@@ -1575,20 +1575,17 @@ export async function POST(req: NextRequest) {
 
 **Step 2: Configure webhook in Stripe Dashboard**
 
-Create: `docs/plans/stripe-webhook-setup.md`
+Note: Webhook setup documentation is now included in the payment design doc.
 
-````markdown
-# Stripe Webhook Setup
-
-## Development (Stripe CLI)
+Webhook configuration:
 
 1. Install Stripe CLI: https://stripe.com/docs/stripe-cli
 2. Login: `stripe login`
 3. Forward webhooks:
+
    ```bash
    stripe listen --forward-to localhost:3000/api/webhooks/stripe
    ```
-````
 
 4. Copy webhook signing secret to `.env.local`:
    ```
@@ -1611,7 +1608,7 @@ Create: `docs/plans/stripe-webhook-setup.md`
 **Step 3: Commit**
 
 ```bash
-git add src/app/api/webhooks/stripe/ docs/plans/stripe-webhook-setup.md
+git add src/app/api/webhooks/stripe/
 git commit -m "feat: add Stripe webhook handler
 
 - Handle payment_intent.succeeded: Update status + trigger transfers
@@ -1896,7 +1893,7 @@ git commit -m "docs: update implementation status and add deployment guide
 
 ## Execution Options
 
-Plan complete and saved to `docs/plans/2026-02-01-payment-system-implementation.md`.
+Plan complete and saved to `docs/design/archive/2026-02-01-payment-system-implementation.md`.
 
 **Two execution approaches:**
 

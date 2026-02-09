@@ -618,8 +618,8 @@ DROP TABLE stripe_accounts;
 
 - **Stripe Documentation**: https://stripe.com/docs
 - **Stripe Connect Guide**: https://stripe.com/docs/connect
-- **Webhook Setup Guide**: [docs/plans/stripe-webhook-setup.md](./plans/stripe-webhook-setup.md)
-- **Payment System Design**: [docs/plans/2026-01-31-payment-system-design.md](./plans/2026-01-31-payment-system-design.md)
+- **Webhook Setup Guide**: Included in Payment System Design
+- **Payment System Design**: [docs/design/features/payment.md](./design/features/payment.md)
 - **Drizzle ORM**: https://orm.drizzle.team/docs/overview
 
 ## Post-Deployment Checklist

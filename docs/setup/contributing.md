@@ -602,4 +602,4 @@ See [Beads documentation](https://github.com/steveyegge/beads) for details.
 - `.claude/BUSINESS.md` - Business logic specification
 - `.claude/rules/` - Development rules and workflows
 - `.devcontainer/WORKTREE.md` - Git worktree documentation
-- `docs/RUNBOOK.md` - Operations and deployment guide
+- `docs/setup/runbook.md` - Operations and deployment guide

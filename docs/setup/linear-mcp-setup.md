@@ -62,7 +62,7 @@ Added to `.env.local`:
 - Replaced complex inline commands with simple script calls
 - Updated FAQ section
 
-**docs/LINEAR_INTEGRATION.md**
+**docs/setup/linear-integration.md**
 
 - Comprehensive integration guide
 - Setup instructions
@@ -133,8 +133,8 @@ Added to `.env.local`:
 - `scripts/linear-list.sh` - List open tasks
 - `scripts/linear-done.sh` - Mark tasks as done
 - `scripts/linear-comment.sh` - Add task comments
-- `docs/LINEAR_INTEGRATION.md` - Comprehensive integration guide
-- `docs/LINEAR_MCP_SETUP_SUMMARY.md` - This file
+- `docs/setup/linear-integration.md` - Comprehensive integration guide
+- `docs/setup/linear-mcp-setup.md` - This file
 
 ## Next Steps
 
@@ -169,6 +169,6 @@ If Linear integration doesn't work:
 
 ## References
 
-- [Linear MCP Integration Guide](./LINEAR_INTEGRATION.md)
+- [Linear MCP Integration Guide](./linear-integration.md)
 - [Task Management Rules](../.claude/rules/task-management.md)
 - [Linear API Documentation](https://developers.linear.app/docs/graphql/working-with-the-graphql-api)

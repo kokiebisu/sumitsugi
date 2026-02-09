@@ -21,7 +21,7 @@ Automated daily cleanup system that identifies and removes irrelevant files acro
 
 **Tier 2: Archive & Delayed Deletion (AI-Assisted)**
 
-- **Targets:** Documentation files in `docs/plans/`, `.claude/notes/`, old design docs
+- **Targets:** Documentation files in `docs/design/archive/`, `.claude/notes/`, old design docs
 - **Detection:** Claude API analyzes content against git history and current codebase state
 - **Action:** Move to `.archive/YYYY-MM-DD/`, delete after 30 days
 - **Risk:** Medium (may contain useful context, so we archive first)
@@ -149,7 +149,7 @@ Runs on the 1st of each month, deletes `.archive/*` folders older than 30 days.
     "exclude": ["README.md", "CLAUDE.md", "LICENSE"]
   },
   "tier2": {
-    "target_paths": ["docs/plans/", ".claude/notes/"],
+    "target_paths": ["docs/design/archive/", ".claude/notes/"],
     "age_threshold_days": 90,
     "archive_retention_days": 30,
     "ai_model": "claude-sonnet-4-20250514"
@@ -214,7 +214,7 @@ npm run cleanup:manual
 
 ## Tier 2: Archived
 
-- 📦 docs/plans/2026-01-15-old-feature.md → .archive/2026-02-02/
+- 📦 docs/design/archive/2026-01-15-old-feature.md → .archive/2026-02-02/
   Reason: Feature completed in commit abc123
 
 ## Tier 3: Dead Code Review

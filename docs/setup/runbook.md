@@ -745,8 +745,8 @@ psql $DATABASE_URL < backup-20260202.sql
 
 ## Related Documentation
 
-- `docs/CONTRIB.md` - Development and contribution guide
+- `docs/setup/contributing.md` - Development and contribution guide
 - `CLAUDE.md` - Project memory bank with quick reference
 - `.claude/PROJECT.md` - Project specification
 - `.claude/BUSINESS.md` - Business logic specification
-- `docs/DEPLOYMENT.md` - Detailed deployment guide
+- `docs/setup/deployment.md` - Detailed deployment guide
