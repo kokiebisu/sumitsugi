@@ -106,9 +106,9 @@ If you want changes, respond with:
 
 After planning:
 
-- Use `/tdd` to implement with test-driven development
-- Use `/build-and-fix` if build errors occur
-- Use `/code-review` to review completed implementation
+- Use `tdd-workflow` skill to implement with test-driven development
+- Use `build-fix` skill if build errors occur
+- Use `code-reviewer` agent to review completed implementation
 
 ## Related Agents
 
