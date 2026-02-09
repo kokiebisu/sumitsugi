@@ -109,6 +109,8 @@ For each **Dev** task, use `subagent_type: "general-purpose"` with this prompt:
 ````
 You are implementing a development task for the tsumugi project (Next.js/TypeScript/Bun).
 
+First, determine the project root: REPO_ROOT=$(git rev-parse --show-toplevel)
+
 ## Task
 **ID:** {task.id}
 **Title:** {task.title}
@@ -119,10 +121,10 @@ You are implementing a development task for the tsumugi project (Next.js/TypeScr
 
 ### Step 1: Create worktree
 ```bash
-cd /workspace && bun run worktree:create work-{task.id}
-````
+cd $(git rev-parse --show-toplevel) && bun run worktree:create work-{task.id}
+```
 
-Then navigate: `cd /workspace/.worktrees/work-{task.id}`
+Then navigate: `cd $(git rev-parse --show-toplevel)/.worktrees/work-{task.id}`
 
 ### Step 2: Understand context
 
@@ -212,16 +214,16 @@ gh pr merge <pr-number> --squash --delete-branch
 
 ### Step 9: Cleanup worktree (3 SEPARATE Bash calls - NEVER chain)
 
-Call 1: `cd /workspace`
-Call 2: `git worktree remove /workspace/.worktrees/work-{task.id}`
+Call 1: `cd $(git rev-parse --show-toplevel)`
+Call 2: `git worktree remove $(git rev-parse --show-toplevel)/.worktrees/work-{task.id}`
 Call 3: `git pull origin main`
 
 ### Step 10: Mark done
 
 ```bash
-source /workspace/.env.local
+source $(git rev-parse --show-toplevel)/.env.local
 bd close {task.id}
-/workspace/scripts/linear-done.sh {linear-identifier}
+$(git rev-parse --show-toplevel)/scripts/linear-done.sh {linear-identifier}
 ```
 
 ### Constraints
@@ -231,16 +233,16 @@ bd close {task.id}
 - Must pass all existing tests
 - Follow existing code patterns in the project
 - Do NOT modify unrelated files
-
-```
+````
 
 ### Business Agent Prompt Template
 
 For each **Business** task, use `subagent_type: "general-purpose"` with this prompt:
 
-```
-
+````
 You are executing a business task for the tsumugi project.
+
+First, determine the project root: REPO_ROOT=$(git rev-parse --show-toplevel)
 
 ## Task
 
@@ -266,10 +268,10 @@ Use these for context on the project's direction and goals.
 ### Step 1: Create worktree
 
 ```bash
-cd /workspace && bun run worktree:create work-{task.id}
+cd $(git rev-parse --show-toplevel) && bun run worktree:create work-{task.id}
 ```
 
-Then navigate: `cd /workspace/.worktrees/work-{task.id}`
+Then navigate: `cd $(git rev-parse --show-toplevel)/.worktrees/work-{task.id}`
 
 ### Step 2: Analyze the task
 
@@ -338,25 +340,25 @@ gh pr merge <pr-number> --squash --delete-branch
 
 ### Step 8: Cleanup worktree (3 SEPARATE Bash calls)
 
-Call 1: `cd /workspace`
-Call 2: `git worktree remove /workspace/.worktrees/work-{task.id}`
+Call 1: `cd $(git rev-parse --show-toplevel)`
+Call 2: `git worktree remove $(git rev-parse --show-toplevel)/.worktrees/work-{task.id}`
 Call 3: `git pull origin main`
 
 ### Step 9: Mark done
 
 ```bash
-source /workspace/.env.local
+source $(git rev-parse --show-toplevel)/.env.local
 bd close {task.id}
-/workspace/scripts/linear-done.sh {linear-identifier}
+$(git rev-parse --show-toplevel)/scripts/linear-done.sh {linear-identifier}
 ```
-
-```
+````
 
 ---
 
 ## Phase 5: Monitoring
 
 As sub-agents complete, collect their results. For each:
+
 - **Success**: Note the PR URL, merge status, and Ralph Loop iterations needed
 - **Failure**: Note the reason (CI failure after max retries, merge conflict, etc.)
 
@@ -379,14 +381,14 @@ After all agents in the current batch complete, print a batch summary:
 | 3   | Dev  | tsumugi-zzz | ...   | Failed | #125 | 5 (max)     |
 
 Batch: N/M completed
-
-````
+```
 
 Sync to Linear after each batch:
+
 ```bash
-source /workspace/.env.local
-bd linear sync --push --create-only && /workspace/scripts/linear-set-project.sh
-````
+source $(git rev-parse --show-toplevel)/.env.local
+bd linear sync --push --create-only && $(git rev-parse --show-toplevel)/scripts/linear-set-project.sh
+```
 
 **Then return to Phase 1 to pick the next batch.** The loop continues until no eligible tasks remain.
 
