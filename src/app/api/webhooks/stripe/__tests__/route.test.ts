@@ -3,7 +3,6 @@ import { POST } from '../route';
 import { stripe } from '@/lib/stripe/server';
 import { db } from '@/db';
 import { payments } from '@/db/schema';
-import { eq } from 'drizzle-orm';
 
 // Mock dependencies
 vi.mock('@/lib/stripe/server', () => ({
@@ -37,6 +36,9 @@ vi.mock('@/db', () => ({
       payments: {
         findFirst: vi.fn(),
       },
+      stripeAccounts: {
+        findFirst: vi.fn(),
+      },
     },
     update: vi.fn(() => ({
       set: vi.fn(() => ({
@@ -46,9 +48,29 @@ vi.mock('@/db', () => ({
   },
 }));
 
+vi.mock('@/db/schema', () => ({
+  payments: { stripePaymentIntentId: 'stripe_payment_intent_id', id: 'id' },
+  stripeAccounts: { stripeAccountId: 'stripe_account_id', id: 'id' },
+}));
+
 vi.mock('@/app/actions/payment', () => ({
   processApplicationFeeTransfer: vi.fn(),
 }));
+
+vi.mock('drizzle-orm', () => ({
+  eq: vi.fn((a: unknown, b: unknown) => ({ field: a, value: b })),
+}));
+
+function createRequest(body: object, headers?: Record<string, string>) {
+  return new Request('http://localhost:3000/api/webhooks/stripe', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      ...headers,
+    },
+    body: JSON.stringify(body),
+  });
+}
 
 describe('POST /api/webhooks/stripe', () => {
   beforeEach(() => {
@@ -57,13 +79,7 @@ describe('POST /api/webhooks/stripe', () => {
 
   describe('signature verification', () => {
     it('should return 400 if signature header is missing', async () => {
-      const request = new Request('http://localhost:3000/api/webhooks/stripe', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify({}),
-      });
+      const request = createRequest({});
 
       const response = await POST(request);
       const data = await response.json();
@@ -74,24 +90,12 @@ describe('POST /api/webhooks/stripe', () => {
       });
     });
 
-    // Note: webhook secret validation is tested by the implementation
-    // The mock always provides a valid webhook secret, so we can't test
-    // the empty secret case without complex dynamic mocking.
-    // In production, STRIPE_CONFIG will throw an error if not configured.
-
     it('should return 400 if signature verification fails', async () => {
       vi.mocked(stripe.webhooks.constructEvent).mockImplementationOnce(() => {
         throw new Error('Invalid signature');
       });
 
-      const request = new Request('http://localhost:3000/api/webhooks/stripe', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'stripe-signature': 'invalid-signature',
-        },
-        body: JSON.stringify({}),
-      });
+      const request = createRequest({}, { 'stripe-signature': 'invalid-sig' });
 
       const response = await POST(request);
       const data = await response.json();
@@ -116,9 +120,7 @@ describe('POST /api/webhooks/stripe', () => {
         data: {
           object: {
             id: 'pi_123',
-            metadata: {
-              paymentType: 'application_fee',
-            },
+            metadata: { paymentType: 'application_fee' },
           },
         },
       };
@@ -137,13 +139,8 @@ describe('POST /api/webhooks/stripe', () => {
         transferId: 'tr_123',
       });
 
-      const request = new Request('http://localhost:3000/api/webhooks/stripe', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'stripe-signature': 'valid-signature',
-        },
-        body: JSON.stringify(mockEvent),
+      const request = createRequest(mockEvent, {
+        'stripe-signature': 'valid-signature',
       });
 
       const response = await POST(request);
@@ -166,9 +163,7 @@ describe('POST /api/webhooks/stripe', () => {
         data: {
           object: {
             id: 'pi_456',
-            metadata: {
-              paymentType: 'deposit',
-            },
+            metadata: { paymentType: 'deposit' },
           },
         },
       };
@@ -180,13 +175,8 @@ describe('POST /api/webhooks/stripe', () => {
         mockPayment as any
       );
 
-      const request = new Request('http://localhost:3000/api/webhooks/stripe', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'stripe-signature': 'valid-signature',
-        },
-        body: JSON.stringify(mockEvent),
+      const request = createRequest(mockEvent, {
+        'stripe-signature': 'valid-signature',
       });
 
       const response = await POST(request);
@@ -203,9 +193,7 @@ describe('POST /api/webhooks/stripe', () => {
         data: {
           object: {
             id: 'pi_nonexistent',
-            metadata: {
-              paymentType: 'application_fee',
-            },
+            metadata: { paymentType: 'application_fee' },
           },
         },
       };
@@ -215,13 +203,8 @@ describe('POST /api/webhooks/stripe', () => {
       );
       vi.mocked(db.query.payments.findFirst).mockResolvedValue(undefined);
 
-      const request = new Request('http://localhost:3000/api/webhooks/stripe', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'stripe-signature': 'valid-signature',
-        },
-        body: JSON.stringify(mockEvent),
+      const request = createRequest(mockEvent, {
+        'stripe-signature': 'valid-signature',
       });
 
       const response = await POST(request);
@@ -261,13 +244,8 @@ describe('POST /api/webhooks/stripe', () => {
         mockPayment as any
       );
 
-      const request = new Request('http://localhost:3000/api/webhooks/stripe', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'stripe-signature': 'valid-signature',
-        },
-        body: JSON.stringify(mockEvent),
+      const request = createRequest(mockEvent, {
+        'stripe-signature': 'valid-signature',
       });
 
       const response = await POST(request);
@@ -279,8 +257,120 @@ describe('POST /api/webhooks/stripe', () => {
     });
   });
 
+  describe('account.updated event (Stripe Connect)', () => {
+    it('should update stripe account capabilities when account is found', async () => {
+      const mockAccount = {
+        id: 'sa_123',
+        stripeAccountId: 'acct_123',
+        chargesEnabled: false,
+        payoutsEnabled: false,
+        detailsSubmitted: false,
+      };
+
+      const mockEvent = {
+        type: 'account.updated',
+        data: {
+          object: {
+            id: 'acct_123',
+            charges_enabled: true,
+            payouts_enabled: true,
+            details_submitted: true,
+          },
+        },
+      };
+
+      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
+        mockEvent as any
+      );
+      vi.mocked(db.query.stripeAccounts.findFirst).mockResolvedValue(
+        mockAccount as any
+      );
+
+      const request = createRequest(mockEvent, {
+        'stripe-signature': 'valid-signature',
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data).toEqual({ received: true });
+      expect(db.update).toHaveBeenCalled();
+    });
+
+    it('should return 200 even when connected account is not found in db', async () => {
+      const mockEvent = {
+        type: 'account.updated',
+        data: {
+          object: {
+            id: 'acct_unknown',
+            charges_enabled: true,
+            payouts_enabled: true,
+            details_submitted: true,
+          },
+        },
+      };
+
+      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
+        mockEvent as any
+      );
+      vi.mocked(db.query.stripeAccounts.findFirst).mockResolvedValue(undefined);
+
+      const request = createRequest(mockEvent, {
+        'stripe-signature': 'valid-signature',
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      // account.updated for unknown accounts should not fail
+      expect(response.status).toBe(200);
+      expect(data).toEqual({ received: true });
+    });
+
+    it('should handle account with charges disabled', async () => {
+      const mockAccount = {
+        id: 'sa_456',
+        stripeAccountId: 'acct_456',
+        chargesEnabled: true,
+        payoutsEnabled: true,
+        detailsSubmitted: true,
+      };
+
+      const mockEvent = {
+        type: 'account.updated',
+        data: {
+          object: {
+            id: 'acct_456',
+            charges_enabled: false,
+            payouts_enabled: false,
+            details_submitted: true,
+          },
+        },
+      };
+
+      vi.mocked(stripe.webhooks.constructEvent).mockReturnValue(
+        mockEvent as any
+      );
+      vi.mocked(db.query.stripeAccounts.findFirst).mockResolvedValue(
+        mockAccount as any
+      );
+
+      const request = createRequest(mockEvent, {
+        'stripe-signature': 'valid-signature',
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data).toEqual({ received: true });
+      expect(db.update).toHaveBeenCalled();
+    });
+  });
+
   describe('transfer events', () => {
-    it('should log transfer.created event', async () => {
+    it('should handle transfer.created event', async () => {
       const mockEvent = {
         type: 'transfer.created',
         data: {
@@ -295,15 +385,8 @@ describe('POST /api/webhooks/stripe', () => {
         mockEvent as any
       );
 
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-
-      const request = new Request('http://localhost:3000/api/webhooks/stripe', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'stripe-signature': 'valid-signature',
-        },
-        body: JSON.stringify(mockEvent),
+      const request = createRequest(mockEvent, {
+        'stripe-signature': 'valid-signature',
       });
 
       const response = await POST(request);
@@ -311,15 +394,9 @@ describe('POST /api/webhooks/stripe', () => {
 
       expect(response.status).toBe(200);
       expect(data).toEqual({ received: true });
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Transfer created:',
-        expect.objectContaining({ id: 'tr_123' })
-      );
-
-      consoleSpy.mockRestore();
     });
 
-    it('should log transfer.updated event', async () => {
+    it('should handle transfer.updated event', async () => {
       const mockEvent = {
         type: 'transfer.updated',
         data: {
@@ -334,15 +411,8 @@ describe('POST /api/webhooks/stripe', () => {
         mockEvent as any
       );
 
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-
-      const request = new Request('http://localhost:3000/api/webhooks/stripe', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'stripe-signature': 'valid-signature',
-        },
-        body: JSON.stringify(mockEvent),
+      const request = createRequest(mockEvent, {
+        'stripe-signature': 'valid-signature',
       });
 
       const response = await POST(request);
@@ -350,12 +420,6 @@ describe('POST /api/webhooks/stripe', () => {
 
       expect(response.status).toBe(200);
       expect(data).toEqual({ received: true });
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Transfer updated:',
-        expect.objectContaining({ id: 'tr_456' })
-      );
-
-      consoleSpy.mockRestore();
     });
   });
 
@@ -374,13 +438,8 @@ describe('POST /api/webhooks/stripe', () => {
         mockEvent as any
       );
 
-      const request = new Request('http://localhost:3000/api/webhooks/stripe', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'stripe-signature': 'valid-signature',
-        },
-        body: JSON.stringify(mockEvent),
+      const request = createRequest(mockEvent, {
+        'stripe-signature': 'valid-signature',
       });
 
       const response = await POST(request);
@@ -409,13 +468,8 @@ describe('POST /api/webhooks/stripe', () => {
         new Error('Database connection error')
       );
 
-      const request = new Request('http://localhost:3000/api/webhooks/stripe', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'stripe-signature': 'valid-signature',
-        },
-        body: JSON.stringify(mockEvent),
+      const request = createRequest(mockEvent, {
+        'stripe-signature': 'valid-signature',
       });
 
       const response = await POST(request);

@@ -5,10 +5,14 @@
  * ConsentFormテンプレートに必要なpropsを構築する。
  */
 
+import { createElement } from 'react';
 import type { ChecklistItem } from '../furniture-checklist';
 import { furnitureLabels } from '../data';
 import { CONDITION_LABELS } from '../pricing-guidance';
 import { isCoreFurniture, getLayerLabel } from '../furniture-layers';
+import { uploadImage, isStorageConfigured } from '../storage';
+import { ConsentForm } from './templates/consent-form';
+import { renderPdf } from './render';
 
 interface ConsentFurnitureItem {
   name: string;
@@ -78,4 +82,30 @@ export function buildConsentFormProps(
     furnitureItems: mapChecklistToConsentItems(input.checklistItems),
     createdDate,
   };
+}
+
+/**
+ * Generates a PDF buffer for the consent form.
+ */
+export async function generateConsentPdf(
+  input: BuildConsentFormInput
+): Promise<Buffer> {
+  const props = buildConsentFormProps(input);
+  const element = createElement(ConsentForm, props);
+  return renderPdf(element);
+}
+
+/**
+ * Generates a consent form PDF and uploads it to R2 storage.
+ * Returns the public URL of the uploaded PDF.
+ */
+export async function generateAndUploadConsentPdf(
+  input: BuildConsentFormInput
+): Promise<string> {
+  if (!isStorageConfigured()) {
+    throw new Error('ストレージが設定されていません');
+  }
+
+  const buffer = await generateConsentPdf(input);
+  return uploadImage(buffer, 'application/pdf');
 }

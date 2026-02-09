@@ -30,6 +30,9 @@ if (isServer && !isTest && !isBuild) {
   if (!STRIPE_CONFIG.secretKey) {
     throw new Error('Missing STRIPE_SECRET_KEY environment variable');
   }
+  if (!STRIPE_CONFIG.webhookSecret) {
+    throw new Error('Missing STRIPE_WEBHOOK_SECRET environment variable');
+  }
 }
 
 if (!isTest && !isBuild && !STRIPE_CONFIG.publishableKey) {
