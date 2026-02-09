@@ -2821,11 +2821,21 @@ export function convertUserListingToProperty(listing: UserListing): Property {
   };
 }
 
+/**
+ * Returns mock data only in development. In production, returns empty
+ * so that callers fall through to real API/database queries.
+ */
+function isMockEnabled(): boolean {
+  return process.env.NODE_ENV === 'development';
+}
+
 export function getPublicProperties(): Property[] {
+  if (!isMockEnabled()) return [];
   return properties.filter((p) => p.status === 'public');
 }
 
 export function getPropertyById(id: string): Property | undefined {
+  if (!isMockEnabled()) return undefined;
   return properties.find((p) => p.id === id);
 }
 
@@ -3016,6 +3026,7 @@ export const mockHandoverAgreements: HandoverAgreement[] = [
 
 // Inquiry functions
 export function getAllInquiries(): Inquiry[] {
+  if (!isMockEnabled()) return [];
   return inquiries.sort(
     (a, b) =>
       new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
@@ -3023,6 +3034,7 @@ export function getAllInquiries(): Inquiry[] {
 }
 
 export function getInquiriesByProperty(propertyId: string): Inquiry[] {
+  if (!isMockEnabled()) return [];
   return inquiries
     .filter((inq) => inq.propertyId === propertyId)
     .sort(
@@ -3032,11 +3044,13 @@ export function getInquiriesByProperty(propertyId: string): Inquiry[] {
 }
 
 export function getInquiryById(id: string): Inquiry | undefined {
+  if (!isMockEnabled()) return undefined;
   return inquiries.find((inq) => inq.id === id);
 }
 
 // Seller Listing functions
 export function getAllSellerListings(): SellerListing[] {
+  if (!isMockEnabled()) return [];
   return hostListings.sort(
     (a, b) =>
       new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
@@ -3044,5 +3058,6 @@ export function getAllSellerListings(): SellerListing[] {
 }
 
 export function getSellerListingById(id: string): SellerListing | undefined {
+  if (!isMockEnabled()) return undefined;
   return hostListings.find((listing) => listing.id === id);
 }
