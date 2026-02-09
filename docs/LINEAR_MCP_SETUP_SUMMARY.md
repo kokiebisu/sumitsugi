@@ -170,5 +170,5 @@ If Linear integration doesn't work:
 ## References
 
 - [Linear MCP Integration Guide](./LINEAR_INTEGRATION.md)
-- [Task Management Rules](./.claude/rules/task-management.md)
+- [Task Management Rules](../.claude/rules/task-management.md)
 - [Linear API Documentation](https://developers.linear.app/docs/graphql/working-with-the-graphql-api)
