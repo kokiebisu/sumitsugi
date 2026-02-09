@@ -117,4 +117,78 @@ describe('ConsultationDocument', () => {
     const json = JSON.stringify(element);
     expect(json).toContain('2026年2月7日');
   });
+
+  it('includes notes section, footer, and contact info', () => {
+    const element = ConsultationDocument(defaultProps);
+    const json = JSON.stringify(element);
+    expect(json).toContain('備考');
+    expect(json).toContain('内見');
+    expect(json).toContain('info@tsumugi.com');
+    expect(json).toContain('tsumugi. All rights reserved');
+    expect(json).toContain('https://tsumugi.com');
+  });
+
+  it('renders correctly with empty furniture list', () => {
+    const propsWithNoFurniture = { ...defaultProps, furnitureItems: [] };
+    const element = ConsultationDocument(propsWithNoFurniture);
+    expect(element).toBeTruthy();
+    const json = JSON.stringify(element);
+    expect(json).toContain('"children":["暫定家具リスト（",0,"点）"]');
+  });
+
+  it('renders correctly with single furniture item', () => {
+    const propsWithOne = {
+      ...defaultProps,
+      furnitureItems: [
+        { name: 'ベッド', category: 'コア', description: 'シングル' },
+      ],
+    };
+    const element = ConsultationDocument(propsWithOne);
+    const json = JSON.stringify(element);
+    expect(json).toContain('ベッド');
+    expect(json).toContain('"children":["暫定家具リスト（",1,"点）"]');
+  });
+
+  it('includes furniture categories and descriptions', () => {
+    const element = ConsultationDocument(defaultProps);
+    const json = JSON.stringify(element);
+    expect(json).toContain('コア');
+    expect(json).toContain('追加');
+    expect(json).toContain('3人掛け、良好');
+    expect(json).toContain('IKEA製');
+  });
+
+  it('includes all section headers and document title', () => {
+    const element = ConsultationDocument(defaultProps);
+    const json = JSON.stringify(element);
+    expect(json).toContain('残置物引き継ぎのご相談');
+    expect(json).toContain('物件情報');
+    expect(json).toContain('管理会社様へのお願い');
+  });
+
+  it('includes action step descriptions', () => {
+    const element = ConsultationDocument(defaultProps);
+    const json = JSON.stringify(element);
+    expect(json).toContain('本資料に記載の家具リスト');
+    expect(json).toContain('物件オーナー（大家）様');
+    expect(json).toContain('承認・条件付き承認・不承認');
+  });
+
+  it('includes table headers and property info labels', () => {
+    const element = ConsultationDocument(defaultProps);
+    const json = JSON.stringify(element);
+    expect(json).toContain('品名');
+    expect(json).toContain('カテゴリ');
+    expect(json).toContain('物件名');
+    expect(json).toContain('所在地');
+    expect(json).toContain('退去予定日');
+    expect(json).toContain('前の住人');
+  });
+
+  it('explains furniture list is provisional', () => {
+    const element = ConsultationDocument(defaultProps);
+    const json = JSON.stringify(element);
+    expect(json).toContain('暫定');
+    expect(json).toContain('最終的な引き継ぎ品目は合意時に確定');
+  });
 });
