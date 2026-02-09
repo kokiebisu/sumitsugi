@@ -4,15 +4,21 @@
 
 Use worktrees for ALL changes when other modified files exist in workspace. Skip only for clean-workspace trivial edits.
 
+**Branch naming:** Use conventional commit style: `<type>/<short-description>`
+
+- Examples: `feat/rental-cost-note`, `fix/pdf-header-alignment`, `docs/update-meeting-notes`
+- Types: `feat|fix|refactor|docs|test|chore|perf|ci`
+- PR titles must also use conventional commit format: `feat: add rental cost note`
+
 ```bash
-bun run worktree:create <name>        # Create
-cd /workspace/.worktrees/<name>       # Navigate
+bun run worktree:create <type>/<short-description>  # Create (conventional branch name)
+cd /workspace/.worktrees/<type>/<short-description>  # Navigate
 # ... work ...
 git add <specific-files>              # Stage explicitly (NEVER git add . or -A)
 git status                            # Verify before commit
 git commit -m "<type>: <desc>"        # Commit types: feat|fix|refactor|docs|test|chore|perf|ci
 git push -u origin HEAD
-gh pr create --title "..." --body "..."
+gh pr create --title "<type>: <desc>" --body "..."
 ```
 
 **Worktree cleanup — 3 SEPARATE Bash calls (NEVER chain):**
