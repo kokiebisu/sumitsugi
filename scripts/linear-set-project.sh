@@ -102,7 +102,7 @@ except: print('')
 
   # Also check title keywords as fallback heuristic
   if [ "$IS_BUSINESS" = "false" ]; then
-    if echo "$TITLE" | grep -qEi "ヒアリング|タグライン|予算|法律|法務|規約|管理会社.*リスト|パートナー|マーケティング|Twitter|投稿|メールアドレスを作成|提案資料|振り返り|Stripe.*申請|書類.*準備|予約.*相談"; then
+    if echo "$TITLE" | grep -qEi "ヒアリング|タグライン|予算|法律|法務|規約|管理会社.*リスト|パートナー|マーケティング|Twitter|投稿|メールアドレスを作成|提案資料|振り返り|Stripe.*申請|書類.*準備|予約.*相談|参加する|イベント|Venture|Cafe|Gathering|カンファレンス|セミナー|ミートアップ|告知|成功事例|フォローアップ|清掃費|物件登録目標|紹介プログラム|コンテンツマーケ|CAC|LTV|内覧.*調整|フィードバック収集|不動産関係者|引き継ぎ契約|エスクロー|オーナー説明|仲介会社|紹介フィー|オペレーション自動化"; then
       IS_BUSINESS=true
     fi
   fi
