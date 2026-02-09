@@ -36,7 +36,8 @@ const sellerSteps = [
   {
     icon: Building2,
     title: 'オーナー承認',
-    description: '管理会社経由でオーナーの承認を得ます。',
+    description:
+      '管理会社経由でオーナーの承認を得ます。tsumugiが説明資料を作成するので、手間はかかりません。',
     duration: '3〜5日',
   },
   {
