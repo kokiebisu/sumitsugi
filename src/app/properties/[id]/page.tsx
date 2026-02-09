@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowLeft, Calendar, MapPin } from 'lucide-react';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
+import { PriceComparison } from '@/components/listing/price-comparison';
 import { getPropertyById } from '@/lib/data';
 import { formatDateJa } from '@/lib/format';
 
@@ -60,6 +61,15 @@ export default async function PropertyDetailPage({
                   </p>
                 </div>
               )}
+
+              {property.furniture &&
+                property.furniture.length > 0 &&
+                property.handoverFee > 0 && (
+                  <PriceComparison
+                    furniture={property.furniture}
+                    handoverFee={property.handoverFee}
+                  />
+                )}
 
               {property.moveOutDate && (
                 <div className="rounded-lg border p-4">

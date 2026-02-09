@@ -153,6 +153,57 @@ test.describe('Property Detail - Different Property Types @properties @extended'
   });
 });
 
+test.describe('Property Detail - Price Comparison @properties @critical', () => {
+  test('should display price comparison when furniture and handover fee exist', async ({
+    propertyDetailPage,
+    page,
+  }) => {
+    // Bohemian property has furniture: ['bed', 'desk', 'storage'] and handoverFee: 60000
+    await propertyDetailPage.goto(testData.properties.bohemian);
+    await page.waitForLoadState('networkidle');
+
+    // Should display "新品で揃えた場合" comparison text
+    const comparisonText = page.locator('text=新品で揃えた場合');
+    await expect(comparisonText).toBeVisible({ timeout: 5000 });
+  });
+
+  test('should display new price total in man-yen format', async ({
+    propertyDetailPage,
+    page,
+  }) => {
+    await propertyDetailPage.goto(testData.properties.bohemian);
+    await page.waitForLoadState('networkidle');
+
+    // Should show the new price total in 万円 format
+    const priceText = page.locator('text=/約.*万円/');
+    await expect(priceText).toBeVisible({ timeout: 5000 });
+  });
+
+  test('should display discount rate percentage', async ({
+    propertyDetailPage,
+    page,
+  }) => {
+    await propertyDetailPage.goto(testData.properties.bohemian);
+    await page.waitForLoadState('networkidle');
+
+    // Should show discount rate text "新品の○%の価格で引き継ぎ"
+    const discountText = page.locator('text=/新品の.*%の価格で引き継ぎ/');
+    await expect(discountText).toBeVisible({ timeout: 5000 });
+  });
+
+  test('should display handover fee in comparison section', async ({
+    propertyDetailPage,
+    page,
+  }) => {
+    await propertyDetailPage.goto(testData.properties.bohemian);
+    await page.waitForLoadState('networkidle');
+
+    // Should show "おトク" savings text
+    const savingsText = page.locator('text=/おトク/');
+    await expect(savingsText).toBeVisible({ timeout: 5000 });
+  });
+});
+
 test.describe('Property Detail - Navigation Flow @properties @quarantine', () => {
   test('should navigate from home to detail and back', async ({
     homePage,
