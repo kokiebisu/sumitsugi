@@ -58,6 +58,16 @@ Secret: `ANTHROPIC_AUTH_TOKEN`, env: `CLAUDE_CODE_OAUTH_TOKEN`
 - `weekly-retrospective.yml` — 毎週日曜振り返り
 - 一時停止: `touch .github/PAUSE_AUTONOMOUS` or label `autonomous:pause`
 
+## Meeting Post-Processing (CRITICAL)
+
+`/meeting:product` 実施後は以下を必ず実行:
+
+1. 議事録を `docs/requirements/meetings/` に保存
+2. デルタサマリーを生成（要件変更がある場合）
+3. `docs/requirements/meetings/product-meeting-attendance.md` を更新
+4. `docs/requirements/features/` 内の関連ファイルに座談会参照リンクを追加
+5. **PRを作成してマージ**（docs変更のみのためauto-merge対象）
+
 ## Related Docs
 
 - `.claude/PROJECT.md` — コンセプト・デザイン原則
