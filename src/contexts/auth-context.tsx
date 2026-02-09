@@ -40,14 +40,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const LISTINGS_STORAGE_KEY = 'tsumugi_listings';
-const INQUIRIES_STORAGE_KEY = 'tsumugi_inquiries';
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   // better-auth session
   const { data: session, isPending: sessionLoading } = authClient.useSession();
 
-  // Local state for listings and inquiries (Phase 1: localStorage)
+  // Local state for listings and inquiries (dev: mock data, prod: empty - use APIs)
   const [listings, setListings] = useState<UserListing[]>([]);
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -69,77 +66,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isLoading = sessionLoading || !isInitialized;
 
-  // Initialize listings and inquiries from localStorage
+  // Initialize mock data in development only (no localStorage)
   useEffect(() => {
-    if (typeof window === 'undefined') {
-      setIsInitialized(true);
-      return;
-    }
-
-    // Load mock inquiries in development
     if (process.env.NODE_ENV === 'development') {
       setInquiries(mockInquiries);
-    } else {
-      // Load from localStorage in production
-      const storedInquiries = localStorage.getItem(INQUIRIES_STORAGE_KEY);
-      if (storedInquiries) {
-        try {
-          setInquiries(JSON.parse(storedInquiries) as Inquiry[]);
-        } catch {
-          localStorage.removeItem(INQUIRIES_STORAGE_KEY);
-        }
-      }
     }
-
-    // Load listings from localStorage
-    const storedListings = localStorage.getItem(LISTINGS_STORAGE_KEY);
-    if (storedListings) {
-      try {
-        setListings(JSON.parse(storedListings) as UserListing[]);
-      } catch {
-        localStorage.removeItem(LISTINGS_STORAGE_KEY);
-      }
-    }
-
     setIsInitialized(true);
   }, []);
-
-  // Persist listings to localStorage
-  useEffect(() => {
-    if (typeof window === 'undefined' || !isInitialized) return;
-    try {
-      localStorage.setItem(LISTINGS_STORAGE_KEY, JSON.stringify(listings));
-    } catch (e) {
-      console.warn('Failed to save listings with photos, trying without:', e);
-      try {
-        const listingsWithoutPhotos = listings.map((listing) => ({
-          ...listing,
-          roomPhotos: [],
-        }));
-        localStorage.setItem(
-          LISTINGS_STORAGE_KEY,
-          JSON.stringify(listingsWithoutPhotos)
-        );
-      } catch (e2) {
-        console.error('Failed to save listings to localStorage:', e2);
-      }
-    }
-  }, [listings, isInitialized]);
-
-  // Persist inquiries to localStorage
-  useEffect(() => {
-    if (
-      typeof window === 'undefined' ||
-      !isInitialized ||
-      process.env.NODE_ENV === 'development'
-    )
-      return;
-    try {
-      localStorage.setItem(INQUIRIES_STORAGE_KEY, JSON.stringify(inquiries));
-    } catch (e) {
-      console.error('Failed to save inquiries to localStorage:', e);
-    }
-  }, [inquiries, isInitialized]);
 
   // Send magic link
   const sendMagicLink = useCallback(
