@@ -1,0 +1,244 @@
+name: Autonomous PR Review & Merge
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to review and merge'
+        required: true
+        type: number
+
+concurrency:
+  group: autonomous-pr-review-${{ github.event.pull_request.number || inputs.pr_number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: read
+  checks: read
+  id-token: write
+
+jobs:
+  should-auto-review:
+    runs-on: ubuntu-latest
+    outputs:
+      should_review: ${{ steps.check.outputs.should_review }}
+      pr_number: ${{ steps.check.outputs.pr_number }}
+    steps:
+      - name: Determine if auto-review applies
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request?.number || ${{ inputs.pr_number || 0 }};
+            if (!prNumber) {
+              core.setOutput('should_review', 'false');
+              return;
+            }
+
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+
+            core.setOutput('pr_number', prNumber);
+
+            // Skip draft PRs
+            if (pr.draft) {
+              core.setOutput('should_review', 'false');
+              console.log('Skipping: PR is a draft');
+              return;
+            }
+
+            // Skip PRs with "no-auto-merge" label
+            const labels = pr.labels.map(l => l.name);
+            if (labels.includes('no-auto-merge')) {
+              core.setOutput('should_review', 'false');
+              console.log('Skipping: has no-auto-merge label');
+              return;
+            }
+
+            // Skip PRs that touch too many files (>10 files = needs human review)
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+
+            if (files.length > 10) {
+              core.setOutput('should_review', 'false');
+              console.log(`Skipping: ${files.length} files changed (>10, needs human review)`);
+              return;
+            }
+
+            // Skip PRs with breaking changes indicators
+            const breakingPatterns = ['BREAKING', 'breaking change', 'migration required'];
+            const hasBreaking = breakingPatterns.some(p =>
+              (pr.title + ' ' + (pr.body || '')).toLowerCase().includes(p.toLowerCase())
+            );
+            if (hasBreaking) {
+              core.setOutput('should_review', 'false');
+              console.log('Skipping: contains breaking change indicators');
+              return;
+            }
+
+            core.setOutput('should_review', 'true');
+
+  wait-for-ci:
+    needs: should-auto-review
+    if: needs.should-auto-review.outputs.should_review == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      ci_passed: ${{ steps.wait.outputs.ci_passed }}
+    steps:
+      - name: Wait for CI checks to complete
+        id: wait
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = ${{ needs.should-auto-review.outputs.pr_number }};
+            const maxWait = 15 * 60 * 1000; // 15 minutes
+            const pollInterval = 30 * 1000;  // 30 seconds
+            const startTime = Date.now();
+
+            while (Date.now() - startTime < maxWait) {
+              const { data: checks } = await github.rest.checks.listForRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: context.payload.pull_request?.head?.sha || '',
+              });
+
+              // Filter out this workflow's own checks
+              const ciChecks = checks.check_runs.filter(c =>
+                c.name !== 'should-auto-review' &&
+                c.name !== 'wait-for-ci' &&
+                c.name !== 'auto-review-and-merge'
+              );
+
+              if (ciChecks.length === 0) {
+                console.log('No CI checks found yet, waiting...');
+                await new Promise(r => setTimeout(r, pollInterval));
+                continue;
+              }
+
+              const allComplete = ciChecks.every(c => c.status === 'completed');
+              if (!allComplete) {
+                const pending = ciChecks.filter(c => c.status !== 'completed').map(c => c.name);
+                console.log(`Waiting for: ${pending.join(', ')}`);
+                await new Promise(r => setTimeout(r, pollInterval));
+                continue;
+              }
+
+              const allPassed = ciChecks.every(c =>
+                c.conclusion === 'success' || c.conclusion === 'skipped'
+              );
+
+              if (allPassed) {
+                console.log('All CI checks passed!');
+                core.setOutput('ci_passed', 'true');
+                return;
+              } else {
+                const failed = ciChecks
+                  .filter(c => c.conclusion !== 'success' && c.conclusion !== 'skipped')
+                  .map(c => `${c.name}: ${c.conclusion}`);
+                console.log(`CI failed: ${failed.join(', ')}`);
+                core.setOutput('ci_passed', 'false');
+                return;
+              }
+            }
+
+            console.log('Timed out waiting for CI');
+            core.setOutput('ci_passed', 'false');
+
+  auto-review-and-merge:
+    needs: [should-auto-review, wait-for-ci]
+    if: needs.wait-for-ci.outputs.ci_passed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run Claude Code Review
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+        run: |
+          npm install -g @anthropic-ai/claude-code
+
+          PR_NUMBER=${{ needs.should-auto-review.outputs.pr_number }}
+
+          REVIEW_PROMPT="Review PR #${PR_NUMBER}. Check for:
+          1. Security issues (secrets, injection, XSS)
+          2. Logic errors or bugs
+          3. Breaking changes not mentioned in PR
+          4. Test coverage for changed code
+          5. Adherence to project standards (immutability, small functions, no console.log)
+
+          If the PR is safe to merge, output exactly: VERDICT: APPROVE
+          If there are issues, output: VERDICT: REQUEST_CHANGES followed by the issues.
+          Be concise. Focus on real problems, not style nitpicks."
+
+          claude -p "$REVIEW_PROMPT" \
+            --allowedTools 'Bash(git diff:*,git log:*,git show:*,gh pr:*)' Read Glob Grep \
+            --max-turns 15 \
+            2>&1 | tee /tmp/review-output.txt
+
+      - name: Parse review verdict and act
+        env:
+          PR_NUMBER: ${{ needs.should-auto-review.outputs.pr_number }}
+        run: |
+          REVIEW=$(cat /tmp/review-output.txt)
+
+          if echo "$REVIEW" | grep -q "VERDICT: APPROVE"; then
+            echo "Review passed - approving and merging"
+
+            gh pr review "$PR_NUMBER" --approve --body "Autonomous review: All checks passed. No security issues, logic errors, or standard violations found."
+
+            gh pr merge "$PR_NUMBER" --squash --delete-branch \
+              --body "Auto-merged after autonomous review + CI pass"
+
+            echo "## Auto-merged PR #${PR_NUMBER}" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Review found issues - requesting changes"
+
+            # Extract issues after VERDICT line
+            ISSUES=$(echo "$REVIEW" | sed -n '/VERDICT: REQUEST_CHANGES/,$p' | tail -n +2)
+
+            gh pr review "$PR_NUMBER" --request-changes --body "Autonomous review found issues:
+
+            ${ISSUES}
+
+            Please address these before merging."
+
+            echo "## Requested changes on PR #${PR_NUMBER}" >> "$GITHUB_STEP_SUMMARY"
+            echo "$ISSUES" >> "$GITHUB_STEP_SUMMARY"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          PR_NUMBER: ${{ needs.should-auto-review.outputs.pr_number }}
+        run: |
+          if [ -n "${SLACK_WEBHOOK_URL:-}" ]; then
+            bash scripts/notify-slack.sh ":warning: Autonomous review failed for PR #${PR_NUMBER}"
+          fi

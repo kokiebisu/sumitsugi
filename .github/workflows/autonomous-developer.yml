@@ -106,7 +106,8 @@ jobs:
             echo "skip_reason=$REASON" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Run Claude Code
+      - name: Run Claude Code (with retry)
+        id: claude
         if: steps.pick.outputs.has_task == 'true' && inputs.dry_run != true
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -122,12 +123,109 @@ jobs:
             PROMPT=$(cat /tmp/task-prompt.txt)
           fi
 
-          claude -p "$PROMPT" \
-            --allowedTools 'Bash(*)' Read Edit Write Glob Grep Task WebFetch WebSearch \
-            --max-turns 50 \
-            2>&1 | tee /tmp/claude-output.txt
+          MAX_RETRIES=2
+          ATTEMPT=0
+          SUCCESS=false
 
-          echo "Claude Code execution complete"
+          while [ $ATTEMPT -lt $MAX_RETRIES ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+            echo "=== Attempt $ATTEMPT of $MAX_RETRIES ==="
+
+            if [ $ATTEMPT -gt 1 ]; then
+              # On retry, add error context from previous attempt
+              PREV_ERROR=$(tail -50 /tmp/claude-output.txt 2>/dev/null || echo "No previous output")
+              PROMPT="Previous attempt failed with this output:
+          ---
+          $PREV_ERROR
+          ---
+          Please retry the original task, fixing any issues from the previous attempt.
+
+          Original task: $PROMPT"
+              WAIT=$((ATTEMPT * 30))
+              echo "Waiting ${WAIT}s before retry..."
+              sleep $WAIT
+            fi
+
+            set +e
+            claude -p "$PROMPT" \
+              --allowedTools 'Bash(*)' Read Edit Write Glob Grep Task WebFetch WebSearch \
+              --max-turns 50 \
+              2>&1 | tee /tmp/claude-output.txt
+            EXIT_CODE=$?
+            set -e
+
+            if [ $EXIT_CODE -eq 0 ]; then
+              SUCCESS=true
+              break
+            fi
+
+            echo "Attempt $ATTEMPT failed with exit code $EXIT_CODE"
+          done
+
+          if [ "$SUCCESS" = "true" ]; then
+            echo "result=success" >> "$GITHUB_OUTPUT"
+          else
+            echo "result=failed" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Escalate on repeated failure
+        if: steps.claude.outputs.result == 'failed' && steps.pick.outputs.has_task == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const taskId = '${{ steps.pick.outputs.task_id }}';
+            const taskTitle = '${{ steps.pick.outputs.task_title }}';
+
+            // Read state to check for repeated failures
+            const fs = require('fs');
+            const statePath = '.github/autonomous/state.json';
+            const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+
+            // Track this failure
+            const failedTasks = state.failed_tasks || [];
+            const existing = failedTasks.find(t => t.id === taskId);
+            if (existing) {
+              existing.failures = (existing.failures || 1) + 1;
+              existing.last_failed = new Date().toISOString();
+            } else {
+              failedTasks.push({
+                id: taskId,
+                title: taskTitle,
+                failures: 1,
+                first_failed: new Date().toISOString(),
+                last_failed: new Date().toISOString(),
+              });
+            }
+            state.failed_tasks = failedTasks;
+            fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
+
+            const failCount = existing ? existing.failures : 1;
+
+            // Escalate after 3 failures on same task
+            if (failCount >= 3) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🚨 Autonomous dev: task "${taskTitle}" failed ${failCount} times`,
+                body: [
+                  `## Escalation: Repeated Autonomous Failure`,
+                  '',
+                  `**Task:** ${taskTitle} (\`${taskId}\`)`,
+                  `**Failures:** ${failCount}`,
+                  `**Last attempt:** ${new Date().toISOString()}`,
+                  '',
+                  'This task has failed multiple times and likely needs human intervention.',
+                  'The autonomous developer will skip this task in future runs until this issue is closed.',
+                  '',
+                  '### Possible causes:',
+                  '- Missing environment setup or dependencies',
+                  '- Task requires architectural decisions beyond automated scope',
+                  '- External service dependency (API, database) not available in CI',
+                  '- Task description is ambiguous or incomplete',
+                ].join('\n'),
+                labels: ['needs-human', 'autonomous-failure'],
+              });
+            }
 
       - name: Commit Beads state
         if: steps.pick.outputs.has_task == 'true' && inputs.dry_run != true
@@ -159,6 +257,23 @@ jobs:
 
           STATE=$(echo "$STATE" | jq '.daily_stats.tasks_attempted += 1 | .lifetime.total_runs += 1')
           STATE=$(echo "$STATE" | jq --arg t "$NOW" '.last_run = $t')
+
+          # Track success/failure
+          CLAUDE_RESULT="${{ steps.claude.outputs.result }}"
+          if [ "$CLAUDE_RESULT" = "success" ]; then
+            STATE=$(echo "$STATE" | jq '.daily_stats.tasks_completed += 1 | .lifetime.total_tasks_completed += 1')
+            # Update streak
+            STATE=$(echo "$STATE" | jq '.streak.current += 1')
+            CURRENT=$(echo "$STATE" | jq '.streak.current')
+            BEST=$(echo "$STATE" | jq '.streak.best')
+            if [ "$CURRENT" -gt "$BEST" ]; then
+              STATE=$(echo "$STATE" | jq --argjson c "$CURRENT" '.streak.best = $c')
+            fi
+            STATE=$(echo "$STATE" | jq --arg d "$TODAY" '.streak.last_success_date = $d')
+          elif [ "$CLAUDE_RESULT" = "failed" ]; then
+            STATE=$(echo "$STATE" | jq '.daily_stats.tasks_failed += 1 | .lifetime.total_tasks_failed += 1')
+            STATE=$(echo "$STATE" | jq '.streak.current = 0')
+          fi
 
           echo "$STATE" | jq '.' > "$STATE_FILE"
 
