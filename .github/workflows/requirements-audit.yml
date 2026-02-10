@@ -130,15 +130,18 @@ jobs:
           # Push and PR (force to handle re-runs on same day)
           git push -u origin "$BRANCH" --force
 
-          PR_URL=$(gh pr create \
-            --title "$AUDIT_DATE Daily Audit" \
+          gh pr create \
+            --title "chore(audit): $AUDIT_DATE daily audit" \
             --body "## Summary
           $SUMMARY
 
-          **Gaps Found:** $GAP_COUNT" \
-            --base main \
-            --head "$BRANCH")
+          **Gaps Found:** $GAP_COUNT
 
-          # Auto-merge the audit PR
-          PR_NUM=$(echo "$PR_URL" | grep -oE '[0-9]+$')
-          gh pr merge "$PR_NUM" --squash --delete-branch
+          This PR was created by the daily requirements audit.
+          It will be reviewed and merged by the autonomous-pr-review workflow." \
+            --base main \
+            --head "$BRANCH"
+
+          # NOTE: Do NOT auto-merge here. Let autonomous-pr-review handle the merge
+          # after CI passes and main health is verified. This prevents bypassing
+          # the merge gate and potentially breaking main.
