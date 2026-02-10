@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { readFile, writeFile, mkdir, rm } from 'node:fs/promises';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { mkdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -7,9 +7,6 @@ import { tmpdir } from 'node:os';
 const TEST_DIR = join(tmpdir(), 'autonomous-dev-test-' + Date.now());
 const BEADS_DIR = join(TEST_DIR, '.beads');
 const STATE_DIR = join(TEST_DIR, '.github', 'autonomous');
-const BEADS_PATH = join(BEADS_DIR, 'issues.jsonl');
-const STATE_PATH = join(STATE_DIR, 'state.json');
-const PAUSE_PATH = join(TEST_DIR, '.github', 'PAUSE_AUTONOMOUS');
 
 interface BeadsTask {
   id: string;

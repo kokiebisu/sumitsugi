@@ -2,7 +2,7 @@ name: Auto Rollback on Main Failure
 
 on:
   workflow_run:
-    workflows: ["Post-Merge Smoke Test"]
+    workflows: ['Post-Merge Smoke Test']
     types:
       - completed
 

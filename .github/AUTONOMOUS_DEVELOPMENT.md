@@ -166,23 +166,27 @@ def pick_next_task(tasks):
 ## Implemented Features
 
 ### Phase 1: Basic Loop (DONE)
+
 - [x] Autonomous developer workflow (`autonomous-developer.yml`)
 - [x] Task picker from Beads (`scripts/autonomous-dev.ts`)
 - [x] Basic PR creation with labels
 - [x] Auto-merge after CI passes
 
 ### Phase 2: Self-Review (DONE)
+
 - [x] Claude Code code review integration
 - [x] Auto-merge for passing PRs
 - [x] Pause mechanism (file + label)
 
 ### Phase 3: Reporting (DONE)
+
 - [x] Daily standup workflow (`daily-standup.yml`)
 - [x] Weekly retrospective (`weekly-retrospective.yml`)
 - [x] CTO reports in `docs/team/cto/standups/` and `docs/team/cto/retrospectives/`
 - [x] GitHub Issues for CTO review
 
 ### Phase 4: Advanced (TODO)
+
 - [ ] Multi-task parallelization
 - [ ] Learning from failed PRs
 - [ ] Cost optimization
@@ -193,6 +197,7 @@ def pick_next_task(tasks):
 ### Pause All Autonomous Activity
 
 **Option 1: Create PAUSE file**
+
 ```bash
 touch .github/PAUSE_AUTONOMOUS
 git add .github/PAUSE_AUTONOMOUS
@@ -201,6 +206,7 @@ git push
 ```
 
 **Option 2: Create issue with label**
+
 ```bash
 gh issue create --title "Pause autonomous development" --label "autonomous:pause"
 ```
@@ -220,6 +226,7 @@ gh issue close <issue-number>
 ### Skip Specific Tasks
 
 Add label to task in Beads:
+
 ```bash
 # Edit .beads/issues.jsonl and add "autonomous:skip" to labels array
 ```
@@ -227,6 +234,7 @@ Add label to task in Beads:
 ### Force a Specific Task
 
 Manually trigger with task ID:
+
 ```bash
 gh workflow run autonomous-developer.yml -f force_task_id=tsumugi-abc123
 ```
@@ -239,14 +247,14 @@ gh workflow run autonomous-developer.yml -f dry_run=true
 
 ## Metrics to Track
 
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| Tasks completed/week | 5+ | Beads status changes |
-| PR success rate | >80% | Merged / Created |
-| Avg time to merge | <2h | PR creation to merge |
-| Test coverage | >80% | Coverage report |
-| Build success rate | >95% | CI status |
-| API cost/task | <$3 | Anthropic billing |
+| Metric               | Target | Measurement          |
+| -------------------- | ------ | -------------------- |
+| Tasks completed/week | 5+     | Beads status changes |
+| PR success rate      | >80%   | Merged / Created     |
+| Avg time to merge    | <2h    | PR creation to merge |
+| Test coverage        | >80%   | Coverage report      |
+| Build success rate   | >95%   | CI status            |
+| API cost/task        | <$3    | Anthropic billing    |
 
 ## Files Structure
 

@@ -88,18 +88,18 @@ scripts/
 
 ## Quality Gates
 
-| Gate | Trigger | Action |
-|------|---------|--------|
-| Pre-commit hook | `git commit` | Prettier + ESLint + secret scan + console.log check |
-| CI | PR/push | ESLint + TypeScript + unit tests + bundle size |
-| Auto-label | PR open/sync | Labels by file path, title convention, size → triggers E2E |
-| E2E | PR labels (auto) | Playwright (smart filtering) |
-| Code review | `@claude` / auto | Claude Code review |
-| Requirements audit | Daily | Drift detection + task creation |
-| Health monitor | Weekly | Workflow success rates + stale PR alerts |
-| Stale bot | Daily | Auto-close inactive issues (30d) + PRs (14d) |
-| Dependabot | Weekly | npm + GitHub Actions dependency updates |
-| CODEOWNERS | PR open | Auto-assign reviewers by file path |
+| Gate               | Trigger          | Action                                                     |
+| ------------------ | ---------------- | ---------------------------------------------------------- |
+| Pre-commit hook    | `git commit`     | Prettier + ESLint + secret scan + console.log check        |
+| CI                 | PR/push          | ESLint + TypeScript + unit tests + bundle size             |
+| Auto-label         | PR open/sync     | Labels by file path, title convention, size → triggers E2E |
+| E2E                | PR labels (auto) | Playwright (smart filtering)                               |
+| Code review        | `@claude` / auto | Claude Code review                                         |
+| Requirements audit | Daily            | Drift detection + task creation                            |
+| Health monitor     | Weekly           | Workflow success rates + stale PR alerts                   |
+| Stale bot          | Daily            | Auto-close inactive issues (30d) + PRs (14d)               |
+| Dependabot         | Weekly           | npm + GitHub Actions dependency updates                    |
+| CODEOWNERS         | PR open          | Auto-assign reviewers by file path                         |
 
 ## Claude Code Configuration
 

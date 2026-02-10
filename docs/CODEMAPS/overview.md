@@ -120,26 +120,26 @@ Payment → /properties/[id]/payment
 
 ## Core Types (src/lib/types.ts)
 
-| Type | Purpose |
-|------|---------|
-| `Property` | Published property with images, pricing, host info |
-| `User` | User with optional seller profile (isSeller flag) |
-| `Inquiry` | Handover application with status workflow |
-| `UserListing` | Seller-created listing (draft/published) |
-| `SellerListing` | Legacy seller application |
-| `FurnitureItem` | Furniture with photos and condition |
-| `ViewingConfirmation` | Double-confirmation for viewings |
-| `LandlordConsent` | Landlord approval tracking |
-| `LiabilityTerms` | Legal responsibility terms |
+| Type                  | Purpose                                            |
+| --------------------- | -------------------------------------------------- |
+| `Property`            | Published property with images, pricing, host info |
+| `User`                | User with optional seller profile (isSeller flag)  |
+| `Inquiry`             | Handover application with status workflow          |
+| `UserListing`         | Seller-created listing (draft/published)           |
+| `SellerListing`       | Legacy seller application                          |
+| `FurnitureItem`       | Furniture with photos and condition                |
+| `ViewingConfirmation` | Double-confirmation for viewings                   |
+| `LandlordConsent`     | Landlord approval tracking                         |
+| `LiabilityTerms`      | Legal responsibility terms                         |
 
 ## UI Terminology (CRITICAL)
 
-| Internal | UI Display |
-|----------|-----------|
-| seller | 前の住人 |
-| buyer | 次の住人 |
-| rental_fee | 引越し費用 |
-| sellerSince | 活動歴 |
+| Internal    | UI Display |
+| ----------- | ---------- |
+| seller      | 前の住人   |
+| buyer       | 次の住人   |
+| rental_fee  | 引越し費用 |
+| sellerSince | 活動歴     |
 
 ## Test Structure
 

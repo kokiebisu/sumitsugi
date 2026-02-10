@@ -7,6 +7,7 @@
 ## Type
 
 <!-- Check one -->
+
 - [ ] feat: New feature
 - [ ] fix: Bug fix
 - [ ] refactor: Code restructuring
@@ -18,6 +19,7 @@
 ## Test plan
 
 <!-- How was this tested? -->
+
 - [ ] Unit tests pass (`bun run test:run`)
 - [ ] Build passes (`bun run build`)
 - [ ] Manual testing (describe below)

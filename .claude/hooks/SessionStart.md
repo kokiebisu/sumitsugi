@@ -34,12 +34,14 @@ bun run build --no-lint 2>/dev/null || echo "Build check skipped (expected in fr
 ```
 
 After setup, read these files for context:
+
 - `CLAUDE.md` (project instructions)
 - `.claude/PROJECT.md` (concept and design)
 - `DASHBOARD.md` (current status and priorities)
 - `docs/CODEMAPS/overview.md` (codebase map)
 
 Check for active tasks:
+
 ```bash
 bd ready 2>/dev/null || echo "No Beads tasks ready"
 ```
