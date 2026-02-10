@@ -391,9 +391,9 @@ jobs:
               exit 1
             fi
 
-            if [ "$SMOKE_CONCLUSION" = "failure" ]; then
-              echo "ERROR: Main branch smoke test is failing — aborting merge"
-              gh pr comment "$PR_NUMBER" --body "Auto-merge blocked: main branch smoke test is currently failing. Will retry when main is healthy."
+            if [ "$SMOKE_CONCLUSION" != "success" ]; then
+              echo "ERROR: Main branch smoke test is not passing (conclusion: $SMOKE_CONCLUSION) — aborting merge"
+              gh pr comment "$PR_NUMBER" --body "Auto-merge blocked: main branch smoke test conclusion is \`$SMOKE_CONCLUSION\` (expected \`success\`). Will retry when main is healthy."
               exit 1
             fi
 
