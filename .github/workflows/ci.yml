@@ -41,3 +41,33 @@ jobs:
 
       - name: Run unit tests
         run: bun run test:run
+
+      - name: Report bundle size
+        if: github.event_name == 'pull_request'
+        run: |
+          # Measure .next output size
+          if [ -d ".next" ]; then
+            TOTAL_SIZE=$(du -sb .next | cut -f1)
+            TOTAL_MB=$(echo "scale=2; $TOTAL_SIZE / 1048576" | bc)
+
+            # Measure key chunks
+            JS_SIZE=0
+            if [ -d ".next/static/chunks" ]; then
+              JS_SIZE=$(du -sb .next/static/chunks | cut -f1)
+            fi
+            JS_MB=$(echo "scale=2; $JS_SIZE / 1048576" | bc)
+
+            echo "## Bundle Size Report" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Metric | Size |" >> "$GITHUB_STEP_SUMMARY"
+            echo "|--------|------|" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Total build output | ${TOTAL_MB} MB |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| JS chunks | ${JS_MB} MB |" >> "$GITHUB_STEP_SUMMARY"
+
+            # Warn if bundle is too large (>5MB JS)
+            JS_SIZE_INT=${JS_SIZE%.*}
+            if [ "${JS_SIZE_INT:-0}" -gt 5242880 ]; then
+              echo "" >> "$GITHUB_STEP_SUMMARY"
+              echo "⚠️ **JS bundle exceeds 5MB budget**" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          fi

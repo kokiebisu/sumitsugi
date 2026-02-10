@@ -1,0 +1,220 @@
+name: Autonomous Health Monitor
+
+on:
+  schedule:
+    # Every Monday at 09:00 JST (00:00 UTC)
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  actions: read
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Collect workflow health metrics
+        id: metrics
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const since = new Date();
+            since.setDate(since.getDate() - 7);
+            const sinceISO = since.toISOString();
+
+            // Get all workflow runs from last 7 days
+            const workflows = [
+              'autonomous-developer.yml',
+              'ci.yml',
+              'daily-standup.yml',
+              'weekly-retrospective.yml',
+              'cleanup-branches.yml',
+              'requirements-audit.yml',
+              'daily-knowledge-update.yml'
+            ];
+
+            const report = { workflows: {}, alerts: [], summary: {} };
+            let totalRuns = 0;
+            let totalSuccess = 0;
+            let totalFailed = 0;
+
+            for (const wf of workflows) {
+              try {
+                const { data } = await github.rest.actions.listWorkflowRuns({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  workflow_id: wf,
+                  created: `>=${sinceISO.split('T')[0]}`,
+                  per_page: 50,
+                });
+
+                const runs = data.workflow_runs;
+                const success = runs.filter(r => r.conclusion === 'success').length;
+                const failed = runs.filter(r => r.conclusion === 'failure').length;
+                const cancelled = runs.filter(r => r.conclusion === 'cancelled').length;
+                const skipped = runs.filter(r => r.conclusion === 'skipped').length;
+
+                report.workflows[wf] = {
+                  total: runs.length,
+                  success,
+                  failed,
+                  cancelled,
+                  skipped,
+                  success_rate: runs.length > 0 ? Math.round((success / runs.length) * 100) : 0,
+                  last_run: runs[0]?.created_at || 'never',
+                  last_conclusion: runs[0]?.conclusion || 'unknown',
+                };
+
+                totalRuns += runs.length;
+                totalSuccess += success;
+                totalFailed += failed;
+
+                // Alert: workflow hasn't run in 48 hours (for scheduled workflows)
+                if (runs.length === 0 && wf !== 'ci.yml') {
+                  report.alerts.push(`⚠️ ${wf}: No runs in the last 7 days`);
+                }
+
+                // Alert: >30% failure rate
+                if (runs.length > 0 && (failed / runs.length) > 0.3) {
+                  report.alerts.push(`🔴 ${wf}: ${Math.round((failed / runs.length) * 100)}% failure rate`);
+                }
+
+                // Alert: consecutive failures
+                const recentRuns = runs.slice(0, 3);
+                if (recentRuns.length >= 3 && recentRuns.every(r => r.conclusion === 'failure')) {
+                  report.alerts.push(`🚨 ${wf}: 3+ consecutive failures`);
+                }
+              } catch (e) {
+                report.workflows[wf] = { error: e.message };
+                report.alerts.push(`❓ ${wf}: Could not fetch data`);
+              }
+            }
+
+            // PR metrics
+            const { data: openPRs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+            });
+
+            const stalePRs = openPRs.filter(pr => {
+              const updated = new Date(pr.updated_at);
+              const hoursSinceUpdate = (Date.now() - updated.getTime()) / (1000 * 60 * 60);
+              return hoursSinceUpdate > 24;
+            });
+
+            report.summary = {
+              total_runs: totalRuns,
+              total_success: totalSuccess,
+              total_failed: totalFailed,
+              overall_success_rate: totalRuns > 0 ? Math.round((totalSuccess / totalRuns) * 100) : 0,
+              open_prs: openPRs.length,
+              stale_prs: stalePRs.length,
+            };
+
+            if (stalePRs.length > 0) {
+              report.alerts.push(`📋 ${stalePRs.length} stale PR(s) (no activity >24h): ${stalePRs.map(p => `#${p.number}`).join(', ')}`);
+            }
+
+            // Read autonomous state
+            const fs = require('fs');
+            const statePath = '.github/autonomous/state.json';
+            if (fs.existsSync(statePath)) {
+              const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+              report.autonomous = state;
+
+              if (state.lifetime.total_runs === 0) {
+                report.alerts.push('⚠️ Autonomous developer has never run');
+              } else if (state.last_run) {
+                const lastRun = new Date(state.last_run);
+                const hoursSince = (Date.now() - lastRun.getTime()) / (1000 * 60 * 60);
+                if (hoursSince > 8) {
+                  report.alerts.push(`⚠️ Autonomous developer last ran ${Math.round(hoursSince)}h ago`);
+                }
+              }
+            }
+
+            core.setOutput('report', JSON.stringify(report));
+            core.setOutput('alert_count', report.alerts.length);
+
+      - name: Create health report issue
+        uses: actions/github-script@v7
+        env:
+          REPORT_JSON: ${{ steps.metrics.outputs.report }}
+          ALERT_COUNT: ${{ steps.metrics.outputs.alert_count }}
+        with:
+          script: |
+            const report = JSON.parse(process.env.REPORT_JSON);
+            const alertCount = parseInt(process.env.ALERT_COUNT);
+
+            const statusEmoji = alertCount === 0 ? '🟢' : alertCount <= 2 ? '🟡' : '🔴';
+            const date = new Date().toISOString().split('T')[0];
+
+            let body = `## ${statusEmoji} Weekly Health Report — ${date}\n\n`;
+
+            // Alerts section
+            if (report.alerts.length > 0) {
+              body += `### Alerts (${report.alerts.length})\n\n`;
+              body += report.alerts.map(a => `- ${a}`).join('\n') + '\n\n';
+            } else {
+              body += '### ✅ No alerts — all systems healthy\n\n';
+            }
+
+            // Summary
+            body += `### Summary\n\n`;
+            body += `| Metric | Value |\n|--------|-------|\n`;
+            body += `| Total workflow runs (7d) | ${report.summary.total_runs} |\n`;
+            body += `| Success rate | ${report.summary.overall_success_rate}% |\n`;
+            body += `| Failed runs | ${report.summary.total_failed} |\n`;
+            body += `| Open PRs | ${report.summary.open_prs} |\n`;
+            body += `| Stale PRs (>24h) | ${report.summary.stale_prs} |\n\n`;
+
+            // Workflow breakdown
+            body += `### Workflow Breakdown\n\n`;
+            body += `| Workflow | Runs | Success | Failed | Rate | Last Run |\n`;
+            body += `|----------|------|---------|--------|------|----------|\n`;
+
+            for (const [name, data] of Object.entries(report.workflows)) {
+              if (data.error) {
+                body += `| ${name} | ❓ | — | — | — | Error |\n`;
+              } else {
+                const rateEmoji = data.success_rate >= 95 ? '🟢' : data.success_rate >= 80 ? '🟡' : '🔴';
+                const lastDate = data.last_run !== 'never' ? data.last_run.split('T')[0] : 'never';
+                body += `| ${name} | ${data.total} | ${data.success} | ${data.failed} | ${rateEmoji} ${data.success_rate}% | ${lastDate} |\n`;
+              }
+            }
+
+            // Autonomous stats
+            if (report.autonomous) {
+              const a = report.autonomous;
+              body += `\n### Autonomous Developer\n\n`;
+              body += `| Metric | Value |\n|--------|-------|\n`;
+              body += `| Last run | ${a.last_run || 'never'} |\n`;
+              body += `| Lifetime runs | ${a.lifetime.total_runs} |\n`;
+              body += `| Tasks completed | ${a.lifetime.total_tasks_completed} |\n`;
+              body += `| Tasks failed | ${a.lifetime.total_tasks_failed} |\n`;
+              body += `| Current streak | ${a.streak.current} |\n`;
+              body += `| Best streak | ${a.streak.best} |\n`;
+            }
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `${statusEmoji} Weekly Health Report — ${date}`,
+              body,
+              labels: ['health-report', 'automated'],
+            });
+
+      - name: Notify Slack on critical alerts
+        if: steps.metrics.outputs.alert_count > 2
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [ -n "${SLACK_WEBHOOK_URL:-}" ]; then
+            bash scripts/notify-slack.sh ":rotating_light: Weekly health check found ${{ steps.metrics.outputs.alert_count }} alerts. Check the latest health-report issue."
+          fi

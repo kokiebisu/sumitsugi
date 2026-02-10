@@ -1,0 +1,131 @@
+name: Auto Rollback on Main Failure
+
+on:
+  workflow_run:
+    workflows: ['Post-Merge Smoke Test']
+    types:
+      - completed
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  check-and-rollback:
+    if: github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for consecutive failures
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Get recent smoke test runs
+            const { data: runs } = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'post-merge-smoke.yml',
+              branch: 'main',
+              per_page: 3,
+            });
+
+            const recentRuns = runs.workflow_runs.slice(0, 3);
+
+            // Need at least 2 runs to check for consecutive failures
+            if (recentRuns.length < 2) {
+              core.setOutput('should_rollback', 'false');
+              console.log('Not enough runs to determine pattern');
+              return;
+            }
+
+            // Check if the last 2 runs both failed
+            const lastTwoFailed = recentRuns.slice(0, 2).every(r => r.conclusion === 'failure');
+
+            if (lastTwoFailed) {
+              core.setOutput('should_rollback', 'true');
+              // Find the last successful run's head SHA
+              const lastSuccess = recentRuns.find(r => r.conclusion === 'success');
+              if (lastSuccess) {
+                core.setOutput('last_good_sha', lastSuccess.head_sha);
+              }
+              console.log('2 consecutive failures detected — triggering rollback');
+            } else {
+              core.setOutput('should_rollback', 'false');
+              console.log('Single failure — monitoring but not rolling back yet');
+            }
+
+      - name: Checkout repository
+        if: steps.check.outputs.should_rollback == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 5
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create revert PR
+        if: steps.check.outputs.should_rollback == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const failedSha = context.payload.workflow_run.head_sha;
+            const shortSha = failedSha.substring(0, 7);
+
+            // Get the merge commit to revert
+            const { data: commit } = await github.rest.repos.getCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: failedSha,
+            });
+
+            // Create an issue for the incident
+            const { data: issue } = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Auto-rollback triggered: 2 consecutive smoke test failures`,
+              body: [
+                '## Auto-Rollback Incident',
+                '',
+                `**Failing commit:** ${failedSha}`,
+                `**Message:** ${commit.commit.message.split('\n')[0]}`,
+                `**Author:** @${commit.author?.login || 'unknown'}`,
+                '',
+                '### What happened:',
+                '- Post-merge smoke test failed 2 times in a row',
+                '- A revert commit has been pushed to main',
+                '- The original changes need to be fixed and re-submitted',
+                '',
+                '### Action required:',
+                '1. Investigate why the changes broke main',
+                '2. Fix the issue in a new branch',
+                '3. Submit a new PR with the fix',
+                '4. Close this issue when resolved',
+              ].join('\n'),
+              labels: ['incident', 'needs-human', 'P0', 'auto-rollback'],
+            });
+
+            console.log(`Created incident issue #${issue.number}`);
+
+      - name: Push revert
+        if: steps.check.outputs.should_rollback == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          FAILED_SHA="${{ github.event.workflow_run.head_sha }}"
+
+          # Attempt to revert the failing commit
+          if git revert --no-edit "$FAILED_SHA" 2>/dev/null; then
+            git push origin main
+            echo "Successfully reverted $FAILED_SHA"
+          else
+            echo "Could not cleanly revert — creating issue only (manual intervention needed)"
+          fi
+
+      - name: Notify Slack
+        if: steps.check.outputs.should_rollback == 'true'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [ -n "${SLACK_WEBHOOK_URL:-}" ]; then
+            bash scripts/notify-slack.sh ":rotating_light: *Auto-rollback triggered* — 2 consecutive smoke test failures on main. Check the incident issue."
+          fi

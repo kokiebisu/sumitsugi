@@ -28,9 +28,9 @@ if [ -z "$LINEAR_TEAM_ID" ]; then
   exit 1
 fi
 
-# Project IDs
-DEV_PROJ="4e451a29-6654-483d-be78-8057ca95e134"
-BIZ_PROJ="ab0431bb-ab03-4381-ae67-139c98b0f922"
+# Project IDs (from env vars, with legacy fallback)
+DEV_PROJ="${LINEAR_DEV_PROJECT_ID:-4e451a29-6654-483d-be78-8057ca95e134}"
+BIZ_PROJ="${LINEAR_BIZ_PROJECT_ID:-ab0431bb-ab03-4381-ae67-139c98b0f922}"
 
 # Business label patterns (if a Beads issue has any of these labels, it goes to Business)
 BUSINESS_LABELS="business|marketing|legal|finance|sales|manual-setup|partnership|branding|hiring|operations"
