@@ -80,9 +80,12 @@ jobs:
           echo "ci_total=$CI_TOTAL" >> "$GITHUB_OUTPUT"
           echo "ci_success=$CI_SUCCESS" >> "$GITHUB_OUTPUT"
 
+      - name: Setup Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
       - name: Generate retrospective
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           WEEK_START: ${{ steps.metrics.outputs.week_start }}
           WEEK_END: ${{ steps.metrics.outputs.week_end }}
           PRS_MERGED: ${{ steps.metrics.outputs.prs_merged }}
@@ -100,7 +103,8 @@ jobs:
           PRS_CREATED_DATA=$(cat /tmp/prs_created.json)
           FAILED_RUNS_DATA=$(cat /tmp/failed_runs.json)
 
-          PROMPT="Generate a weekly retrospective report in Japanese for the week of $WEEK_START to $WEEK_END.
+          cat > /tmp/retro_prompt.txt <<PROMPT_EOF
+          Generate a weekly retrospective report in Japanese for the week of $WEEK_START to $WEEK_END.
 
           Format:
           # 週次振り返り ($WEEK_START 〜 $WEEK_END)
@@ -134,15 +138,12 @@ jobs:
           Data:
           PRs Merged: $PRS_MERGED_DATA
           PRs Created: $PRS_CREATED_DATA
-          Failed Runs: $FAILED_RUNS_DATA"
+          Failed Runs: $FAILED_RUNS_DATA
 
-          RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
-            -H "Content-Type: application/json" \
-            -H "x-api-key: $ANTHROPIC_API_KEY" \
-            -H "anthropic-version: 2023-06-01" \
-            -d "{\"model\": \"claude-sonnet-4-5-20250929\", \"max_tokens\": 3000, \"messages\": [{\"role\": \"user\", \"content\": $(echo "$PROMPT" | jq -Rs .)}]}")
+          Output ONLY the markdown report, no extra text.
+          PROMPT_EOF
 
-          REPORT=$(echo "$RESPONSE" | jq -r '.content[0].text // "Report generation failed"')
+          REPORT=$(claude -p "$(cat /tmp/retro_prompt.txt)" --max-turns 1 --allowedTools '' 2>/dev/null) || REPORT="Report generation failed"
 
           mkdir -p docs/team/retrospectives
           echo "$REPORT" > "docs/team/retrospectives/$WEEK_END.md"
@@ -164,10 +165,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WEEK_END: ${{ steps.metrics.outputs.week_end }}
         run: |
-          REPORT=$(cat /tmp/retro_report.md)
           gh issue create \
             --title "Weekly Retrospective: $WEEK_END" \
-            --body "$REPORT" \
+            --body-file /tmp/retro_report.md \
             --label "retrospective"
 
       - name: Notify Slack

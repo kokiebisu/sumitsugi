@@ -59,9 +59,12 @@ jobs:
           echo "tasks_open=$TASKS_OPEN" >> "$GITHUB_OUTPUT"
           echo "tasks_blocked=$TASKS_BLOCKED" >> "$GITHUB_OUTPUT"
 
+      - name: Setup Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
       - name: Generate standup report
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           REPORT_DATE: ${{ steps.metrics.outputs.today }}
           TASKS_DONE: ${{ steps.metrics.outputs.tasks_done }}
           TASKS_OPEN: ${{ steps.metrics.outputs.tasks_open }}
@@ -72,7 +75,8 @@ jobs:
           COMMITS=$(cat /tmp/commits.txt)
           FAILED_RUNS=$(cat /tmp/failed_runs.json)
 
-          PROMPT="Generate a concise daily standup report in Japanese for date $REPORT_DATE.
+          cat > /tmp/standup_prompt.txt <<PROMPT_EOF
+          Generate a concise daily standup report in Japanese for date $REPORT_DATE.
 
           Format:
           # デイリースタンドアップ $REPORT_DATE
@@ -97,15 +101,12 @@ jobs:
           PRs Merged: $PRS_MERGED
           PRs Open: $PRS_OPEN
           Recent Commits: $COMMITS
-          Failed Runs: $FAILED_RUNS"
+          Failed Runs: $FAILED_RUNS
 
-          RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
-            -H "Content-Type: application/json" \
-            -H "x-api-key: $ANTHROPIC_API_KEY" \
-            -H "anthropic-version: 2023-06-01" \
-            -d "{\"model\": \"claude-sonnet-4-5-20250929\", \"max_tokens\": 2048, \"messages\": [{\"role\": \"user\", \"content\": $(echo "$PROMPT" | jq -Rs .)}]}")
+          Output ONLY the markdown report, no extra text.
+          PROMPT_EOF
 
-          REPORT=$(echo "$RESPONSE" | jq -r '.content[0].text // "Report generation failed"')
+          REPORT=$(claude -p "$(cat /tmp/standup_prompt.txt)" --max-turns 1 --allowedTools '' 2>/dev/null) || REPORT="Report generation failed"
 
           mkdir -p docs/team/standups
           echo "$REPORT" > "docs/team/standups/$REPORT_DATE.md"
@@ -154,10 +155,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPORT_DATE: ${{ steps.metrics.outputs.today }}
         run: |
-          REPORT=$(cat /tmp/standup_report.md)
           gh issue create \
             --title "Daily Standup: $REPORT_DATE" \
-            --body "$REPORT" \
+            --body-file /tmp/standup_report.md \
             --label "standup"
 
       - name: Notify Slack

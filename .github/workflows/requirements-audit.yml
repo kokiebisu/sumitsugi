@@ -37,19 +37,23 @@ jobs:
           # Existing tasks
           cat .beads/issues.jsonl 2>/dev/null | jq -s '[.[] | {id, title, status}]' > /tmp/tasks.json 2>/dev/null || echo "[]" > /tmp/tasks.json
 
+      - name: Setup Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
       - name: Run Claude Audit
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         run: |
           REQUIREMENTS=$(cat /tmp/requirements.md)
           BUSINESS=$(cat /tmp/business.md)
           CODE=$(cat /tmp/code.txt)
           TASKS=$(cat /tmp/tasks.json)
 
-          PROMPT="Audit this codebase against requirements. Find gaps between REQUIREMENTS.md and actual code.
+          cat > /tmp/audit_prompt.txt <<PROMPT_EOF
+          Audit this codebase against requirements. Find gaps between REQUIREMENTS.md and actual code.
 
           Output JSON only:
-          {\"summary\": \"...\", \"gaps\": [{\"title\": \"...\", \"description\": \"...\", \"priority\": 1, \"source\": \"...\"}], \"no_gaps_found\": false}
+          {"summary": "...", "gaps": [{"title": "...", "description": "...", "priority": 1, "source": "..."}], "no_gaps_found": false}
 
           REQUIREMENTS.md:
           $REQUIREMENTS
@@ -61,15 +65,11 @@ jobs:
           $CODE
 
           Existing tasks (avoid duplicates):
-          $TASKS"
+          $TASKS
+          PROMPT_EOF
 
-          RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
-            -H "Content-Type: application/json" \
-            -H "x-api-key: $ANTHROPIC_API_KEY" \
-            -H "anthropic-version: 2023-06-01" \
-            -d "{\"model\": \"claude-sonnet-4-20250514\", \"max_tokens\": 4096, \"messages\": [{\"role\": \"user\", \"content\": $(echo "$PROMPT" | jq -Rs .)}]}")
-
-          echo "$RESPONSE" | jq -r '.content[0].text // "{\"error\": \"failed\"}"' > /tmp/audit.json
+          RESULT=$(claude -p "$(cat /tmp/audit_prompt.txt)" --max-turns 1 --allowedTools '' 2>/dev/null) || RESULT='{"error": "failed"}'
+          echo "$RESULT" > /tmp/audit.json
           cat /tmp/audit.json
 
       - name: Create tasks and PR

@@ -117,7 +117,7 @@ jobs:
           npm install -g @anthropic-ai/claude-code
 
           if [ -n "$INPUT_FORCE_ID" ]; then
-            ORIGINAL_PROMPT="/work:dev $INPUT_MILESTONE"
+            ORIGINAL_PROMPT="/work:dev --task-id $INPUT_FORCE_ID $INPUT_MILESTONE"
           else
             ORIGINAL_PROMPT=$(cat /tmp/task-prompt.txt)
           fi
