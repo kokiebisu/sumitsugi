@@ -122,8 +122,9 @@ export async function POST(request: Request) {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Unknown error occurred';
+    console.error('PDF generation failed:', message);
     return NextResponse.json(
-      { error: 'PDF生成に失敗しました', detail: message },
+      { error: 'PDF生成に失敗しました' },
       { status: 500 }
     );
   }
