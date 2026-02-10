@@ -284,21 +284,30 @@ jobs:
           # This avoids direct pushes to main that trigger unnecessary smoke tests
           # and can interfere with the merge gate.
           STATE_BRANCH="chore/auto-state-$(date -u +%Y%m%d-%H%M%S)"
-          git checkout -b "$STATE_BRANCH"
+          git checkout -b "$STATE_BRANCH" || {
+            echo "ERROR: Failed to create branch $STATE_BRANCH"
+            exit 1
+          }
           git commit -m "chore: update autonomous state for $PICKED_TASK_ID"
-          git push -u origin "$STATE_BRANCH"
+          git push -u origin "$STATE_BRANCH" || {
+            echo "ERROR: Failed to push branch $STATE_BRANCH"
+            git checkout main 2>/dev/null || true
+            exit 1
+          }
 
-          # Create and auto-merge the state PR (data-only, no code changes)
+          # Create the state PR (data-only, no code changes)
           gh pr create \
             --title "chore: update autonomous state" \
             --body "Automated state update from autonomous developer run.
           Data-only changes (beads + state.json), no code modifications." \
             --base main \
-            --head "$STATE_BRANCH"
+            --head "$STATE_BRANCH" || {
+            echo "WARNING: Failed to create PR for state update — branch was pushed"
+          }
 
           # Return to the original branch for subsequent steps
-          git checkout main
-          git pull origin main
+          git checkout main 2>/dev/null || true
+          git pull origin main 2>/dev/null || true
 
       - name: Notify Slack
         if: always()
