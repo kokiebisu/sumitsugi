@@ -34,5 +34,10 @@ jobs:
       - name: Check formatting (non-blocking)
         run: bunx prettier --check . || true
 
+      - name: TypeScript build check
+        run: bun run build
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+
       - name: Run unit tests
         run: bun run test:run

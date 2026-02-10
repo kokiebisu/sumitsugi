@@ -266,7 +266,7 @@ export default function NewListingPage() {
         setShowGracePeriodWarning(true);
         return;
       }
-      await saveListing(shouldPublish ? 'published' : 'draft');
+      await saveListing(shouldPublish ? 'public' : 'draft');
     }
   };
 
