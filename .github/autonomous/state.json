@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "last_run": null,
+  "daily_stats": {
+    "date": null,
+    "tasks_attempted": 0,
+    "tasks_completed": 0,
+    "tasks_failed": 0,
+    "prs_created": 0,
+    "prs_merged": 0
+  },
+  "failed_tasks": [],
+  "streak": {
+    "current": 0,
+    "best": 0,
+    "last_success_date": null
+  },
+  "lifetime": {
+    "total_runs": 0,
+    "total_tasks_completed": 0,
+    "total_tasks_failed": 0,
+    "total_prs_merged": 0
+  }
+}
