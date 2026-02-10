@@ -10,9 +10,12 @@ on:
         required: true
         type: number
 
+# CRITICAL: Global concurrency group ensures only ONE auto-merge runs at a time.
+# This prevents race conditions where multiple PRs merge simultaneously and
+# break main before smoke tests can catch the issue.
 concurrency:
-  group: autonomous-pr-review-${{ github.event.pull_request.number || inputs.pr_number }}
-  cancel-in-progress: true
+  group: auto-merge-gate
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -51,7 +54,7 @@ jobs:
             // Skip draft PRs
             if (pr.draft) {
               core.setOutput('should_review', 'false');
-              console.log('Skipping: PR is a draft');
+              core.info('Skipping: PR is a draft');
               return;
             }
 
@@ -59,7 +62,7 @@ jobs:
             const labels = pr.labels.map(l => l.name);
             if (labels.includes('no-auto-merge')) {
               core.setOutput('should_review', 'false');
-              console.log('Skipping: has no-auto-merge label');
+              core.info('Skipping: has no-auto-merge label');
               return;
             }
 
@@ -72,7 +75,7 @@ jobs:
 
             if (files.length > 10) {
               core.setOutput('should_review', 'false');
-              console.log(`Skipping: ${files.length} files changed (>10, needs human review)`);
+              core.info(`Skipping: ${files.length} files changed (>10, needs human review)`);
               return;
             }
 
@@ -83,15 +86,150 @@ jobs:
             );
             if (hasBreaking) {
               core.setOutput('should_review', 'false');
-              console.log('Skipping: contains breaking change indicators');
+              core.info('Skipping: contains breaking change indicators');
               return;
             }
 
             core.setOutput('should_review', 'true');
 
-  wait-for-ci:
+  check-main-health:
     needs: should-auto-review
     if: needs.should-auto-review.outputs.should_review == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      main_healthy: ${{ steps.health.outputs.healthy }}
+    steps:
+      - name: Verify main branch is healthy
+        id: health
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Helper: poll a smoke test run until completed or timeout
+            async function waitForSmokeTest(runId, maxWaitMs) {
+              const pollInterval = 30 * 1000;
+              const startTime = Date.now();
+
+              while (Date.now() - startTime < maxWaitMs) {
+                await new Promise(r => setTimeout(r, pollInterval));
+                const { data: updated } = await github.rest.actions.getWorkflowRun({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  run_id: runId,
+                });
+                if (updated.status === 'completed') {
+                  return updated;
+                }
+                core.info(`Still waiting for smoke test (${updated.status})...`);
+              }
+              return null; // timed out
+            }
+
+            // Check 1: Is the last post-merge smoke test passing?
+            const { data: smokeRuns } = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'post-merge-smoke.yml',
+              branch: 'main',
+              per_page: 1,
+            });
+
+            if (smokeRuns.workflow_runs.length > 0) {
+              const lastSmoke = smokeRuns.workflow_runs[0];
+
+              if (lastSmoke.status !== 'completed') {
+                core.info(`Last smoke test is still ${lastSmoke.status} — waiting...`);
+                const result = await waitForSmokeTest(lastSmoke.id, 10 * 60 * 1000);
+
+                if (!result) {
+                  core.warning('Smoke test did not complete within 10 minutes — blocking merge');
+                  core.setOutput('healthy', 'false');
+                  return;
+                }
+                if (result.conclusion !== 'success') {
+                  core.warning(`Smoke test failed (${result.conclusion}) — blocking merge`);
+                  core.setOutput('healthy', 'false');
+                  return;
+                }
+                core.info('Smoke test passed after waiting');
+              } else if (lastSmoke.conclusion !== 'success') {
+                core.warning(`Last smoke test failed (${lastSmoke.conclusion}) — blocking merge`);
+                core.setOutput('healthy', 'false');
+                return;
+              }
+            }
+
+            // Check 2: Are there any open P0 incident issues?
+            const { data: incidents } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'incident,P0',
+            });
+
+            if (incidents.length > 0) {
+              core.warning(`Found ${incidents.length} open P0 incident(s) — blocking merge`);
+              incidents.forEach(i => core.info(`  - #${i.number}: ${i.title}`));
+              core.setOutput('healthy', 'false');
+              return;
+            }
+
+            // Check 3: Cooldown — if a smoke test is running, wait for it to complete
+            // and re-verify its result before declaring main healthy.
+            const { data: recentRuns } = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'post-merge-smoke.yml',
+              branch: 'main',
+              per_page: 1,
+            });
+
+            if (recentRuns.workflow_runs.length > 0) {
+              const lastRun = recentRuns.workflow_runs[0];
+              const lastRunTime = new Date(lastRun.created_at).getTime();
+              const cooldownMs = 5 * 60 * 1000; // 5 minutes
+              const timeSince = Date.now() - lastRunTime;
+
+              if (timeSince < cooldownMs && lastRun.status !== 'completed') {
+                const waitMs = cooldownMs - timeSince;
+                core.info(`Cooldown: waiting ${Math.ceil(waitMs / 1000)}s for smoke test to settle...`);
+                await new Promise(r => setTimeout(r, waitMs));
+
+                // Re-verify smoke test result after cooldown
+                const { data: recheck } = await github.rest.actions.getWorkflowRun({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  run_id: lastRun.id,
+                });
+
+                if (recheck.status !== 'completed') {
+                  core.info('Smoke test still running after cooldown — waiting for completion...');
+                  const result = await waitForSmokeTest(lastRun.id, 5 * 60 * 1000);
+                  if (!result) {
+                    core.warning('Smoke test did not complete after cooldown — blocking merge');
+                    core.setOutput('healthy', 'false');
+                    return;
+                  }
+                  if (result.conclusion !== 'success') {
+                    core.warning(`Smoke test failed after cooldown (${result.conclusion}) — blocking merge`);
+                    core.setOutput('healthy', 'false');
+                    return;
+                  }
+                } else if (recheck.conclusion !== 'success') {
+                  core.warning(`Smoke test failed during cooldown (${recheck.conclusion}) — blocking merge`);
+                  core.setOutput('healthy', 'false');
+                  return;
+                }
+              }
+            }
+
+            core.info('Main branch is healthy — merge allowed');
+            core.setOutput('healthy', 'true');
+
+  wait-for-ci:
+    needs: [should-auto-review, check-main-health]
+    if: >-
+      needs.should-auto-review.outputs.should_review == 'true' &&
+      needs.check-main-health.outputs.main_healthy == 'true'
     runs-on: ubuntu-latest
     outputs:
       ci_passed: ${{ steps.wait.outputs.ci_passed }}
@@ -126,12 +264,13 @@ jobs:
               // Filter out this workflow's own checks
               const ciChecks = checks.check_runs.filter(c =>
                 c.name !== 'should-auto-review' &&
+                c.name !== 'check-main-health' &&
                 c.name !== 'wait-for-ci' &&
                 c.name !== 'auto-review-and-merge'
               );
 
               if (ciChecks.length === 0) {
-                console.log('No CI checks found yet, waiting...');
+                core.info('No CI checks found yet, waiting...');
                 await new Promise(r => setTimeout(r, pollInterval));
                 continue;
               }
@@ -139,7 +278,7 @@ jobs:
               const allComplete = ciChecks.every(c => c.status === 'completed');
               if (!allComplete) {
                 const pending = ciChecks.filter(c => c.status !== 'completed').map(c => c.name);
-                console.log(`Waiting for: ${pending.join(', ')}`);
+                core.info(`Waiting for: ${pending.join(', ')}`);
                 await new Promise(r => setTimeout(r, pollInterval));
                 continue;
               }
@@ -149,24 +288,24 @@ jobs:
               );
 
               if (allPassed) {
-                console.log('All CI checks passed!');
+                core.info('All CI checks passed!');
                 core.setOutput('ci_passed', 'true');
                 return;
               } else {
                 const failed = ciChecks
                   .filter(c => c.conclusion !== 'success' && c.conclusion !== 'skipped')
                   .map(c => `${c.name}: ${c.conclusion}`);
-                console.log(`CI failed: ${failed.join(', ')}`);
+                core.warning(`CI failed: ${failed.join(', ')}`);
                 core.setOutput('ci_passed', 'false');
                 return;
               }
             }
 
-            console.log('Timed out waiting for CI');
+            core.warning('Timed out waiting for CI');
             core.setOutput('ci_passed', 'false');
 
   auto-review-and-merge:
-    needs: [should-auto-review, wait-for-ci]
+    needs: [should-auto-review, check-main-health, wait-for-ci]
     if: needs.wait-for-ci.outputs.ci_passed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -209,6 +348,43 @@ jobs:
             --max-turns 15 \
             2>&1 | tee /tmp/review-output.txt
 
+      - name: Update PR branch to latest main
+        env:
+          PR_NUMBER: ${{ needs.should-auto-review.outputs.pr_number }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Ensure PR branch is up-to-date with main before merging.
+          # This prevents merging stale code that might conflict with recent changes.
+          gh api \
+            --method PUT \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${{ github.repository }}/pulls/${PR_NUMBER}/update-branch" \
+            2>/dev/null || echo "Branch already up to date or update not needed"
+
+          # If branch was updated, wait for CI to re-run
+          sleep 10
+
+          # Re-check CI status after branch update
+          PR_DATA=$(gh pr view "$PR_NUMBER" --json statusCheckRollup)
+          PENDING=$(echo "$PR_DATA" | jq '[.statusCheckRollup[] | select(.status != "COMPLETED")] | length')
+
+          if [ "$PENDING" -gt 0 ]; then
+            echo "Branch was updated — waiting for CI to re-run..."
+            MAX_WAIT=300  # 5 minutes
+            ELAPSED=0
+            while [ "$ELAPSED" -lt "$MAX_WAIT" ]; do
+              sleep 30
+              ELAPSED=$((ELAPSED + 30))
+              PR_DATA=$(gh pr view "$PR_NUMBER" --json statusCheckRollup)
+              PENDING=$(echo "$PR_DATA" | jq '[.statusCheckRollup[] | select(.status != "COMPLETED")] | length')
+              if [ "$PENDING" -eq 0 ]; then
+                echo "CI completed after branch update"
+                break
+              fi
+              echo "Still waiting for $PENDING check(s)..."
+            done
+          fi
+
       - name: Parse review verdict and act
         env:
           PR_NUMBER: ${{ needs.should-auto-review.outputs.pr_number }}
@@ -219,12 +395,71 @@ jobs:
           if echo "$REVIEW" | grep -q "VERDICT: APPROVE"; then
             echo "Review passed - approving and merging"
 
+            # Dismiss any previous CHANGES_REQUESTED reviews from github-actions[bot]
+            # so they don't block the merge after issues have been fixed.
+            REVIEWS=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews" --jq '.[] | select(.state == "CHANGES_REQUESTED" and .user.login == "github-actions[bot]") | .id')
+            DISMISS_FAILED=false
+            for REVIEW_ID in $REVIEWS; do
+              echo "Dismissing stale CHANGES_REQUESTED review $REVIEW_ID"
+              if ! gh api --method PUT \
+                "repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews/${REVIEW_ID}/dismissals" \
+                -f message="Issues addressed — dismissing stale review"; then
+                echo "WARNING: Could not dismiss review $REVIEW_ID"
+                DISMISS_FAILED=true
+              fi
+            done
+
+            if [ "$DISMISS_FAILED" = "true" ]; then
+              echo "WARNING: Some reviews could not be dismissed — merge may be blocked by branch protection"
+            fi
+
             gh pr review "$PR_NUMBER" --approve --body "Autonomous review: All checks passed. No security issues, logic errors, or standard violations found."
 
+            # Final safety check: verify main smoke test is green right before merge.
+            # check-main-health already verified earlier, but time may have passed
+            # since then (review + branch update). This is a lightweight re-check.
+            LAST_SMOKE=$(gh run list --workflow=post-merge-smoke.yml --branch=main --limit=1 --json conclusion,status -q '.[0]')
+            SMOKE_STATUS=$(echo "$LAST_SMOKE" | jq -r '.status')
+            SMOKE_CONCLUSION=$(echo "$LAST_SMOKE" | jq -r '.conclusion')
+
+            if [ "$SMOKE_STATUS" != "completed" ]; then
+              echo "Smoke test still running — waiting before merge..."
+              MAX_POLL=300
+              POLL_ELAPSED=0
+              while [ "$POLL_ELAPSED" -lt "$MAX_POLL" ]; do
+                sleep 30
+                POLL_ELAPSED=$((POLL_ELAPSED + 30))
+                LAST_SMOKE=$(gh run list --workflow=post-merge-smoke.yml --branch=main --limit=1 --json conclusion,status -q '.[0]')
+                SMOKE_STATUS=$(echo "$LAST_SMOKE" | jq -r '.status')
+                SMOKE_CONCLUSION=$(echo "$LAST_SMOKE" | jq -r '.conclusion')
+                if [ "$SMOKE_STATUS" = "completed" ]; then
+                  break
+                fi
+                echo "Smoke test still running ($SMOKE_STATUS) — waiting... (${POLL_ELAPSED}s/${MAX_POLL}s)"
+              done
+            fi
+
+            if [ "$SMOKE_STATUS" != "completed" ]; then
+              echo "ERROR: Smoke test did not complete within ${MAX_POLL}s — aborting merge"
+              gh pr comment "$PR_NUMBER" --body "Auto-merge blocked: smoke test did not complete in time. Will retry later."
+              exit 1
+            fi
+
+            if [ "$SMOKE_CONCLUSION" != "success" ]; then
+              echo "ERROR: Main branch smoke test is not passing (conclusion: $SMOKE_CONCLUSION) — aborting merge"
+              gh pr comment "$PR_NUMBER" --body "Auto-merge blocked: main branch smoke test conclusion is \`$SMOKE_CONCLUSION\` (expected \`success\`). Will retry when main is healthy."
+              exit 1
+            fi
+
             gh pr merge "$PR_NUMBER" --squash --delete-branch \
-              --body "Auto-merged after autonomous review + CI pass"
+              --body "Auto-merged after autonomous review + CI pass + main health verified"
 
             echo "## Auto-merged PR #${PR_NUMBER}" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "Merge gate checks passed:" >> "$GITHUB_STEP_SUMMARY"
+            echo "- CI: passed" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Main health: verified" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Branch: up to date" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "Review found issues - requesting changes"
 

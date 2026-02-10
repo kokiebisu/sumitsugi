@@ -52,6 +52,21 @@ Chaining these risks permanently breaking the shell if any step fails.
 
 **Auto-merge** all changes except: breaking API changes, major architecture decisions, 10+ file features.
 
+## PR Review Resolution (CRITICAL)
+
+When addressing PR review comments (from Claude Code bot, github-actions, or humans):
+
+1. Read ALL review comments: fetch via GitHub API or `gh pr view <n> --comments` + review comments endpoint
+2. Fix each issue in code
+3. **Resolve each addressed comment** after pushing the fix:
+   ```bash
+   # Via GitHub GraphQL API — mark review threads as resolved
+   gh api graphql -f query='mutation { resolveReviewThread(input: {threadId: "<THREAD_NODE_ID>"}) { thread { isResolved } } }'
+   ```
+4. Push fixes, then verify no unresolved threads remain
+
+**NEVER leave addressed review comments unresolved.** Resolving threads signals to reviewers that feedback was acted on.
+
 ## Task Completion (CRITICAL)
 
 After completing any task:

@@ -5,9 +5,12 @@ on:
     branches:
       - main
 
+# CRITICAL: cancel-in-progress must be false.
+# If two merges happen close together, we need BOTH smoke tests to complete.
+# Cancelling a smoke test means we lose visibility into whether that merge broke main.
 concurrency:
   group: post-merge-smoke
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: read
