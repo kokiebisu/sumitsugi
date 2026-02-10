@@ -28,6 +28,18 @@ graph TD
 
     TECH --> TASKS["タスク分解会議<br/>/meeting:tasks"]
     TASKS --> DEV["開発"]
+
+    subgraph TEAMS["Agent Teams（CLI専用）"]
+        RES["事前リサーチ<br/>/team:research"]
+        TDEV["並列開発<br/>/team:dev"]
+        TREV["並列レビュー<br/>/team:review"]
+    end
+
+    RES -.->|"knowledgeフォルダ更新"| EXEC
+    RES -.->|"knowledgeフォルダ更新"| PROD
+    TASKS -->|"Agent Teams"| TDEV
+    TDEV -->|"PR作成"| TREV
+    TREV -->|"承認/修正要求"| MERGE["マージ"]
 ```
 
 ---
@@ -111,6 +123,112 @@ graph LR
 - TDD（テスト駆動開発）で実装
 - PRは~300行以内、CI全チェック必須
 - コードレビュー → マージ
+
+---
+
+## Agent Teams による並列実行（CLI専用）
+
+`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` を有効にすると、複数の独立したClaude Codeインスタンスが並列に作業できる。従来のサブエージェント（Task tool）とは異なり、チームメイト同士が直接コミュニケーション可能。
+
+### フルパイプライン
+
+```mermaid
+graph LR
+    R["Step 0<br/>/team:research<br/><i>並列リサーチ</i>"]
+    P["Step 1<br/>/meeting:product<br/><i>何を作るか</i>"]
+    T["Step 2<br/>/meeting:tech<br/><i>どう作るか</i>"]
+    K["Step 3<br/>/meeting:tasks<br/><i>いつ・誰が</i>"]
+    D["Step 4<br/>/team:dev<br/><i>並列開発</i>"]
+    V["Step 5<br/>/team:review<br/><i>並列レビュー</i>"]
+
+    R -->|"knowledge更新"| P
+    P -->|"デルタサマリー"| T
+    T -->|"確定要件"| K
+    K -->|"Beads → Linear"| D
+    D -->|"PR作成"| V
+    V -->|"承認 → マージ"| M["完了"]
+```
+
+### /team:research — 事前リサーチスプリント
+
+会議の前に、リサーチャーチームを並列で派遣し、各役員のknowledgeフォルダを最新データで更新する。
+
+```
+/team:research exec Q2戦略
+/team:research product 内見予約フロー
+/team:research tech リアルタイム通知
+```
+
+| ミーティング | リサーチャー               | 更新先             |
+| ------------ | -------------------------- | ------------------ |
+| exec         | 市場, ユーザー, 技術, 競合 | CEO, CPO, CTO, CMO |
+| product      | ユーザー, 競合, 市場       | CPO, CMO           |
+| tech         | 技術, アーキテクチャ, AI   | CTO, CAIO          |
+| gtm          | 競合, チャネル, 市場       | CMO, CEO           |
+
+**効果:** C-suiteミーティングが「調べてから議論」ではなく、「調べた上で議論」になる。
+
+### /team:dev — 並列開発
+
+最大5つのタスクを独立したチームメイトが同時に実装する。各チームメイトは自分専用のgit worktreeで作業し、ファイル競合を回避。
+
+```
+/team:dev           # 全フェーズ
+/team:dev phase-1   # Phase 1のみ
+```
+
+**従来の `/work:dev` との違い:**
+
+|                    | `/work:dev`（サブエージェント） | `/team:dev`（Agent Teams）     |
+| ------------------ | ------------------------------- | ------------------------------ |
+| 並列性             | Task tool（報告のみ）           | 独立インスタンス（相互通信可） |
+| コミュニケーション | メインに報告するだけ            | チームメイト間で直接やり取り   |
+| 環境               | CLI + CI/GitHub Actions         | CLI専用                        |
+| コスト             | 低い                            | 高い（N倍のトークン）          |
+| 向いている場面     | 自動化、ルーティン              | 複雑な機能、相互依存タスク     |
+
+**ルール:**
+
+- リードはdelegate mode（調整のみ、自分では実装しない）
+- 各チームメイトは専用worktreeで作業
+- APIやインターフェース変更時は他チームメイトに通知
+- plan approval必須（実装前にリードが承認）
+
+### /team:review — 並列コードレビュー
+
+4人の専門レビュワーがPRを同時にレビューする。
+
+```
+/team:review #142
+/team:review feat/auth-flow
+```
+
+| レビュワー        | 観点                                                           |
+| ----------------- | -------------------------------------------------------------- |
+| security-reviewer | セキュリティ（OWASP Top 10、秘密値、認証）                     |
+| quality-reviewer  | コード品質（関数サイズ、不変性、命名）                         |
+| test-reviewer     | テスト（カバレッジ、TDD、エッジケース）                        |
+| perf-reviewer     | パフォーマンス（アルゴリズム、再レンダリング、バンドルサイズ） |
+
+**判定:** APPROVE / REQUEST CHANGES / BLOCK
+
+レビュー後、リードが全結果を統合レポートにまとめ、PRにコメントする。
+
+### CI/GitHub Actions との使い分け
+
+```mermaid
+graph TD
+    Q{環境は?}
+    Q -->|"CLI（対話型）"| TEAMS["Agent Teams<br/>/team:dev, /team:review"]
+    Q -->|"CI / GitHub Actions"| SUB["サブエージェント<br/>/work:dev, /work:business"]
+
+    TEAMS --> MERGE["PR → マージ"]
+    SUB --> MERGE
+```
+
+- **CLI（対話型セッション）:** `/team:*` コマンドを使用。深いコーディネーション、相互通信、plan approval付き。
+- **CI / GitHub Actions:** `/work:dev`, `/work:business` を使用。サブエージェントベースで自動実行。
+- 両方とも同じBeads/Linearタスク管理を使用。結果は同じ（PR → CI → マージ）。
 
 ---
 
