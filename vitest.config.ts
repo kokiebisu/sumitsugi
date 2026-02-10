@@ -11,6 +11,23 @@ export default defineConfig({
       '**/.next/**',
       '**/tests/e2e/**', // Exclude Playwright e2e tests
     ],
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: [
+        'src/**/*.d.ts',
+        'src/**/*.test.{ts,tsx}',
+        'src/**/*.spec.{ts,tsx}',
+        'src/components/ui/**', // shadcn/ui generated components
+      ],
+      // Current: ~25%. Target: 80%. Thresholds prevent regression.
+      thresholds: {
+        lines: 25,
+        functions: 24,
+        branches: 17,
+        statements: 25,
+      },
+    },
   },
   resolve: {
     alias: {
