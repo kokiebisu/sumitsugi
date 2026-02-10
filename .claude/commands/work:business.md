@@ -1,10 +1,23 @@
 ---
 description: Auto-pick business tasks from Beads and dispatch parallel sub-agents. Loops until done.
+allowed-tools: Bash, Read, Edit, Write, Grep, Glob, Task, WebFetch, WebSearch
 ---
 
 # /work:business - Autonomous Business Task Execution
 
 Execute without waiting for user confirmation.
+
+**Arguments:** `$ARGUMENTS` (optional milestone, e.g. `1`, `phase-2`, or empty for all)
+
+## Milestone Filtering
+
+Parse `$ARGUMENTS` to determine the maximum phase to include:
+
+- `1` or `phase-1` → include tasks with labels `phase-0`, `phase-1` only
+- `2` or `phase-2` → include tasks with labels `phase-0`, `phase-1`, `phase-2`
+- Empty or not specified → no phase filter (include all tasks regardless of phase labels)
+
+**Rule:** If a milestone is specified, SKIP any task whose labels contain `phase-N` where N > max phase. Tasks with NO phase label are always included.
 
 ## Main Loop
 
@@ -23,6 +36,8 @@ REPEAT:
 Run `bd ready`. Fallback: read `.beads/issues.jsonl` for `status=open`, no blockers.
 
 **Skip tasks with:** labels `blocked|wontfix|autonomous:skip|needs-human|ceo|cfo|cmo|coo`, or title keywords `ヒアリング実施|参加する|予約|電話|訪問|面談|対面`.
+
+**Milestone gate:** If a milestone was specified via arguments, skip tasks with a `phase-N` label where N exceeds the milestone.
 
 **Filter to Business only:** Include only tasks where labels include: `business|marketing|legal|finance|sales|manual-setup|partnership|branding|hiring|operations`. Or title matches: `タグライン|予算|法律|法務|規約|管理会社|パートナー|マーケティング|Twitter|投稿|提案資料|振り返り|Stripe|書類|イベント|Venture|Cafe|告知|成功事例|フォローアップ|清掃費|物件登録目標|紹介プログラム|コンテンツマーケ|CAC|LTV|紹介フィー|オペレーション`.
 
