@@ -23,7 +23,7 @@ jobs:
           node-version: '20'
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
@@ -38,14 +38,29 @@ jobs:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
         run: bun run scripts/daily-knowledge-update.ts
 
-      - name: Commit and push changes
+      - name: Commit and push changes via PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TODAY=$(date +'%Y-%m-%d')
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add docs/team/*/knowledge/
-          git diff --staged --quiet || git commit -m "chore: daily knowledge update $TODAY"
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
 
-          # Pull latest changes and rebase before pushing (handles concurrent updates)
-          git pull --rebase origin main
-          git push
+          BRANCH="docs/knowledge-$TODAY"
+          git checkout -b "$BRANCH"
+          git commit -m "chore: daily knowledge update $TODAY"
+          git push -u origin "$BRANCH"
+
+          gh pr create \
+            --title "chore: daily knowledge update $TODAY" \
+            --body "Automated daily knowledge update. Docs-only changes." \
+            --base main \
+            --head "$BRANCH"
+
+          git checkout main
+          git pull origin main
