@@ -29,6 +29,14 @@ gh pr create --title "<type>: <desc>" --body "..."
 
 Chaining these risks permanently breaking the shell if any step fails.
 
+## Build Verification (CRITICAL)
+
+**ALWAYS run `bun run build` locally before creating a PR.** CI alone is not sufficient — if CI lacks a build step, type errors slip through silently.
+
+- `bun run build` catches TypeScript errors that ESLint and tests miss
+- If build fails, fix ALL type errors before pushing
+- NEVER merge a PR without confirming the build passes (locally or in CI)
+
 ## PR Process (CRITICAL)
 
 **NEVER STOP until merge is complete.** Full sequence:
@@ -39,7 +47,7 @@ Chaining these risks permanently breaking the shell if any step fails.
 4. Check PR comments: `gh pr view <n> --comments` + `gh pr reviews <n>`
 5. Address all relevant review feedback
 6. Merge: `gh pr merge <n> --squash --delete-branch`
-7. Return to main: `git checkout main && git pull origin main`
+7. **Remove worktree (3 SEPARATE Bash calls):** `cd /workspace` | `git worktree remove /workspace/.worktrees/<name> --force` | `git branch -D <branch> 2>/dev/null; git pull origin main`
 8. Update PR description after each push: `gh pr edit <n> --body "..."`
 
 **Auto-merge** all changes except: breaking API changes, major architecture decisions, 10+ file features.
