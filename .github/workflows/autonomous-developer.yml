@@ -230,23 +230,17 @@ jobs:
               });
             }
 
-      - name: Commit Beads state
+      - name: Update state and commit via PR
         if: steps.pick.outputs.has_task == 'true' && inputs.dry_run != true
         env:
           PICKED_TASK_ID: ${{ steps.pick.outputs.task_id }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Update beads state
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .beads/issues.jsonl || true
-          git diff --staged --quiet || git commit -m "chore: update task status for $PICKED_TASK_ID"
-          git pull --rebase origin main
-          git push
 
-      - name: Update state
-        if: steps.pick.outputs.has_task == 'true' && inputs.dry_run != true
-        env:
-          PICKED_TASK_ID: ${{ steps.pick.outputs.task_id }}
-        run: |
+          # Update autonomous state.json
           STATE_FILE=".github/autonomous/state.json"
           TODAY=$(date -u +%Y-%m-%d)
           NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
@@ -265,7 +259,6 @@ jobs:
           CLAUDE_RESULT="${{ steps.claude.outputs.result }}"
           if [ "$CLAUDE_RESULT" = "success" ]; then
             STATE=$(echo "$STATE" | jq '.daily_stats.tasks_completed += 1 | .lifetime.total_tasks_completed += 1')
-            # Update streak
             STATE=$(echo "$STATE" | jq '.streak.current += 1')
             CURRENT=$(echo "$STATE" | jq '.streak.current')
             BEST=$(echo "$STATE" | jq '.streak.best')
@@ -280,12 +273,41 @@ jobs:
 
           echo "$STATE" | jq '.' > "$STATE_FILE"
 
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add "$STATE_FILE" || true
-          git diff --staged --quiet || git commit -m "chore: update autonomous state"
-          git pull --rebase origin main
-          git push
+          # Check if there are changes to commit
+          git add .beads/issues.jsonl "$STATE_FILE" 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "No state changes to commit"
+            exit 0
+          fi
+
+          # Commit state changes to a branch and create a lightweight PR.
+          # This avoids direct pushes to main that trigger unnecessary smoke tests
+          # and can interfere with the merge gate.
+          STATE_BRANCH="chore/auto-state-$(date -u +%Y%m%d-%H%M%S)"
+          git checkout -b "$STATE_BRANCH" || {
+            echo "ERROR: Failed to create branch $STATE_BRANCH"
+            exit 1
+          }
+          git commit -m "chore: update autonomous state for $PICKED_TASK_ID"
+          git push -u origin "$STATE_BRANCH" || {
+            echo "ERROR: Failed to push branch $STATE_BRANCH"
+            git checkout main 2>/dev/null || true
+            exit 1
+          }
+
+          # Create the state PR (data-only, no code changes)
+          gh pr create \
+            --title "chore: update autonomous state" \
+            --body "Automated state update from autonomous developer run.
+          Data-only changes (beads + state.json), no code modifications." \
+            --base main \
+            --head "$STATE_BRANCH" || {
+            echo "WARNING: Failed to create PR for state update — branch was pushed"
+          }
+
+          # Return to the original branch for subsequent steps
+          git checkout main 2>/dev/null || true
+          git pull origin main 2>/dev/null || true
 
       - name: Notify Slack
         if: always()

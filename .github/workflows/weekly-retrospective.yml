@@ -148,16 +148,32 @@ jobs:
           echo "$REPORT" > "docs/team/retrospectives/$WEEK_END.md"
           echo "$REPORT" > /tmp/retro_report.md
 
-      - name: Commit report
+      - name: Commit report via PR
         env:
           WEEK_END: ${{ steps.metrics.outputs.week_end }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/team/retrospectives/ docs/team/standups/
-          git diff --staged --quiet || git commit -m "docs: weekly retrospective $WEEK_END"
-          git pull --rebase origin main
-          git push
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          BRANCH="docs/retro-$WEEK_END"
+          git checkout -b "$BRANCH"
+          git commit -m "docs: weekly retrospective $WEEK_END"
+          git push -u origin "$BRANCH"
+
+          gh pr create \
+            --title "docs: weekly retrospective $WEEK_END" \
+            --body "Automated weekly retrospective report. Docs-only changes." \
+            --base main \
+            --head "$BRANCH"
+
+          git checkout main
+          git pull origin main
 
       - name: Create GitHub Issue
         env:
