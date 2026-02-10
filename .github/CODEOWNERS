@@ -1,0 +1,15 @@
+# Default owner for all files
+* @kokiebisu
+
+# Automation & CI
+.github/ @kokiebisu
+.claude/ @kokiebisu
+scripts/ @kokiebisu
+
+# Core application
+src/lib/stripe/ @kokiebisu
+src/lib/auth* @kokiebisu
+src/lib/pdf/ @kokiebisu
+
+# Requirements & docs
+docs/requirements/ @kokiebisu

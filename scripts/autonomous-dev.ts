@@ -34,11 +34,26 @@ interface PickResult {
   prompt?: string;
 }
 
+interface AutonomousState {
+  failed_tasks: Array<{
+    id: string;
+    title: string;
+    failures: number;
+    first_failed: string;
+    last_failed: string;
+  }>;
+  [key: string]: unknown;
+}
+
 const BEADS_PATH = join(process.cwd(), ".beads", "issues.jsonl");
 const PAUSE_FILE = join(process.cwd(), ".github", "PAUSE_AUTONOMOUS");
+const STATE_FILE = join(process.cwd(), ".github", "autonomous", "state.json");
 
 // Labels that prevent autonomous processing
 const SKIP_LABELS = ["blocked", "wontfix", "autonomous:skip", "needs-human"];
+
+// Max failures before a task is auto-skipped
+const MAX_TASK_FAILURES = 3;
 
 // Max tasks per day
 const MAX_DAILY_TASKS = 3;
@@ -75,6 +90,24 @@ async function isPaused(): Promise<boolean> {
   return fileExists(PAUSE_FILE);
 }
 
+async function getFailedTaskIds(): Promise<Set<string>> {
+  try {
+    const content = await readFile(STATE_FILE, "utf-8");
+    const state: AutonomousState = JSON.parse(content);
+    const failedIds = new Set<string>();
+
+    for (const task of state.failed_tasks ?? []) {
+      if (task.failures >= MAX_TASK_FAILURES) {
+        failedIds.add(task.id);
+      }
+    }
+
+    return failedIds;
+  } catch {
+    return new Set();
+  }
+}
+
 async function getTodayCompletedCount(): Promise<number> {
   const tasks = await readBeadsTasks();
   const today = new Date().toISOString().split("T")[0];
@@ -87,10 +120,11 @@ async function getTodayCompletedCount(): Promise<number> {
   }).length;
 }
 
-function isEligible(task: BeadsTask): boolean {
+function isEligible(task: BeadsTask, failedTaskIds: Set<string>): boolean {
   if (task.status !== "open") return false;
   if (task.labels?.some((l) => SKIP_LABELS.includes(l))) return false;
   if (task.blockers && task.blockers.length > 0) return false;
+  if (failedTaskIds.has(task.id)) return false;
   return true;
 }
 
@@ -149,9 +183,16 @@ async function pickTask(): Promise<PickResult> {
     };
   }
 
-  // Get eligible tasks
+  // Get eligible tasks (skip tasks that have failed too many times)
   const tasks = await readBeadsTasks();
-  const eligible = tasks.filter(isEligible);
+  const failedTaskIds = await getFailedTaskIds();
+  const eligible = tasks.filter((t) => isEligible(t, failedTaskIds));
+
+  if (failedTaskIds.size > 0) {
+    console.log(
+      `Skipping ${failedTaskIds.size} task(s) with ${MAX_TASK_FAILURES}+ failures`,
+    );
+  }
 
   if (eligible.length === 0) {
     return { success: false, reason: "No eligible tasks found" };
@@ -204,7 +245,8 @@ async function markTaskDone(taskId: string): Promise<boolean> {
 async function showStatus(): Promise<void> {
   const paused = await isPaused();
   const tasks = await readBeadsTasks();
-  const eligible = tasks.filter(isEligible);
+  const failedTaskIds = await getFailedTaskIds();
+  const eligible = tasks.filter((t) => isEligible(t, failedTaskIds));
   const completedToday = await getTodayCompletedCount();
 
   console.log("=== Autonomous Developer Status ===");
