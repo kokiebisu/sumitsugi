@@ -1,0 +1,177 @@
+name: Weekly Retrospective
+
+on:
+  schedule:
+    # Sunday 21:00 JST = Sunday 12:00 UTC
+    - cron: '0 12 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  retrospective:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Collect weekly metrics
+        id: metrics
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          WEEK_END=$(date -u +%Y-%m-%d)
+          WEEK_START=$(date -u -d "7 days ago" +%Y-%m-%d 2>/dev/null || date -u -v-7d +%Y-%m-%d)
+
+          # PRs merged this week
+          gh pr list --state merged --search "merged:>=$WEEK_START" --json number,title,mergedAt,additions,deletions --limit 50 > /tmp/prs_merged.json 2>/dev/null || echo "[]" > /tmp/prs_merged.json
+          PRS_MERGED_COUNT=$(jq 'length' /tmp/prs_merged.json 2>/dev/null || echo "0")
+
+          # PRs created this week
+          gh pr list --state all --search "created:>=$WEEK_START" --json number,title,state --limit 50 > /tmp/prs_created.json 2>/dev/null || echo "[]" > /tmp/prs_created.json
+          PRS_CREATED_COUNT=$(jq 'length' /tmp/prs_created.json 2>/dev/null || echo "0")
+
+          # Failed PRs (closed without merge)
+          PRS_FAILED_COUNT=$(jq '[.[] | select(.state == "CLOSED")] | length' /tmp/prs_created.json 2>/dev/null || echo "0")
+
+          # Lines changed
+          ADDITIONS=$(jq '[.[].additions] | add // 0' /tmp/prs_merged.json 2>/dev/null || echo "0")
+          DELETIONS=$(jq '[.[].deletions] | add // 0' /tmp/prs_merged.json 2>/dev/null || echo "0")
+
+          # Commits this week
+          COMMIT_COUNT=$(git log --since="$WEEK_START" --oneline --no-merges 2>/dev/null | wc -l | tr -d ' ')
+
+          # Task stats
+          TASKS_DONE=$(jq -s '[.[] | select(.status == "done")] | length' .beads/issues.jsonl 2>/dev/null || echo "0")
+          TASKS_OPEN=$(jq -s '[.[] | select(.status == "open")] | length' .beads/issues.jsonl 2>/dev/null || echo "0")
+
+          # CI success rate
+          gh run list --created ">=$WEEK_START" --limit 100 --json conclusion > /tmp/ci_runs.json 2>/dev/null || echo "[]" > /tmp/ci_runs.json
+          CI_TOTAL=$(jq 'length' /tmp/ci_runs.json 2>/dev/null || echo "0")
+          CI_SUCCESS=$(jq '[.[] | select(.conclusion == "success")] | length' /tmp/ci_runs.json 2>/dev/null || echo "0")
+
+          # Failed runs detail
+          gh run list --created ">=$WEEK_START" --status failure --limit 20 --json name,conclusion,createdAt > /tmp/failed_runs.json 2>/dev/null || echo "[]" > /tmp/failed_runs.json
+
+          echo "week_start=$WEEK_START" >> "$GITHUB_OUTPUT"
+          echo "week_end=$WEEK_END" >> "$GITHUB_OUTPUT"
+          echo "prs_merged=$PRS_MERGED_COUNT" >> "$GITHUB_OUTPUT"
+          echo "prs_created=$PRS_CREATED_COUNT" >> "$GITHUB_OUTPUT"
+          echo "prs_failed=$PRS_FAILED_COUNT" >> "$GITHUB_OUTPUT"
+          echo "additions=$ADDITIONS" >> "$GITHUB_OUTPUT"
+          echo "deletions=$DELETIONS" >> "$GITHUB_OUTPUT"
+          echo "commits=$COMMIT_COUNT" >> "$GITHUB_OUTPUT"
+          echo "tasks_done=$TASKS_DONE" >> "$GITHUB_OUTPUT"
+          echo "tasks_open=$TASKS_OPEN" >> "$GITHUB_OUTPUT"
+          echo "ci_total=$CI_TOTAL" >> "$GITHUB_OUTPUT"
+          echo "ci_success=$CI_SUCCESS" >> "$GITHUB_OUTPUT"
+
+      - name: Generate retrospective
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          WEEK_START: ${{ steps.metrics.outputs.week_start }}
+          WEEK_END: ${{ steps.metrics.outputs.week_end }}
+          PRS_MERGED: ${{ steps.metrics.outputs.prs_merged }}
+          PRS_CREATED: ${{ steps.metrics.outputs.prs_created }}
+          PRS_FAILED: ${{ steps.metrics.outputs.prs_failed }}
+          ADDITIONS: ${{ steps.metrics.outputs.additions }}
+          DELETIONS: ${{ steps.metrics.outputs.deletions }}
+          COMMITS: ${{ steps.metrics.outputs.commits }}
+          TASKS_DONE: ${{ steps.metrics.outputs.tasks_done }}
+          TASKS_OPEN: ${{ steps.metrics.outputs.tasks_open }}
+          CI_TOTAL: ${{ steps.metrics.outputs.ci_total }}
+          CI_SUCCESS: ${{ steps.metrics.outputs.ci_success }}
+        run: |
+          PRS_MERGED_DATA=$(cat /tmp/prs_merged.json)
+          PRS_CREATED_DATA=$(cat /tmp/prs_created.json)
+          FAILED_RUNS_DATA=$(cat /tmp/failed_runs.json)
+
+          PROMPT="Generate a weekly retrospective report in Japanese for the week of $WEEK_START to $WEEK_END.
+
+          Format:
+          # 週次振り返り ($WEEK_START 〜 $WEEK_END)
+
+          ## サマリー
+          (2-3 sentence overview of the week)
+
+          ## メトリクス
+
+          | 指標 | 今週 | 目標 |
+          |------|------|------|
+          | マージ済みPR | $PRS_MERGED | 5+ |
+          | 作成PR | $PRS_CREATED | — |
+          | 失敗PR | $PRS_FAILED | 0 |
+          | コミット数 | $COMMITS | — |
+          | 追加行数 | +$ADDITIONS | — |
+          | 削除行数 | -$DELETIONS | — |
+          | 完了タスク | $TASKS_DONE | — |
+          | 残タスク | $TASKS_OPEN | — |
+          | CI成功率 | $CI_SUCCESS/$CI_TOTAL | >95% |
+
+          ## 成果 (What went well)
+          (list key achievements based on merged PRs)
+
+          ## 課題 (What needs improvement)
+          (identify patterns from failed runs and closed PRs)
+
+          ## 来週のフォーカス
+          (suggest 3 priorities based on open tasks)
+
+          Data:
+          PRs Merged: $PRS_MERGED_DATA
+          PRs Created: $PRS_CREATED_DATA
+          Failed Runs: $FAILED_RUNS_DATA"
+
+          RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
+            -H "Content-Type: application/json" \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            -d "{\"model\": \"claude-sonnet-4-5-20250929\", \"max_tokens\": 3000, \"messages\": [{\"role\": \"user\", \"content\": $(echo "$PROMPT" | jq -Rs .)}]}")
+
+          REPORT=$(echo "$RESPONSE" | jq -r '.content[0].text // "Report generation failed"')
+
+          mkdir -p docs/team/retrospectives
+          echo "$REPORT" > "docs/team/retrospectives/$WEEK_END.md"
+          echo "$REPORT" > /tmp/retro_report.md
+
+      - name: Commit report
+        env:
+          WEEK_END: ${{ steps.metrics.outputs.week_end }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/team/retrospectives/ docs/team/standups/
+          git diff --staged --quiet || git commit -m "docs: weekly retrospective $WEEK_END"
+          git pull --rebase origin main
+          git push
+
+      - name: Create GitHub Issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WEEK_END: ${{ steps.metrics.outputs.week_end }}
+        run: |
+          REPORT=$(cat /tmp/retro_report.md)
+          gh issue create \
+            --title "Weekly Retrospective: $WEEK_END" \
+            --body "$REPORT" \
+            --label "retrospective"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Weekly Retrospective" >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/retro_report.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || echo "No report generated" >> "$GITHUB_STEP_SUMMARY"

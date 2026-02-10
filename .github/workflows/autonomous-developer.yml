@@ -1,0 +1,162 @@
+name: Autonomous Developer
+
+on:
+  schedule:
+    # Every 4 hours: 02:00, 06:00, 10:00, 14:00, 18:00, 22:00 UTC
+    - cron: '0 2,6,10,14,18,22 * * *'
+  workflow_dispatch:
+    inputs:
+      force_task_id:
+        description: 'Force a specific task ID (optional)'
+        required: false
+        type: string
+      dry_run:
+        description: 'Dry run - pick task but do not implement'
+        required: false
+        type: boolean
+        default: false
+      milestone:
+        description: 'Phase milestone filter (e.g. 1, 2, or empty for all)'
+        required: false
+        type: string
+
+concurrency:
+  group: autonomous-developer
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: read
+  id-token: write
+
+jobs:
+  check-pause:
+    runs-on: ubuntu-latest
+    outputs:
+      paused: ${{ steps.check.outputs.paused }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check pause conditions
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            if (fs.existsSync('.github/PAUSE_AUTONOMOUS')) {
+              core.setOutput('paused', 'true');
+              console.log('Paused: PAUSE_AUTONOMOUS file exists');
+              return;
+            }
+
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'autonomous:pause'
+            });
+
+            if (issues.length > 0) {
+              core.setOutput('paused', 'true');
+              console.log(`Paused: Found ${issues.length} issue(s) with autonomous:pause label`);
+              return;
+            }
+
+            core.setOutput('paused', 'false');
+
+  develop:
+    needs: check-pause
+    if: needs.check-pause.outputs.paused != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Pick task
+        id: pick
+        run: |
+          RESULT=$(bun run scripts/autonomous-dev.ts pick 2>&1)
+          echo "$RESULT"
+
+          if echo "$RESULT" | grep -q "has_task::true"; then
+            TASK_ID=$(echo "$RESULT" | grep "task_id::" | sed 's/.*task_id:://')
+            TASK_TITLE=$(echo "$RESULT" | grep "task_title::" | sed 's/.*task_title:://')
+            echo "has_task=true" >> "$GITHUB_OUTPUT"
+            echo "task_id=$TASK_ID" >> "$GITHUB_OUTPUT"
+            echo "task_title=$TASK_TITLE" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_task=false" >> "$GITHUB_OUTPUT"
+            REASON=$(echo "$RESULT" | grep "skip_reason::" | sed 's/.*skip_reason:://')
+            echo "skip_reason=$REASON" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run Claude Code
+        if: steps.pick.outputs.has_task == 'true' && inputs.dry_run != true
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+          INPUT_MILESTONE: ${{ inputs.milestone }}
+          INPUT_FORCE_ID: ${{ inputs.force_task_id }}
+        run: |
+          npm install -g @anthropic-ai/claude-code
+
+          if [ -n "$INPUT_FORCE_ID" ]; then
+            PROMPT="/work:dev $INPUT_MILESTONE"
+          else
+            PROMPT=$(cat /tmp/task-prompt.txt)
+          fi
+
+          claude -p "$PROMPT" \
+            --allowedTools 'Bash(*)' Read Edit Write Glob Grep Task WebFetch WebSearch \
+            --max-turns 50 \
+            2>&1 | tee /tmp/claude-output.txt
+
+          echo "Claude Code execution complete"
+
+      - name: Commit Beads state
+        if: steps.pick.outputs.has_task == 'true' && inputs.dry_run != true
+        env:
+          PICKED_TASK_ID: ${{ steps.pick.outputs.task_id }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .beads/issues.jsonl || true
+          git diff --staged --quiet || git commit -m "chore: update task status for $PICKED_TASK_ID"
+          git pull --rebase origin main
+          git push
+
+      - name: Summary
+        if: always()
+        env:
+          HAS_TASK: ${{ steps.pick.outputs.has_task }}
+          PICKED_TASK_TITLE: ${{ steps.pick.outputs.task_title }}
+          PICKED_TASK_ID: ${{ steps.pick.outputs.task_id }}
+          SKIP_REASON: ${{ steps.pick.outputs.skip_reason }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          {
+            echo "## Autonomous Developer Run"
+            echo ""
+            if [ "$HAS_TASK" = "true" ]; then
+              echo "**Task:** $PICKED_TASK_TITLE ($PICKED_TASK_ID)"
+              echo "**Dry Run:** ${DRY_RUN:-false}"
+            else
+              echo "**No task picked:** $SKIP_REASON"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
