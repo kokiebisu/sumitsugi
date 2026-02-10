@@ -170,6 +170,19 @@ jobs:
             --body "$REPORT" \
             --label "retrospective"
 
+      - name: Notify Slack
+        if: always()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          PRS_MERGED: ${{ steps.metrics.outputs.prs_merged }}
+          TASKS_DONE: ${{ steps.metrics.outputs.tasks_done }}
+          CI_SUCCESS: ${{ steps.metrics.outputs.ci_success }}
+          CI_TOTAL: ${{ steps.metrics.outputs.ci_total }}
+        run: |
+          if [ -z "${SLACK_WEBHOOK_URL:-}" ]; then exit 0; fi
+          MSG=":calendar: *Weekly Retrospective*\nPRs merged: $PRS_MERGED | Tasks done: $TASKS_DONE | CI: $CI_SUCCESS/$CI_TOTAL\nFull report posted as GitHub Issue"
+          bash scripts/notify-slack.sh "$MSG"
+
       - name: Summary
         if: always()
         run: |

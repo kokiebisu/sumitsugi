@@ -141,6 +141,54 @@ jobs:
           git pull --rebase origin main
           git push
 
+      - name: Update state
+        if: steps.pick.outputs.has_task == 'true' && inputs.dry_run != true
+        env:
+          PICKED_TASK_ID: ${{ steps.pick.outputs.task_id }}
+        run: |
+          STATE_FILE=".github/autonomous/state.json"
+          TODAY=$(date -u +%Y-%m-%d)
+          NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+          STATE=$(cat "$STATE_FILE")
+
+          LAST_DATE=$(echo "$STATE" | jq -r '.daily_stats.date // ""')
+          if [ "$LAST_DATE" != "$TODAY" ]; then
+            STATE=$(echo "$STATE" | jq --arg d "$TODAY" '.daily_stats = {date: $d, tasks_attempted: 0, tasks_completed: 0, tasks_failed: 0, prs_created: 0, prs_merged: 0}')
+          fi
+
+          STATE=$(echo "$STATE" | jq '.daily_stats.tasks_attempted += 1 | .lifetime.total_runs += 1')
+          STATE=$(echo "$STATE" | jq --arg t "$NOW" '.last_run = $t')
+
+          echo "$STATE" | jq '.' > "$STATE_FILE"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "$STATE_FILE" || true
+          git diff --staged --quiet || git commit -m "chore: update autonomous state"
+          git pull --rebase origin main
+          git push
+
+      - name: Notify Slack
+        if: always()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          HAS_TASK: ${{ steps.pick.outputs.has_task }}
+          PICKED_TASK_TITLE: ${{ steps.pick.outputs.task_title }}
+          PICKED_TASK_ID: ${{ steps.pick.outputs.task_id }}
+          SKIP_REASON: ${{ steps.pick.outputs.skip_reason }}
+        run: |
+          if [ -z "${SLACK_WEBHOOK_URL:-}" ]; then
+            echo "SLACK_WEBHOOK_URL not set, skipping notification"
+            exit 0
+          fi
+          if [ "$HAS_TASK" = "true" ]; then
+            MSG=":hammer_and_wrench: *Autonomous Dev* completed task: $PICKED_TASK_TITLE (\`$PICKED_TASK_ID\`)"
+          else
+            MSG=":zzz: *Autonomous Dev* skipped: $SKIP_REASON"
+          fi
+          bash scripts/notify-slack.sh "$MSG"
+
       - name: Summary
         if: always()
         env:

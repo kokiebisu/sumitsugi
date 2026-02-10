@@ -111,13 +111,40 @@ jobs:
           echo "$REPORT" > "docs/team/standups/$REPORT_DATE.md"
           echo "$REPORT" > /tmp/standup_report.md
 
+      - name: Update DASHBOARD.md
+        env:
+          REPORT_DATE: ${{ steps.metrics.outputs.today }}
+          TASKS_DONE: ${{ steps.metrics.outputs.tasks_done }}
+          TASKS_OPEN: ${{ steps.metrics.outputs.tasks_open }}
+          TASKS_BLOCKED: ${{ steps.metrics.outputs.tasks_blocked }}
+        run: |
+          if [ ! -f DASHBOARD.md ]; then exit 0; fi
+
+          # Update "Last updated" line
+          sed -i "s/^> Last updated:.*/> Last updated: $REPORT_DATE/" DASHBOARD.md
+
+          # Update autonomous state if available
+          if [ -f .github/autonomous/state.json ]; then
+            LIFETIME_TASKS=$(jq '.lifetime.total_tasks_completed' .github/autonomous/state.json 2>/dev/null || echo "0")
+            LIFETIME_PRS=$(jq '.lifetime.total_prs_merged' .github/autonomous/state.json 2>/dev/null || echo "0")
+            STREAK=$(jq '.streak.current' .github/autonomous/state.json 2>/dev/null || echo "0")
+
+            # Append or update Linear Sync Status section
+            if grep -q "^## Linear Sync Status" DASHBOARD.md; then
+              sed -i "/^## Linear Sync Status/,/^---/{
+                s/^\*\*Last synced:\*\*.*/\*\*Last synced:\*\* $REPORT_DATE/
+                s/^- Done:.*/- Done: $TASKS_DONE tasks/
+              }" DASHBOARD.md
+            fi
+          fi
+
       - name: Commit report
         env:
           REPORT_DATE: ${{ steps.metrics.outputs.today }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/team/standups/
+          git add docs/team/standups/ DASHBOARD.md
           git diff --staged --quiet || git commit -m "docs: daily standup $REPORT_DATE"
           git pull --rebase origin main
           git push
@@ -132,6 +159,18 @@ jobs:
             --title "Daily Standup: $REPORT_DATE" \
             --body "$REPORT" \
             --label "standup"
+
+      - name: Notify Slack
+        if: always()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          TASKS_DONE: ${{ steps.metrics.outputs.tasks_done }}
+          TASKS_OPEN: ${{ steps.metrics.outputs.tasks_open }}
+          TASKS_BLOCKED: ${{ steps.metrics.outputs.tasks_blocked }}
+        run: |
+          if [ -z "${SLACK_WEBHOOK_URL:-}" ]; then exit 0; fi
+          MSG=":sunrise: *Daily Standup*\nDone: $TASKS_DONE | Open: $TASKS_OPEN | Blocked: $TASKS_BLOCKED\nFull report posted as GitHub Issue"
+          bash scripts/notify-slack.sh "$MSG"
 
       - name: Summary
         if: always()
