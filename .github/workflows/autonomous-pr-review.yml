@@ -398,13 +398,20 @@ jobs:
             # Dismiss any previous CHANGES_REQUESTED reviews from github-actions[bot]
             # so they don't block the merge after issues have been fixed.
             REVIEWS=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews" --jq '.[] | select(.state == "CHANGES_REQUESTED" and .user.login == "github-actions[bot]") | .id')
+            DISMISS_FAILED=false
             for REVIEW_ID in $REVIEWS; do
               echo "Dismissing stale CHANGES_REQUESTED review $REVIEW_ID"
-              gh api --method PUT \
+              if ! gh api --method PUT \
                 "repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews/${REVIEW_ID}/dismissals" \
-                -f message="Issues addressed — dismissing stale review" \
-                -f event="DISMISS" 2>/dev/null || echo "Could not dismiss review $REVIEW_ID (may require different permissions)"
+                -f message="Issues addressed — dismissing stale review"; then
+                echo "WARNING: Could not dismiss review $REVIEW_ID"
+                DISMISS_FAILED=true
+              fi
             done
+
+            if [ "$DISMISS_FAILED" = "true" ]; then
+              echo "WARNING: Some reviews could not be dismissed — merge may be blocked by branch protection"
+            fi
 
             gh pr review "$PR_NUMBER" --approve --body "Autonomous review: All checks passed. No security issues, logic errors, or standard violations found."
 
