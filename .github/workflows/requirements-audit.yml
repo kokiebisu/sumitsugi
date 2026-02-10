@@ -39,8 +39,10 @@ jobs:
 
       - name: Run Claude Audit
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
         run: |
+          npm install -g @anthropic-ai/claude-code
+
           REQUIREMENTS=$(cat /tmp/requirements.md)
           BUSINESS=$(cat /tmp/business.md)
           CODE=$(cat /tmp/code.txt)
@@ -48,7 +50,7 @@ jobs:
 
           PROMPT="Audit this codebase against requirements. Find gaps between REQUIREMENTS.md and actual code.
 
-          Output JSON only:
+          Output JSON only (no markdown fences, no preamble):
           {\"summary\": \"...\", \"gaps\": [{\"title\": \"...\", \"description\": \"...\", \"priority\": 1, \"source\": \"...\"}], \"no_gaps_found\": false}
 
           REQUIREMENTS.md:
@@ -63,13 +65,9 @@ jobs:
           Existing tasks (avoid duplicates):
           $TASKS"
 
-          RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
-            -H "Content-Type: application/json" \
-            -H "x-api-key: $ANTHROPIC_API_KEY" \
-            -H "anthropic-version: 2023-06-01" \
-            -d "{\"model\": \"claude-sonnet-4-20250514\", \"max_tokens\": 4096, \"messages\": [{\"role\": \"user\", \"content\": $(echo "$PROMPT" | jq -Rs .)}]}")
+          RESULT=$(claude -p "$PROMPT" --max-turns 1 2>/dev/null) || RESULT='{"error": "failed"}'
 
-          echo "$RESPONSE" | jq -r '.content[0].text // "{\"error\": \"failed\"}"' > /tmp/audit.json
+          echo "$RESULT" > /tmp/audit.json
           cat /tmp/audit.json
 
       - name: Create tasks and PR
@@ -127,8 +125,11 @@ jobs:
           git add ".github/audits/$AUDIT_DATE.md"
           git commit -m "docs(audit): report $AUDIT_DATE" || true
 
-          # Push and PR (force to handle re-runs on same day)
-          git push -u origin "$BRANCH" --force
+          # Push (skip if branch already exists from earlier run today)
+          git push -u origin "$BRANCH" || {
+            echo "Branch already exists, skipping PR creation"
+            exit 0
+          }
 
           PR_URL=$(gh pr create \
             --title "$AUDIT_DATE Daily Audit" \

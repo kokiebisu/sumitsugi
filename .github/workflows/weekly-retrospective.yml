@@ -82,7 +82,7 @@ jobs:
 
       - name: Generate retrospective
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
           WEEK_START: ${{ steps.metrics.outputs.week_start }}
           WEEK_END: ${{ steps.metrics.outputs.week_end }}
           PRS_MERGED: ${{ steps.metrics.outputs.prs_merged }}
@@ -96,6 +96,8 @@ jobs:
           CI_TOTAL: ${{ steps.metrics.outputs.ci_total }}
           CI_SUCCESS: ${{ steps.metrics.outputs.ci_success }}
         run: |
+          npm install -g @anthropic-ai/claude-code
+
           PRS_MERGED_DATA=$(cat /tmp/prs_merged.json)
           PRS_CREATED_DATA=$(cat /tmp/prs_created.json)
           FAILED_RUNS_DATA=$(cat /tmp/failed_runs.json)
@@ -134,15 +136,11 @@ jobs:
           Data:
           PRs Merged: $PRS_MERGED_DATA
           PRs Created: $PRS_CREATED_DATA
-          Failed Runs: $FAILED_RUNS_DATA"
+          Failed Runs: $FAILED_RUNS_DATA
 
-          RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
-            -H "Content-Type: application/json" \
-            -H "x-api-key: $ANTHROPIC_API_KEY" \
-            -H "anthropic-version: 2023-06-01" \
-            -d "{\"model\": \"claude-sonnet-4-5-20250929\", \"max_tokens\": 3000, \"messages\": [{\"role\": \"user\", \"content\": $(echo "$PROMPT" | jq -Rs .)}]}")
+          Output ONLY the markdown report, no preamble."
 
-          REPORT=$(echo "$RESPONSE" | jq -r '.content[0].text // "Report generation failed"')
+          REPORT=$(claude -p "$PROMPT" --max-turns 1 2>/dev/null) || REPORT="Report generation failed"
 
           mkdir -p docs/team/retrospectives
           echo "$REPORT" > "docs/team/retrospectives/$WEEK_END.md"

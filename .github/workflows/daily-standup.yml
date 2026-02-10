@@ -61,12 +61,14 @@ jobs:
 
       - name: Generate standup report
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
           REPORT_DATE: ${{ steps.metrics.outputs.today }}
           TASKS_DONE: ${{ steps.metrics.outputs.tasks_done }}
           TASKS_OPEN: ${{ steps.metrics.outputs.tasks_open }}
           TASKS_BLOCKED: ${{ steps.metrics.outputs.tasks_blocked }}
         run: |
+          npm install -g @anthropic-ai/claude-code
+
           PRS_MERGED=$(cat /tmp/prs_merged.json)
           PRS_OPEN=$(cat /tmp/prs_open.json)
           COMMITS=$(cat /tmp/commits.txt)
@@ -97,15 +99,11 @@ jobs:
           PRs Merged: $PRS_MERGED
           PRs Open: $PRS_OPEN
           Recent Commits: $COMMITS
-          Failed Runs: $FAILED_RUNS"
+          Failed Runs: $FAILED_RUNS
 
-          RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
-            -H "Content-Type: application/json" \
-            -H "x-api-key: $ANTHROPIC_API_KEY" \
-            -H "anthropic-version: 2023-06-01" \
-            -d "{\"model\": \"claude-sonnet-4-5-20250929\", \"max_tokens\": 2048, \"messages\": [{\"role\": \"user\", \"content\": $(echo "$PROMPT" | jq -Rs .)}]}")
+          Output ONLY the markdown report, no preamble."
 
-          REPORT=$(echo "$RESPONSE" | jq -r '.content[0].text // "Report generation failed"')
+          REPORT=$(claude -p "$PROMPT" --max-turns 1 2>/dev/null) || REPORT="Report generation failed"
 
           mkdir -p docs/team/standups
           echo "$REPORT" > "docs/team/standups/$REPORT_DATE.md"
