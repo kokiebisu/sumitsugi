@@ -30,6 +30,12 @@ const key = process.env.API_KEY;
 if (!key) throw new Error('API_KEY not configured');
 ```
 
+## Build Integrity (CRITICAL)
+
+- **NEVER mark a task as "done"** unless `bun run build` passes
+- **Type consistency:** When using union types (e.g., status: `'draft' | 'public'`), grep the codebase for all usages before changing or adding values
+- **CI must include build:** If `bun run build` is missing from CI, add it before merging any feature PR
+
 ## Agent Auto-Invocation
 
 Claude auto-invokes agents — no user prompt needed:
