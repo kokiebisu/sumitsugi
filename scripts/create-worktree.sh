@@ -26,6 +26,7 @@ fi
 BRANCH_NAME="$1"
 REPO_ROOT=$(git rev-parse --show-toplevel)
 REPO_NAME=$(basename "$REPO_ROOT")
+IN_CONTAINER=false
 
 # Determine worktree path
 if [ -n "$2" ]; then
@@ -35,6 +36,7 @@ else
     if [ -f "/.dockerenv" ] || [ -f "/run/.containerenv" ]; then
         # In container: use .worktrees subdirectory to avoid permission issues
         WORKTREE_PATH="$REPO_ROOT/.worktrees/${BRANCH_NAME}"
+        IN_CONTAINER=true
         echo -e "${YELLOW}Detected container environment${NC}"
         echo -e "${YELLOW}Using .worktrees subdirectory instead of sibling directories${NC}"
     else
@@ -57,28 +59,37 @@ else
     git worktree add -b "$BRANCH_NAME" "$WORKTREE_PATH"
 fi
 
-# Create symbolic link to .devcontainer
-echo -e "${GREEN}Creating symlink to .devcontainer...${NC}"
-cd "$WORKTREE_PATH"
-
-# Remove .devcontainer if it exists (shouldn't, but just in case)
-if [ -e ".devcontainer" ]; then
-    echo -e "${YELLOW}Warning: .devcontainer already exists, removing...${NC}"
-    rm -rf .devcontainer
-fi
-
-# Create relative symlink to main repo's .devcontainer
-RELATIVE_PATH=$(realpath --relative-to="$WORKTREE_PATH" "$REPO_ROOT/.devcontainer")
-ln -s "$RELATIVE_PATH" .devcontainer
-
-echo -e "${GREEN}Symlink created: .devcontainer -> $RELATIVE_PATH${NC}"
-
-# Verify symlink
-if [ -L ".devcontainer" ] && [ -e ".devcontainer" ]; then
-    echo -e "${GREEN}Symlink verified successfully${NC}"
+# In container environments, skip the .devcontainer symlink entirely.
+# Replacing git-tracked .devcontainer/ with a symlink breaks git stash and
+# rebase ("is beyond a symbolic link" error). Since we're already inside the
+# container, the devcontainer config is unused in worktrees.
+if [ "$IN_CONTAINER" = true ]; then
+    echo -e "${GREEN}Skipping .devcontainer symlink (already in container)${NC}"
 else
-    echo -e "${RED}Error: Symlink creation failed${NC}"
-    exit 1
+    # On host: create symlink for VS Code devcontainer support
+    echo -e "${GREEN}Creating symlink to .devcontainer...${NC}"
+    cd "$WORKTREE_PATH"
+
+    if [ -e ".devcontainer" ]; then
+        rm -rf .devcontainer
+    fi
+
+    RELATIVE_PATH=$(realpath --relative-to="$WORKTREE_PATH" "$REPO_ROOT/.devcontainer")
+    ln -s "$RELATIVE_PATH" .devcontainer
+
+    # Mark .devcontainer files as skip-worktree so git ignores the symlink
+    # replacement. Without this, git stash/rebase fail on the symlinked paths.
+    git -C "$WORKTREE_PATH" ls-files .devcontainer/ | \
+        xargs -r git -C "$WORKTREE_PATH" update-index --skip-worktree
+
+    echo -e "${GREEN}Symlink created: .devcontainer -> $RELATIVE_PATH${NC}"
+
+    if [ -L ".devcontainer" ] && [ -e ".devcontainer" ]; then
+        echo -e "${GREEN}Symlink verified successfully${NC}"
+    else
+        echo -e "${RED}Error: Symlink creation failed${NC}"
+        exit 1
+    fi
 fi
 
 echo ""
@@ -86,8 +97,10 @@ echo -e "${GREEN}Worktree created successfully!${NC}"
 echo ""
 echo "Next steps:"
 echo "  1. cd $WORKTREE_PATH"
-echo "  2. code .  # Open in VS Code"
-echo "  3. Reopen in Container (Cmd/Ctrl+Shift+P -> Dev Containers: Reopen in Container)"
+if [ "$IN_CONTAINER" = false ]; then
+    echo "  2. code .  # Open in VS Code"
+    echo "  3. Reopen in Container (Cmd/Ctrl+Shift+P -> Dev Containers: Reopen in Container)"
+fi
 echo ""
 echo "To list all worktrees: git worktree list"
 echo "To remove this worktree: git worktree remove $WORKTREE_PATH"
