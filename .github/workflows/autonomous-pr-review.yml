@@ -141,6 +141,13 @@ jobs:
                   }
                   console.log(`Still waiting for smoke test (${updated.status})...`);
                 }
+
+                // If poll timed out without smoke test completing, block merge
+                if (Date.now() - startTime >= maxWait) {
+                  console.log('Smoke test did not complete within 10 minutes — blocking merge');
+                  core.setOutput('healthy', 'false');
+                  return;
+                }
               } else if (lastSmoke.conclusion !== 'success') {
                 console.log(`Last smoke test failed (${lastSmoke.conclusion}) — blocking merge`);
                 core.setOutput('healthy', 'false');
@@ -360,14 +367,28 @@ jobs:
 
             gh pr review "$PR_NUMBER" --approve --body "Autonomous review: All checks passed. No security issues, logic errors, or standard violations found."
 
-            # Final safety check: verify main is still healthy right before merge
-            LAST_SMOKE=$(gh run list --workflow=post-merge-smoke.yml --branch=main --limit=1 --json conclusion,status -q '.[0]')
-            SMOKE_STATUS=$(echo "$LAST_SMOKE" | jq -r '.status // "completed"')
-            SMOKE_CONCLUSION=$(echo "$LAST_SMOKE" | jq -r '.conclusion // "success"')
+            # Final safety check: verify main is still healthy right before merge.
+            # Poll until smoke test completes (max 5 min) to avoid using stale data.
+            MAX_POLL=300
+            POLL_ELAPSED=0
+            while [ "$POLL_ELAPSED" -lt "$MAX_POLL" ]; do
+              LAST_SMOKE=$(gh run list --workflow=post-merge-smoke.yml --branch=main --limit=1 --json conclusion,status -q '.[0]')
+              SMOKE_STATUS=$(echo "$LAST_SMOKE" | jq -r '.status')
+              SMOKE_CONCLUSION=$(echo "$LAST_SMOKE" | jq -r '.conclusion')
+
+              if [ "$SMOKE_STATUS" = "completed" ]; then
+                break
+              fi
+
+              echo "Smoke test still running ($SMOKE_STATUS) — waiting... (${POLL_ELAPSED}s/${MAX_POLL}s)"
+              sleep 30
+              POLL_ELAPSED=$((POLL_ELAPSED + 30))
+            done
 
             if [ "$SMOKE_STATUS" != "completed" ]; then
-              echo "Smoke test still running — waiting before merge..."
-              sleep 60
+              echo "ERROR: Smoke test did not complete within ${MAX_POLL}s — aborting merge"
+              gh pr comment "$PR_NUMBER" --body "Auto-merge blocked: smoke test did not complete in time. Will retry later."
+              exit 1
             fi
 
             if [ "$SMOKE_CONCLUSION" = "failure" ]; then
