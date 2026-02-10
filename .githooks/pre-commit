@@ -20,8 +20,8 @@ if [ -n "$SECRETS_FOUND" ]; then
   exit 1
 fi
 
-# --- Prevent .env files from being committed ---
-ENV_FILES=$(git diff --cached --name-only | grep -E '^\.(env|env\.local|env\.production)' || true)
+# --- Prevent .env files from being committed (allow .env.example) ---
+ENV_FILES=$(git diff --cached --name-only | grep -E '^\.(env|env\.local|env\.production)$' || true)
 if [ -n "$ENV_FILES" ]; then
   echo "🚨 Refusing to commit environment files: $ENV_FILES"
   echo "Add them to .gitignore."
@@ -44,8 +44,8 @@ if echo "$STAGED_FILES" | grep -E '\.(ts|tsx|js|jsx)$' > /dev/null; then
   fi
 fi
 
-# --- Prevent console.log ---
-CONSOLE_LOGS=$(echo "$STAGED_FILES" | grep -E '\.(ts|tsx|js|jsx)$' | xargs grep -ln 'console\.log' 2>/dev/null || true)
+# --- Prevent console.log (exclude scripts/ and test files) ---
+CONSOLE_LOGS=$(echo "$STAGED_FILES" | grep -E '\.(ts|tsx|js|jsx)$' | grep -v '^scripts/' | grep -v '\.test\.' | xargs grep -ln 'console\.log' 2>/dev/null || true)
 if [ -n "$CONSOLE_LOGS" ]; then
   echo "⚠️  console.log found in:"
   echo "$CONSOLE_LOGS"

@@ -118,9 +118,9 @@ jobs:
           npm install -g @anthropic-ai/claude-code
 
           if [ -n "$INPUT_FORCE_ID" ]; then
-            PROMPT="/work:dev $INPUT_MILESTONE"
+            ORIGINAL_PROMPT="/work:dev $INPUT_MILESTONE"
           else
-            PROMPT=$(cat /tmp/task-prompt.txt)
+            ORIGINAL_PROMPT=$(cat /tmp/task-prompt.txt)
           fi
 
           MAX_RETRIES=2
@@ -130,6 +130,7 @@ jobs:
           while [ $ATTEMPT -lt $MAX_RETRIES ]; do
             ATTEMPT=$((ATTEMPT + 1))
             echo "=== Attempt $ATTEMPT of $MAX_RETRIES ==="
+            PROMPT="$ORIGINAL_PROMPT"
 
             if [ $ATTEMPT -gt 1 ]; then
               # On retry, add error context from previous attempt
@@ -140,7 +141,7 @@ jobs:
           ---
           Please retry the original task, fixing any issues from the previous attempt.
 
-          Original task: $PROMPT"
+          Original task: $ORIGINAL_PROMPT"
               WAIT=$((ATTEMPT * 30))
               echo "Waiting ${WAIT}s before retry..."
               sleep $WAIT

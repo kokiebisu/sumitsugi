@@ -10,6 +10,26 @@
       "WebSearch"
     ]
   },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun install --frozen-lockfile 2>/dev/null || true",
+            "timeout": 60,
+            "statusMessage": "Installing dependencies..."
+          },
+          {
+            "type": "command",
+            "command": "git config core.hooksPath .githooks 2>/dev/null || true",
+            "timeout": 5,
+            "statusMessage": "Configuring git hooks..."
+          }
+        ]
+      }
+    ]
+  },
   "enableAllProjectMcpServers": true,
   "enabledPlugins": {
     "frontend-design@claude-plugins-official": true,

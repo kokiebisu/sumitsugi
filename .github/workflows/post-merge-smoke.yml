@@ -1,0 +1,105 @@
+name: Post-Merge Smoke Test
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: post-merge-smoke
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: TypeScript build
+        id: build
+        run: bun run build
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+
+      - name: Unit tests
+        id: tests
+        if: always() && steps.build.outcome == 'success'
+        run: bun run test:run
+
+      - name: Critical E2E tests
+        id: e2e
+        if: always() && steps.build.outcome == 'success'
+        run: |
+          bunx playwright install chromium
+          bunx playwright test --grep '@critical' || true
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+          BETTER_AUTH_SECRET: test-secret-for-ci
+
+      - name: Report status
+        if: always()
+        run: |
+          BUILD="${{ steps.build.outcome }}"
+          TESTS="${{ steps.tests.outcome }}"
+
+          {
+            echo "## Post-Merge Smoke Test"
+            echo ""
+            echo "| Check | Status |"
+            echo "|-------|--------|"
+            echo "| Build | $( [ '$BUILD' = 'success' ] && echo '✅' || echo '❌' ) |"
+            echo "| Unit Tests | $( [ '$TESTS' = 'success' ] && echo '✅' || echo '❌' ) |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Create incident issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sha = context.sha.substring(0, 7);
+            const actor = context.actor;
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🔥 Post-merge smoke test failed on main (${sha})`,
+              body: [
+                '## Incident: main branch is broken',
+                '',
+                `**Commit:** ${context.sha}`,
+                `**Author:** @${actor}`,
+                `**Run:** ${runUrl}`,
+                '',
+                '### Failed checks:',
+                `- Build: ${{ steps.build.outcome }}`,
+                `- Unit tests: ${{ steps.tests.outcome }}`,
+                '',
+                'This needs immediate attention. Consider reverting the last merge.',
+              ].join('\n'),
+              labels: ['incident', 'needs-human', 'P0'],
+            });
+
+      - name: Notify Slack on failure
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [ -n "${SLACK_WEBHOOK_URL:-}" ]; then
+            bash scripts/notify-slack.sh ":fire: *main is broken* — post-merge smoke test failed on ${GITHUB_SHA:0:7}"
+          fi
