@@ -68,6 +68,22 @@ Secret: `ANTHROPIC_AUTH_TOKEN`, env: `CLAUDE_CODE_OAUTH_TOKEN`
 4. `docs/requirements/features/` 内の関連ファイルに座談会参照リンクを追加
 5. **PRを作成してマージ**（docs変更のみのためauto-merge対象）
 
+## Agent Teams Pipeline (CLI Only)
+
+`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` (set in `.claude/settings.json`)
+
+```
+/team:research (parallel research)  ->  /meeting:* (C-suite decides)  ->  /team:dev (parallel build)  ->  /team:review (parallel review)
+```
+
+| Command          | Purpose                                    | CI Fallback             |
+| ---------------- | ------------------------------------------ | ----------------------- |
+| `/team:research` | Pre-meeting parallel research sprint       | Manual research         |
+| `/team:dev`      | Parallel task implementation (Agent Teams) | `/work:dev` (subagents) |
+| `/team:review`   | Parallel code review (Agent Teams)         | Code review agent       |
+
+Agent Teams is CLI-only. For GitHub Actions, use `/work:dev` and `/work:business`.
+
 ## Related Docs
 
 - `.claude/PROJECT.md` — コンセプト・デザイン原則
