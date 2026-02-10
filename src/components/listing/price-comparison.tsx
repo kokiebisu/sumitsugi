@@ -7,7 +7,6 @@ import {
 interface PriceComparisonProps {
   furniture: string[];
   handoverFee: number;
-  yearsOfUse?: number;
 }
 
 export function PriceComparison({

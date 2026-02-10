@@ -33,10 +33,8 @@ describe('PriceComparison', () => {
     expect(screen.getByText(/30,000/)).toBeDefined();
   });
 
-  it('accepts optional yearsOfUse prop', () => {
-    render(
-      <PriceComparison furniture={['bed']} handoverFee={20000} yearsOfUse={3} />
-    );
+  it('renders for single furniture item', () => {
+    render(<PriceComparison furniture={['bed']} handoverFee={20000} />);
     expect(screen.getByText(/新品で揃えた場合/)).toBeDefined();
   });
 });

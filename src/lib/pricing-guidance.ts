@@ -10,6 +10,7 @@ export type FurnitureCategory =
   | 'desk'
   | 'table'
   | 'storage'
+  | 'dining'
   | 'wardrobe'
   | 'tv'
   | 'fridge';
@@ -68,6 +69,13 @@ export const FURNITURE_PRICE_GUIDES: FurniturePriceGuide[] = [
     label: '収納',
     baseRange: { min: 3000, max: 25000 },
     popularRange: { min: 5000, max: 15000 },
+    conditionMultiplier: { excellent: 1.2, good: 1.0, fair: 0.7 },
+  },
+  {
+    id: 'dining',
+    label: 'ダイニング',
+    baseRange: { min: 5000, max: 35000 },
+    popularRange: { min: 8000, max: 20000 },
     conditionMultiplier: { excellent: 1.2, good: 1.0, fair: 0.7 },
   },
   {
@@ -159,6 +167,15 @@ export const DEPRECIATION_TABLE: Record<FurnitureCategory, DepreciationRates> =
       3: 0.55,
       5: 0.35,
       7: 0.2,
+      10: 0.1,
+    },
+    dining: {
+      0: 1.0,
+      1: 0.75,
+      2: 0.6,
+      3: 0.45,
+      5: 0.25,
+      7: 0.15,
       10: 0.1,
     },
     wardrobe: {

@@ -10,8 +10,8 @@ import {
 
 describe('pricing-guidance', () => {
   describe('FURNITURE_PRICE_GUIDES', () => {
-    it('has 8 furniture categories', () => {
-      expect(FURNITURE_PRICE_GUIDES).toHaveLength(8);
+    it('has 9 furniture categories', () => {
+      expect(FURNITURE_PRICE_GUIDES).toHaveLength(9);
     });
 
     it('each guide has valid price ranges (min < max)', () => {
