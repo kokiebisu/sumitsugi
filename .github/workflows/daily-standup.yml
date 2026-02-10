@@ -1,0 +1,140 @@
+name: Daily Standup
+
+on:
+  schedule:
+    # 09:00 JST = 00:00 UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  standup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Collect metrics
+        id: metrics
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+          YESTERDAY=$(date -u -d "yesterday" +%Y-%m-%d 2>/dev/null || date -u -v-1d +%Y-%m-%d)
+
+          # PRs merged yesterday
+          gh pr list --state merged --search "merged:>=$YESTERDAY" --json number,title,mergedAt --limit 20 > /tmp/prs_merged.json 2>/dev/null || echo "[]" > /tmp/prs_merged.json
+
+          # PRs currently open
+          gh pr list --state open --json number,title,author --limit 20 > /tmp/prs_open.json 2>/dev/null || echo "[]" > /tmp/prs_open.json
+
+          # Task stats from beads
+          TASKS_DONE=$(cat .beads/issues.jsonl | jq -s '[.[] | select(.status == "done")] | length' 2>/dev/null || echo "0")
+          TASKS_OPEN=$(cat .beads/issues.jsonl | jq -s '[.[] | select(.status == "open")] | length' 2>/dev/null || echo "0")
+          TASKS_BLOCKED=$(cat .beads/issues.jsonl | jq -s '[.[] | select(.status == "blocked")] | length' 2>/dev/null || echo "0")
+
+          # Recent commits
+          git log --since="$YESTERDAY" --oneline --no-merges 2>/dev/null | head -20 > /tmp/commits.txt
+
+          # Failed workflow runs
+          gh run list --created ">=$YESTERDAY" --status failure --limit 10 --json name,conclusion,createdAt > /tmp/failed_runs.json 2>/dev/null || echo "[]" > /tmp/failed_runs.json
+
+          echo "today=$TODAY" >> "$GITHUB_OUTPUT"
+          echo "tasks_done=$TASKS_DONE" >> "$GITHUB_OUTPUT"
+          echo "tasks_open=$TASKS_OPEN" >> "$GITHUB_OUTPUT"
+          echo "tasks_blocked=$TASKS_BLOCKED" >> "$GITHUB_OUTPUT"
+
+      - name: Generate standup report
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          REPORT_DATE: ${{ steps.metrics.outputs.today }}
+          TASKS_DONE: ${{ steps.metrics.outputs.tasks_done }}
+          TASKS_OPEN: ${{ steps.metrics.outputs.tasks_open }}
+          TASKS_BLOCKED: ${{ steps.metrics.outputs.tasks_blocked }}
+        run: |
+          PRS_MERGED=$(cat /tmp/prs_merged.json)
+          PRS_OPEN=$(cat /tmp/prs_open.json)
+          COMMITS=$(cat /tmp/commits.txt)
+          FAILED_RUNS=$(cat /tmp/failed_runs.json)
+
+          PROMPT="Generate a concise daily standup report in Japanese for date $REPORT_DATE.
+
+          Format:
+          # デイリースタンドアップ $REPORT_DATE
+
+          ## 昨日の成果
+          (list PRs merged and tasks completed)
+
+          ## 本日の予定
+          (pick top 3 priorities from open tasks)
+
+          ## ブロッカー
+          (list blocked items and failed runs)
+
+          ## メトリクス
+          | 指標 | 値 |
+          |------|-----|
+          | 完了タスク | $TASKS_DONE |
+          | 残タスク | $TASKS_OPEN |
+          | ブロック中 | $TASKS_BLOCKED |
+
+          Data:
+          PRs Merged: $PRS_MERGED
+          PRs Open: $PRS_OPEN
+          Recent Commits: $COMMITS
+          Failed Runs: $FAILED_RUNS"
+
+          RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
+            -H "Content-Type: application/json" \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            -d "{\"model\": \"claude-sonnet-4-5-20250929\", \"max_tokens\": 2048, \"messages\": [{\"role\": \"user\", \"content\": $(echo "$PROMPT" | jq -Rs .)}]}")
+
+          REPORT=$(echo "$RESPONSE" | jq -r '.content[0].text // "Report generation failed"')
+
+          mkdir -p docs/team/standups
+          echo "$REPORT" > "docs/team/standups/$REPORT_DATE.md"
+          echo "$REPORT" > /tmp/standup_report.md
+
+      - name: Commit report
+        env:
+          REPORT_DATE: ${{ steps.metrics.outputs.today }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/team/standups/
+          git diff --staged --quiet || git commit -m "docs: daily standup $REPORT_DATE"
+          git pull --rebase origin main
+          git push
+
+      - name: Create GitHub Issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPORT_DATE: ${{ steps.metrics.outputs.today }}
+        run: |
+          REPORT=$(cat /tmp/standup_report.md)
+          gh issue create \
+            --title "Daily Standup: $REPORT_DATE" \
+            --body "$REPORT" \
+            --label "standup"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Daily Standup" >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/standup_report.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || echo "No report generated" >> "$GITHUB_STEP_SUMMARY"
