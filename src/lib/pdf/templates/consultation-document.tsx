@@ -3,11 +3,11 @@ import {
   Page,
   Text,
   View,
+  Image,
   StyleSheet,
   Link,
 } from '@react-pdf/renderer';
-
-const FAQ_URL = 'https://tsumugi.com/faq/management';
+import { FAQ_PAGE_URL } from '../qr-code';
 
 const styles = StyleSheet.create({
   page: {
@@ -171,6 +171,17 @@ const styles = StyleSheet.create({
     fontSize: 7,
     color: '#666666',
   },
+  footerQrSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    marginTop: 4,
+    gap: 6,
+  },
+  footerQrImage: {
+    width: 48,
+    height: 48,
+  },
 });
 
 interface FurnitureItem {
@@ -186,6 +197,8 @@ interface ConsultationDocumentProps {
   sellerName: string;
   furnitureItems: FurnitureItem[];
   createdDate: string;
+  /** Pre-generated QR code data URL pointing to the FAQ page */
+  faqQrCodeDataUrl?: string;
 }
 
 export function ConsultationDocument({
@@ -195,6 +208,7 @@ export function ConsultationDocument({
   sellerName,
   furnitureItems,
   createdDate,
+  faqQrCodeDataUrl,
 }: ConsultationDocumentProps) {
   const actionSteps = [
     {
@@ -310,7 +324,7 @@ export function ConsultationDocument({
           </Text>
         </View>
 
-        {/* Footer — minimal tsumugi annotation + FAQ URL */}
+        {/* Footer — minimal tsumugi annotation + FAQ URL + QR code */}
         <View style={styles.footer} fixed>
           <View style={styles.footerRow}>
             <Text style={styles.footerText}>
@@ -320,11 +334,18 @@ export function ConsultationDocument({
               https://tsumugi.com
             </Link>
           </View>
-          <View style={styles.footerFaqRow}>
-            <Text style={styles.footerFaqText}>よくある質問: </Text>
-            <Link src={FAQ_URL} style={styles.footerLink}>
-              {FAQ_URL}
-            </Link>
+          <View style={styles.footerQrSection}>
+            <View>
+              <View style={styles.footerFaqRow}>
+                <Text style={styles.footerFaqText}>よくある質問: </Text>
+                <Link src={FAQ_PAGE_URL} style={styles.footerLink}>
+                  {FAQ_PAGE_URL}
+                </Link>
+              </View>
+            </View>
+            {faqQrCodeDataUrl && (
+              <Image src={faqQrCodeDataUrl} style={styles.footerQrImage} />
+            )}
           </View>
         </View>
       </Page>

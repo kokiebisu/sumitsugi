@@ -7,6 +7,12 @@ vi.mock('@/lib/pdf/render', () => ({ renderPdf: vi.fn() }));
 vi.mock('@/lib/pdf/templates/consultation-document', () => ({
   ConsultationDocument: vi.fn(),
 }));
+vi.mock('@/lib/pdf/qr-code', () => ({
+  generateQrCodeDataUrl: vi
+    .fn()
+    .mockResolvedValue('data:image/png;base64,MOCK'),
+  FAQ_PAGE_URL: 'https://tsumugi.com/for-managers',
+}));
 vi.mock('@/lib/storage', () => ({
   uploadPdf: vi.fn(),
   isStorageConfigured: vi.fn(),

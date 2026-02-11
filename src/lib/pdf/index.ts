@@ -16,3 +16,4 @@ export {
   buildConsultationDocumentProps,
   mapFurnitureToConsultationItems,
 } from './consultation-generator';
+export { generateQrCodeDataUrl, FAQ_PAGE_URL } from './qr-code';
