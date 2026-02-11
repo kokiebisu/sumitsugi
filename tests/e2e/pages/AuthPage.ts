@@ -124,7 +124,7 @@ export class AuthPage extends BasePage {
    * Mock the magic link API endpoint to return success
    */
   async mockMagicLinkSuccess() {
-    await this.page.route('**/api/auth/magic-link/send-magic-link', (route) => {
+    await this.page.route('**/api/auth/sign-in/magic-link', (route) => {
       route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -137,7 +137,7 @@ export class AuthPage extends BasePage {
    * Mock the magic link API endpoint to return an error
    */
   async mockMagicLinkError(errorMessage: string = 'エラーが発生しました') {
-    await this.page.route('**/api/auth/magic-link/send-magic-link', (route) => {
+    await this.page.route('**/api/auth/sign-in/magic-link', (route) => {
       route.fulfill({
         status: 400,
         contentType: 'application/json',
