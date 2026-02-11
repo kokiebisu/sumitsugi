@@ -31,3 +31,4 @@ docs/pitch/slides-*.html
 
 # OpenClaw setup (local/personal)
 docs/setup/openclaw-mobile-dev-setup.md
+.vercel
