@@ -115,7 +115,20 @@
 
 ## 現在のフェーズ
 
-**プレローンチ** - 法務確認を完了し、ベータ版をローンチする
+**ローンチ準備** - 法務確認を完了し、ベータ版をローンチする
+
+## End of Meeting Checklist
+
+会議終了時に必ず実行:
+
+- [ ] 議事録を保存 (`docs/requirements/meetings/YYYY-MM-DD-exec-meeting-N-<topic-slug>.md`)
+- [ ] **決定事項をBeadsタスクに分解** (`bd create "タスク名" --priority p0 --label <dev|business|human>`)
+- [ ] **Linearに同期** (`bd linear sync --push --create-only && ./scripts/linear-set-project.sh`)
+- [ ] **DASHBOARD.md を更新**（新タスク・完了タスク・メモを反映）
+- [ ] 各役員のknowledgeフォルダにインサイトを保存
+- [ ] PRを作成してマージ
+
+**重要:** 会議で決まったことがタスク化されないと、実行されない。タスク分解は省略不可。
 
 ## 参照ドキュメント
 

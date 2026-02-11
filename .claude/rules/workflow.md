@@ -80,6 +80,18 @@ After completing any task:
 
 **Linear scripts:** `linear-list.sh` (list), `linear-done.sh` (close), `linear-comment.sh` (comment), `linear-set-project.sh` (assign project)
 
+## Stale Task Prevention (CRITICAL)
+
+**会議後のタスク分解は省略不可。** 全ての `/meeting:*` 終了時に:
+
+1. 決定事項を即座にBeadsタスクに分解（`bd create`）
+2. Linearに同期（`bd linear sync --push --create-only && ./scripts/linear-set-project.sh`）
+3. DASHBOARD.md を更新
+
+**PR作成時に関連タスクIDを確認。** PRがBeads/Linearタスクに紐づいている場合、マージ後に必ず `bd close <id>` を実行。`/work:dev` と `/work:business` は自動で行うが、手動PRでは忘れがち。
+
+**定期棚卸し:** Daily StandupでBeadsのopen/doneカウントを確認し、完了済み未クローズタスクがないか検出する。
+
 ## Multiple PRs from Grouped Changes
 
 One group per branch. For each group: create branch → stage only that group's files → verify with `git status` → commit → PR → merge → return to main → repeat for next group.

@@ -366,9 +366,11 @@ This meeting is the **validation step** before finalizing requirements.
 
 - [ ] Update REQUIREMENTS.md with final requirements
 - [ ] **Update `docs/DESIGN_DOC.md`** (see DESIGN_DOC Update Guide below)
-- [ ] Create/update Beads tasks based on requirements changes
-- [ ] Sync to Linear
+- [ ] **決定事項をBeadsタスクに分解** (`bd create "タスク名" --priority p0 --label dev`)
+- [ ] **Linearに同期** (`bd linear sync --push --create-only && ./scripts/linear-set-project.sh`)
+- [ ] **DASHBOARD.md を更新**（完了タスク・新タスク・決定事項を反映）
 - [ ] Document technical decisions in `docs/team/cto/knowledge/` or `docs/team/caio/knowledge/`
+- [ ] PRを作成してマージ
 
 ---
 

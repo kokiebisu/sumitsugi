@@ -48,6 +48,11 @@ jobs:
           TASKS_OPEN=$(cat .beads/issues.jsonl | jq -s '[.[] | select(.status == "open")] | length' 2>/dev/null || echo "0")
           TASKS_BLOCKED=$(cat .beads/issues.jsonl | jq -s '[.[] | select(.status == "blocked")] | length' 2>/dev/null || echo "0")
 
+          # Stale task detection: open tasks not updated in 7+ days
+          STALE_TASKS=$(cat .beads/issues.jsonl | jq -s --arg cutoff "$(date -u -d '7 days ago' +%Y-%m-%d 2>/dev/null || date -u -v-7d +%Y-%m-%d)" \
+            '[.[] | select(.status == "open" and (.updated_at // .created_at) < $cutoff)] | length' 2>/dev/null || echo "0")
+          echo "tasks_stale=$STALE_TASKS" >> "$GITHUB_OUTPUT"
+
           # Recent commits
           git log --since="$YESTERDAY" --oneline --no-merges 2>/dev/null | head -20 > /tmp/commits.txt
 
@@ -66,6 +71,7 @@ jobs:
           TASKS_DONE: ${{ steps.metrics.outputs.tasks_done }}
           TASKS_OPEN: ${{ steps.metrics.outputs.tasks_open }}
           TASKS_BLOCKED: ${{ steps.metrics.outputs.tasks_blocked }}
+          TASKS_STALE: ${{ steps.metrics.outputs.tasks_stale }}
         run: |
           PRS_MERGED=$(cat /tmp/prs_merged.json)
           PRS_OPEN=$(cat /tmp/prs_open.json)
@@ -86,12 +92,16 @@ jobs:
           ## ブロッカー
           (list blocked items and failed runs)
 
+          ## 棚卸しアラート
+          (if stale tasks > 0, warn that some open tasks have not been updated in 7+ days and may be already completed but not closed. Recommend running task audit.)
+
           ## メトリクス
           | 指標 | 値 |
           |------|-----|
           | 完了タスク | $TASKS_DONE |
           | 残タスク | $TASKS_OPEN |
           | ブロック中 | $TASKS_BLOCKED |
+          | 7日以上未更新 | $TASKS_STALE |
 
           Data:
           PRs Merged: $PRS_MERGED
