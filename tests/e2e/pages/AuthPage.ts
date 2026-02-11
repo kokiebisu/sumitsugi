@@ -3,23 +3,19 @@ import { BasePage } from './BasePage';
 
 /**
  * Auth Page Object Model
- * Handles authentication dialogs and login/signup flows
+ * Handles Magic Link authentication dialog and login/logout flows
  */
 export class AuthPage extends BasePage {
   readonly signupDialog: Locator;
   readonly dialogTitle: Locator;
   readonly emailInput: Locator;
-  readonly phoneInput: Locator;
-  readonly continueButton: Locator;
-  readonly phoneButton: Locator; // Deprecated: UI no longer has this button
-  readonly socialButtons: {
-    // Deprecated: UI no longer has social login
-    facebook: Locator;
-    google: Locator;
-    apple: Locator;
-  };
+  readonly submitButton: Locator;
   readonly closeButton: Locator;
-  readonly processingIndicator: Locator;
+  readonly submittingIndicator: Locator;
+  readonly emailSentConfirmation: Locator;
+  readonly emailSentMessage: Locator;
+  readonly emailSentCloseButton: Locator;
+  readonly errorMessage: Locator;
   readonly menuLoginButton: Locator;
   readonly menuLogoutButton: Locator;
   readonly becomeSellerButton: Locator;
@@ -29,18 +25,18 @@ export class AuthPage extends BasePage {
     this.signupDialog = page.locator('.fixed.inset-0.z-50');
     this.dialogTitle = this.signupDialog.locator('h2');
     this.emailInput = this.signupDialog.locator('input[type="email"]');
-    this.phoneInput = this.signupDialog.locator('input[type="tel"]');
-    this.continueButton = this.signupDialog.locator('button[type="submit"]');
-    this.phoneButton = this.signupDialog.locator(
-      'button:has-text("電話番号で続行")'
-    );
-    this.socialButtons = {
-      facebook: this.signupDialog.locator('button:has(svg[fill="#1877F2"])'),
-      google: this.signupDialog.locator('button:has(svg path[fill="#4285F4"])'),
-      apple: this.signupDialog.locator('button:has(svg path[d*="M17.05"])'),
-    };
+    this.submitButton = this.signupDialog.locator('button[type="submit"]');
     this.closeButton = this.signupDialog.locator('button:has(svg.h-4.w-4)');
-    this.processingIndicator = this.signupDialog.locator('text=処理中...');
+    this.submittingIndicator = this.signupDialog.locator('text=送信中...');
+    this.emailSentConfirmation =
+      this.signupDialog.locator('text=メールを送信しました');
+    this.emailSentMessage = this.signupDialog.locator(
+      'text=にログインリンクを送信しました。'
+    );
+    this.emailSentCloseButton = this.signupDialog.locator(
+      'button:has-text("閉じる")'
+    );
+    this.errorMessage = this.signupDialog.locator('.text-red-500');
     this.menuLoginButton = page.locator(
       '[role="menuitem"]:has-text("ログインまたは登録")'
     );
@@ -62,31 +58,11 @@ export class AuthPage extends BasePage {
   }
 
   /**
-   * Login with email and phone
+   * Fill email and submit the magic link form
    */
-  async loginWithEmail(email: string, phone: string = '09012345678') {
+  async submitMagicLinkRequest(email: string) {
     await this.emailInput.fill(email);
-    await this.phoneInput.fill(phone);
-    await this.continueButton.click();
-    // Wait for processing to complete
-    await this.processingIndicator
-      .waitFor({ state: 'visible' })
-      .catch(() => {});
-    await this.processingIndicator.waitFor({ state: 'hidden', timeout: 10000 });
-    await this.signupDialog.waitFor({ state: 'hidden', timeout: 5000 });
-  }
-
-  /**
-   * Login with social provider (Facebook, Google, Apple)
-   */
-  async loginWithSocial(provider: 'facebook' | 'google' | 'apple') {
-    await this.socialButtons[provider].click();
-    // Wait for processing to complete
-    await this.processingIndicator
-      .waitFor({ state: 'visible' })
-      .catch(() => {});
-    await this.processingIndicator.waitFor({ state: 'hidden', timeout: 10000 });
-    await this.signupDialog.waitFor({ state: 'hidden', timeout: 5000 });
+    await this.submitButton.click();
   }
 
   /**
@@ -106,7 +82,7 @@ export class AuthPage extends BasePage {
     await this.openMenu();
     await this.menuLogoutButton.click();
     await this.page.waitForLoadState('networkidle');
-    await this.page.waitForTimeout(500); // Give time for React state to update
+    await this.page.waitForTimeout(500);
   }
 
   /**
@@ -118,32 +94,20 @@ export class AuthPage extends BasePage {
 
   /**
    * Click "暮らしを譲る" (Become a seller) button
-   * This should trigger login for unauthenticated users
    */
   async clickBecomeSeller() {
-    // First check if it's in header (not logged in, not a seller)
     const headerButton = this.page.locator(
       'header button:has-text("暮らしを譲る")'
     );
     if (await headerButton.isVisible()) {
       await headerButton.click();
     } else {
-      // Try via menu
       await this.openMenu();
       const menuItem = this.page.locator(
         '[role="menuitem"]:has-text("暮らしを譲る")'
       );
       await menuItem.click();
     }
-  }
-
-  /**
-   * Complete a full login flow with email
-   */
-  async completeEmailLogin(email: string = 'test@example.com') {
-    await this.openLoginDialog();
-    await this.loginWithEmail(email);
-    await this.page.waitForLoadState('networkidle');
   }
 
   /**
@@ -154,5 +118,33 @@ export class AuthPage extends BasePage {
     const hasLogout = await this.menuLogoutButton.isVisible();
     await this.page.keyboard.press('Escape');
     return hasLogout;
+  }
+
+  /**
+   * Mock the magic link API endpoint to return success
+   */
+  async mockMagicLinkSuccess() {
+    await this.page.route('**/api/auth/magic-link/send-magic-link', (route) => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ status: true }),
+      });
+    });
+  }
+
+  /**
+   * Mock the magic link API endpoint to return an error
+   */
+  async mockMagicLinkError(errorMessage: string = 'エラーが発生しました') {
+    await this.page.route('**/api/auth/magic-link/send-magic-link', (route) => {
+      route.fulfill({
+        status: 400,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          error: { message: errorMessage },
+        }),
+      });
+    });
   }
 }
