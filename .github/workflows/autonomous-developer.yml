@@ -318,6 +318,14 @@ jobs:
             echo "WARNING: Failed to set ci status — PR may need manual merge"
           }
 
+          # Auto-merge the state PR (data-only, safe to merge immediately)
+          PR_NUMBER=$(gh pr view "$STATE_BRANCH" --json number --jq '.number' 2>/dev/null || echo "")
+          if [ -n "$PR_NUMBER" ]; then
+            gh pr merge "$PR_NUMBER" --squash --delete-branch || {
+              echo "WARNING: Failed to auto-merge state PR #$PR_NUMBER"
+            }
+          fi
+
           # Return to the original branch for subsequent steps
           git checkout main 2>/dev/null || true
           git pull origin main 2>/dev/null || true
