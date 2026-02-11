@@ -15,6 +15,27 @@
       "when": 1770441772112,
       "tag": "0001_phase0-schema-extension",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1770441772113,
+      "tag": "0002_management-company-email-logs",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1770441772114,
+      "tag": "0003_handover-confirmations",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1770441772115,
+      "tag": "0004_add-is-pro-coordinated",
+      "breakpoints": true
     }
   ]
 }
