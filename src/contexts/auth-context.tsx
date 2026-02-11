@@ -8,7 +8,7 @@ import {
   useCallback,
   type ReactNode,
 } from 'react';
-import type { User, SellerProfile, UserListing, Inquiry } from '@/lib/data';
+import type { User, SellerProfile, Inquiry } from '@/lib/data';
 import { inquiries as mockInquiries } from '@/lib/data';
 import { authClient } from '@/lib/auth-client';
 
@@ -23,14 +23,6 @@ interface AuthContextType {
   ) => Promise<{ success: boolean; error?: string }>;
   updateUser: (updates: Partial<User>) => void;
   becomeSeller: (sellerProfile: SellerProfile) => void;
-  // Listings (still localStorage for Phase 1)
-  listings: UserListing[];
-  addListing: (
-    listing: Omit<UserListing, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
-  ) => UserListing;
-  updateListing: (id: string, updates: Partial<UserListing>) => void;
-  deleteListing: (id: string) => void;
-  publishListing: (id: string) => void;
   // Inquiries (still localStorage for Phase 1)
   inquiries: Inquiry[];
   addInquiry: (
@@ -44,8 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // better-auth session
   const { data: session, isPending: sessionLoading } = authClient.useSession();
 
-  // Local state for listings and inquiries (dev: mock data, prod: empty - use APIs)
-  const [listings, setListings] = useState<UserListing[]>([]);
+  // Local state for inquiries (dev: mock data, prod: empty - use APIs)
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -108,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Update user (local state only for now)
-  const updateUser = useCallback((updates: Partial<User>) => {
+  const updateUser = useCallback((_updates: Partial<User>) => {
     // For Phase 1, this is a no-op since user comes from session
     // In Phase 2, this will call updateProfileAction
     console.warn(
@@ -122,58 +113,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // In Phase 2, this will call becomeSellerAction
     console.warn(
       'becomeSeller() is not fully implemented yet. Use becomeSellerAction instead.'
-    );
-  }, []);
-
-  // Listings management (localStorage)
-  const addListing = useCallback(
-    (
-      listing: Omit<UserListing, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
-    ): UserListing => {
-      if (!user) throw new Error('User must be logged in to add a listing');
-      const now = new Date().toISOString();
-      const newListing: UserListing = {
-        ...listing,
-        id: `${Date.now()}`,
-        userId: user.id,
-        createdAt: now,
-        updatedAt: now,
-      };
-      setListings((prev) => [...prev, newListing]);
-      return newListing;
-    },
-    [user]
-  );
-
-  const updateListing = useCallback(
-    (id: string, updates: Partial<UserListing>) => {
-      setListings((prev) =>
-        prev.map((listing) =>
-          listing.id === id
-            ? { ...listing, ...updates, updatedAt: new Date().toISOString() }
-            : listing
-        )
-      );
-    },
-    []
-  );
-
-  const deleteListing = useCallback((id: string) => {
-    setListings((prev) => prev.filter((listing) => listing.id !== id));
-  }, []);
-
-  const publishListing = useCallback((id: string) => {
-    setListings((prev) =>
-      prev.map((listing) =>
-        listing.id === id
-          ? {
-              ...listing,
-              status: 'published' as const,
-              publishedAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            }
-          : listing
-      )
     );
   }, []);
 
@@ -203,11 +142,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         sendMagicLink,
         updateUser,
         becomeSeller,
-        listings,
-        addListing,
-        updateListing,
-        deleteListing,
-        publishListing,
         inquiries,
         addInquiry,
       }}
@@ -222,16 +156,6 @@ export function useAuth() {
   if (context === undefined) {
     // During SSR, return a default context instead of throwing
     if (typeof window === 'undefined') {
-      const defaultListing: UserListing = {
-        id: '',
-        userId: '',
-        status: 'draft',
-        title: '',
-        roomStyle: null,
-        roomPhotos: [],
-        createdAt: '',
-        updatedAt: '',
-      };
       const defaultInquiry: Inquiry = {
         id: '',
         propertyId: '',
@@ -254,11 +178,6 @@ export function useAuth() {
         }),
         updateUser: () => {},
         becomeSeller: () => {},
-        listings: [],
-        addListing: () => defaultListing,
-        updateListing: () => {},
-        deleteListing: () => {},
-        publishListing: () => {},
         inquiries: [],
         addInquiry: () => defaultInquiry,
       };
