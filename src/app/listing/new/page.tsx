@@ -320,6 +320,7 @@ export default function NewListingPage() {
   };
 
   const removePendingPhoto = (index: number) => {
+    if (isLoadingFiles) return;
     URL.revokeObjectURL(pendingPreviews[index]);
     setPendingPreviews((prev) => prev.filter((_, i) => i !== index));
     setPendingPhotos((prev) => prev.filter((_, i) => i !== index));
@@ -373,11 +374,10 @@ export default function NewListingPage() {
       const json = (await res.json()) as { urls: string[] };
       setPendingPhotos((prev) => [...prev, ...json.urls]);
     } catch (err) {
-      setPendingPreviews((prev) => {
-        const removed = prev.slice(-previewUrls.length);
-        removed.forEach((url) => URL.revokeObjectURL(url));
-        return prev.slice(0, -previewUrls.length);
-      });
+      previewUrls.forEach((url) => URL.revokeObjectURL(url));
+      setPendingPreviews((prev) =>
+        prev.filter((url) => !previewUrls.includes(url))
+      );
       setUploadError(
         err instanceof Error ? err.message : 'アップロードに失敗しました'
       );
@@ -1284,13 +1284,21 @@ export default function NewListingPage() {
                   <p className="text-xs text-red-600 mt-1">{uploadError}</p>
                 )}
               </div>
-              <label className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted cursor-pointer">
+              <label
+                className={cn(
+                  'w-8 h-8 flex items-center justify-center rounded-full',
+                  isLoadingFiles
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'hover:bg-muted cursor-pointer'
+                )}
+              >
                 <Plus className="w-5 h-5" />
                 <input
                   type="file"
                   accept="image/*"
                   multiple
                   className="hidden"
+                  disabled={isLoadingFiles}
                   onChange={(e) => handleFilesSelect(e.target.files)}
                 />
               </label>
@@ -1355,7 +1363,13 @@ export default function NewListingPage() {
                         />
                         <button
                           onClick={() => removePendingPhoto(index)}
-                          className="absolute top-2 right-2 w-7 h-7 bg-black/50 rounded-full flex items-center justify-center hover:bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity"
+                          disabled={isLoadingFiles}
+                          className={cn(
+                            'absolute top-2 right-2 w-7 h-7 bg-black/50 rounded-full flex items-center justify-center transition-opacity',
+                            isLoadingFiles
+                              ? 'opacity-0 cursor-not-allowed'
+                              : 'hover:bg-black/70 opacity-0 group-hover:opacity-100'
+                          )}
                         >
                           <X className="w-4 h-4 text-white" />
                         </button>
