@@ -57,7 +57,7 @@ for name in "${!ENV_VARS[@]}"; do
   fi
 
   for target in "${TARGETS[@]}"; do
-    if echo "$value" | vercel env add "$name" "$target" --token="$VERCEL_TOKEN" --force; then
+    if printf "%s" "$value" | vercel env add "$name" "$target" --token="$VERCEL_TOKEN" --force; then
       echo "OK:   $name → $target"
       synced=$((synced + 1))
     else
