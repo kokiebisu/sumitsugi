@@ -109,6 +109,7 @@ export default function NewListingPage() {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [pendingPhotos, setPendingPhotos] = useState<string[]>([]);
+  const [pendingPreviews, setPendingPreviews] = useState<string[]>([]);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -311,13 +312,17 @@ export default function NewListingPage() {
   };
 
   const closeUploadDialog = () => {
+    pendingPreviews.forEach((url) => URL.revokeObjectURL(url));
     setUploadDialogOpen(false);
     setIsUploading(false);
     setPendingPhotos([]);
+    setPendingPreviews([]);
   };
 
   const removePendingPhoto = (index: number) => {
-    setPendingPhotos(pendingPhotos.filter((_, i) => i !== index));
+    URL.revokeObjectURL(pendingPreviews[index]);
+    setPendingPreviews((prev) => prev.filter((_, i) => i !== index));
+    setPendingPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
   const removeRoomPhoto = (index: number) => {
@@ -332,6 +337,7 @@ export default function NewListingPage() {
       const remaining = 5 - roomPhotos.length;
       const photosToAdd = pendingPhotos.slice(0, remaining);
       setRoomPhotos([...roomPhotos, ...photosToAdd]);
+      pendingPreviews.forEach((url) => URL.revokeObjectURL(url));
       closeUploadDialog();
     }, 500);
   };
@@ -342,9 +348,12 @@ export default function NewListingPage() {
     setIsLoadingFiles(true);
     setUploadError(null);
 
+    const fileArray = Array.from(files);
+    const previewUrls = fileArray.map((file) => URL.createObjectURL(file));
+    setPendingPreviews((prev) => [...prev, ...previewUrls]);
+
     try {
       const formData = new FormData();
-      const fileArray = Array.from(files);
       for (const file of fileArray) {
         formData.append('files', file);
       }
@@ -364,6 +373,11 @@ export default function NewListingPage() {
       const json = (await res.json()) as { urls: string[] };
       setPendingPhotos((prev) => [...prev, ...json.urls]);
     } catch (err) {
+      setPendingPreviews((prev) => {
+        const removed = prev.slice(-previewUrls.length);
+        removed.forEach((url) => URL.revokeObjectURL(url));
+        return prev.slice(0, -previewUrls.length);
+      });
       setUploadError(
         err instanceof Error ? err.message : 'アップロードに失敗しました'
       );
@@ -1262,8 +1276,8 @@ export default function NewListingPage() {
                   写真をアップロードする
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  {pendingPhotos.length > 0
-                    ? `${pendingPhotos.length}枚選択中`
+                  {pendingPreviews.length > 0
+                    ? `${pendingPreviews.length}枚選択中`
                     : 'アイテムが選択されていません'}
                 </p>
                 {uploadError && (
@@ -1315,7 +1329,7 @@ export default function NewListingPage() {
                     アップロード中...
                   </p>
                 </div>
-              ) : pendingPhotos.length > 0 || isLoadingFiles ? (
+              ) : pendingPreviews.length > 0 || isLoadingFiles ? (
                 <div
                   className="overflow-x-auto scrollbar-hide"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -1329,13 +1343,13 @@ export default function NewListingPage() {
                     className="flex gap-3"
                     style={{ minWidth: 'min-content' }}
                   >
-                    {pendingPhotos.map((photo, index) => (
+                    {pendingPreviews.map((preview, index) => (
                       <div
                         key={index}
                         className="relative flex-shrink-0 w-40 h-40 rounded-xl overflow-hidden group"
                       >
                         <img
-                          src={photo}
+                          src={preview}
                           alt=""
                           className="w-full h-full object-cover"
                         />
@@ -1469,10 +1483,12 @@ export default function NewListingPage() {
               </button>
               <Button
                 onClick={handleUploadConfirm}
-                disabled={pendingPhotos.length === 0 || isUploading}
+                disabled={
+                  pendingPhotos.length === 0 || isUploading || isLoadingFiles
+                }
                 className={cn(
                   'rounded-lg px-6 py-2 text-sm font-medium',
-                  pendingPhotos.length > 0
+                  pendingPhotos.length > 0 && !isLoadingFiles
                     ? 'bg-foreground text-white hover:bg-foreground/90'
                     : 'bg-[#DDDDDD] text-muted-foreground cursor-not-allowed'
                 )}
