@@ -60,13 +60,19 @@ Secret: `ANTHROPIC_AUTH_TOKEN`, env: `CLAUDE_CODE_OAUTH_TOKEN`
 
 ## Meeting Post-Processing (CRITICAL)
 
-`/meeting:product` 実施後は以下を必ず実行:
+**全ての `/meeting:*` 実施後に必ず実行:**
 
-1. 議事録を `docs/requirements/meetings/` に保存
-2. デルタサマリーを生成（要件変更がある場合）
-3. `docs/requirements/meetings/product-meeting-attendance.md` を更新
-4. `docs/requirements/features/` 内の関連ファイルに座談会参照リンクを追加
-5. **PRを作成してマージ**（docs変更のみのためauto-merge対象）
+1. 議事録を保存（product→`docs/requirements/meetings/`, tech→`docs/design/meetings/`, exec→`docs/requirements/meetings/`）
+2. デルタサマリーを生成（変更がある場合）
+3. **決定事項をBeads/Linearタスクに分解** ← 必須
+   - `bd create "タスク名" --priority p0 --label dev` → `bd linear sync --push --create-only` → `./scripts/linear-set-project.sh`
+4. **DASHBOARD.md を更新** ← 必須（完了タスク・新タスク・メモを反映）
+5. `docs/requirements/features/` 内の関連ファイルに会議参照リンクを追加
+6. **PRを作成してマージ**（docs変更のみのためauto-merge対象）
+
+`/meeting:product` 追加ステップ:
+
+- `docs/requirements/meetings/product-meeting-attendance.md` を更新
 
 ## Agent Teams Pipeline (CLI Only)
 
@@ -91,5 +97,5 @@ Agent Teams is CLI-only. For GitHub Actions, use `/work:dev` and `/work:business
 
 ## Current Phase
 
-**Phase 1:** 物件情報表示、基本引き継ぎフロー
-**Phase 2 (next):** ユーザー登録、メッセージ、決済、電子契約
+**MVP全Phase実装完了** — ローンチ準備フェーズ
+**ブロッカー:** 外部弁護士による法務確認 → プライバシーポリシー → 特商法表記 → ベータローンチ
