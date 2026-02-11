@@ -52,21 +52,17 @@ for name in "${!ENV_VARS[@]}"; do
 
   if [[ -z "$value" ]]; then
     echo "SKIP: $name (empty)"
-    ((skipped++))
+    skipped=$((skipped + 1))
     continue
   fi
 
   for target in "${TARGETS[@]}"; do
-    # Remove existing value first (ignore errors if it doesn't exist)
-    vercel env rm "$name" "$target" --yes --token="$VERCEL_TOKEN" 2>/dev/null || true
-
-    # Add new value
     if echo "$value" | vercel env add "$name" "$target" --token="$VERCEL_TOKEN" --force; then
       echo "OK:   $name → $target"
-      ((synced++))
+      synced=$((synced + 1))
     else
       echo "FAIL: $name → $target"
-      ((failed++))
+      failed=$((failed + 1))
     fi
   done
 done
