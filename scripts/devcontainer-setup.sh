@@ -15,11 +15,12 @@ if [ -f .git ] && ! git rev-parse --git-dir >/dev/null 2>&1; then
   echo "Detected broken git submodule reference, initializing container-local git..."
   GIT_LOCAL="/home/bun/.tsumugi-git"
 
-  git init --bare "$GIT_LOCAL"
+  git init "$GIT_LOCAL"
   git --git-dir="$GIT_LOCAL" remote add origin git@github.com:kokiebisu/tsumugi.git 2>/dev/null || true
   git --git-dir="$GIT_LOCAL" config user.email "kokiebisu@icloud.com"
   git --git-dir="$GIT_LOCAL" config user.name "neko"
   git --git-dir="$GIT_LOCAL" config core.worktree /workspace
+  git --git-dir="$GIT_LOCAL" config core.bare false
 
   # Fetch from remote (SSH keys are mounted from host)
   git --git-dir="$GIT_LOCAL" fetch origin 2>/dev/null || {
