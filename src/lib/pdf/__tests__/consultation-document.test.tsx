@@ -116,10 +116,16 @@ describe('ConsultationDocument', () => {
     expect(json).toContain('/faq/management');
   });
 
-  it('includes tsumugi explanation section', () => {
+  it('does not include tsumugi explanation section (branding minimal)', () => {
     const element = ConsultationDocument(defaultProps);
     const json = JSON.stringify(element);
-    expect(json).toContain('tsumugiとは');
+    expect(json).not.toContain('tsumugiとは');
+  });
+
+  it('includes resident-authored handover explanation', () => {
+    const element = ConsultationDocument(defaultProps);
+    const json = JSON.stringify(element);
+    expect(json).toContain('家具引き継ぎについて');
     expect(json).toContain('引き継ぎ');
   });
 
@@ -194,12 +200,26 @@ describe('ConsultationDocument', () => {
     expect(json).toContain('IKEA製');
   });
 
-  it('includes all section headers and document title', () => {
+  it('uses neutral title without sales pitch', () => {
     const element = ConsultationDocument(defaultProps);
     const json = JSON.stringify(element);
-    expect(json).toContain('残置物引き継ぎのご相談');
+    expect(json).toContain('家具引き継ぎのご相談');
+    expect(json).not.toContain('残置物引き継ぎのご相談');
     expect(json).toContain('物件情報');
     expect(json).toContain('管理会社様へのお願い');
+  });
+
+  it('uses neutral colors for section titles and step badges', () => {
+    const element = ConsultationDocument(defaultProps);
+    const json = JSON.stringify(element);
+    const parsed = JSON.parse(json) as any;
+    const page = parsed.props.children;
+    // Get the main content children (excluding footer)
+    const children = page.props.children;
+    // Footer is the last child — check everything before it uses neutral colors
+    const contentJson = JSON.stringify(children.slice(0, children.length - 1));
+    expect(contentJson).not.toContain('"color":"#FF5A5F"');
+    expect(contentJson).not.toContain('"backgroundColor":"#FF5A5F"');
   });
 
   it('includes action step descriptions', () => {
