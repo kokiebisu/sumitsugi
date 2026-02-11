@@ -5,6 +5,7 @@ const z = zod;
 import { auth } from '@/lib/auth';
 import { renderPdf } from '@/lib/pdf/render';
 import { ConsultationDocument } from '@/lib/pdf/templates/consultation-document';
+import { generateQrCodeDataUrl, FAQ_PAGE_URL } from '@/lib/pdf/qr-code';
 import { uploadPdf, isStorageConfigured } from '@/lib/storage';
 
 const MAX_RETRIES = 3;
@@ -45,7 +46,8 @@ function formatCreatedDate(): string {
   });
 }
 
-function buildConsultationElement(input: GeneratePdfInput) {
+async function buildConsultationElement(input: GeneratePdfInput) {
+  const faqQrCodeDataUrl = await generateQrCodeDataUrl(FAQ_PAGE_URL);
   return createElement(ConsultationDocument, {
     propertyName: input.propertyName,
     propertyAddress: input.propertyAddress,
@@ -53,6 +55,7 @@ function buildConsultationElement(input: GeneratePdfInput) {
     sellerName: input.sellerName ?? '未設定',
     furnitureItems: input.furnitureItems,
     createdDate: formatCreatedDate(),
+    faqQrCodeDataUrl,
   });
 }
 
@@ -114,7 +117,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const element = buildConsultationElement(parsed.data);
+    const element = await buildConsultationElement(parsed.data);
     const pdfBuffer = await renderPdf(element);
     const url = await uploadWithRetry(pdfBuffer, 'consultation');
 

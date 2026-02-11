@@ -12,6 +12,7 @@ vi.mock('@react-pdf/renderer', () => ({
     createElement('view', null, children),
   Link: ({ children, src }: { children: React.ReactNode; src: string }) =>
     createElement('a', { href: src }, children),
+  Image: ({ src }: { src: string }) => createElement('img', { src }),
   StyleSheet: {
     create: <T extends Record<string, unknown>>(styles: T) => styles,
   },
@@ -110,10 +111,10 @@ describe('ConsultationDocument', () => {
     expect(json).toContain('tsumugi（紡ぎ）');
   });
 
-  it('includes FAQ URL in footer', () => {
+  it('includes FAQ URL in footer pointing to for-managers page', () => {
     const element = ConsultationDocument(defaultProps);
     const json = JSON.stringify(element);
-    expect(json).toContain('/faq/management');
+    expect(json).toContain('/for-managers');
   });
 
   it('includes tsumugi explanation section', () => {
@@ -161,7 +162,23 @@ describe('ConsultationDocument', () => {
     const element = ConsultationDocument(defaultProps);
     const json = JSON.stringify(element);
     expect(json).toContain('tsumugi（紡ぎ）');
-    expect(json).toContain('/faq/management');
+    expect(json).toContain('/for-managers');
+  });
+
+  it('renders QR code image when faqQrCodeDataUrl is provided', () => {
+    const propsWithQr = {
+      ...defaultProps,
+      faqQrCodeDataUrl: 'data:image/png;base64,TESTQRCODE',
+    };
+    const element = ConsultationDocument(propsWithQr);
+    const json = JSON.stringify(element);
+    expect(json).toContain('data:image/png;base64,TESTQRCODE');
+  });
+
+  it('does not render QR code image when faqQrCodeDataUrl is omitted', () => {
+    const element = ConsultationDocument(defaultProps);
+    const json = JSON.stringify(element);
+    expect(json).not.toContain('data:image/png;base64,');
   });
 
   it('renders correctly with empty furniture list', () => {
