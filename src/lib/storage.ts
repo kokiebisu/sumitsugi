@@ -1,13 +1,24 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
 
+const S3_ENDPOINT = process.env.S3_ENDPOINT ?? '';
 const R2_ACCOUNT_ID = process.env.R2_ACCOUNT_ID ?? '';
 const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID ?? '';
 const R2_SECRET_ACCESS_KEY = process.env.R2_SECRET_ACCESS_KEY ?? '';
 const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL ?? '';
 const BUCKET_NAME = process.env.R2_BUCKET_NAME ?? 'tsumugi';
 
+const isLocalStack = Boolean(S3_ENDPOINT);
+
 function getS3Client(): S3Client {
+  if (isLocalStack) {
+    return new S3Client({
+      region: 'us-east-1',
+      endpoint: S3_ENDPOINT,
+      forcePathStyle: true,
+      credentials: { accessKeyId: 'test', secretAccessKey: 'test' },
+    });
+  }
   return new S3Client({
     region: 'auto',
     endpoint: `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
@@ -35,6 +46,13 @@ export async function uploadImage(
     })
   );
 
+  return getPublicUrl(key);
+}
+
+function getPublicUrl(key: string): string {
+  if (isLocalStack) {
+    return `/storage/${key}`;
+  }
   if (R2_PUBLIC_URL) {
     return `${R2_PUBLIC_URL}/${key}`;
   }
@@ -57,12 +75,10 @@ export async function uploadPdf(
     })
   );
 
-  if (R2_PUBLIC_URL) {
-    return `${R2_PUBLIC_URL}/${key}`;
-  }
-  return `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${BUCKET_NAME}/${key}`;
+  return getPublicUrl(key);
 }
 
 export function isStorageConfigured(): boolean {
+  if (isLocalStack) return true;
   return Boolean(R2_ACCOUNT_ID && R2_ACCESS_KEY_ID && R2_SECRET_ACCESS_KEY);
 }

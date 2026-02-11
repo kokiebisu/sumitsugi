@@ -2,6 +2,16 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ['pg'],
+  async rewrites() {
+    const s3Endpoint = process.env.S3_ENDPOINT;
+    if (!s3Endpoint) return [];
+    return [
+      {
+        source: '/storage/:path*',
+        destination: `${s3Endpoint}/${process.env.R2_BUCKET_NAME ?? 'tsumugi'}/:path*`,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {
