@@ -3,17 +3,12 @@
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { PropertyCard } from '@/components/property-card';
-import {
-  getPublicProperties,
-  Property,
-  convertUserListingToProperty,
-} from '@/lib/data';
+import { getPublicProperties, Property } from '@/lib/data';
 import {
   isUrgentMoveIn,
   getDaysUntilMoveOut,
   isAvailableFromMonth,
 } from '@/lib/utils';
-import { useAuth } from '@/contexts/auth-context';
 import { useMemo, useState } from 'react';
 import { CalendarDays, X } from 'lucide-react';
 
@@ -132,7 +127,6 @@ function generateMonthOptions(): Array<{
 }
 
 export default function HomePage() {
-  const { listings } = useAuth();
   const [moveInFilter, setMoveInFilter] = useState<{
     year: number;
     month: number;
@@ -141,14 +135,8 @@ export default function HomePage() {
   const monthOptions = useMemo(() => generateMonthOptions(), []);
 
   const properties = useMemo(() => {
-    const staticProperties = getPublicProperties();
-
-    const publishedUserListings = listings
-      .filter((listing) => listing.status === 'published')
-      .map((listing) => convertUserListingToProperty(listing));
-
-    return [...staticProperties, ...publishedUserListings];
-  }, [listings]);
+    return getPublicProperties();
+  }, []);
 
   // 東京の物件のみをフィルタリング + 入居可能日フィルター（F-508）
   const tokyoProperties = properties.filter((p) => {

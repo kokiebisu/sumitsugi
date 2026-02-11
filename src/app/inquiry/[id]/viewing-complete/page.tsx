@@ -36,40 +36,15 @@ export default function ViewingCompletePage() {
   const router = useRouter();
   const params = useParams();
   const inquiryId = params.id as string;
-  const { user, isLoading, inquiries, listings } = useAuth();
+  const { user, isLoading, inquiries } = useAuth();
 
   // この問い合わせに対応するInquiryを取得
   const inquiry = inquiries.find((inq) => inq.id === inquiryId);
 
-  // 物件情報を取得（listingIdから）
-  const listing = inquiry
-    ? listings.find((l) => l.id === inquiry.propertyId)
-    : null;
-
-  // 家具リストの状態（既存のリストから初期化）
+  // 家具リストの状態
   const [items, setItems] = useState<HandoverItem[]>([]);
   const [adjustedFee, setAdjustedFee] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // 初期化
-  useEffect(() => {
-    if (listing) {
-      // 既存の家具リストから初期化
-      const initialItems: HandoverItem[] = (listing.furnitureItems || []).map(
-        (item, index) => ({
-          id: `item-${index}`,
-          name: item.type,
-          category: 'furniture' as const,
-          condition: item.condition || 'good',
-          photos: item.photos || [],
-          notes: item.notes,
-          included: true,
-        })
-      );
-      setItems(initialItems);
-      setAdjustedFee(listing.handoverFee || 0);
-    }
-  }, [listing]);
 
   // 認証チェック
   useEffect(() => {
@@ -121,7 +96,7 @@ export default function ViewingCompletePage() {
     );
   }
 
-  if (!inquiry || !listing) {
+  if (!inquiry) {
     return (
       <div className="flex min-h-screen flex-col bg-background">
         <Header />
@@ -168,7 +143,9 @@ export default function ViewingCompletePage() {
           {/* 物件情報 */}
           <div className="mb-8 rounded-lg border border-border bg-muted/30 p-4">
             <p className="text-sm text-muted-foreground">対象物件</p>
-            <p className="font-medium text-foreground">{listing.title}</p>
+            <p className="font-medium text-foreground">
+              {inquiry.propertyTitle}
+            </p>
             <p className="text-sm text-muted-foreground">
               申込者: {inquiry.applicantName}
             </p>
@@ -191,11 +168,7 @@ export default function ViewingCompletePage() {
                   className="w-full rounded-lg border border-input bg-background py-3 pl-8 pr-4 text-lg font-medium focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
-              {listing.handoverFee !== adjustedFee && (
-                <p className="text-sm text-muted-foreground">
-                  (元の金額: ¥{listing.handoverFee?.toLocaleString()})
-                </p>
-              )}
+              {/* TODO: Fetch original handover fee from API */}
             </div>
           </div>
 
