@@ -2758,6 +2758,7 @@ export const properties: Property[] = [
 ];
 
 export function getPropertiesByArea(): Record<string, Property[]> {
+  if (!isMockEnabled()) return {};
   const publicProperties = properties.filter((p) => p.status === 'public');
   return publicProperties.reduce(
     (acc, property) => {
