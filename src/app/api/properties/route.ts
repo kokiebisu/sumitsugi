@@ -33,6 +33,7 @@ const createPropertySchema = z.object({
   furnitureDescription: z.string().optional(),
   story: z.string().optional(),
   conditions: z.string().optional(),
+  isProCoordinated: z.boolean().optional().default(false),
   handoverDetails: z
     .object({
       included: z.array(z.string()).optional(),
@@ -130,6 +131,7 @@ export async function POST(request: Request) {
         handoverDetails: data.handoverDetails,
         faq: data.faq,
         handoverHost: data.handoverHost,
+        isProCoordinated: data.isProCoordinated,
       })
       .returning();
 
