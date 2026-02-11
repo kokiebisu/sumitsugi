@@ -109,6 +109,7 @@ export default function NewListingPage() {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [pendingPhotos, setPendingPhotos] = useState<string[]>([]);
+  const [pendingPreviews, setPendingPreviews] = useState<string[]>([]);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -311,13 +312,18 @@ export default function NewListingPage() {
   };
 
   const closeUploadDialog = () => {
+    pendingPreviews.forEach((url) => URL.revokeObjectURL(url));
     setUploadDialogOpen(false);
     setIsUploading(false);
     setPendingPhotos([]);
+    setPendingPreviews([]);
   };
 
   const removePendingPhoto = (index: number) => {
-    setPendingPhotos(pendingPhotos.filter((_, i) => i !== index));
+    if (isLoadingFiles) return;
+    URL.revokeObjectURL(pendingPreviews[index]);
+    setPendingPreviews((prev) => prev.filter((_, i) => i !== index));
+    setPendingPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
   const removeRoomPhoto = (index: number) => {
@@ -332,6 +338,7 @@ export default function NewListingPage() {
       const remaining = 5 - roomPhotos.length;
       const photosToAdd = pendingPhotos.slice(0, remaining);
       setRoomPhotos([...roomPhotos, ...photosToAdd]);
+      pendingPreviews.forEach((url) => URL.revokeObjectURL(url));
       closeUploadDialog();
     }, 500);
   };
@@ -342,9 +349,12 @@ export default function NewListingPage() {
     setIsLoadingFiles(true);
     setUploadError(null);
 
+    const fileArray = Array.from(files);
+    const previewUrls = fileArray.map((file) => URL.createObjectURL(file));
+    setPendingPreviews((prev) => [...prev, ...previewUrls]);
+
     try {
       const formData = new FormData();
-      const fileArray = Array.from(files);
       for (const file of fileArray) {
         formData.append('files', file);
       }
@@ -364,6 +374,10 @@ export default function NewListingPage() {
       const json = (await res.json()) as { urls: string[] };
       setPendingPhotos((prev) => [...prev, ...json.urls]);
     } catch (err) {
+      previewUrls.forEach((url) => URL.revokeObjectURL(url));
+      setPendingPreviews((prev) =>
+        prev.filter((url) => !previewUrls.includes(url))
+      );
       setUploadError(
         err instanceof Error ? err.message : 'アップロードに失敗しました'
       );
@@ -1262,21 +1276,29 @@ export default function NewListingPage() {
                   写真をアップロードする
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  {pendingPhotos.length > 0
-                    ? `${pendingPhotos.length}枚選択中`
+                  {pendingPreviews.length > 0
+                    ? `${pendingPreviews.length}枚選択中`
                     : 'アイテムが選択されていません'}
                 </p>
                 {uploadError && (
                   <p className="text-xs text-red-600 mt-1">{uploadError}</p>
                 )}
               </div>
-              <label className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted cursor-pointer">
+              <label
+                className={cn(
+                  'w-8 h-8 flex items-center justify-center rounded-full',
+                  isLoadingFiles
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'hover:bg-muted cursor-pointer'
+                )}
+              >
                 <Plus className="w-5 h-5" />
                 <input
                   type="file"
                   accept="image/*"
                   multiple
                   className="hidden"
+                  disabled={isLoadingFiles}
                   onChange={(e) => handleFilesSelect(e.target.files)}
                 />
               </label>
@@ -1315,7 +1337,7 @@ export default function NewListingPage() {
                     アップロード中...
                   </p>
                 </div>
-              ) : pendingPhotos.length > 0 || isLoadingFiles ? (
+              ) : pendingPreviews.length > 0 || isLoadingFiles ? (
                 <div
                   className="overflow-x-auto scrollbar-hide"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -1329,19 +1351,25 @@ export default function NewListingPage() {
                     className="flex gap-3"
                     style={{ minWidth: 'min-content' }}
                   >
-                    {pendingPhotos.map((photo, index) => (
+                    {pendingPreviews.map((preview, index) => (
                       <div
                         key={index}
                         className="relative flex-shrink-0 w-40 h-40 rounded-xl overflow-hidden group"
                       >
                         <img
-                          src={photo}
+                          src={preview}
                           alt=""
                           className="w-full h-full object-cover"
                         />
                         <button
                           onClick={() => removePendingPhoto(index)}
-                          className="absolute top-2 right-2 w-7 h-7 bg-black/50 rounded-full flex items-center justify-center hover:bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity"
+                          disabled={isLoadingFiles}
+                          className={cn(
+                            'absolute top-2 right-2 w-7 h-7 bg-black/50 rounded-full flex items-center justify-center transition-opacity',
+                            isLoadingFiles
+                              ? 'opacity-0 cursor-not-allowed'
+                              : 'hover:bg-black/70 opacity-0 group-hover:opacity-100'
+                          )}
                         >
                           <X className="w-4 h-4 text-white" />
                         </button>
@@ -1469,10 +1497,12 @@ export default function NewListingPage() {
               </button>
               <Button
                 onClick={handleUploadConfirm}
-                disabled={pendingPhotos.length === 0 || isUploading}
+                disabled={
+                  pendingPhotos.length === 0 || isUploading || isLoadingFiles
+                }
                 className={cn(
                   'rounded-lg px-6 py-2 text-sm font-medium',
-                  pendingPhotos.length > 0
+                  pendingPhotos.length > 0 && !isLoadingFiles
                     ? 'bg-foreground text-white hover:bg-foreground/90'
                     : 'bg-[#DDDDDD] text-muted-foreground cursor-not-allowed'
                 )}
