@@ -40,6 +40,9 @@ export function PropertySidebar({ property }: PropertySidebarProps) {
             <span className="text-3xl font-semibold text-foreground">
               ¥{property.handoverFee.toLocaleString()}
             </span>
+            <p className="text-xs text-muted-foreground mt-2">
+              ※賃貸の初期費用（敷金・礼金・仲介手数料等）は別途かかります
+            </p>
           </div>
 
           {/* 家賃 */}
