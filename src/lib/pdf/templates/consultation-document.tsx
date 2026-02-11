@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 12,
     fontWeight: 700,
-    color: '#FF5A5F',
+    color: '#555555',
     marginBottom: 8,
     borderBottom: '1 solid #eeeeee',
     paddingBottom: 4,
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: '#FF5A5F',
+    backgroundColor: '#555555',
     color: '#ffffff',
     fontSize: 10,
     fontWeight: 700,
@@ -130,8 +130,8 @@ const styles = StyleSheet.create({
     color: '#555555',
   },
   infoBox: {
-    backgroundColor: '#FFF5F5',
-    borderLeft: '3 solid #FF5A5F',
+    backgroundColor: '#F7F7F7',
+    borderLeft: '3 solid #999999',
     padding: '10 14',
     marginBottom: 12,
   },
@@ -221,7 +221,7 @@ export function ConsultationDocument({
         </View>
 
         {/* Title */}
-        <Text style={styles.title}>残置物引き継ぎのご相談</Text>
+        <Text style={styles.title}>家具引き継ぎのご相談</Text>
 
         {/* Property Info */}
         <View style={styles.section}>
@@ -244,15 +244,14 @@ export function ConsultationDocument({
           </View>
         </View>
 
-        {/* What is tsumugi */}
+        {/* Handover explanation — resident-authored tone */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>tsumugiとは</Text>
+          <Text style={styles.sectionTitle}>家具引き継ぎについて</Text>
           <View style={styles.infoBox}>
             <Text style={styles.infoText}>
-              tsumugiは、前の住人が大切に使ってきた家具・インテリアを次の住人へ引き継ぐためのサービスです。
-              処分ではなく「引き継ぎ」という形で、環境に配慮しながら前の住人の負担を軽減します。
-              次の住人候補は、tsumugiのプラットフォームを通じてマッチングされ、
-              内見後に引き継ぎの合意が成立します。
+              退去にあたり、現在使用している家具・インテリアを次の住人へ引き継ぎたいと考えております。
+              処分ではなく「引き継ぎ」という形で、まだ使える家具を活かしていただければ幸いです。
+              引き継ぎを希望される方との内見・確認を経て、双方の合意のもとで進めさせていただきます。
             </Text>
           </View>
         </View>
