@@ -49,6 +49,7 @@ Chaining these risks permanently breaking the shell if any step fails.
 6. Merge: `gh pr merge <n> --squash --delete-branch`
 7. **Remove worktree (3 SEPARATE Bash calls):** `cd /workspace` | `git worktree remove /workspace/.worktrees/<name> --force` | `git branch -D <branch> 2>/dev/null; git pull origin main`
 8. Update PR description after each push: `gh pr edit <n> --body "..."`
+9. **Close related tasks immediately:** `bd close <id>` + `./scripts/linear-done.sh TSU-xxx` (NEVER defer)
 
 **Auto-merge** all changes except: breaking API changes, major architecture decisions, 10+ file features.
 
@@ -69,12 +70,16 @@ When addressing PR review comments (from Claude Code bot, github-actions, or hum
 
 ## Task Completion (CRITICAL)
 
-After completing any task:
+**PRマージ直後に即実行（後回し厳禁）:**
 
 1. Close in Beads: `bd close <id>`
-2. Update Linear: `./scripts/linear-done.sh TSU-xxx`
+2. Close in Linear: `./scripts/linear-done.sh TSU-xxx`
 3. Update DASHBOARD.md
 4. Report to user
+
+**バッチ実行時（`/work:dev`, `/work:business`）も同様。** 複数PRをまとめてマージした場合、全PRの関連タスクを漏れなくクローズすること。「あとでまとめて」は禁止 — マージのたびに即クローズ。
+
+**PRマージ時のチェック:** PR descriptionやブランチ名からBeads/Linear IDを特定し、マージ完了と同時にクローズする。IDが不明な場合は `bd list --status open` と `./scripts/linear-list.sh` で照合。
 
 **Beads → Linear sync:** `bd linear sync --push --create-only && ./scripts/linear-set-project.sh`
 
