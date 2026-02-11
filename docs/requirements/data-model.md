@@ -6,27 +6,28 @@
 
 ## 7.1 Property（物件）
 
-| フィールド            | 型                  | 必須 | 説明                                                                                                                                 |
-| --------------------- | ------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| id                    | string              | ○    | 物件ID                                                                                                                               |
-| title                 | string              | ○    | 物件タイトル                                                                                                                         |
-| images                | string[]            | ○    | 物件画像URL配列                                                                                                                      |
-| estimatedDuration     | string              | ○    | 契約期間（例：「2〜4ヶ月」）                                                                                                         |
-| status                | 'draft' \| 'public' | ○    | 公開ステータス                                                                                                                       |
-| taste                 | string              | -    | テイスト（例：北欧風、ミニマル、和モダン）                                                                                           |
-| tasteCategory         | TasteCategory       | -    | テイストカテゴリ（enum型。将来AIマッチング用特徴量）— [技術会議#13 CAIO推奨](../design/meetings/2026-02-09-tech-meeting-13-delta.md) |
-| concept               | string              | -    | 空間のコンセプト・ストーリー                                                                                                         |
-| lifestyle             | string              | -    | 暮らし方の説明                                                                                                                       |
-| videoTourUrl          | string              | -    | 動画ツアーURL                                                                                                                        |
-| faq                   | FAQ[]               | -    | よくある質問（下記7.5参照）                                                                                                          |
-| coordinatorId         | string              | -    | コーディネーターのユーザーID                                                                                                         |
-| landlordConsent       | LandlordConsent     | ○    | 大家承認情報（下記7.4参照）                                                                                                          |
-| handoverFee           | number              | ○    | 引越し費用（円）。内訳は[payment.md §12.3](./payment.md#123-引越し費用の構成)参照                                                    |
-| moveOutDate           | Date \| null        | ○    | 退去（引き渡し）予定日                                                                                                               |
-| moveOutReason         | MoveOutReason       | -    | 引越し理由（下記7.6参照）                                                                                                            |
-| managementCompanyName | string              | -    | 管理会社名（前の住人が入力。ポストのシール・管理アプリ等で確認）                                                                     |
-| managementConsultedAt | Date \| null        | -    | 管理会社に残置物相談を行った日時（前の住人が自己申告）                                                                               |
-| pdfUrls               | object \| null      | -    | 生成済みPDFのURL格納（F-611/F-612/F-616のR2 URL）                                                                                    |
+| フィールド            | 型                  | 必須 | 説明                                                                                                                                                                                 |
+| --------------------- | ------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| id                    | string              | ○    | 物件ID                                                                                                                                                                               |
+| title                 | string              | ○    | 物件タイトル                                                                                                                                                                         |
+| images                | string[]            | ○    | 物件画像URL配列                                                                                                                                                                      |
+| estimatedDuration     | string              | ○    | 契約期間（例：「2〜4ヶ月」）                                                                                                                                                         |
+| status                | 'draft' \| 'public' | ○    | 公開ステータス                                                                                                                                                                       |
+| taste                 | string              | -    | テイスト（例：北欧風、ミニマル、和モダン）                                                                                                                                           |
+| tasteCategory         | TasteCategory       | -    | テイストカテゴリ（enum型。将来AIマッチング用特徴量）— [技術会議#13 CAIO推奨](../design/meetings/2026-02-09-tech-meeting-13-delta.md)                                                 |
+| concept               | string              | -    | 空間のコンセプト・ストーリー                                                                                                                                                         |
+| lifestyle             | string              | -    | 暮らし方の説明                                                                                                                                                                       |
+| videoTourUrl          | string              | -    | 動画ツアーURL                                                                                                                                                                        |
+| faq                   | FAQ[]               | -    | よくある質問（下記7.5参照）                                                                                                                                                          |
+| coordinatorId         | string              | -    | コーディネーターのユーザーID                                                                                                                                                         |
+| landlordConsent       | LandlordConsent     | ○    | 大家承認情報（下記7.4参照）                                                                                                                                                          |
+| handoverFee           | number              | ○    | 引越し費用（円）。内訳は[payment.md §12.3](./payment.md#123-引越し費用の構成)参照                                                                                                    |
+| moveOutDate           | Date \| null        | ○    | 退去（引き渡し）予定日                                                                                                                                                               |
+| moveOutReason         | MoveOutReason       | -    | 引越し理由（下記7.6参照）                                                                                                                                                            |
+| managementCompanyName | string              | -    | 管理会社名（前の住人が入力。ポストのシール・管理アプリ等で確認）                                                                                                                     |
+| managementConsultedAt | Date \| null        | -    | 管理会社に残置物相談を行った日時（前の住人が自己申告）                                                                                                                               |
+| pdfUrls               | object \| null      | -    | 生成済みPDFのURL格納（F-611/F-612/F-616のR2 URL）                                                                                                                                    |
+| isProCoordinated      | boolean             | -    | プロにコーディネートされた物件か（デフォルト: false）。[座談会#15](../requirements/meetings/2026-02-09-product-meeting-15-delta.md)でMVPデータ収集用に決定。表示機能F-901〜F-903はP2 |
 
 ## 7.2 Inquiry（問い合わせ）
 
