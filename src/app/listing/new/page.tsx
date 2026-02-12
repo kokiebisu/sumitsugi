@@ -666,6 +666,7 @@ export default function NewListingPage() {
                     moveOutDate ? undefined : '現在の住居を退去する予定日'
                   }
                   minDate={new Date()}
+                  singleOnly
                 />
                 {/* 猶予期間バリデーション表示（F-502） */}
                 {moveOutDate && gracePeriodStatus === 'blocked' && (

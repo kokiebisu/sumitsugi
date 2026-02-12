@@ -20,6 +20,7 @@ interface SingleDatePickerProps {
   title?: string;
   subtitle?: string;
   minDate?: Date;
+  singleOnly?: boolean;
 }
 
 // 月の日本語名
@@ -309,6 +310,7 @@ export function SingleDatePicker({
   title,
   subtitle,
   minDate = new Date(),
+  singleOnly = false,
 }: SingleDatePickerProps) {
   // 表示開始月（現在の月から開始）
   const [baseMonth, setBaseMonth] = useState(() => {
@@ -364,6 +366,16 @@ export function SingleDatePicker({
     // 過去の日付は選択不可
     if (isPast(clickedDate, minDate)) return;
 
+    if (singleOnly) {
+      // 単一選択モード: クリックで選択/解除を切り替え
+      if (isSameDay(clickedDate, selectedDate)) {
+        onDateChange(null, null);
+      } else {
+        onDateChange(clickedDate, null);
+      }
+      return;
+    }
+
     if (!selectedDate) {
       // 最初の選択: 単体（以降）として設定
       onDateChange(clickedDate, null);
@@ -408,9 +420,9 @@ export function SingleDatePicker({
       );
       return `${days}日間`;
     } else if (selectedDate) {
-      return 'この日以降（終了日を追加で選択可能）';
+      return singleOnly ? undefined : 'この日以降（終了日を追加で選択可能）';
     }
-    return '開始日を選択してください';
+    return singleOnly ? '日付を選択してください' : '開始日を選択してください';
   };
 
   const displayTitle = title || generateDefaultTitle();
