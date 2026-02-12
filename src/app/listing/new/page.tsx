@@ -105,7 +105,6 @@ export default function NewListingPage() {
     { name: '', walkingMinutes: '' },
   ]);
   const [occupants, setOccupants] = useState<string>('');
-  const [isProCoordinated, setIsProCoordinated] = useState(false);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [pendingPhotos, setPendingPhotos] = useState<string[]>([]);
@@ -237,7 +236,6 @@ export default function NewListingPage() {
                   furnitureCategory: id as 'sofa',
                 }))
               : undefined,
-          isProCoordinated,
           handoverDetails: {
             viewingAvailableFrom: formatDateRange(viewingDate, viewingEndDate),
             moveInAvailableFrom: formatDateRange(moveInDate, moveInEndDate),
@@ -655,18 +653,6 @@ export default function NewListingPage() {
                     ))}
                   </div>
                 </div>
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={isProCoordinated}
-                    onChange={(e) => setIsProCoordinated(e.target.checked)}
-                    className="h-4 w-4 rounded border-border accent-coral"
-                    data-testid="pro-coordinated-checkbox"
-                  />
-                  <span className="text-sm">
-                    プロのコーディネーターと連携していますか？
-                  </span>
-                </label>
               </div>
             </div>
           )}
