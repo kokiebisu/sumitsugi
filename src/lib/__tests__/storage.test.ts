@@ -17,6 +17,12 @@ vi.mock('@aws-sdk/client-s3', () => {
         this.input = input;
       }
     },
+    GetObjectCommand: class MockGetObjectCommand {
+      input: unknown;
+      constructor(input: unknown) {
+        this.input = input;
+      }
+    },
   };
 });
 
@@ -84,7 +90,7 @@ describe('storage', () => {
       expect(url).toBe('https://cdn.example.com/uploads/test-uuid.png');
     });
 
-    it('returns R2 storage URL as fallback', async () => {
+    it('returns proxy URL as fallback when R2_PUBLIC_URL not set', async () => {
       vi.stubEnv('S3_ENDPOINT', '');
       vi.stubEnv('R2_PUBLIC_URL', '');
       vi.stubEnv('R2_ACCOUNT_ID', 'abc123');
@@ -94,9 +100,7 @@ describe('storage', () => {
 
       const { uploadImage } = await import('../storage');
       const url = await uploadImage(Buffer.from('test'), 'image/png');
-      expect(url).toBe(
-        'https://abc123.r2.cloudflarestorage.com/tsumugi/uploads/test-uuid.png'
-      );
+      expect(url).toBe('/api/images/uploads/test-uuid.png');
     });
   });
 

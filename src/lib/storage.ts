@@ -1,4 +1,8 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+} from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
 
 const S3_ENDPOINT = process.env.S3_ENDPOINT ?? '';
@@ -56,7 +60,26 @@ function getPublicUrl(key: string): string {
   if (R2_PUBLIC_URL) {
     return `${R2_PUBLIC_URL}/${key}`;
   }
-  return `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${BUCKET_NAME}/${key}`;
+  // Proxy through Next.js API — the S3 API endpoint requires authentication
+  return `/api/images/${key}`;
+}
+
+export async function getImage(
+  key: string
+): Promise<{ body: ReadableStream; contentType: string } | null> {
+  const client = getS3Client();
+  try {
+    const response = await client.send(
+      new GetObjectCommand({ Bucket: BUCKET_NAME, Key: key })
+    );
+    if (!response.Body) return null;
+    return {
+      body: response.Body.transformToWebStream() as ReadableStream,
+      contentType: response.ContentType ?? 'application/octet-stream',
+    };
+  } catch {
+    return null;
+  }
 }
 
 export async function uploadPdf(
