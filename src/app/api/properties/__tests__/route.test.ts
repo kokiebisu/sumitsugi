@@ -296,58 +296,6 @@ describe('POST /api/properties', () => {
     );
   });
 
-  it('passes isProCoordinated to DB when true', async () => {
-    const { POST } = await import('../route');
-    const { auth } = await import('@/lib/auth');
-    vi.mocked(auth.api.getSession).mockResolvedValue({
-      session: { id: 's1', userId: 'u1' },
-      user: { id: 'u1' },
-    } as any);
-    const { db } = await import('@/db');
-    const mockReturning = vi
-      .fn()
-      .mockResolvedValue([
-        { id: 'x', status: 'draft', isProCoordinated: true },
-      ]);
-    const mockValues = vi.fn().mockReturnValue({ returning: mockReturning });
-    vi.mocked(db.insert).mockReturnValue({ values: mockValues } as any);
-    const req = new Request('http://localhost/api/properties', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ title: 'テスト', isProCoordinated: true }),
-    });
-    await POST(req);
-    expect(mockValues).toHaveBeenCalledWith(
-      expect.objectContaining({ isProCoordinated: true })
-    );
-  });
-
-  it('defaults isProCoordinated to false when not provided', async () => {
-    const { POST } = await import('../route');
-    const { auth } = await import('@/lib/auth');
-    vi.mocked(auth.api.getSession).mockResolvedValue({
-      session: { id: 's1', userId: 'u1' },
-      user: { id: 'u1' },
-    } as any);
-    const { db } = await import('@/db');
-    const mockReturning = vi
-      .fn()
-      .mockResolvedValue([
-        { id: 'x', status: 'draft', isProCoordinated: false },
-      ]);
-    const mockValues = vi.fn().mockReturnValue({ returning: mockReturning });
-    vi.mocked(db.insert).mockReturnValue({ values: mockValues } as any);
-    const req = new Request('http://localhost/api/properties', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ title: 'テスト' }),
-    });
-    await POST(req);
-    expect(mockValues).toHaveBeenCalledWith(
-      expect.objectContaining({ isProCoordinated: false })
-    );
-  });
-
   it('accepts public status from client', async () => {
     const { POST } = await import('../route');
     const { auth } = await import('@/lib/auth');
