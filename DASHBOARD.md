@@ -1,6 +1,6 @@
 # tsumugi Development Dashboard
 
-> Last updated: 2026-02-11
+> Last updated: 2026-02-12
 
 ## Timeline Overview
 
@@ -306,6 +306,10 @@
 ---
 
 ## Recent Decisions
+
+### 座談会#18 — 2026-02-12
+
+- **退去日入力UI決定** — single date picker +「まだ決まっていない」チェックボックスの二択。日付範囲ピッカーは不採用（曖昧な範囲は次の住人に無意味）。F-501/F-502を更新。探り出品（パターンC）に正式対応（TSU-296）
 
 ### 座談会#16 — 2026-02-12
 
