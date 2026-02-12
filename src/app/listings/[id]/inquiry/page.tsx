@@ -5,6 +5,7 @@ import { Footer } from '@/components/footer';
 import { InquiryForm } from '@/components/inquiry-form';
 import { getPropertyById, getPublicProperties } from '@/lib/data';
 import { ArrowLeft, Info } from 'lucide-react';
+import { normalizeImageUrl } from '@/lib/utils';
 
 interface InquiryPageProps {
   params: Promise<{ id: string }>;
@@ -58,7 +59,11 @@ export default async function InquiryPage({ params }: InquiryPageProps) {
           <div className="mb-8 flex gap-4 rounded-xl border border-border bg-background p-4">
             <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg">
               <img
-                src={property.images[0] || '/placeholder.svg'}
+                src={
+                  property.images[0]
+                    ? normalizeImageUrl(property.images[0])
+                    : '/placeholder.svg'
+                }
                 alt={property.title}
                 className="h-full w-full object-cover"
               />

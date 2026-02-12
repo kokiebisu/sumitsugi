@@ -17,6 +17,7 @@ import {
   Home,
   AlertTriangle,
 } from 'lucide-react';
+import { normalizeImageUrl } from '@/lib/utils';
 import { InquiryList } from '@/components/admin/inquiry-list';
 import { ConsentBadge } from '@/components/consent-badge';
 
@@ -118,7 +119,9 @@ function ListingCard({
   onDelete: (id: string) => void;
 }) {
   const [showMenu, setShowMenu] = useState(false);
-  const firstPhoto = listing.images?.[0];
+  const firstPhoto = listing.images?.[0]
+    ? normalizeImageUrl(listing.images[0])
+    : undefined;
   const displayStatus = listing.status === 'public' ? 'published' : 'draft';
   const consentStatus = listing.landlordConsent?.status;
 

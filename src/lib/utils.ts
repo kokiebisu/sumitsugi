@@ -5,6 +5,18 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+const R2_URL_RE = /^https:\/\/[a-f0-9]+\.r2\.cloudflarestorage\.com\//;
+
+/**
+ * Rewrite old R2 S3 API endpoint URLs to use the /api/images proxy.
+ * URLs already using the proxy, R2_PUBLIC_URL, or local /storage/ are returned as-is.
+ */
+export function normalizeImageUrl(url: string): string {
+  if (!R2_URL_RE.test(url)) return url;
+  const path = new URL(url).pathname.slice(1);
+  return `/api/images/${path}`;
+}
+
 /**
  * 退去日までの残り日数を計算
  */
