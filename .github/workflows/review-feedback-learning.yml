@@ -1,0 +1,191 @@
+name: Review Feedback Learning
+
+on:
+  schedule:
+    # Monday 10:00 JST = Monday 01:00 UTC (after Sunday retrospective)
+    - cron: '0 1 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: read
+
+jobs:
+  extract-patterns:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check pause flag
+        run: |
+          if [ -f .github/PAUSE_AUTONOMOUS ]; then
+            echo "Autonomous workflows paused"
+            exit 0
+          fi
+
+      - name: Collect PR review comments from past 2 weeks
+        id: collect
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          SINCE=$(date -u -d "14 days ago" +%Y-%m-%dT00:00:00Z 2>/dev/null || date -u -v-14d +%Y-%m-%dT00:00:00Z)
+          echo "Collecting review data since $SINCE"
+
+          # Get merged PRs from last 2 weeks
+          SINCE_DATE=$(echo "$SINCE" | cut -dT -f1)
+          gh pr list --state merged --search "merged:>=$SINCE_DATE" \
+            --json number,title --limit 50 > /tmp/merged_prs.json 2>/dev/null || echo "[]" > /tmp/merged_prs.json
+
+          PR_COUNT=$(jq 'length' /tmp/merged_prs.json)
+          echo "Found $PR_COUNT merged PRs"
+
+          if [ "$PR_COUNT" -eq 0 ]; then
+            echo "has_data=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Collect review comments for each PR
+          echo "[]" > /tmp/all_reviews.json
+
+          for PR_NUM in $(jq -r '.[].number' /tmp/merged_prs.json); do
+            echo "Fetching reviews for PR #$PR_NUM"
+
+            # Get PR reviews (APPROVE, REQUEST_CHANGES, COMMENT)
+            gh api "repos/${REPO}/pulls/${PR_NUM}/reviews" \
+              --jq '[.[] | select(.user.login == "github-actions[bot]" and .body != "") | {pr: '"$PR_NUM"', type: "review", body: .body, state: .state}]' \
+              2>/dev/null > /tmp/pr_reviews.json || echo "[]" > /tmp/pr_reviews.json
+
+            # Get inline review comments
+            gh api "repos/${REPO}/pulls/${PR_NUM}/comments" \
+              --jq '[.[] | select(.user.login == "github-actions[bot]") | {pr: '"$PR_NUM"', type: "inline", body: .body, path: .path}]' \
+              2>/dev/null > /tmp/pr_comments.json || echo "[]" > /tmp/pr_comments.json
+
+            # Get general PR comments (from Claude Code Action)
+            gh api "repos/${REPO}/issues/${PR_NUM}/comments" \
+              --jq '[.[] | select(.user.login == "github-actions[bot]") | {pr: '"$PR_NUM"', type: "comment", body: .body}]' \
+              2>/dev/null > /tmp/pr_issue_comments.json || echo "[]" > /tmp/pr_issue_comments.json
+
+            # Merge into all_reviews
+            jq -s '.[0] + .[1] + .[2] + .[3]' \
+              /tmp/all_reviews.json /tmp/pr_reviews.json /tmp/pr_comments.json /tmp/pr_issue_comments.json \
+              > /tmp/all_reviews_tmp.json
+            mv /tmp/all_reviews_tmp.json /tmp/all_reviews.json
+          done
+
+          REVIEW_COUNT=$(jq 'length' /tmp/all_reviews.json)
+          echo "Collected $REVIEW_COUNT review entries"
+
+          if [ "$REVIEW_COUNT" -eq 0 ]; then
+            echo "has_data=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_data=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Node.js
+        if: steps.collect.outputs.has_data == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Analyze patterns with Claude Code
+        if: steps.collect.outputs.has_data == 'true'
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+        run: |
+          npm install -g @anthropic-ai/claude-code
+
+          # Write prompt to file to avoid shell injection from review data
+          cat > /tmp/analysis-prompt.txt << 'PROMPT_EOF'
+          You are analyzing PR review feedback to discover repeated patterns that should become rules.
+
+          ## Task
+
+          1. Read the existing rules in `.claude/rules/standards.md` and `.claude/rules/learned-patterns.md`
+          2. Read the review data file at `/tmp/all_reviews.json`
+          3. Identify patterns that:
+             - Appear in 2+ different PRs
+             - Are NOT already covered by existing rules in standards.md
+             - Are actionable and specific (not vague advice)
+          4. If new patterns are found, append them to `.claude/rules/learned-patterns.md`
+             - Use the format shown below for each pattern
+             - Do NOT remove existing content — only append
+             - Add a blank line before each new pattern section
+
+          ## Pattern format
+
+          ```markdown
+          ## [Short pattern name]
+
+          - **First detected:** YYYY-MM-DD
+          - **Occurrences:** N PRs
+          - **Rule:** [Concise, imperative rule statement]
+          - **Example:** (optional — only if a code example clarifies the rule)
+          ```
+
+          5. If NO new patterns are found (all issues are already covered or nothing repeats), do NOT modify any files.
+             Output: "NO_NEW_PATTERNS"
+
+          6. If patterns were added, output: "PATTERNS_ADDED: [count]"
+          PROMPT_EOF
+
+          claude -p "$(cat /tmp/analysis-prompt.txt)" \
+            --allowedTools 'Read,Edit,Write,Glob,Grep' \
+            --max-turns 10 \
+            2>&1 | tee /tmp/analysis-output.txt
+
+      - name: Create PR if patterns were added
+        if: steps.collect.outputs.has_data == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Check if learned-patterns.md was modified
+          if git diff --quiet .claude/rules/learned-patterns.md; then
+            echo "No new patterns detected"
+            exit 0
+          fi
+
+          TODAY=$(date -u +%Y-%m-%d)
+          BRANCH="docs/learned-patterns-$TODAY"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add .claude/rules/learned-patterns.md
+          git commit -m "docs: update learned patterns from PR review feedback ($TODAY)"
+          git push -u origin "$BRANCH"
+
+          gh pr create \
+            --title "docs: update learned patterns from review feedback" \
+            --body "$(cat <<'EOF'
+          ## Summary
+          - Auto-extracted repeated patterns from PR review comments (past 2 weeks)
+          - Patterns added to `.claude/rules/learned-patterns.md`
+          - These rules help prevent recurring review issues
+
+          ## Review
+          Please verify the extracted patterns are accurate and useful.
+          Docs-only change — safe to auto-merge.
+          EOF
+          )"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Review Feedback Learning" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f /tmp/analysis-output.txt ]; then
+            if grep -q "PATTERNS_ADDED" /tmp/analysis-output.txt; then
+              echo "New patterns extracted and PR created." >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "No new repeated patterns found this week." >> "$GITHUB_STEP_SUMMARY"
+            fi
+          else
+            echo "No review data to analyze." >> "$GITHUB_STEP_SUMMARY"
+          fi
