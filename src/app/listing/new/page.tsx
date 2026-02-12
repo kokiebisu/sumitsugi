@@ -650,7 +650,7 @@ export default function NewListingPage() {
                 内見や引き継ぎの日程はマッチング後にメッセージで調整できます
               </p>
 
-              <div className="w-full max-w-md">
+              <div className="w-full">
                 <SingleDatePicker
                   selectedDate={moveOutDate}
                   endDate={null}
