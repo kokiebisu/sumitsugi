@@ -266,7 +266,7 @@ tests because checkout flow depends on active listings.
 
 💡 **Full suite (64 tests) will run when merged to main**
 
-### 🌐 [View Full Report](https://kokiebisu.github.io/tsumugi/e2e-reports/123)
+### 🌐 [View Full Report](https://kokiebisu.github.io/sumitsugi/e2e-reports/123)
 ```
 
 **Metrics Dashboard:**

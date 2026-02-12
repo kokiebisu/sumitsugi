@@ -309,7 +309,7 @@ test.describe('Payment Security - Session Handling @payment @security', () => {
 
     // User-specific payment state should be cleared
     const userData = await page.evaluate(() => {
-      return localStorage.getItem('tsumugi_user');
+      return localStorage.getItem('sumitsugi_user');
     });
 
     expect(userData).toBeNull();

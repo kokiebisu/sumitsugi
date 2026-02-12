@@ -363,7 +363,7 @@ test.describe('Create Listing - Logo Navigation @listing @smoke', () => {
     await newListingPage.goto();
 
     // Click logo
-    await page.locator('a:has-text("tsumugi")').click();
+    await page.locator('a:has-text("sumitsugi")').click();
 
     // Should navigate to home
     await expect(page).toHaveURL('/');

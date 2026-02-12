@@ -199,7 +199,7 @@ async function reverseGeocodeWithNominatim(
     const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${input.lat}&lon=${input.lng}&accept-language=ja`;
     const response = await fetchWithTimeout(url, {
       headers: {
-        'User-Agent': 'Tsumugi-App/1.0',
+        'User-Agent': 'Sumitsugi-App/1.0',
       },
     });
 

@@ -1,4 +1,4 @@
-# tsumugi 設計ドキュメント
+# sumitsugi 設計ドキュメント
 
 > 技術的な「How」を記述するドキュメント。「What」（要件・仕様）は [`requirements/`](../requirements/README.md) を参照。
 

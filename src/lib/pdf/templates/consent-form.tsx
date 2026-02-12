@@ -182,7 +182,7 @@ export function ConsentForm({
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.logo}>tsumugi</Text>
+          <Text style={styles.logo}>sumitsugi</Text>
           <Text style={styles.docId}>作成日: {createdDate}</Text>
         </View>
 
@@ -316,7 +316,8 @@ export function ConsentForm({
         {/* Footer */}
         <View style={styles.footer} fixed>
           <Text>
-            tsumugi 残置物引き継ぎ同意書 | © {new Date().getFullYear()} tsumugi
+            sumitsugi 残置物引き継ぎ同意書 | © {new Date().getFullYear()}{' '}
+            sumitsugi
           </Text>
         </View>
       </Page>

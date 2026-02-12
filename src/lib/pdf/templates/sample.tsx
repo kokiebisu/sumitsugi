@@ -72,7 +72,7 @@ export function SampleDocument({
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-          <Text style={styles.logo}>tsumugi</Text>
+          <Text style={styles.logo}>sumitsugi</Text>
           <Text style={styles.tagline}>住人の暮らしを引き継ぐ</Text>
         </View>
 
@@ -97,7 +97,7 @@ export function SampleDocument({
 
         <View style={styles.footer}>
           <Text>
-            © {new Date().getFullYear()} tsumugi. All rights reserved.
+            © {new Date().getFullYear()} sumitsugi. All rights reserved.
           </Text>
         </View>
       </Page>

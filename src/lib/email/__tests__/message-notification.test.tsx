@@ -8,7 +8,7 @@ describe('MessageNotification', () => {
     senderName: '山田花子',
     propertyTitle: '世田谷区の家具付き物件',
     messagePreview: 'こんにちは、内見の件でご連絡しました。',
-    threadUrl: 'https://tsumugi.com/messages/thread-1',
+    threadUrl: 'https://sumitsugi.jp/messages/thread-1',
   };
 
   it('renders recipient name', async () => {
@@ -33,7 +33,7 @@ describe('MessageNotification', () => {
 
   it('renders thread link button', async () => {
     const html = await render(<MessageNotification {...defaultProps} />);
-    expect(html).toContain('https://tsumugi.com/messages/thread-1');
+    expect(html).toContain('https://sumitsugi.jp/messages/thread-1');
     expect(html).toContain('メッセージを確認する');
   });
 

@@ -67,10 +67,10 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Column 3: tsumugi */}
+          {/* Column 3: sumitsugi */}
           <div>
             <h3 className="mb-4 text-sm font-semibold text-foreground">
-              tsumugi
+              sumitsugi
             </h3>
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li>
@@ -94,7 +94,7 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-12 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-border pt-8 text-xs text-muted-foreground">
-          <span>&copy; 2026 tsumugi</span>
+          <span>&copy; 2026 sumitsugi</span>
           <span className="hidden sm:inline">·</span>
           <a href="/privacy" className="hover:underline">
             プライバシー

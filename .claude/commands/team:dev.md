@@ -90,7 +90,7 @@ Tasks:
 For each teammate, use this prompt:
 
 ```
-You are implementing a dev task for tsumugi (Next.js/TypeScript/Bun).
+You are implementing a dev task for sumitsugi (Next.js/TypeScript/Bun).
 
 ## Task
 **ID:** {id} | **Title:** {title} | **Labels:** {labels}

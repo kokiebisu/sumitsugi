@@ -1,6 +1,6 @@
-# tsumugi 大家承諾フロー図
+# sumitsugi 大家承諾フロー図
 
-本ドキュメントは、tsumugiの残置物引き継ぎにおける大家承諾フローを可視化したものです。
+本ドキュメントは、sumitsugiの残置物引き継ぎにおける大家承諾フローを可視化したものです。
 Figma図作成時の参考資料として使用してください。
 
 ---
@@ -146,7 +146,7 @@ graph LR
         Buyer[次の住人<br/>購入希望者]
         Mgmt[管理会社]
         Landlord[大家]
-        System[tsumugiシステム]
+        System[sumitsugiシステム]
     end
 
     subgraph Actions[主要アクション]

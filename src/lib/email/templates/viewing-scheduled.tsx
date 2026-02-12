@@ -98,5 +98,5 @@ ViewingScheduled.PreviewProps = {
   otherPartyName: '山田花子',
   propertyTitle: '世田谷区の家具付き物件',
   viewingDate: '2026年2月15日（日）10:00',
-  propertyUrl: 'https://tsumugi.com/listings/1',
+  propertyUrl: 'https://sumitsugi.jp/listings/1',
 } satisfies ViewingScheduledProps;

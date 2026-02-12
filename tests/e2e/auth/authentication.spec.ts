@@ -130,7 +130,7 @@ test.describe('Magic Link Auth - Send Request @auth', () => {
     authPage,
     page,
   }) => {
-    const testEmail = 'user@tsumugi.example.com';
+    const testEmail = 'user@sumitsugi.example.com';
     await authPage.mockMagicLinkSuccess();
     await authPage.openLoginDialog();
 

@@ -186,7 +186,7 @@ export function ScheduleTemplate({
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.logo}>tsumugi</Text>
+          <Text style={styles.logo}>sumitsugi</Text>
           <Text style={styles.docId}>作成日: {createdDate}</Text>
         </View>
 
@@ -332,7 +332,8 @@ export function ScheduleTemplate({
         {/* Footer */}
         <View style={styles.footer} fixed>
           <Text>
-            tsumugi 引き継ぎ日程調整表 | © {new Date().getFullYear()} tsumugi
+            sumitsugi 引き継ぎ日程調整表 | © {new Date().getFullYear()}{' '}
+            sumitsugi
           </Text>
         </View>
       </Page>

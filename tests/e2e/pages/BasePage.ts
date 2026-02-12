@@ -16,7 +16,7 @@ export class BasePage {
     this.page = page;
     this.header = page.locator('header');
     this.footer = page.locator('footer');
-    this.logo = page.locator('header a:has-text("tsumugi")');
+    this.logo = page.locator('header a:has-text("sumitsugi")');
     this.menuButton = page
       .locator('header button.rounded-full:has(svg.lucide-menu)')
       .first();

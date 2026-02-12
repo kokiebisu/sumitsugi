@@ -236,7 +236,7 @@ Add label to task in Beads:
 Manually trigger with task ID:
 
 ```bash
-gh workflow run autonomous-developer.yml -f force_task_id=tsumugi-abc123
+gh workflow run autonomous-developer.yml -f force_task_id=sumitsugi-abc123
 ```
 
 ### Dry Run (Test Mode)
@@ -282,7 +282,7 @@ scripts/
 [06:01] Read 12 open tasks from Beads
 [06:01] Filtered to 8 eligible tasks
 [06:01] Selected: "Add property image carousel" (priority: 1)
-[06:02] Created branch: auto/tsumugi-a3f2b1
+[06:02] Created branch: auto/sumitsugi-a3f2b1
 [06:03] Claude Code analyzing task...
 [06:05] Implementation started
 [06:15] Code written, tests passing

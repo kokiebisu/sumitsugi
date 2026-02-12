@@ -1,4 +1,4 @@
-# 法律相談ガイド - tsumugi
+# 法律相談ガイド - sumitsugi
 
 **作成日:** 2026-02-02
 **最終更新:** 2026-02-02
@@ -186,7 +186,7 @@
 **必ず聞くべき質問:**
 
 1. **資金決済法**
-   - Stripe Connectを使用する場合、tsumugiに資金移動業ライセンスは必要か？
+   - Stripe Connectを使用する場合、sumitsugiに資金移動業ライセンスは必要か？
    - エスクロー期間（24-48時間）は適法か？
 
 2. **宅建業法**
@@ -211,20 +211,20 @@
 相談時に持参・送付する資料：
 
 1. ✅ **ビジネスモデル概要**（1ページで簡潔に）
-   - tsumugiは何をするサービスか
+   - sumitsugiは何をするサービスか
    - 収益構造（手数料12%、大家協力金1%）
    - 決済フロー（Stripe Connect利用）
 
 2. ✅ **法務質問リスト**
-   - `/workspaces/tsumugi/docs/plans/legal-review-questions.md`
+   - `/workspaces/sumitsugi/docs/plans/legal-review-questions.md`
    - 上記から最優先3問を抜粋
 
 3. ✅ **決済フロー図**
-   - `/workspaces/tsumugi/docs/plans/2026-01-31-payment-system-design.md`
+   - `/workspaces/sumitsugi/docs/plans/2026-01-31-payment-system-design.md`
    - 資金の流れを図解
 
 4. ⏳ **利用規約ドラフト**（時間があれば）
-   - `/workspaces/tsumugi/docs/legal/terms-of-service-draft.md`
+   - `/workspaces/sumitsugi/docs/legal/terms-of-service-draft.md`
 
 ---
 
@@ -233,7 +233,7 @@
 以下のテンプレートを印刷またはPDF化して持参：
 
 ```
-【サービス名】tsumugi（紡ぎ）
+【サービス名】sumitsugi（住み継ぎ）
 
 【事業内容】
 賃貸物件の退去時に、前の住人が残した家具・インテリアを次の入居者に引き継ぐ
@@ -289,7 +289,7 @@
 
 ### 5.1 自己紹介（2分）
 
-- 自己紹介とtsumugiのビジネスモデルを簡潔に説明
+- 自己紹介とsumitsugiのビジネスモデルを簡潔に説明
 - 「創業準備中で、ローンチ前に法的リスクを確認したい」と伝える
 
 ### 5.2 質問（30-40分）

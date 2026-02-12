@@ -28,7 +28,7 @@ import { startStripeOnboarding, getStripeAccountStatus } from '../stripe';
 describe('Stripe Onboarding Actions', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.NEXT_PUBLIC_APP_URL = 'https://tsumugi.example.com';
+    process.env.NEXT_PUBLIC_APP_URL = 'https://sumitsugi.example.com';
   });
 
   describe('startStripeOnboarding', () => {
@@ -62,8 +62,8 @@ describe('Stripe Onboarding Actions', () => {
       );
       expect(mockGetOnboardingLink).toHaveBeenCalledWith(
         'acct_new123',
-        'https://tsumugi.example.com/listing/onboarding',
-        'https://tsumugi.example.com/listing/onboarding/refresh'
+        'https://sumitsugi.example.com/listing/onboarding',
+        'https://sumitsugi.example.com/listing/onboarding/refresh'
       );
     });
 

@@ -1,4 +1,4 @@
-# tsumugi Development Dashboard
+# sumitsugi Development Dashboard
 
 > Last updated: 2026-02-12
 
@@ -319,7 +319,7 @@
 
 - **T-9: 画像アップロード遅延化 + R2削除機能** — 大株主指示。ファイル選択時に即R2アップロード→確認ボタン押下時にアップロードに変更。画像変更時のR2削除機能も追加。工数1日
 - **F-504: P0→P1に変更** — コンシェルジュ型MVPで運営手動プッシュ代替
-- **F-611 PDF仕様変更** — tsumugiブランド最小限化 + FAQ QRコード追加。工数0.5日
+- **F-611 PDF仕様変更** — sumitsugiブランド最小限化 + FAQ QRコード追加。工数0.5日
 - ~~**isProCoordinatedフィールド追加** — 出品フォームにチェックボックス追加（データ収集用）。工数0.25日~~ → 座談会#16で撤回
 - **「賃貸初期費用は別途」注記** — 物件詳細ページにAlert（info）で配置。工数0.25日
 
@@ -345,7 +345,7 @@
 
 - **2026/2/13**: Full-time job ends → Significantly more time available
 - **Before 2/13**: Limited to evenings/weekends
-- **After 2/13**: Full-time focus on tsumugi
+- **After 2/13**: Full-time focus on sumitsugi
 
 ### Budget Management
 

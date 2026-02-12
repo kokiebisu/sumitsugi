@@ -9,7 +9,7 @@ set -euo pipefail
 
 MESSAGE="${1:?Usage: notify-slack.sh \"message\"}"
 EMOJI="${2:-:robot_face:}"
-USERNAME="${3:-tsumugi-bot}"
+USERNAME="${3:-sumitsugi-bot}"
 
 if [ -z "${SLACK_WEBHOOK_URL:-}" ]; then
   echo "SLACK_WEBHOOK_URL not set, skipping Slack notification"

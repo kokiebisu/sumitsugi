@@ -97,7 +97,7 @@ jobs:
             TITLE=$(echo "$gap" | jq -r '.title')
             DESC=$(echo "$gap" | jq -r '.description')
             PRIORITY=$(echo "$gap" | jq -r '.priority // 2')
-            NEW_ID="tsumugi-$(openssl rand -hex 3)"
+            NEW_ID="sumitsugi-$(openssl rand -hex 3)"
             TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
             echo "{\"id\":\"$NEW_ID\",\"title\":\"$TITLE\",\"description\":\"$DESC\",\"status\":\"open\",\"priority\":$PRIORITY,\"issue_type\":\"task\",\"created_at\":\"$TS\",\"created_by\":\"Audit\",\"labels\":[\"audit\"]}" >> .beads/issues.jsonl
           done

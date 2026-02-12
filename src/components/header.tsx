@@ -53,7 +53,7 @@ export function Header() {
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
         <Link href="/" className="flex items-center gap-2">
           <span className="text-xl font-bold tracking-tight text-coral">
-            tsumugi
+            sumitsugi
           </span>
         </Link>
 

@@ -238,8 +238,8 @@ export default function AgreementPDFPage() {
 
         {/* フッター */}
         <footer className="mt-12 border-t border-gray-200 pt-4 text-center text-xs text-gray-500">
-          <p>本書類は tsumugi プラットフォームにて作成されました</p>
-          <p>https://tsumugi.app</p>
+          <p>本書類は sumitsugi プラットフォームにて作成されました</p>
+          <p>https://sumitsugi.app</p>
         </footer>
       </div>
     </div>

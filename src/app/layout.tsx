@@ -19,7 +19,7 @@ import './globals.css';
 // })
 
 export const metadata: Metadata = {
-  title: 'Tsumugi | 暮らしの引き継ぎ',
+  title: 'Sumitsugi | 暮らしの引き継ぎ',
   description:
     '家具も、空間も、ストーリーも。大切にしてきた暮らしを、次の人へ引き継ぐサービスです。',
   generator: 'v0.app',

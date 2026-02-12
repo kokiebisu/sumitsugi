@@ -114,6 +114,6 @@ const styles = {
 InquiryConfirmation.PreviewProps = {
   buyerName: '山田太郎',
   propertyTitle: '渋谷区神宮前 1LDK｜北欧スタイルのワンルーム',
-  propertyUrl: 'https://tsumugi.com/properties/example-1',
+  propertyUrl: 'https://sumitsugi.jp/properties/example-1',
   message: 'こちらの物件に興味があります。内見は可能でしょうか？',
 } satisfies InquiryConfirmationProps;

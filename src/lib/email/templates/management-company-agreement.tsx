@@ -33,7 +33,7 @@ export function ManagementCompanyAgreement({
       <Text style={styles.text}>{managementCompanyName} 御中</Text>
 
       <Text style={styles.text}>
-        いつもお世話になっております。tsumugiをご利用いただきありがとうございます。
+        いつもお世話になっております。sumitsugiをご利用いただきありがとうございます。
       </Text>
 
       <Text style={styles.text}>
@@ -57,8 +57,8 @@ export function ManagementCompanyAgreement({
       </Button>
 
       <Text style={styles.note}>
-        ※ 本メールはtsumugiプラットフォームより自動送信されております。
-        ご不明点がございましたら、tsumugiサポートまでお問い合わせください。
+        ※ 本メールはsumitsugiプラットフォームより自動送信されております。
+        ご不明点がございましたら、sumitsugiサポートまでお問い合わせください。
       </Text>
     </BaseLayout>
   );
@@ -108,6 +108,6 @@ ManagementCompanyAgreement.PreviewProps = {
   managementCompanyName: '株式会社ABC管理',
   propertyAddress: '東京都世田谷区三軒茶屋1-1-1',
   sellerName: '田中太郎',
-  pdfDownloadUrl: 'https://tsumugi.com/api/pdf/agreement-123',
+  pdfDownloadUrl: 'https://sumitsugi.jp/api/pdf/agreement-123',
   roomNumber: '301号室',
 } satisfies ManagementCompanyAgreementProps;

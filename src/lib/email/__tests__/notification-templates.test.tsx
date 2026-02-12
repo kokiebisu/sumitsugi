@@ -11,7 +11,7 @@ describe('InquiryNotification (F-204)', () => {
         sellerName="田中太郎"
         buyerName="山田花子"
         propertyTitle="世田谷の家具付き物件"
-        dashboardUrl="https://tsumugi.com/dashboard"
+        dashboardUrl="https://sumitsugi.jp/dashboard"
         message="内見を希望しています"
       />
     );
@@ -28,7 +28,7 @@ describe('InquiryNotification (F-204)', () => {
         sellerName="田中"
         buyerName="山田"
         propertyTitle="テスト物件"
-        dashboardUrl="https://tsumugi.com/dashboard"
+        dashboardUrl="https://sumitsugi.jp/dashboard"
       />
     );
     expect(html).toContain('田中');
@@ -44,7 +44,7 @@ describe('ViewingScheduled', () => {
         otherPartyName="山田花子"
         propertyTitle="世田谷の物件"
         viewingDate="2026年2月15日 10:00"
-        propertyUrl="https://tsumugi.com/listings/1"
+        propertyUrl="https://sumitsugi.jp/listings/1"
       />
     );
     expect(html).toContain('田中太郎');
@@ -62,7 +62,7 @@ describe('ChecklistConfirmed', () => {
         propertyTitle="世田谷の物件"
         keepCount={3}
         takeAwayCount={1}
-        dashboardUrl="https://tsumugi.com/dashboard"
+        dashboardUrl="https://sumitsugi.jp/dashboard"
       />
     );
     expect(html).toContain('山田花子');

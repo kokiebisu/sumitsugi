@@ -80,18 +80,18 @@ describe('ConsultationDocument', () => {
     expect(json).toContain('"children":["暫定家具リスト（",3,"点）"]');
   });
 
-  it('does not include large tsumugi logo in header', () => {
+  it('does not include large sumitsugi logo in header', () => {
     const element = ConsultationDocument(defaultProps);
     const json = JSON.stringify(element);
-    // The header should NOT contain a standalone "tsumugi" text element as a logo
+    // The header should NOT contain a standalone "sumitsugi" text element as a logo
     // Header should only have property name and creation date
     const parsed = JSON.parse(json) as any;
     // Find the first view child of page (the header)
     const page = parsed.props.children;
     const header = page.props.children[0];
     const headerJson = JSON.stringify(header);
-    // Header should not contain standalone 'tsumugi' branded text
-    expect(headerJson).not.toContain('"children":"tsumugi"');
+    // Header should not contain standalone 'sumitsugi' branded text
+    expect(headerJson).not.toContain('"children":"sumitsugi"');
   });
 
   it('includes property name in header', () => {
@@ -105,10 +105,10 @@ describe('ConsultationDocument', () => {
     expect(headerJson).toContain('渋谷区神宮前 1LDK');
   });
 
-  it('includes tsumugi annotation in footer', () => {
+  it('includes sumitsugi annotation in footer', () => {
     const element = ConsultationDocument(defaultProps);
     const json = JSON.stringify(element);
-    expect(json).toContain('tsumugi（紡ぎ）');
+    expect(json).toContain('sumitsugi（住み継ぎ）');
   });
 
   it('includes FAQ URL in footer pointing to for-managers page', () => {
@@ -117,10 +117,10 @@ describe('ConsultationDocument', () => {
     expect(json).toContain('/for-managers');
   });
 
-  it('does not include tsumugi explanation section (branding minimal)', () => {
+  it('does not include sumitsugi explanation section (branding minimal)', () => {
     const element = ConsultationDocument(defaultProps);
     const json = JSON.stringify(element);
-    expect(json).not.toContain('tsumugiとは');
+    expect(json).not.toContain('sumitsugiとは');
   });
 
   it('includes resident-authored handover explanation', () => {
@@ -161,13 +161,13 @@ describe('ConsultationDocument', () => {
     const json = JSON.stringify(element);
     expect(json).toContain('備考');
     expect(json).toContain('内見');
-    expect(json).toContain('info@tsumugi.com');
+    expect(json).toContain('info@sumitsugi.jp');
   });
 
-  it('includes footer with tsumugi annotation and FAQ URL', () => {
+  it('includes footer with sumitsugi annotation and FAQ URL', () => {
     const element = ConsultationDocument(defaultProps);
     const json = JSON.stringify(element);
-    expect(json).toContain('tsumugi（紡ぎ）');
+    expect(json).toContain('sumitsugi（住み継ぎ）');
     expect(json).toContain('/for-managers');
   });
 

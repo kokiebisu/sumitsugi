@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'プライバシーポリシー | tsumugi',
-  description: 'tsumugiのプライバシーポリシー - 個人情報の取り扱いについて',
+  title: 'プライバシーポリシー | sumitsugi',
+  description: 'sumitsugiのプライバシーポリシー - 個人情報の取り扱いについて',
 };
 
 export default function PrivacyPage() {
@@ -14,7 +14,7 @@ export default function PrivacyPage() {
 
       <div className="space-y-8 text-sm leading-relaxed text-muted-foreground">
         <p className="text-foreground">
-          tsumugi運営事務局（以下「当社」）は、本サービス「tsumugi」（以下「本サービス」）における、ユーザーの個人情報の取扱いについて、以下のとおりプライバシーポリシー（以下「本ポリシー」）を定めます。
+          sumitsugi運営事務局（以下「当社」）は、本サービス「sumitsugi」（以下「本サービス」）における、ユーザーの個人情報の取扱いについて、以下のとおりプライバシーポリシー（以下「本ポリシー」）を定めます。
         </p>
 
         {/* 1. 事業者情報 */}
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
           </h2>
           <div className="space-y-2">
             <p>
-              <strong>事業者名:</strong> tsumugi運営事務局
+              <strong>事業者名:</strong> sumitsugi運営事務局
             </p>
             <p>
               <strong>代表者:</strong> （準備中）
@@ -35,10 +35,10 @@ export default function PrivacyPage() {
             <p>
               <strong>お問い合わせ:</strong>{' '}
               <a
-                href="mailto:privacy@tsumugi.example.com"
+                href="mailto:privacy@sumitsugi.example.com"
                 className="text-primary hover:underline"
               >
-                privacy@tsumugi.example.com
+                privacy@sumitsugi.example.com
               </a>
             </p>
           </div>
@@ -355,10 +355,10 @@ export default function PrivacyPage() {
             <p>
               <strong>メール:</strong>{' '}
               <a
-                href="mailto:privacy@tsumugi.example.com"
+                href="mailto:privacy@sumitsugi.example.com"
                 className="text-primary hover:underline"
               >
-                privacy@tsumugi.example.com
+                privacy@sumitsugi.example.com
               </a>
             </p>
           </div>

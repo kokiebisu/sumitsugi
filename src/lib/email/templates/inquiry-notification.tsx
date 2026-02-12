@@ -114,6 +114,6 @@ InquiryNotification.PreviewProps = {
   sellerName: '田中太郎',
   buyerName: '山田花子',
   propertyTitle: '渋谷区神宮前 1LDK｜北欧スタイルのワンルーム',
-  dashboardUrl: 'https://tsumugi.com/dashboard',
+  dashboardUrl: 'https://sumitsugi.jp/dashboard',
   message: 'こちらの物件に興味があります。内見は可能でしょうか？',
 } satisfies InquiryNotificationProps;

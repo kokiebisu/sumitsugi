@@ -1,6 +1,6 @@
 # Contributing Guide
 
-This guide covers the development workflow, tools, and best practices for contributing to tsumugi.
+This guide covers the development workflow, tools, and best practices for contributing to sumitsugi.
 
 ## Table of Contents
 
@@ -76,7 +76,7 @@ gh pr checks
 gh pr merge <number> --squash --delete-branch
 
 # 9. Return to main workspace
-cd /workspaces/tsumugi
+cd /workspaces/sumitsugi
 
 # 10. Clean up worktree
 git worktree remove .worktrees/feature-name
@@ -209,7 +209,7 @@ APPLE_CLIENT_SECRET=""
 AWS_ACCESS_KEY_ID=""
 AWS_SECRET_ACCESS_KEY=""
 AWS_REGION="ap-northeast-1"
-AWS_S3_BUCKET_NAME="tsumugi-images"
+AWS_S3_BUCKET_NAME="sumitsugi-images"
 ```
 
 #### Email Provider (Optional - for notifications)
@@ -218,7 +218,7 @@ AWS_S3_BUCKET_NAME="tsumugi-images"
 # Resend API for transactional emails
 # Get key from: https://resend.com/
 RESEND_API_KEY=""
-EMAIL_FROM="noreply@tsumugi.example.com"
+EMAIL_FROM="noreply@sumitsugi.example.com"
 ```
 
 #### AI Estimate Service (Optional)
@@ -336,7 +336,7 @@ E2E tests run automatically on:
 
 Test reports are published to GitHub Pages:
 
-- https://kokiebisu.github.io/tsumugi/e2e-reports/
+- https://kokiebisu.github.io/sumitsugi/e2e-reports/
 
 ### Test Coverage
 

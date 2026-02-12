@@ -2,7 +2,7 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Implement Stripe Connect-based payment system with application fee, deposit, escrow, and multi-party distribution for tsumugi platform.
+**Goal:** Implement Stripe Connect-based payment system with application fee, deposit, escrow, and multi-party distribution for sumitsugi platform.
 
 **Architecture:** Build on existing Drizzle ORM + Neon PostgreSQL. Add Stripe SDK, create payment schema (payments, transactions, stripe_accounts), implement server actions for payment flows, and create minimal UI for payment processing with escrow and auto-distribution.
 

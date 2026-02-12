@@ -1,6 +1,6 @@
 # Operations Runbook
 
-This runbook covers deployment procedures, monitoring, troubleshooting, and incident response for tsumugi.
+This runbook covers deployment procedures, monitoring, troubleshooting, and incident response for sumitsugi.
 
 ## Table of Contents
 
@@ -73,7 +73,7 @@ vercel --prod --force
 Required:
 
 - `DATABASE_URL` - Neon PostgreSQL connection string
-- `NEXTAUTH_URL` - Production URL (e.g., https://tsumugi.example.com)
+- `NEXTAUTH_URL` - Production URL (e.g., https://sumitsugi.example.com)
 - `NEXTAUTH_SECRET` - JWT encryption secret (unique per environment)
 
 Optional:
@@ -220,10 +220,10 @@ vercel logs --prod --scope=api
 
 ```bash
 # Check homepage
-curl -I https://tsumugi.example.com
+curl -I https://sumitsugi.example.com
 
 # Check API endpoint
-curl https://tsumugi.example.com/api/health
+curl https://sumitsugi.example.com/api/health
 
 # Check database connection
 psql $DATABASE_URL -c "SELECT 1"
@@ -389,7 +389,7 @@ psql $DATABASE_URL -c "SELECT 1"
 
 - Screenshots: GitHub Actions → Workflow → Artifacts
 - Videos: GitHub Actions → Workflow → Artifacts
-- Traces: GitHub Pages → https://kokiebisu.github.io/tsumugi/e2e-reports/
+- Traces: GitHub Pages → https://kokiebisu.github.io/sumitsugi/e2e-reports/
 
 ## Rollback Procedures
 
@@ -552,7 +552,7 @@ postgresql://[user]:[password]@[host]/[db]?sslmode=require
 
 **Configuration:**
 
-- Bucket: `tsumugi-images`
+- Bucket: `sumitsugi-images`
 - Region: `ap-northeast-1`
 - Public read access for property images
 - Signed URLs for private uploads
@@ -621,14 +621,14 @@ postgresql://[user]:[password]@[host]/[db]?sslmode=require
 pg_dump $DATABASE_URL > backup-$(date +%Y%m%d).sql
 
 # Upload to safe location
-aws s3 cp backup-$(date +%Y%m%d).sql s3://tsumugi-backups/
+aws s3 cp backup-$(date +%Y%m%d).sql s3://sumitsugi-backups/
 ```
 
 **Restore from backup:**
 
 ```bash
 # Download backup
-aws s3 cp s3://tsumugi-backups/backup-20260202.sql .
+aws s3 cp s3://sumitsugi-backups/backup-20260202.sql .
 
 # Restore to database
 psql $DATABASE_URL < backup-20260202.sql
@@ -686,8 +686,8 @@ psql $DATABASE_URL < backup-20260202.sql
 **Communication channels:**
 
 - Status page: [URL if applicable]
-- Twitter: [@tsumugi_status if applicable]
-- Email: status@tsumugi.example.com
+- Twitter: [@sumitsugi_status if applicable]
+- Email: status@sumitsugi.example.com
 
 ## Security
 
@@ -730,7 +730,7 @@ psql $DATABASE_URL < backup-20260202.sql
 
 **Alert channels:**
 
-- Email: security@tsumugi.example.com
+- Email: security@sumitsugi.example.com
 - Slack: #security-alerts (if applicable)
 
 ### Incident Response

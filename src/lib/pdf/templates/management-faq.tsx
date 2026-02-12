@@ -99,29 +99,29 @@ interface ManagementFaqProps {
 
 const DEFAULT_FAQ_ITEMS: FaqItem[] = [
   {
-    question: 'Q. tsumugiとは何ですか？',
+    question: 'Q. sumitsugiとは何ですか？',
     answer:
       '前の住人の家具・インテリアを次の住人に引き継ぐプラットフォームです。退去時の廃棄コスト削減と、入居者の初期費用軽減を実現します。',
   },
   {
     question: 'Q. 管理会社の業務は増えますか？',
     answer:
-      'いいえ。管理会社様にお願いするのは、tsumugiから送付する資料をオーナー様に転送いただき、承認結果をお知らせいただくだけです。家具リスト作成、写真撮影、日程調整などの実務はすべてtsumugiが対応します。',
+      'いいえ。管理会社様にお願いするのは、sumitsugiから送付する資料をオーナー様に転送いただき、承認結果をお知らせいただくだけです。家具リスト作成、写真撮影、日程調整などの実務はすべてsumitsugiが対応します。',
   },
   {
     question: 'Q. トラブルが起きた場合の責任分担は？',
     answer:
-      '引き継ぎ家具に関するトラブル（故障、状態の相違など）はtsumugiが対応します。物件自体に関するトラブル（設備故障、契約関連など）は従来どおり管理会社様の管轄です。',
+      '引き継ぎ家具に関するトラブル（故障、状態の相違など）はsumitsugiが対応します。物件自体に関するトラブル（設備故障、契約関連など）は従来どおり管理会社様の管轄です。',
   },
   {
     question: 'Q. オーナーにはどう説明すればよいですか？',
     answer:
-      'tsumugiが用意する「相談資料」をオーナー様に転送するだけで大丈夫です。資料には、サービス概要、引き継ぎ家具リスト、メリットがまとめられています。',
+      'sumitsugiが用意する「相談資料」をオーナー様に転送するだけで大丈夫です。資料には、サービス概要、引き継ぎ家具リスト、メリットがまとめられています。',
   },
   {
     question: 'Q. 入居者から質問されたら？',
     answer:
-      '「tsumugiというサービスで前の住人の家具を引き継げます」とご案内ください。詳しい説明や手続きはtsumugiが直接対応いたします。',
+      '「sumitsugiというサービスで前の住人の家具を引き継げます」とご案内ください。詳しい説明や手続きはsumitsugiが直接対応いたします。',
   },
   {
     question: 'Q. 費用はかかりますか？',
@@ -132,7 +132,7 @@ const DEFAULT_FAQ_ITEMS: FaqItem[] = [
 
 export function ManagementFaq({
   createdDate,
-  contactEmail = 'support@tsumugi.com',
+  contactEmail = 'support@sumitsugi.jp',
   faqItems = DEFAULT_FAQ_ITEMS,
 }: ManagementFaqProps) {
   return (
@@ -140,14 +140,14 @@ export function ManagementFaq({
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.logo}>tsumugi</Text>
+          <Text style={styles.logo}>sumitsugi</Text>
           <Text style={styles.docId}>作成日: {createdDate}</Text>
         </View>
 
         {/* Title */}
         <Text style={styles.title}>管理会社様向け FAQ</Text>
         <Text style={styles.subtitle}>
-          tsumugiサービスに関するよくあるご質問と回答
+          sumitsugiサービスに関するよくあるご質問と回答
         </Text>
 
         {/* FAQ Items */}
@@ -175,7 +175,7 @@ export function ManagementFaq({
         {/* Footer */}
         <View style={styles.footer} fixed>
           <Text>
-            tsumugi 管理会社様向けFAQ | © {new Date().getFullYear()} tsumugi
+            sumitsugi 管理会社様向けFAQ | © {new Date().getFullYear()} sumitsugi
           </Text>
         </View>
       </Page>

@@ -1,9 +1,9 @@
-# tsumugi（紡ぎ）
+# sumitsugi（住み継ぎ）
 
 > 住人の暮らしを引き継ぐプラットフォーム
 > A platform for inheriting someone's living space and lifestyle
 
-tsumugi connects people leaving their homes ("前の住人" - previous residents) with those looking to inherit not just a space, but a complete lifestyle. Furniture, neighborhood knowledge, daily routines - everything that makes a house a home.
+sumitsugi connects people leaving their homes ("前の住人" - previous residents) with those looking to inherit not just a space, but a complete lifestyle. Furniture, neighborhood knowledge, daily routines - everything that makes a house a home.
 
 ## Key Features
 
@@ -152,7 +152,7 @@ bun run db:studio   # Open GUI at https://local.drizzle.studio
 Default connection string (in `.env.example`):
 
 ```
-DATABASE_URL="postgresql://tsumugi:tsumugi@localhost:5432/tsumugi"
+DATABASE_URL="postgresql://sumitsugi:sumitsugi@localhost:5432/sumitsugi"
 ```
 
 ## API Routes
@@ -172,7 +172,7 @@ Copy `.env.example` to `.env.local`. Key variables:
 
 ```bash
 # Database (required)
-DATABASE_URL="postgresql://tsumugi:tsumugi@localhost:5432/tsumugi"
+DATABASE_URL="postgresql://sumitsugi:sumitsugi@localhost:5432/sumitsugi"
 
 # Auth (required)
 NEXTAUTH_URL="http://localhost:3000"
@@ -191,7 +191,7 @@ S3_ENDPOINT="http://localhost:4566"
 R2_ACCOUNT_ID=""
 R2_ACCESS_KEY_ID=""
 R2_SECRET_ACCESS_KEY=""
-R2_BUCKET_NAME="tsumugi"
+R2_BUCKET_NAME="sumitsugi"
 R2_PUBLIC_URL=""
 
 # Stripe (for payments)
@@ -200,7 +200,7 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=""
 
 # Email (optional)
 RESEND_API_KEY=""
-EMAIL_FROM="noreply@tsumugi.example.com"
+EMAIL_FROM="noreply@sumitsugi.example.com"
 
 # AI Estimates (optional)
 ANTHROPIC_API_KEY=""
@@ -249,7 +249,7 @@ Test suites in `tests/e2e/`:
 
 Test tags: `@critical`, `@smoke`, `@auth`, `@listing`, `@properties`, `@payment`
 
-View latest reports: https://kokiebisu.github.io/tsumugi/e2e-reports/
+View latest reports: https://kokiebisu.github.io/sumitsugi/e2e-reports/
 
 ## Project Structure
 
@@ -399,7 +399,7 @@ This project uses git worktrees for isolated development:
 bun run worktree:create feature-name   # Create worktree
 cd .worktrees/feature-name             # Navigate to it
 # ... make changes, commit, push, create PR ...
-cd /workspaces/tsumugi                 # Return to main
+cd /workspaces/sumitsugi                 # Return to main
 git worktree remove .worktrees/feature-name  # Clean up
 ```
 

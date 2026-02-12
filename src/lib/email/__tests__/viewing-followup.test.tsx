@@ -8,7 +8,7 @@ describe('ViewingFollowup', () => {
     propertyTitle: '世田谷区の家具付き物件',
     viewingDate: '2026年2月15日（日）10:00',
     deadlineDate: '2026年2月22日（土）',
-    checklistUrl: 'https://tsumugi.com/viewings/vw-1/checklist',
+    checklistUrl: 'https://sumitsugi.jp/viewings/vw-1/checklist',
   };
 
   it('renders with required props', async () => {
@@ -31,19 +31,19 @@ describe('ViewingFollowup', () => {
 
   it('includes checklist link button', async () => {
     const html = await render(ViewingFollowup(defaultProps));
-    expect(html).toContain('https://tsumugi.com/viewings/vw-1/checklist');
+    expect(html).toContain('https://sumitsugi.jp/viewings/vw-1/checklist');
     expect(html).toContain('チェックリストに回答する');
   });
 
-  it('includes tsumugi branding from base layout', async () => {
+  it('includes sumitsugi branding from base layout', async () => {
     const html = await render(ViewingFollowup(defaultProps));
-    expect(html).toContain('tsumugi');
+    expect(html).toContain('sumitsugi');
     expect(html).toContain('住人の暮らしを引き継ぐ');
   });
 
   it('includes footer with contact info', async () => {
     const html = await render(ViewingFollowup(defaultProps));
-    expect(html).toContain('info@tsumugi.com');
+    expect(html).toContain('info@sumitsugi.jp');
   });
 
   it('renders furniture items when provided', async () => {

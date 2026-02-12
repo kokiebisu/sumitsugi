@@ -1,6 +1,6 @@
 #!/bin/bash
 # Devcontainer postCreateCommand setup script.
-# Handles the case where tsumugi is a git submodule and the parent repo's
+# Handles the case where sumitsugi is a git submodule and the parent repo's
 # .git/modules/ directory isn't available inside the container.
 
 set -e
@@ -9,14 +9,14 @@ set -e
 bun install
 
 # 2. Fix git if running as a submodule in the container
-#    The .git file references ../../.git/modules/tsumugi which doesn't exist
+#    The .git file references ../../.git/modules/sumitsugi which doesn't exist
 #    inside the container. We create a container-local git repo instead.
 if [ -f .git ] && ! git rev-parse --git-dir >/dev/null 2>&1; then
   echo "Detected broken git submodule reference, initializing container-local git..."
-  GIT_LOCAL="/home/bun/.tsumugi-git"
+  GIT_LOCAL="/home/bun/.sumitsugi-git"
 
   git init --bare "$GIT_LOCAL"
-  git --git-dir="$GIT_LOCAL" remote add origin git@github.com:kokiebisu/tsumugi.git 2>/dev/null || true
+  git --git-dir="$GIT_LOCAL" remote add origin git@github.com:kokiebisu/sumitsugi.git 2>/dev/null || true
   git --git-dir="$GIT_LOCAL" config user.email "kokiebisu@icloud.com"
   git --git-dir="$GIT_LOCAL" config user.name "neko"
   git --git-dir="$GIT_LOCAL" config core.worktree /workspace
@@ -25,7 +25,7 @@ if [ -f .git ] && ! git rev-parse --git-dir >/dev/null 2>&1; then
   # Fetch from remote (SSH keys are mounted from host)
   git --git-dir="$GIT_LOCAL" fetch origin 2>/dev/null || {
     echo "Warning: Could not fetch from remote. Trying HTTPS..."
-    git --git-dir="$GIT_LOCAL" remote set-url origin https://github.com/kokiebisu/tsumugi.git
+    git --git-dir="$GIT_LOCAL" remote set-url origin https://github.com/kokiebisu/sumitsugi.git
     git --git-dir="$GIT_LOCAL" fetch origin 2>/dev/null || true
   }
 
@@ -37,11 +37,11 @@ if [ -f .git ] && ! git rev-parse --git-dir >/dev/null 2>&1; then
 
   # Persist for future shell sessions
   for rc in ~/.bashrc ~/.zshrc; do
-    if ! grep -q 'GIT_DIR=.*tsumugi-git' "$rc" 2>/dev/null; then
+    if ! grep -q 'GIT_DIR=.*sumitsugi-git' "$rc" 2>/dev/null; then
       cat >> "$rc" << 'GITENV'
 
 # Container-local git for submodule workaround
-export GIT_DIR=/home/bun/.tsumugi-git
+export GIT_DIR=/home/bun/.sumitsugi-git
 export GIT_WORK_TREE=/workspace
 GITENV
     fi

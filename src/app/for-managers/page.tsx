@@ -73,10 +73,10 @@ export default function ForManagersPage() {
               管理会社様向け
             </div>
             <h1 className="mb-4 text-3xl font-bold text-gray-900 md:text-4xl">
-              tsumugiのご案内
+              sumitsugiのご案内
             </h1>
             <p className="mx-auto max-w-2xl text-lg text-gray-600">
-              家具の引き継ぎサービス「tsumugi」について、管理会社のスタッフの方向けによくあるご質問をまとめました。
+              家具の引き継ぎサービス「sumitsugi」について、管理会社のスタッフの方向けによくあるご質問をまとめました。
             </p>
           </div>
         </section>
@@ -84,7 +84,7 @@ export default function ForManagersPage() {
         {/* Overview Cards */}
         <section className="container mx-auto max-w-4xl px-4 py-12">
           <h2 className="mb-8 text-center text-2xl font-bold text-gray-900">
-            tsumugiの特徴
+            sumitsugiの特徴
           </h2>
           <div className="grid gap-6 md:grid-cols-3">
             {featureCards.map((card, index) => {
@@ -174,11 +174,11 @@ export default function ForManagersPage() {
               ご不明な点やご質問がございましたら、お気軽にお問い合わせください。
             </p>
             <a
-              href="mailto:info@tsumugi.com"
+              href="mailto:info@sumitsugi.jp"
               className="inline-flex items-center gap-2 rounded-lg bg-[#FF5A5F] px-6 py-3 font-medium text-white transition-colors hover:bg-[#e54e52]"
             >
               <Mail className="h-4 w-4" />
-              info@tsumugi.com
+              info@sumitsugi.jp
             </a>
             <p className="mt-4 text-sm text-gray-500">
               営業時間: 平日 10:00 - 18:00
