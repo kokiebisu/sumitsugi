@@ -22,13 +22,13 @@ test.describe('Browse Properties - Home Page @properties @critical @smoke', () =
     // Verify header is visible
     await expect(homePage.header).toBeVisible();
     await expect(homePage.logo).toBeVisible();
-    await expect(homePage.logo).toHaveText('tsumugi');
+    await expect(homePage.logo).toHaveText('sumitsugi');
 
     // Verify footer is visible
     await expect(homePage.footer).toBeVisible();
 
     // Verify page title
-    await expect(page).toHaveTitle(/tsumugi/i);
+    await expect(page).toHaveTitle(/sumitsugi/i);
   });
 
   test('should display property listings organized by district', async ({

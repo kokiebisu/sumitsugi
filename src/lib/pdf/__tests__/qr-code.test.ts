@@ -3,7 +3,7 @@ import { generateQrCodeDataUrl, FAQ_PAGE_URL } from '../qr-code';
 
 describe('qr-code utility', () => {
   it('exports the FAQ page URL constant', () => {
-    expect(FAQ_PAGE_URL).toBe('https://tsumugi.com/for-managers');
+    expect(FAQ_PAGE_URL).toBe('https://sumitsugi.jp/for-managers');
   });
 
   it('generates a data URL string for a given URL', async () => {

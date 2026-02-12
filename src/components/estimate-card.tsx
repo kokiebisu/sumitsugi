@@ -87,7 +87,7 @@ export function EstimateCard({
           </span>
         </div>
         <p className="text-xs text-violet-600/70 dark:text-violet-400/70 mt-1">
-          Tsumugiの相場データをもとに算出
+          Sumitsugiの相場データをもとに算出
         </p>
       </button>
     );
@@ -176,7 +176,7 @@ export function EstimateCard({
 
       {/* 注釈 */}
       <p className="text-[10px] text-muted-foreground text-center pt-2 border-t border-green-200 dark:border-green-800">
-        ※ Tsumugiの過去事例・一般的な相場をもとに算出しています
+        ※ Sumitsugiの過去事例・一般的な相場をもとに算出しています
       </p>
     </div>
   );

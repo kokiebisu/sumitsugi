@@ -669,7 +669,7 @@ Update the Quick Reference section:
 ```markdown
 ## Quick Reference
 
-**プロジェクト:** tsumugi（紡ぎ）
+**プロジェクト:** sumitsugi（住み継ぎ）
 **技術スタック:** Next.js 16 (App Router) / TypeScript / Tailwind CSS / shadcn/ui
 **ランタイム:** Bun 1.x
 **パッケージマネージャー:** bun
@@ -753,7 +753,7 @@ User action required: Deploy to Vercel and verify.
 **Step 2: Test production Docker build**
 
 ```bash
-docker build -f Dockerfile.production -t tsumugi:bun .
+docker build -f Dockerfile.production -t sumitsugi:bun .
 ```
 
 **Expected:** Image builds successfully.
@@ -761,7 +761,7 @@ docker build -f Dockerfile.production -t tsumugi:bun .
 **Step 3: Test production Docker run**
 
 ```bash
-docker run -p 3000:3000 tsumugi:bun
+docker run -p 3000:3000 sumitsugi:bun
 ```
 
 **Expected:** App runs correctly in container.
@@ -858,7 +858,7 @@ gh pr merge --squash --delete-branch
 **Step 5: Return to main workspace**
 
 ```bash
-cd /workspaces/tsumugi
+cd /workspaces/sumitsugi
 git checkout main
 git pull origin main
 ```

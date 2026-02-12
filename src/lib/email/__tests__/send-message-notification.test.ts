@@ -32,7 +32,7 @@ describe('sendMessageNotification', () => {
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
         to: ['tanaka@example.com'],
-        subject: '【tsumugi】山田花子さんから新着メッセージが届きました',
+        subject: '【sumitsugi】山田花子さんから新着メッセージが届きました',
       })
     );
   });

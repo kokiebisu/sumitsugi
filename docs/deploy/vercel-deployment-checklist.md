@@ -1,12 +1,12 @@
 # Vercel Deployment Checklist
 
 > Last verified: 2026-02-11
-> Production URL: https://tsumugi-orcin.vercel.app
-> Vercel Project: `tsumugi` (kenichi-okiebisus-projects)
+> Production URL: https://sumitsugi-orcin.vercel.app
+> Vercel Project: `sumitsugi` (kenichi-okiebisus-projects)
 
 ## Current Status
 
-- Vercel is connected to the GitHub repo (`kokiebisu/tsumugi`)
+- Vercel is connected to the GitHub repo (`kokiebisu/sumitsugi`)
 - Auto-deploy on push to `main` (production) and PR branches (preview)
 - `vercel.json` configures: `bun run build`, `bun dev`, `bun install`, framework `nextjs`
 - Post-merge smoke test runs on every push to `main`
@@ -61,7 +61,7 @@ VERCEL_PROJECT_ID     # Vercel project ID
 | `R2_ACCOUNT_ID`                      | Cloudflare R2 account ID                                           | Server |
 | `R2_ACCESS_KEY_ID`                   | R2 access key                                                      | Server |
 | `R2_SECRET_ACCESS_KEY`               | R2 secret key                                                      | Server |
-| `R2_BUCKET_NAME`                     | R2 bucket name (`tsumugi`)                                         | Server |
+| `R2_BUCKET_NAME`                     | R2 bucket name (`sumitsugi`)                                       | Server |
 | `R2_PUBLIC_URL`                      | R2 public URL for images                                           | Server |
 | `RESEND_API_KEY`                     | Resend email API key                                               | Server |
 | `EMAIL_FROM`                         | Sender email address                                               | Server |
@@ -114,7 +114,7 @@ bunx vercel --prod
 
 ```bash
 # Check deployment status
-bunx vercel ls tsumugi
+bunx vercel ls sumitsugi
 
 # Check latest deployment logs
 bunx vercel logs <deployment-url>
@@ -172,11 +172,11 @@ After deployment, verify each page loads correctly:
 
 ```bash
 # Test webhook endpoint is accessible
-curl -I https://tsumugi-orcin.vercel.app/api/webhooks/stripe
+curl -I https://sumitsugi-orcin.vercel.app/api/webhooks/stripe
 # Expected: 405 Method Not Allowed (POST required) or similar
 
 # Check Stripe Dashboard > Webhooks for delivery status
-# URL: https://tsumugi-orcin.vercel.app/api/webhooks/stripe
+# URL: https://sumitsugi-orcin.vercel.app/api/webhooks/stripe
 # Events: payment_intent.succeeded, payment_intent.payment_failed,
 #          account.updated, transfer.created, transfer.updated
 ```
@@ -208,7 +208,7 @@ Main Push → Post-Merge Smoke Test → Production Deploy
 
 ```bash
 # List recent deployments
-bunx vercel ls tsumugi
+bunx vercel ls sumitsugi
 
 # Promote a previous deployment to production
 bunx vercel promote <deployment-url>
@@ -242,7 +242,7 @@ Ensure environment variables are set for the `preview` environment in Vercel, no
 ### Vercel CLI Not Linked
 
 ```bash
-bunx vercel link --yes --project tsumugi
+bunx vercel link --yes --project sumitsugi
 ```
 
 ## Launch Day Checklist (2/14)

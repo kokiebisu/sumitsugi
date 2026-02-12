@@ -64,7 +64,7 @@ export async function generateMetadata({ params }: PropertyDetailPageProps) {
   if (!property) return { title: '物件が見つかりません' };
 
   return {
-    title: `${property.title} | tsumugi`,
+    title: `${property.title} | sumitsugi`,
     description: property.title,
   };
 }

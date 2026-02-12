@@ -1,4 +1,4 @@
-// Review/Rating system types for tsumugi
+// Review/Rating system types for sumitsugi
 // Based on mutual review system: both host and visitor review each other after viewing
 
 /** Review type - who wrote the review */

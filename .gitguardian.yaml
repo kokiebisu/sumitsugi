@@ -2,7 +2,7 @@ version: 2
 
 secret:
   # Docker Compose and CI workflow files contain local development
-  # credentials only (e.g., POSTGRES_PASSWORD: tsumugi) - not real secrets
+  # credentials only (e.g., POSTGRES_PASSWORD: sumitsugi) - not real secrets
   ignored_paths:
     - 'docker-compose.yml'
     - '.devcontainer/docker-compose.yml'

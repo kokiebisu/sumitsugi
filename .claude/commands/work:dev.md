@@ -56,7 +56,7 @@ Use Task tool with `subagent_type: "general-purpose"`. Launch all in parallel. I
 For each task, use this prompt (fill in `{id}`, `{title}`, `{description}`, `{labels}`, `{linear-id}`):
 
 ```
-You are implementing a dev task for tsumugi (Next.js/TypeScript/Bun).
+You are implementing a dev task for sumitsugi (Next.js/TypeScript/Bun).
 
 ## Task
 **ID:** {id} | **Title:** {title} | **Labels:** {labels}

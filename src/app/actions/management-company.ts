@@ -15,7 +15,7 @@ import { revalidatePath } from 'next/cache';
  * used as a phishing relay with attacker-controlled links.
  */
 const TRUSTED_PDF_DOMAINS = (
-  process.env.TRUSTED_PDF_DOMAINS ?? 'tsumugi.com,r2.cloudflarestorage.com'
+  process.env.TRUSTED_PDF_DOMAINS ?? 'sumitsugi.jp,r2.cloudflarestorage.com'
 )
   .split(',')
   .map((d) => d.trim())
@@ -87,7 +87,7 @@ export async function sendAgreementToManagementCompany(
       };
     }
 
-    const subject = `【tsumugi】残置物同意書のご送付 - ${property.title}`;
+    const subject = `【sumitsugi】残置物同意書のご送付 - ${property.title}`;
     const emailLogId = randomUUID();
 
     const sellerName = property.handoverHost?.name ?? '前の住人';

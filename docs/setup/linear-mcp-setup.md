@@ -29,7 +29,7 @@ Added Linear MCP server to `.claude/settings.json`:
 Added to `.env.local`:
 
 - `LINEAR_API_KEY` - Personal API key for Linear
-- `LINEAR_TEAM_ID` - Tsumugi team ID (21f06272-3f96-46f2-836c-0d5dd726f931)
+- `LINEAR_TEAM_ID` - Sumitsugi team ID (21f06272-3f96-46f2-836c-0d5dd726f931)
 
 ### 3. Helper Scripts Created ✅
 

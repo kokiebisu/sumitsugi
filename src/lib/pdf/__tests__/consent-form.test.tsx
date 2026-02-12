@@ -110,10 +110,10 @@ describe('ConsentForm', () => {
     expect(json).toContain('A4');
   });
 
-  it('includes tsumugi branding', () => {
+  it('includes sumitsugi branding', () => {
     const element = ConsentForm(defaultProps);
     const json = JSON.stringify(element);
-    expect(json).toContain('tsumugi');
+    expect(json).toContain('sumitsugi');
   });
 
   it('includes creation date', () => {

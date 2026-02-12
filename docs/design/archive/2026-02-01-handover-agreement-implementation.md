@@ -53,7 +53,7 @@ export interface Inquiry {
 **Step 2: ビルド確認**
 
 ```bash
-cd /workspaces/tsumugi/.worktrees/handover-agreement && npm run build 2>&1 | tail -5
+cd /workspaces/sumitsugi/.worktrees/handover-agreement && npm run build 2>&1 | tail -5
 ```
 
 Expected: ビルド成功
@@ -1848,8 +1848,8 @@ export default function AgreementPDFPage() {
 
         {/* フッター */}
         <footer className="mt-12 border-t border-gray-200 pt-4 text-center text-xs text-gray-500">
-          <p>本書類は tsumugi プラットフォームにて作成されました</p>
-          <p>https://tsumugi.app</p>
+          <p>本書類は sumitsugi プラットフォームにて作成されました</p>
+          <p>https://sumitsugi.app</p>
         </footer>
       </div>
     </div>
@@ -1990,7 +1990,7 @@ gh pr create --title "feat: implement post-viewing handover agreement flow" --bo
   - 各フローへの導線追加
 
 ### 関連タスク
-- tsumugi-u8c: Design and implement post-viewing handover agreement flow
+- sumitsugi-u8c: Design and implement post-viewing handover agreement flow
 
 ## Test plan
 - [ ] 前の住人として内見完了ページにアクセスできる

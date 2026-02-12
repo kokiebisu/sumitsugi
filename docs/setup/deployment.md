@@ -1,6 +1,6 @@
 # Deployment Guide
 
-This guide covers deploying the tsumugi platform with payment system integration.
+This guide covers deploying the sumitsugi platform with payment system integration.
 
 ## Prerequisites
 
@@ -63,11 +63,11 @@ APPLE_CLIENT_SECRET=""
 AWS_ACCESS_KEY_ID=""
 AWS_SECRET_ACCESS_KEY=""
 AWS_REGION="ap-northeast-1"
-AWS_S3_BUCKET_NAME="tsumugi-images"
+AWS_S3_BUCKET_NAME="sumitsugi-images"
 
 # Email Notifications (Optional)
 RESEND_API_KEY=""
-EMAIL_FROM="noreply@tsumugi.example.com"
+EMAIL_FROM="noreply@sumitsugi.example.com"
 
 # AI-Powered Estimate (Optional)
 ANTHROPIC_API_KEY=""

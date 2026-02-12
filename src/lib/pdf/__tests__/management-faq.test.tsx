@@ -33,10 +33,10 @@ describe('ManagementFaq', () => {
     expect(json).toContain('管理会社様向け FAQ');
   });
 
-  it('includes tsumugi branding', () => {
+  it('includes sumitsugi branding', () => {
     const element = ManagementFaq(defaultProps);
     const json = JSON.stringify(element);
-    expect(json).toContain('tsumugi');
+    expect(json).toContain('sumitsugi');
   });
 
   it('includes creation date', () => {
@@ -45,10 +45,10 @@ describe('ManagementFaq', () => {
     expect(json).toContain('2026年2月7日');
   });
 
-  it('includes default FAQ about what tsumugi is', () => {
+  it('includes default FAQ about what sumitsugi is', () => {
     const element = ManagementFaq(defaultProps);
     const json = JSON.stringify(element);
-    expect(json).toContain('tsumugiとは何ですか');
+    expect(json).toContain('sumitsugiとは何ですか');
     expect(json).toContain('プラットフォーム');
   });
 
@@ -90,7 +90,7 @@ describe('ManagementFaq', () => {
     const element = ManagementFaq(defaultProps);
     const json = JSON.stringify(element);
     expect(json).toContain('お問い合わせ');
-    expect(json).toContain('support@tsumugi.com');
+    expect(json).toContain('support@sumitsugi.jp');
   });
 
   it('uses custom contact email when provided', () => {
@@ -100,7 +100,7 @@ describe('ManagementFaq', () => {
     });
     const json = JSON.stringify(element);
     expect(json).toContain('custom@example.com');
-    expect(json).not.toContain('support@tsumugi.com');
+    expect(json).not.toContain('support@sumitsugi.jp');
   });
 
   it('uses custom FAQ items when provided', () => {
@@ -114,7 +114,7 @@ describe('ManagementFaq', () => {
     const json = JSON.stringify(element);
     expect(json).toContain('カスタム質問');
     expect(json).toContain('カスタム回答');
-    expect(json).not.toContain('tsumugiとは何ですか');
+    expect(json).not.toContain('sumitsugiとは何ですか');
   });
 
   it('uses A4 page size', () => {

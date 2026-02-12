@@ -14,7 +14,7 @@
 
 1. Airbnb利用規約調査（TSU-90）
 2. メルカリ利用規約調査（TSU-91, TSU-92）
-3. tsumugi固有条項リストアップ（TSU-89）
+3. sumitsugi固有条項リストアップ（TSU-89）
 4. ToS目次レベル叩き作成（TSU-88）
 5. CEO質問レビュー（TSU-93）
 

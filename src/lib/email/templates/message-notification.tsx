@@ -49,7 +49,7 @@ export function MessageNotification({
       </Button>
 
       <Text style={styles.note}>
-        ※ このメールはtsumugiのメッセージ機能から自動送信されました。
+        ※ このメールはsumitsugiのメッセージ機能から自動送信されました。
       </Text>
     </BaseLayout>
   );
@@ -109,5 +109,5 @@ MessageNotification.PreviewProps = {
   propertyTitle: '渋谷区神宮前 1LDK｜北欧スタイルのワンルーム',
   messagePreview:
     'こんにちは、内見の件でご連絡しました。来週の土曜日はご都合いかがでしょうか？',
-  threadUrl: 'https://tsumugi.com/messages/thread-1',
+  threadUrl: 'https://sumitsugi.jp/messages/thread-1',
 } satisfies MessageNotificationProps;

@@ -15,7 +15,7 @@ interface SendMessageNotificationInput {
  * Sends a new message notification email to the recipient.
  *
  * Called when a message is sent in a thread. The email includes
- * a preview of the message and a link back to the thread on tsumugi.
+ * a preview of the message and a link back to the thread on sumitsugi.
  */
 export async function sendMessageNotification({
   recipientEmail,
@@ -29,7 +29,7 @@ export async function sendMessageNotification({
 
   return sendEmail({
     to: recipientEmail,
-    subject: `【tsumugi】${senderName}さんから新着メッセージが届きました`,
+    subject: `【sumitsugi】${senderName}さんから新着メッセージが届きました`,
     react: MessageNotification({
       recipientName,
       senderName,

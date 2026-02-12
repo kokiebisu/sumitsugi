@@ -34,7 +34,7 @@ describe('sendAgreementToManagementCompany', () => {
   });
 
   const mockPropertyId = 'prop-123';
-  const mockPdfUrl = 'https://storage.tsumugi.com/agreement.pdf';
+  const mockPdfUrl = 'https://storage.sumitsugi.jp/agreement.pdf';
 
   it('should send email and log when management company details are present', async () => {
     vi.mocked(db.query.properties.findFirst).mockResolvedValue({

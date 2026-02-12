@@ -26,7 +26,7 @@
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
-        "/workspaces/tsumugi"
+        "/workspaces/sumitsugi"
       ],
       "env": {}
     }
@@ -38,7 +38,7 @@
 
 ### アクセス範囲
 
-- ルートディレクトリ: `/workspaces/tsumugi`
+- ルートディレクトリ: `/workspaces/sumitsugi`
 - プロジェクト外アクセス不可（サンドボックス化）
 - `.env.local` は `.gitignore` で保護済み
 

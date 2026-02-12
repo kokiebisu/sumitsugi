@@ -1,4 +1,4 @@
-# tsumugi Memory Bank
+# sumitsugi Memory Bank
 
 > 住人の暮らしを引き継ぐプラットフォーム
 

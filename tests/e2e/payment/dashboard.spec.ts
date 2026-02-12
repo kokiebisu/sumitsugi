@@ -62,9 +62,9 @@ test.describe('Dashboard - Empty State @payment @dashboard', () => {
         authProvider: 'email',
         isSeller: false,
       };
-      localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+      localStorage.setItem('sumitsugi_user', JSON.stringify(mockUser));
       // Clear any existing inquiries
-      localStorage.removeItem('tsumugi_inquiries');
+      localStorage.removeItem('sumitsugi_inquiries');
     });
 
     // Navigate to dashboard
@@ -97,9 +97,9 @@ test.describe('Dashboard - Empty State @payment @dashboard', () => {
         authProvider: 'email',
         isSeller: false,
       };
-      localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+      localStorage.setItem('sumitsugi_user', JSON.stringify(mockUser));
       // Clear any existing inquiries
-      localStorage.removeItem('tsumugi_inquiries');
+      localStorage.removeItem('sumitsugi_inquiries');
     });
 
     // Navigate to dashboard
@@ -137,7 +137,7 @@ test.describe('Dashboard - Progress Steps @payment @dashboard', () => {
           authProvider: 'email',
           isSeller: false,
         };
-        localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+        localStorage.setItem('sumitsugi_user', JSON.stringify(mockUser));
 
         const inquiry = {
           id: 'test-inquiry-1',
@@ -150,7 +150,7 @@ test.describe('Dashboard - Progress Steps @payment @dashboard', () => {
           submittedAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
-        localStorage.setItem('tsumugi_inquiries', JSON.stringify([inquiry]));
+        localStorage.setItem('sumitsugi_inquiries', JSON.stringify([inquiry]));
       },
       { testEmail: testData.users.testUser.email }
     );
@@ -210,7 +210,7 @@ test.describe('Dashboard - Status Messages @payment @dashboard', () => {
             authProvider: 'email',
             isSeller: false,
           };
-          localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+          localStorage.setItem('sumitsugi_user', JSON.stringify(mockUser));
 
           const inquiry = {
             id: `test-inquiry-${status}`,
@@ -223,7 +223,10 @@ test.describe('Dashboard - Status Messages @payment @dashboard', () => {
             submittedAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           };
-          localStorage.setItem('tsumugi_inquiries', JSON.stringify([inquiry]));
+          localStorage.setItem(
+            'sumitsugi_inquiries',
+            JSON.stringify([inquiry])
+          );
         },
         { status, testEmail: testData.users.testUser.email }
       );
@@ -260,7 +263,7 @@ test.describe('Dashboard - Action Buttons @payment @dashboard', () => {
           authProvider: 'email',
           isSeller: false,
         };
-        localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+        localStorage.setItem('sumitsugi_user', JSON.stringify(mockUser));
 
         const inquiry = {
           id: 'test-inquiry-viewing',
@@ -273,7 +276,7 @@ test.describe('Dashboard - Action Buttons @payment @dashboard', () => {
           submittedAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
-        localStorage.setItem('tsumugi_inquiries', JSON.stringify([inquiry]));
+        localStorage.setItem('sumitsugi_inquiries', JSON.stringify([inquiry]));
       },
       { testEmail: testData.users.testUser.email }
     );
@@ -308,7 +311,7 @@ test.describe('Dashboard - Action Buttons @payment @dashboard', () => {
           authProvider: 'email',
           isSeller: false,
         };
-        localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+        localStorage.setItem('sumitsugi_user', JSON.stringify(mockUser));
 
         const inquiry = {
           id: 'test-inquiry-agreement',
@@ -321,7 +324,7 @@ test.describe('Dashboard - Action Buttons @payment @dashboard', () => {
           submittedAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
-        localStorage.setItem('tsumugi_inquiries', JSON.stringify([inquiry]));
+        localStorage.setItem('sumitsugi_inquiries', JSON.stringify([inquiry]));
       },
       { testEmail: testData.users.testUser.email }
     );
@@ -360,7 +363,7 @@ test.describe('Dashboard - Property Navigation @payment @dashboard', () => {
           authProvider: 'email',
           isSeller: false,
         };
-        localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+        localStorage.setItem('sumitsugi_user', JSON.stringify(mockUser));
 
         const inquiry = {
           id: 'test-inquiry-nav',
@@ -373,7 +376,7 @@ test.describe('Dashboard - Property Navigation @payment @dashboard', () => {
           submittedAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
-        localStorage.setItem('tsumugi_inquiries', JSON.stringify([inquiry]));
+        localStorage.setItem('sumitsugi_inquiries', JSON.stringify([inquiry]));
       },
       { propertyId, testEmail: testData.users.testUser.email }
     );
@@ -412,7 +415,7 @@ test.describe('Dashboard - Responsive Design @payment @dashboard', () => {
             authProvider: 'email',
             isSeller: false,
           };
-          localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+          localStorage.setItem('sumitsugi_user', JSON.stringify(mockUser));
         },
         { testEmail: testData.users.testUser.email }
       );
@@ -450,7 +453,7 @@ test.describe('Dashboard - Responsive Design @payment @dashboard', () => {
             authProvider: 'email',
             isSeller: false,
           };
-          localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+          localStorage.setItem('sumitsugi_user', JSON.stringify(mockUser));
 
           const inquiry = {
             id: 'test-inquiry-mobile',
@@ -463,7 +466,10 @@ test.describe('Dashboard - Responsive Design @payment @dashboard', () => {
             submittedAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           };
-          localStorage.setItem('tsumugi_inquiries', JSON.stringify([inquiry]));
+          localStorage.setItem(
+            'sumitsugi_inquiries',
+            JSON.stringify([inquiry])
+          );
         },
         { testEmail: testData.users.testUser.email }
       );

@@ -104,7 +104,7 @@ function contentToSlideConfig(parsed: ParsedSlide): SlideConfig {
 
   // Detect comparison layout
   const hasBeforeAfter =
-    content.includes('【従来】') || content.includes('【tsumugi】');
+    content.includes('【従来】') || content.includes('【sumitsugi】');
   const hasArrowTable =
     content.includes('→') && lines.filter((l) => l.includes('→')).length >= 3;
   const isComparison =
@@ -132,8 +132,8 @@ function parseComparisonSlide(title: string, content: string): SlideConfig {
   const lines = content.split('\n').filter((l) => l.trim() !== '');
 
   // Before/after cost comparison
-  if (content.includes('【従来】') && content.includes('【tsumugi】')) {
-    const headers = ['', '従来', 'tsumugi'];
+  if (content.includes('【従来】') && content.includes('【sumitsugi】')) {
+    const headers = ['', '従来', 'sumitsugi'];
     const rows: string[][] = [];
     const sections = content.split(/【/);
 
@@ -271,7 +271,7 @@ function parseContentSlide(title: string, content: string): SlideConfig {
 function createPresentation(title: string, slides: SlideConfig[]): PptxGenJS {
   const pptx = new PptxGenJS();
   pptx.layout = 'LAYOUT_WIDE';
-  pptx.author = 'tsumugi';
+  pptx.author = 'sumitsugi';
   pptx.subject = title;
   pptx.title = title;
 
@@ -281,7 +281,7 @@ function createPresentation(title: string, slides: SlideConfig[]): PptxGenJS {
     objects: [
       {
         text: {
-          text: 'tsumugi',
+          text: 'sumitsugi',
           options: {
             x: 0.5,
             y: 7.0,
@@ -499,25 +499,25 @@ type DeckDef = {
 const DECKS: DeckDef[] = [
   {
     key: 'seller',
-    title: 'tsumugi - 前の住人向けピッチ',
+    title: 'sumitsugi - 前の住人向けピッチ',
     src: 'docs/pitch/pitch-deck-seller.md',
     out: 'docs/pitch/slides-seller.pptx',
   },
   {
     key: 'buyer',
-    title: 'tsumugi - 次の住人向けピッチ',
+    title: 'sumitsugi - 次の住人向けピッチ',
     src: 'docs/pitch/pitch-deck-buyer.md',
     out: 'docs/pitch/slides-buyer.pptx',
   },
   {
     key: 'management',
-    title: 'tsumugi - 管理会社向けピッチ',
+    title: 'sumitsugi - 管理会社向けピッチ',
     src: 'docs/pitch/pitch-deck-management.md',
     out: 'docs/pitch/slides-management.pptx',
   },
   {
     key: 'agency',
-    title: 'tsumugi - 仲介会社向けピッチ',
+    title: 'sumitsugi - 仲介会社向けピッチ',
     src: 'docs/pitch/pitch-deck-agency.md',
     out: 'docs/pitch/slides-agency.pptx',
   },

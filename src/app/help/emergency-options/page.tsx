@@ -77,7 +77,7 @@ export default function EmergencyOptionsPage() {
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               退去日が迫っている方のために、家具・家電の処分・引き取りオプションをご案内します。
-              tsumugiがお手伝いします。
+              sumitsugiがお手伝いします。
             </p>
           </div>
         </section>
@@ -187,7 +187,7 @@ export default function EmergencyOptionsPage() {
                   Q. まだ使える家具なのに処分するしかないですか？
                 </h3>
                 <p className="text-muted-foreground">
-                  いいえ。tsumugiでは引き続き次の住人をお探しすることも可能です。
+                  いいえ。sumitsugiでは引き続き次の住人をお探しすることも可能です。
                   また、寄付という選択肢もあります。状況に応じてご提案します。
                 </p>
               </div>

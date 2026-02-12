@@ -170,7 +170,7 @@ describe('GuidePage', () => {
       fireEvent.click(screen.getByRole('button', { name: '次の住人向け' }));
 
       expect(
-        screen.getByText('tsumugiで家具付き物件を探します。')
+        screen.getByText('sumitsugiで家具付き物件を探します。')
       ).toBeInTheDocument();
       expect(
         screen.getByText(
@@ -192,13 +192,13 @@ describe('GuidePage', () => {
   });
 
   describe('landlord approval step (大家承認)', () => {
-    it('includes landlord approval with tsumugi document support', () => {
+    it('includes landlord approval with sumitsugi document support', () => {
       render(<GuidePage />);
       expect(screen.getByText('オーナー承認')).toBeInTheDocument();
       expect(
         screen.getByText(/管理会社経由でオーナーの承認を得ます/)
       ).toBeInTheDocument();
-      expect(screen.getByText(/tsumugiが説明資料を作成/)).toBeInTheDocument();
+      expect(screen.getByText(/sumitsugiが説明資料を作成/)).toBeInTheDocument();
       expect(screen.getByText('3〜5日')).toBeInTheDocument();
       expect(screen.getByTestId('icon-Building2')).toBeInTheDocument();
     });

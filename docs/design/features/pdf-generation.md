@@ -29,6 +29,6 @@
 
 - 結論ファースト構成（アクション手順→概要→家具リスト→メリット→リスク対応→FAQ）
 - A4 3枚以内
-- tsumugiブランディング控えめ
+- sumitsugiブランディング控えめ
 - メール送付テンプレートも付随提供
 - 詳細は[座談会#5議事録](../../requirements/meetings/2026-02-07-product-meeting-5-pdf-templates.md)

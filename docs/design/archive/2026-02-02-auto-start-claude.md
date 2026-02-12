@@ -194,7 +194,7 @@ Users run `./dev` and immediately enter Claude Code. When they exit Claude (Ctrl
 # User exits Claude (/exit or Ctrl+D)
 
 # Now at bash prompt in devcontainer
-node@container:/workspaces/tsumugi$
+node@container:/workspaces/sumitsugi$
 ```
 
 **Testing:**

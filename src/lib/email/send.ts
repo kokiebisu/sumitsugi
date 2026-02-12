@@ -10,7 +10,7 @@ function getResendClient() {
 }
 
 const FROM_ADDRESS =
-  process.env.RESEND_FROM_ADDRESS ?? 'tsumugi <noreply@tsumugi.com>';
+  process.env.RESEND_FROM_ADDRESS ?? 'sumitsugi <noreply@sumitsugi.jp>';
 
 interface SendEmailOptions {
   to: string | string[];

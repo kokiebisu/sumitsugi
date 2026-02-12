@@ -19,7 +19,7 @@ if [ -z "$1" ]; then
     echo "Examples:"
     echo "  $0 feature-auth"
     echo "  $0 fix-bug-123"
-    echo "  $0 feature-payments ~/projects/tsumugi-payments"
+    echo "  $0 feature-payments ~/projects/sumitsugi-payments"
     exit 1
 fi
 

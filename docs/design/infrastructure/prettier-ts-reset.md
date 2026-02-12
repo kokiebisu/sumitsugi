@@ -53,7 +53,7 @@
 ### ファイル構成
 
 ```
-/workspaces/tsumugi/
+/workspaces/sumitsugi/
 ├── .prettierrc.json          # Prettier設定
 ├── .prettierignore           # フォーマット除外
 ├── src/types/ts-reset.d.ts   # ts-reset型定義

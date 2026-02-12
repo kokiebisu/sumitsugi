@@ -123,7 +123,7 @@ export default function StripeSetupPage() {
               <div>
                 <p className="font-medium">個人情報は安全ですか？</p>
                 <p className="mt-1 text-muted-foreground">
-                  口座情報はStripe（国際決済プラットフォーム）が安全に管理します。tsumugiでは口座情報を直接保持しません。
+                  口座情報はStripe（国際決済プラットフォーム）が安全に管理します。sumitsugiでは口座情報を直接保持しません。
                 </p>
               </div>
             </CardContent>

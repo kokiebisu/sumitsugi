@@ -9,7 +9,7 @@
 ## ビジネスロジック決定事項
 
 **作成日:** 2026-01-31
-**タスク:** tsumugi-43p - Payment System Integration
+**タスク:** sumitsugi-43p - Payment System Integration
 
 ### 1. 支払いフロー: Combined Checkout
 
@@ -25,17 +25,17 @@
 
 ### 2. 清掃費モデル: 管理会社が清掃
 
-**決定:** tsumugiが管理会社の清掃費を代理徴収
+**決定:** sumitsugiが管理会社の清掃費を代理徴収
 
 ```
-次の住人 → tsumugi → 管理会社
+次の住人 → sumitsugi → 管理会社
          (引越し費用)  (追加清掃費を送金)
 ```
 
 ### 3. 清掃費の二重構造
 
 - **通常の賃貸契約:** 前の住人の敷金から基本清掃費を差し引き（変更なし）
-- **tsumugiが徴収:** 家具有りの追加清掃費のみ（次の住人が負担）
+- **sumitsugiが徴収:** 家具有りの追加清掃費のみ（次の住人が負担）
 
 ```
 引越し費用 = 追加清掃費 + 前の住人への支払い + プラットフォーム手数料
@@ -72,7 +72,7 @@ const landlordIncentive = Math.max(handoverFeeTotal * 0.01, 3000);
 ### 8. エスクローモデル（メルカリ方式）
 
 ```
-次の住人が支払い → tsumugiがエスクロー保管（Stripe Connect）
+次の住人が支払い → sumitsugiがエスクロー保管（Stripe Connect）
 → 引き継ぎ実施 → 双方が「完了」押下 → 24-48h後に自動分配
 ```
 

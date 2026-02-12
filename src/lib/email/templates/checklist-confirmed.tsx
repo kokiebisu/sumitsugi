@@ -99,5 +99,5 @@ ChecklistConfirmed.PreviewProps = {
   propertyTitle: '世田谷区の家具付き物件',
   keepCount: 3,
   takeAwayCount: 1,
-  dashboardUrl: 'https://tsumugi.com/dashboard',
+  dashboardUrl: 'https://sumitsugi.jp/dashboard',
 } satisfies ChecklistConfirmedProps;

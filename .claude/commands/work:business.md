@@ -56,7 +56,7 @@ Use Task tool with `subagent_type: "general-purpose"`. Launch all in parallel. I
 For each task, use this prompt (fill in `{id}`, `{title}`, `{description}`, `{labels}`, `{linear-id}`):
 
 ```
-You are executing a business task for tsumugi (Japan-based startup).
+You are executing a business task for sumitsugi (Japan-based startup).
 
 ## Task
 **ID:** {id} | **Title:** {title} | **Labels:** {labels}

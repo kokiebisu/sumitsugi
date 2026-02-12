@@ -9,7 +9,7 @@ import { PaymentConfirmationPage } from '../pages/PaymentConfirmationPage';
 import { DashboardPage } from '../pages/DashboardPage';
 
 /**
- * Custom test fixtures for tsumugi E2E tests
+ * Custom test fixtures for sumitsugi E2E tests
  * Provides pre-configured page objects for all tests
  */
 export const test = base.extend<{
@@ -73,15 +73,15 @@ export const testData = {
   // Test user credentials
   users: {
     testUser: {
-      email: 'test@tsumugi.example.com',
+      email: 'test@sumitsugi.example.com',
       name: 'Test User',
     },
     seller: {
-      email: 'seller@tsumugi.example.com',
+      email: 'seller@sumitsugi.example.com',
       name: 'Test Seller',
     },
     buyer: {
-      email: 'buyer@tsumugi.example.com',
+      email: 'buyer@sumitsugi.example.com',
       name: 'Test Buyer',
     },
   },
@@ -171,7 +171,7 @@ export async function setupAuthenticatedUser(
       authProvider: 'email',
       isSeller: false,
     };
-    localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+    localStorage.setItem('sumitsugi_user', JSON.stringify(mockUser));
   }, user);
 
   // Reload the page so the init script runs
@@ -204,7 +204,7 @@ export async function setupAuthenticatedSeller(
         sellerSince: new Date().toISOString(),
       },
     };
-    localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+    localStorage.setItem('sumitsugi_user', JSON.stringify(mockUser));
   }, user);
 
   // Reload the page so the init script runs
@@ -231,7 +231,7 @@ export async function setupAuthenticatedBuyer(
       authProvider: 'email',
       isSeller: false,
     };
-    localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+    localStorage.setItem('sumitsugi_user', JSON.stringify(mockUser));
   }, user);
 
   await page.reload();

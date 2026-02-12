@@ -7,7 +7,7 @@ services:
       - ..:/workspace:cached
       - claude_config:/home/bun/.claude
       # Mount parent repo's git module data so submodule .git reference resolves
-      - ../../../.git/modules/tsumugi:/.git/modules/tsumugi:cached
+      - ../../../.git/modules/sumitsugi:/.git/modules/sumitsugi:cached
     command: sleep infinity
     cap_add:
       - NET_ADMIN
@@ -21,13 +21,13 @@ services:
     restart: unless-stopped
     network_mode: service:app
     environment:
-      POSTGRES_USER: tsumugi
-      POSTGRES_PASSWORD: tsumugi
-      POSTGRES_DB: tsumugi
+      POSTGRES_USER: sumitsugi
+      POSTGRES_PASSWORD: sumitsugi
+      POSTGRES_DB: sumitsugi
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U tsumugi']
+      test: ['CMD-SHELL', 'pg_isready -U sumitsugi']
       interval: 5s
       timeout: 5s
       retries: 5

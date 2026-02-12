@@ -101,7 +101,7 @@ Note: Internal code (`seller`, `isSeller`) is fine. Only UI-visible text matters
 
 ### 3. Layout & Structure
 
-- Header with tsumugi logo is present
+- Header with sumitsugi logo is present
 - Navigation menu is accessible
 - Footer is present (where applicable)
 - Content is properly aligned (no overflow, no broken layouts)

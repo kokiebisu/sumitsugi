@@ -2,7 +2,7 @@
 
 ## 必要なSecrets
 
-tsumugiのGitHub Actionsワークフローで使用するSecrets：
+sumitsugiのGitHub Actionsワークフローで使用するSecrets：
 
 | Secret名            | 使用ワークフロー                           | 必須       |
 | ------------------- | ------------------------------------------ | ---------- |
@@ -18,7 +18,7 @@ tsumugiのGitHub Actionsワークフローで使用するSecrets：
 1. **リポジトリページを開く**
 
    ```
-   https://github.com/[your-username]/tsumugi
+   https://github.com/[your-username]/sumitsugi
    ```
 
 2. **Settings タブをクリック**
@@ -65,7 +65,7 @@ ANTHROPIC_API_KEY  Updated 2026-02-03
 1. [Anthropic Console](https://console.anthropic.com/) にアクセス
 2. 「API Keys」セクションに移動
 3. 「Create Key」をクリック
-4. Key名を入力（例: `tsumugi-github-actions`）
+4. Key名を入力（例: `sumitsugi-github-actions`）
 5. Keyをコピー（**一度しか表示されません**）
 6. GitHub Secretsに設定
 
@@ -106,7 +106,7 @@ gh run list --limit 3
 gh run view --log
 
 # または、WebUIで確認
-# https://github.com/[your-username]/tsumugi/actions
+# https://github.com/[your-username]/sumitsugi/actions
 ```
 
 **成功例:**

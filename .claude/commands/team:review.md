@@ -196,7 +196,7 @@ Dismiss the team after review is complete.
 
 ## Review Standards Reference
 
-These are tsumugi-specific standards (from `.claude/rules/standards.md`):
+These are sumitsugi-specific standards (from `.claude/rules/standards.md`):
 
 - Immutability: ALWAYS `{...obj, key: val}`, NEVER mutate
 - Small files: 200-400 lines typical, 800 max

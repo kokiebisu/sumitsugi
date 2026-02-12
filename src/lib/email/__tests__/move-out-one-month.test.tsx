@@ -8,8 +8,8 @@ describe('MoveOutOneMonthNotification', () => {
     propertyTitle: 'アートと植物に囲まれたワンルーム',
     moveOutDate: '2026年3月15日',
     daysRemaining: 30,
-    dashboardUrl: 'https://tsumugi.app/dashboard',
-    disposalGuideUrl: 'https://tsumugi.app/guide/disposal',
+    dashboardUrl: 'https://sumitsugi.app/dashboard',
+    disposalGuideUrl: 'https://sumitsugi.app/guide/disposal',
   };
 
   it('renders without crashing', async () => {
@@ -60,6 +60,6 @@ describe('MoveOutOneMonthNotification', () => {
     const html = await render(
       <MoveOutOneMonthNotification {...defaultProps} />
     );
-    expect(html).toContain('https://tsumugi.app/dashboard');
+    expect(html).toContain('https://sumitsugi.app/dashboard');
   });
 });

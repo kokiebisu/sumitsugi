@@ -136,6 +136,6 @@ ViewingFollowup.PreviewProps = {
   propertyTitle: '世田谷区の家具付き物件',
   viewingDate: '2026年2月15日（日）10:00',
   deadlineDate: '2026年2月22日（土）',
-  checklistUrl: 'https://tsumugi.com/viewings/vw-1/checklist',
+  checklistUrl: 'https://sumitsugi.jp/viewings/vw-1/checklist',
   furnitureNames: ['ソファ', 'ベッド', 'デスク'],
 } satisfies ViewingFollowupProps;

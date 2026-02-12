@@ -75,7 +75,7 @@ Spawn 4 researcher teammates. Use delegate mode.
 4. Teammate "competitive-researcher":
    Research competitor products, their approaches to {topic}.
    Focus on: Japanese market (ジモティー, メルカリ), global (Airbnb, Zillow).
-   Analyze strengths, weaknesses, opportunities for tsumugi.
+   Analyze strengths, weaknesses, opportunities for sumitsugi.
    Save findings to: docs/team/cmo/knowledge/YYYY-MM-DD-research-{slug}.md
 
 Share relevant findings with each other during research.
@@ -166,7 +166,7 @@ Each researcher saves to their executive's knowledge folder:
    [Details with data/evidence]
    Source: [URL or reference]
 
-## Implications for tsumugi
+## Implications for sumitsugi
 
 - [How this affects our strategy/product/tech]
 - [Opportunities identified]

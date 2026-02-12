@@ -25,7 +25,7 @@ export function BaseLayout({ preview, children }: BaseLayoutProps) {
         <Container style={styles.container}>
           {/* Header */}
           <Section style={styles.header}>
-            <Text style={styles.logo}>tsumugi</Text>
+            <Text style={styles.logo}>sumitsugi</Text>
             <Text style={styles.tagline}>住人の暮らしを引き継ぐ</Text>
           </Section>
 
@@ -40,20 +40,20 @@ export function BaseLayout({ preview, children }: BaseLayoutProps) {
           <Section style={styles.footer}>
             <Text style={styles.footerText}>
               このメールは{' '}
-              <Link href="https://tsumugi.com" style={styles.link}>
-                tsumugi
+              <Link href="https://sumitsugi.jp" style={styles.link}>
+                sumitsugi
               </Link>{' '}
               から送信されました。
             </Text>
             <Text style={styles.footerText}>
               ご質問がありましたら{' '}
-              <Link href="mailto:info@tsumugi.com" style={styles.link}>
-                info@tsumugi.com
+              <Link href="mailto:info@sumitsugi.jp" style={styles.link}>
+                info@sumitsugi.jp
               </Link>{' '}
               までお問い合わせください。
             </Text>
             <Text style={styles.copyright}>
-              &copy; {new Date().getFullYear()} tsumugi. All rights reserved.
+              &copy; {new Date().getFullYear()} sumitsugi. All rights reserved.
             </Text>
           </Section>
         </Container>

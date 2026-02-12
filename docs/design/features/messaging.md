@@ -13,8 +13,8 @@
 ```
 [次の住人] → メッセージ送信 (Server Action)
   → messagesテーブルにINSERT
-  → Resendで相手に通知メール（「新着メッセージがあります」+ tsumugiリンク）
-  → [前の住人] がtsumugi上で閲覧・返信
+  → Resendで相手に通知メール（「新着メッセージがあります」+ sumitsugiリンク）
+  → [前の住人] がsumitsugi上で閲覧・返信
 ```
 
 ## データモデル（技術会議#11で詳細設計確定）

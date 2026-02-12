@@ -133,7 +133,7 @@ test.describe('Listing Page - With Existing Listings @listing @quarantine', () =
           sellerSince: new Date().toISOString(),
         },
       };
-      localStorage.setItem('tsumugi_user', JSON.stringify(mockUser));
+      localStorage.setItem('sumitsugi_user', JSON.stringify(mockUser));
 
       // Add mock listings
       const mockListings = [
@@ -167,7 +167,7 @@ test.describe('Listing Page - With Existing Listings @listing @quarantine', () =
           updatedAt: new Date().toISOString(),
         },
       ];
-      localStorage.setItem('tsumugi_listings', JSON.stringify(mockListings));
+      localStorage.setItem('sumitsugi_listings', JSON.stringify(mockListings));
     });
 
     await page.reload();

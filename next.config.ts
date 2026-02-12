@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/storage/:path*',
-        destination: `${s3Endpoint}/${process.env.R2_BUCKET_NAME ?? 'tsumugi'}/:path*`,
+        destination: `${s3Endpoint}/${process.env.R2_BUCKET_NAME ?? 'sumitsugi'}/:path*`,
       },
     ];
   },

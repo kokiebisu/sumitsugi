@@ -375,7 +375,7 @@ export default function NewListingPage() {
       <header className="flex items-center justify-between px-6 py-4 md:px-12">
         <Link href="/" className="flex items-center gap-2">
           <span className="text-xl font-semibold tracking-tight text-coral">
-            tsumugi
+            sumitsugi
           </span>
         </Link>
         <Button

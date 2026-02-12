@@ -61,7 +61,7 @@ export async function submitInquiry(
     const [sellerResult, applicantResult] = await Promise.allSettled([
       sendEmail({
         to: siteConfig.company.email,
-        subject: `【tsumugi】${property.title}に問い合わせが届きました`,
+        subject: `【sumitsugi】${property.title}に問い合わせが届きました`,
         react: InquiryNotification({
           sellerName,
           buyerName: validated.applicantName,
@@ -73,7 +73,7 @@ export async function submitInquiry(
       }),
       sendEmail({
         to: validated.applicantEmail,
-        subject: `【tsumugi】${property.title}への問い合わせを受け付けました`,
+        subject: `【sumitsugi】${property.title}への問い合わせを受け付けました`,
         react: InquiryConfirmation({
           buyerName: validated.applicantName,
           propertyTitle: property.title,

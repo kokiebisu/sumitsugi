@@ -62,10 +62,10 @@ describe('SampleDocument', () => {
     expect(json).not.toContain('説明');
   });
 
-  it('includes tsumugi branding', () => {
+  it('includes sumitsugi branding', () => {
     const element = SampleDocument(defaultProps);
     const json = JSON.stringify(element);
-    expect(json).toContain('tsumugi');
+    expect(json).toContain('sumitsugi');
     expect(json).toContain('住人の暮らしを引き継ぐ');
   });
 

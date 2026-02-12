@@ -3,7 +3,7 @@
 # Runs after `bd init` which creates the base post-merge hook.
 
 HOOK_FILE="$(git rev-parse --git-dir)/hooks/post-merge"
-MARKER="# [tsumugi] auto-cleanup gone branches"
+MARKER="# [sumitsugi] auto-cleanup gone branches"
 
 # Skip if already installed
 if [ -f "$HOOK_FILE" ] && grep -qF "$MARKER" "$HOOK_FILE"; then
@@ -21,7 +21,7 @@ sed -i '${/^exit 0$/d}' "$HOOK_FILE"
 
 cat >> "$HOOK_FILE" << 'HOOK'
 
-# [tsumugi] auto-cleanup gone branches
+# [sumitsugi] auto-cleanup gone branches
 gone_branches=$(git branch -vv 2>/dev/null | grep ': gone]' | awk '{print $1}' | sed 's/^[+* ]//')
 if [ -n "$gone_branches" ]; then
     echo "$gone_branches" | while read branch; do

@@ -11,7 +11,7 @@ vi.mock('@/lib/pdf/qr-code', () => ({
   generateQrCodeDataUrl: vi
     .fn()
     .mockResolvedValue('data:image/png;base64,MOCK'),
-  FAQ_PAGE_URL: 'https://tsumugi.com/for-managers',
+  FAQ_PAGE_URL: 'https://sumitsugi.jp/for-managers',
 }));
 vi.mock('@/lib/storage', () => ({
   uploadPdf: vi.fn(),

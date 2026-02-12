@@ -1,6 +1,6 @@
 # Linear MCP Integration
 
-This document explains the Linear MCP (Model Context Protocol) server integration for tsumugi.
+This document explains the Linear MCP (Model Context Protocol) server integration for sumitsugi.
 
 ## Overview
 

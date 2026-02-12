@@ -1,6 +1,6 @@
 # Using Devcontainers with Git Worktrees
 
-This guide explains how to use VS Code devcontainers when working with git worktrees in the tsumugi project.
+This guide explains how to use VS Code devcontainers when working with git worktrees in the sumitsugi project.
 
 ## Quick Start
 
@@ -79,14 +79,14 @@ This script:
 1. **Create the worktree** (as a sibling directory):
 
    ```bash
-   git worktree add ../tsumugi-feature-name feature-name
+   git worktree add ../sumitsugi-feature-name feature-name
    ```
 
 2. **Link the devcontainer config**:
 
    ```bash
-   cd ../tsumugi-feature-name
-   ln -s ../tsumugi/.devcontainer .devcontainer
+   cd ../sumitsugi-feature-name
+   ln -s ../sumitsugi/.devcontainer .devcontainer
    ```
 
 3. **Open in VS Code and reopen in container**
@@ -96,7 +96,7 @@ This script:
 ### In Devcontainer (Subdirectory Approach)
 
 ```
-tsumugi/                              # Main repository
+sumitsugi/                              # Main repository
 ├── .devcontainer/                   # Devcontainer config (source)
 ├── .worktrees/                      # Worktrees subdirectory
 │   ├── feature-auth/               # Worktree 1
@@ -113,15 +113,15 @@ tsumugi/                              # Main repository
 
 ```
 parent-directory/
-├── tsumugi/                        # Main repository
+├── sumitsugi/                        # Main repository
 │   ├── .devcontainer/             # Devcontainer config (source)
 │   ├── src/
 │   └── ...
-├── tsumugi-feature-auth/          # Worktree 1
-│   ├── .devcontainer -> ../tsumugi/.devcontainer  # Symlink
+├── sumitsugi-feature-auth/          # Worktree 1
+│   ├── .devcontainer -> ../sumitsugi/.devcontainer  # Symlink
 │   └── ...
-└── tsumugi-bugfix-123/            # Worktree 2
-    ├── .devcontainer -> ../tsumugi/.devcontainer  # Symlink
+└── sumitsugi-bugfix-123/            # Worktree 2
+    ├── .devcontainer -> ../sumitsugi/.devcontainer  # Symlink
     └── ...
 ```
 
@@ -140,7 +140,7 @@ git worktree list
 git worktree remove .worktrees/feature-name
 
 # On host:
-git worktree remove ../tsumugi-feature-name
+git worktree remove ../sumitsugi-feature-name
 
 # Or if already deleted:
 git worktree prune
@@ -151,7 +151,7 @@ git worktree prune
 Simply open the worktree directory in VS Code:
 
 ```bash
-code ../tsumugi-feature-name
+code ../sumitsugi-feature-name
 ```
 
 Then reopen in container if not already open.
@@ -166,7 +166,7 @@ Then reopen in container if not already open.
 
 ```bash
 cd /path/to/worktree
-ln -s ../tsumugi/.devcontainer .devcontainer
+ln -s ../sumitsugi/.devcontainer .devcontainer
 ```
 
 ### "Permission denied" on symlink creation (Windows)
@@ -179,7 +179,7 @@ ln -s ../tsumugi/.devcontainer .devcontainer
 2. OR run terminal as Administrator
 3. OR copy `.devcontainer` instead of symlinking:
    ```bash
-   cp -r ../tsumugi/.devcontainer .devcontainer
+   cp -r ../sumitsugi/.devcontainer .devcontainer
    ```
 
 ### Container uses old dependencies
@@ -205,14 +205,14 @@ ssh-add ~/.ssh/id_rsa
 ## Best Practices
 
 1. **Naming Convention**: Use prefix pattern for worktree directories:
-   - `tsumugi-feature-*` for features
-   - `tsumugi-fix-*` for bug fixes
-   - `tsumugi-refactor-*` for refactoring
+   - `sumitsugi-feature-*` for features
+   - `sumitsugi-fix-*` for bug fixes
+   - `sumitsugi-refactor-*` for refactoring
 
 2. **Location**: Create worktrees as siblings to the main repo:
 
    ```bash
-   git worktree add ../tsumugi-feature-name branch-name
+   git worktree add ../sumitsugi-feature-name branch-name
    ```
 
    Avoid deeply nested or unrelated paths.
@@ -220,7 +220,7 @@ ssh-add ~/.ssh/id_rsa
 3. **Cleanup**: Remove worktrees when done:
 
    ```bash
-   git worktree remove ../tsumugi-feature-name
+   git worktree remove ../sumitsugi-feature-name
    git branch -d feature-name  # Delete branch if merged
    ```
 
@@ -243,15 +243,15 @@ Work on multiple features simultaneously, each in its own container:
 
 ```bash
 # Terminal 1
-git worktree add ../tsumugi-feature-auth feature-auth
-cd ../tsumugi-feature-auth
-ln -s ../tsumugi/.devcontainer .devcontainer
+git worktree add ../sumitsugi-feature-auth feature-auth
+cd ../sumitsugi-feature-auth
+ln -s ../sumitsugi/.devcontainer .devcontainer
 code .  # Opens in container instance 1
 
 # Terminal 2
-git worktree add ../tsumugi-feature-payments feature-payments
-cd ../tsumugi-feature-payments
-ln -s ../tsumugi/.devcontainer .devcontainer
+git worktree add ../sumitsugi-feature-payments feature-payments
+cd ../sumitsugi-feature-payments
+ln -s ../sumitsugi/.devcontainer .devcontainer
 code .  # Opens in container instance 2
 ```
 

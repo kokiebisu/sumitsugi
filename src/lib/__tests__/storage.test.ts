@@ -108,7 +108,7 @@ describe('storage', () => {
       vi.stubEnv('R2_ACCOUNT_ID', 'abc123');
       vi.stubEnv('R2_ACCESS_KEY_ID', 'key');
       vi.stubEnv('R2_SECRET_ACCESS_KEY', 'secret');
-      vi.stubEnv('R2_BUCKET_NAME', 'tsumugi');
+      vi.stubEnv('R2_BUCKET_NAME', 'sumitsugi');
 
       const { uploadImage } = await import('../storage');
       const url = await uploadImage(Buffer.from('test'), 'image/png');

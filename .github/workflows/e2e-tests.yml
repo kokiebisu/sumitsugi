@@ -113,13 +113,13 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_USER: tsumugi
-          POSTGRES_PASSWORD: tsumugi
-          POSTGRES_DB: tsumugi_test
+          POSTGRES_USER: sumitsugi
+          POSTGRES_PASSWORD: sumitsugi
+          POSTGRES_DB: sumitsugi_test
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U tsumugi"
+          --health-cmd "pg_isready -U sumitsugi"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -154,21 +154,21 @@ jobs:
       - name: Create LocalStack S3 bucket
         run: |
           pipx install awscli-local
-          awslocal s3 mb s3://tsumugi
+          awslocal s3 mb s3://sumitsugi
 
       - name: Run database migrations
         run: bun scripts/db-migrate.ts
         env:
-          DATABASE_URL: postgresql://tsumugi:tsumugi@localhost:5432/tsumugi_test
+          DATABASE_URL: postgresql://sumitsugi:sumitsugi@localhost:5432/sumitsugi_test
 
       - name: Build Next.js app
         run: bun run build
         env:
           NODE_ENV: production
-          DATABASE_URL: postgresql://tsumugi:tsumugi@localhost:5432/tsumugi_test
+          DATABASE_URL: postgresql://sumitsugi:sumitsugi@localhost:5432/sumitsugi_test
           BETTER_AUTH_SECRET: test-secret-for-ci-builds-only
           S3_ENDPOINT: http://localhost:4566
-          R2_BUCKET_NAME: tsumugi
+          R2_BUCKET_NAME: sumitsugi
 
       - name: Run E2E tests
         run: |
@@ -183,10 +183,10 @@ jobs:
         env:
           CI: true
           BASE_URL: http://localhost:3000
-          DATABASE_URL: postgresql://tsumugi:tsumugi@localhost:5432/tsumugi_test
+          DATABASE_URL: postgresql://sumitsugi:sumitsugi@localhost:5432/sumitsugi_test
           BETTER_AUTH_SECRET: test-secret-for-ci-builds-only
           S3_ENDPOINT: http://localhost:4566
-          R2_BUCKET_NAME: tsumugi
+          R2_BUCKET_NAME: sumitsugi
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
           NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_TEST_PUBLISHABLE_KEY }}
 

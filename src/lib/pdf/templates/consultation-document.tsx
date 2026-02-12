@@ -319,19 +319,19 @@ export function ConsultationDocument({
             ・家具リストは暫定であり、最終的な引き継ぎ品目は合意時に確定します。
           </Text>
           <Text style={styles.infoText}>
-            ・ご不明な点がございましたら、info@tsumugi.com
+            ・ご不明な点がございましたら、info@sumitsugi.jp
             までお問い合わせください。
           </Text>
         </View>
 
-        {/* Footer — minimal tsumugi annotation + FAQ URL + QR code */}
+        {/* Footer — minimal sumitsugi annotation + FAQ URL + QR code */}
         <View style={styles.footer} fixed>
           <View style={styles.footerRow}>
             <Text style={styles.footerText}>
-              本資料は tsumugi（紡ぎ）を通じて作成されました
+              本資料は sumitsugi（住み継ぎ）を通じて作成されました
             </Text>
-            <Link src="https://tsumugi.com" style={styles.footerLink}>
-              https://tsumugi.com
+            <Link src="https://sumitsugi.jp" style={styles.footerLink}>
+              https://sumitsugi.jp
             </Link>
           </View>
           <View style={styles.footerQrSection}>

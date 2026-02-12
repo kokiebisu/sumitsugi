@@ -30,14 +30,14 @@ const sellerSteps = [
   {
     icon: FileText,
     title: '管理会社に相談',
-    description: 'tsumugiが資料を作成し、管理会社に送付します。',
+    description: 'sumitsugiが資料を作成し、管理会社に送付します。',
     duration: '1〜2日',
   },
   {
     icon: Building2,
     title: 'オーナー承認',
     description:
-      '管理会社経由でオーナーの承認を得ます。tsumugiが説明資料を作成するので、手間はかかりません。',
+      '管理会社経由でオーナーの承認を得ます。sumitsugiが説明資料を作成するので、手間はかかりません。',
     duration: '3〜5日',
   },
   {
@@ -82,7 +82,7 @@ const buyerSteps = [
   {
     icon: Search,
     title: '物件を探す',
-    description: 'tsumugiで家具付き物件を探します。',
+    description: 'sumitsugiで家具付き物件を探します。',
     duration: '自由',
   },
   {
@@ -153,7 +153,7 @@ export default function GuidePage() {
               使い方ガイド
             </h1>
             <p className="mx-auto max-w-2xl text-lg text-gray-600">
-              tsumugiでの家具引き継ぎの流れを、前の住人・次の住人それぞれの視点で
+              sumitsugiでの家具引き継ぎの流れを、前の住人・次の住人それぞれの視点で
               ステップごとにご説明します。
             </p>
           </div>

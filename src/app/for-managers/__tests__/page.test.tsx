@@ -23,9 +23,9 @@ describe('ForManagers FAQ Data', () => {
       }
     });
 
-    it('includes question about what tsumugi is', () => {
+    it('includes question about what sumitsugi is', () => {
       const found = faqItems.some((item) =>
-        item.question.includes('tsumugiとは')
+        item.question.includes('sumitsugiとは')
       );
       expect(found).toBe(true);
     });
@@ -75,7 +75,7 @@ describe('ForManagers FAQ Data', () => {
       expect(found).toBe(true);
     });
 
-    it('includes question about tsumugi benefits', () => {
+    it('includes question about sumitsugi benefits', () => {
       const found = faqItems.some((item) => item.question.includes('メリット'));
       expect(found).toBe(true);
     });
@@ -122,9 +122,9 @@ describe('ForManagers FAQ Data', () => {
       );
     });
 
-    it('tsumugi description mentions both outgoing and incoming tenants', () => {
+    it('sumitsugi description mentions both outgoing and incoming tenants', () => {
       const whatIsItem = faqItems.find((item) =>
-        item.question.includes('tsumugiとは')
+        item.question.includes('sumitsugiとは')
       );
       expect(whatIsItem?.answer).toContain('前の住人');
       expect(whatIsItem?.answer).toContain('次の住人');

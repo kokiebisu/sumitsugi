@@ -20,10 +20,11 @@ export const auth = betterAuth({
       sendMagicLink: async ({ email, url }, request) => {
         // Development mode: log to console
         if (!process.env.RESEND_API_KEY) {
-          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-          console.log('🔗 Magic Link for:', email);
-          console.log('URL:', url);
-          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          const log = console.info.bind(console);
+          log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          log('🔗 Magic Link for:', email);
+          log('URL:', url);
+          log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
           return;
         }
 
@@ -32,12 +33,12 @@ export const auth = betterAuth({
         const resend = new Resend(process.env.RESEND_API_KEY);
 
         await resend.emails.send({
-          from: 'tsumugi <onboarding@resend.dev>',
+          from: 'sumitsugi <onboarding@resend.dev>',
           to: email,
-          subject: 'tsumugi ログインリンク',
+          subject: 'sumitsugi ログインリンク',
           html: `
             <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-              <h1 style="color: #FF5A5F;">tsumugi</h1>
+              <h1 style="color: #FF5A5F;">sumitsugi</h1>
               <p>以下のリンクをクリックしてログインしてください：</p>
               <a href="${url}" style="display: inline-block; padding: 12px 24px; background-color: #FF5A5F; color: white; text-decoration: none; border-radius: 8px;">
                 ログインする

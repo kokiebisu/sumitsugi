@@ -226,7 +226,7 @@ Groups:
 #### Teammate Prompt
 
 ````
-You are creating a PR for one group of changes in the tsumugi project (Next.js/TypeScript/Bun).
+You are creating a PR for one group of changes in the sumitsugi project (Next.js/TypeScript/Bun).
 
 ## Your Group
 **Title:** {type}: {description}
