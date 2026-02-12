@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { uploadImage, isStorageConfigured } from '@/lib/storage';
+import {
+  uploadImage,
+  deleteImage,
+  deleteImages,
+  isStorageConfigured,
+} from '@/lib/storage';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic'];
@@ -68,5 +73,48 @@ export async function POST(request: Request) {
       { error: 'アップロードに失敗しました' },
       { status: 500 }
     );
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const session = await auth.api.getSession({
+      headers: request.headers,
+    });
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'ログインが必要です' },
+        { status: 401 }
+      );
+    }
+
+    if (!isStorageConfigured()) {
+      return NextResponse.json(
+        { error: 'ストレージが設定されていません' },
+        { status: 503 }
+      );
+    }
+
+    const body = (await request.json()) as { urls?: string[] };
+    const urls: string[] = body.urls ?? [];
+
+    if (urls.length === 0) {
+      return NextResponse.json(
+        { error: '削除するURLが指定されていません' },
+        { status: 400 }
+      );
+    }
+
+    if (urls.length === 1) {
+      await deleteImage(urls[0]);
+    } else {
+      await deleteImages(urls);
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Delete failed:', error);
+    return NextResponse.json({ error: '削除に失敗しました' }, { status: 500 });
   }
 }
