@@ -97,10 +97,6 @@ export default function NewListingPage() {
   const [selectedFurniture, setSelectedFurniture] = useState<string[]>([]);
   const [coreSetPrice, setCoreSetPrice] = useState<string>('');
   const [moveOutDate, setMoveOutDate] = useState<Date | null>(null);
-  const [viewingDate, setViewingDate] = useState<Date | null>(null);
-  const [viewingEndDate, setViewingEndDate] = useState<Date | null>(null);
-  const [moveInDate, setMoveInDate] = useState<Date | null>(null);
-  const [moveInEndDate, setMoveInEndDate] = useState<Date | null>(null);
   const [stations, setStations] = useState<StationInfo[]>([
     { name: '', walkingMinutes: '' },
   ]);
@@ -189,21 +185,6 @@ export default function NewListingPage() {
     return `${livingType}あなたの部屋`;
   };
 
-  // 日付を文字列にフォーマット（単体なら「〇〇日以降」、範囲なら「〇〇日 - 〇〇日」）
-  const formatDateRange = (start: Date | null, end: Date | null) => {
-    if (!start) return undefined;
-    const formatDate = (d: Date) =>
-      d.toLocaleDateString('ja-JP', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
-    if (end) {
-      return `${formatDate(start)} - ${formatDate(end)}`;
-    }
-    return `${formatDate(start)}以降`;
-  };
-
   const saveListing = async (status: 'public' | 'draft') => {
     setIsSaving(true);
     setSaveError(null);
@@ -236,10 +217,6 @@ export default function NewListingPage() {
                   furnitureCategory: id as 'sofa',
                 }))
               : undefined,
-          handoverDetails: {
-            viewingAvailableFrom: formatDateRange(viewingDate, viewingEndDate),
-            moveInAvailableFrom: formatDateRange(moveInDate, moveInEndDate),
-          },
         }),
       });
       if (!res.ok) {
@@ -657,7 +634,7 @@ export default function NewListingPage() {
             </div>
           )}
 
-          {/* ステップ5: 引き継ぎスケジュール */}
+          {/* ステップ5: 退去予定日 */}
           {currentStep === 5 && (
             <div className="flex flex-col items-center w-full">
               <h1
@@ -667,112 +644,61 @@ export default function NewListingPage() {
                     '"Noto Sans JP", "Hiragino Kaku Gothic ProN", -apple-system, BlinkMacSystemFont, sans-serif',
                 }}
               >
-                引き継ぎスケジュール
+                退去予定日
               </h1>
               <p className="text-lg text-muted-foreground mb-8 text-center">
-                内見可能日と引き継ぎ可能日を選択
+                内見や引き継ぎの日程はマッチング後にメッセージで調整できます
               </p>
 
-              <div className="w-full space-y-8">
-                {/* 退去日（必須） */}
-                <div>
-                  <SingleDatePicker
-                    selectedDate={moveOutDate}
-                    endDate={null}
-                    onDateChange={(start) => {
-                      setMoveOutDate(start);
-                    }}
-                    title={
-                      moveOutDate
-                        ? `退去日: ${moveOutDate.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })}`
-                        : '退去予定日を選択（必須）'
-                    }
-                    subtitle={
-                      moveOutDate ? undefined : '現在の住居を退去する予定日'
-                    }
-                    minDate={new Date()}
-                  />
-                  {/* 猶予期間バリデーション表示（F-502） */}
-                  {moveOutDate && gracePeriodStatus === 'blocked' && (
-                    <div className="mt-3 flex items-start gap-2 rounded-lg bg-red-50 p-3 dark:bg-red-950/30">
-                      <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="text-sm font-medium text-red-800 dark:text-red-200">
-                          退去日まで{daysUntilMoveOut}日のため出品できません
-                        </p>
-                        <p className="text-xs text-red-600 dark:text-red-300 mt-1">
-                          出品には退去日まで30日以上の猶予が必要です。退去日を変更してください。
-                        </p>
-                      </div>
+              <div className="w-full max-w-md">
+                <SingleDatePicker
+                  selectedDate={moveOutDate}
+                  endDate={null}
+                  onDateChange={(start) => {
+                    setMoveOutDate(start);
+                  }}
+                  title={
+                    moveOutDate
+                      ? `退去日: ${moveOutDate.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })}`
+                      : '退去予定日を選択（必須）'
+                  }
+                  subtitle={
+                    moveOutDate ? undefined : '現在の住居を退去する予定日'
+                  }
+                  minDate={new Date()}
+                />
+                {/* 猶予期間バリデーション表示（F-502） */}
+                {moveOutDate && gracePeriodStatus === 'blocked' && (
+                  <div className="mt-3 flex items-start gap-2 rounded-lg bg-red-50 p-3 dark:bg-red-950/30">
+                    <XCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-red-800 dark:text-red-200">
+                        退去日まで{daysUntilMoveOut}日のため出品できません
+                      </p>
+                      <p className="text-xs text-red-600 dark:text-red-300 mt-1">
+                        出品には退去日まで30日以上の猶予が必要です。退去日を変更してください。
+                      </p>
                     </div>
-                  )}
-                  {moveOutDate && gracePeriodStatus === 'warning' && (
-                    <div className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 p-3 dark:bg-amber-950/30">
-                      <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
-                          退去日まで{daysUntilMoveOut}日です
-                        </p>
-                        <p className="text-xs text-amber-600 dark:text-amber-300 mt-1">
-                          出品は可能ですが、公開時に確認が必要です。引き継ぎの準備が十分か確認してください。
-                        </p>
-                      </div>
+                  </div>
+                )}
+                {moveOutDate && gracePeriodStatus === 'warning' && (
+                  <div className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 p-3 dark:bg-amber-950/30">
+                    <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                        退去日まで{daysUntilMoveOut}日です
+                      </p>
+                      <p className="text-xs text-amber-600 dark:text-amber-300 mt-1">
+                        出品は可能ですが、公開時に確認が必要です。引き継ぎの準備が十分か確認してください。
+                      </p>
                     </div>
-                  )}
-                  {moveOutDate && gracePeriodStatus === 'ok' && (
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      退去日まで{daysUntilMoveOut}日 — 十分な猶予があります
-                    </p>
-                  )}
-                </div>
-
-                {/* 内見可能日 */}
-                <div>
-                  <SingleDatePicker
-                    selectedDate={viewingDate}
-                    endDate={viewingEndDate}
-                    onDateChange={(start, end) => {
-                      setViewingDate(start);
-                      setViewingEndDate(end ?? null);
-                    }}
-                    title={
-                      viewingDate && viewingEndDate
-                        ? `${viewingDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })} - ${viewingEndDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })}`
-                        : viewingDate
-                          ? `${viewingDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })}以降`
-                          : '内見可能日を選択'
-                    }
-                    subtitle={
-                      viewingEndDate
-                        ? undefined
-                        : 'この日以降、内見を受け付けます'
-                    }
-                  />
-                </div>
-
-                {/* 引き継ぎ可能日 */}
-                <div>
-                  <SingleDatePicker
-                    selectedDate={moveInDate}
-                    endDate={moveInEndDate}
-                    onDateChange={(start, end) => {
-                      setMoveInDate(start);
-                      setMoveInEndDate(end ?? null);
-                    }}
-                    title={
-                      moveInDate && moveInEndDate
-                        ? `${moveInDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })} - ${moveInEndDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })}`
-                        : moveInDate
-                          ? `${moveInDate.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })}以降`
-                          : '引き継ぎ可能日を選択'
-                    }
-                    subtitle={
-                      moveInEndDate
-                        ? undefined
-                        : 'この日以降、引き継ぎが可能です'
-                    }
-                  />
-                </div>
+                  </div>
+                )}
+                {moveOutDate && gracePeriodStatus === 'ok' && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    退去日まで{daysUntilMoveOut}日 — 十分な猶予があります
+                  </p>
+                )}
               </div>
             </div>
           )}
@@ -1139,56 +1065,23 @@ export default function NewListingPage() {
                   </div>
                 </section>
 
-                {/* 引き継ぎスケジュール */}
-                {(moveOutDate || viewingDate || moveInDate) && (
+                {/* 退去予定日 */}
+                {moveOutDate && (
                   <section className="py-8">
                     <h3 className="mb-6 text-xl font-semibold text-foreground">
-                      引き継ぎスケジュール
+                      退去予定日
                     </h3>
-                    <div className="space-y-4">
-                      {moveOutDate && (
-                        <div className="flex items-start gap-3">
-                          <CalendarDays className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              退去予定日
-                            </p>
-                            <p className="text-base font-semibold text-foreground">
-                              {moveOutDate.toLocaleDateString('ja-JP', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric',
-                              })}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                      {viewingDate && (
-                        <div className="flex items-start gap-3">
-                          <Tv className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              内見可能日
-                            </p>
-                            <p className="text-base text-foreground">
-                              {formatDateRange(viewingDate, viewingEndDate)}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                      {moveInDate && (
-                        <div className="flex items-start gap-3">
-                          <Refrigerator className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-                          <div>
-                            <p className="text-sm text-muted-foreground">
-                              引き継ぎ可能日
-                            </p>
-                            <p className="text-base text-foreground">
-                              {formatDateRange(moveInDate, moveInEndDate)}
-                            </p>
-                          </div>
-                        </div>
-                      )}
+                    <div className="flex items-start gap-3">
+                      <CalendarDays className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-base font-semibold text-foreground">
+                          {moveOutDate.toLocaleDateString('ja-JP', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          })}
+                        </p>
+                      </div>
                     </div>
                   </section>
                 )}
