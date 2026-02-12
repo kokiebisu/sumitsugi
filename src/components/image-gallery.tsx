@@ -3,13 +3,15 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { normalizeImageUrl } from '@/lib/utils';
 
 interface ImageGalleryProps {
   images: string[];
   title: string;
 }
 
-export function ImageGallery({ images, title }: ImageGalleryProps) {
+export function ImageGallery({ images: rawImages, title }: ImageGalleryProps) {
+  const images = rawImages.map(normalizeImageUrl);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());

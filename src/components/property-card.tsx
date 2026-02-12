@@ -7,7 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Heart, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Property } from '@/lib/data';
-import { isUrgentMoveIn } from '@/lib/utils';
+import { isUrgentMoveIn, normalizeImageUrl } from '@/lib/utils';
 import { UrgentMoveInBadge } from '@/components/urgent-move-in-badge';
 import { ConsentBadge } from '@/components/consent-badge';
 import { StarRating } from '@/components/ui/star-rating';
@@ -57,7 +57,10 @@ export function PropertyCard({ property }: PropertyCardProps) {
     setIsLiked(!isLiked);
   };
 
-  const currentImageSrc = property.images[currentImage] || '/placeholder.svg';
+  const currentImageSrc =
+    (property.images[currentImage] &&
+      normalizeImageUrl(property.images[currentImage])) ||
+    '/placeholder.svg';
 
   return (
     <Link href={`/listings/${property.id}`} className="group block">

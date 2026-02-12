@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { ImageGallery } from '@/components/image-gallery';
 import { Button } from '@/components/ui/button';
 import { Lock, Eye, User } from 'lucide-react';
+import { normalizeImageUrl } from '@/lib/utils';
 
 interface ProgressiveImageGalleryProps {
   images: string[];
@@ -22,10 +23,11 @@ interface ProgressiveImageGalleryProps {
  * - 内見調整フェーズ: 完全公開（住所詳細等）← これは別コンポーネントで管理
  */
 export function ProgressiveImageGallery({
-  images,
+  images: rawImages,
   title,
   isLoggedIn: isLoggedInOverride,
 }: ProgressiveImageGalleryProps) {
+  const images = rawImages.map(normalizeImageUrl);
   const { user } = useAuth();
   const isLoggedIn = isLoggedInOverride ?? !!user;
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
