@@ -23,6 +23,18 @@ vi.mock('@aws-sdk/client-s3', () => {
         this.input = input;
       }
     },
+    DeleteObjectCommand: class MockDeleteObjectCommand {
+      input: unknown;
+      constructor(input: unknown) {
+        this.input = input;
+      }
+    },
+    DeleteObjectsCommand: class MockDeleteObjectsCommand {
+      input: unknown;
+      constructor(input: unknown) {
+        this.input = input;
+      }
+    },
   };
 });
 
@@ -112,6 +124,82 @@ describe('storage', () => {
       const { uploadPdf } = await import('../storage');
       const url = await uploadPdf(Buffer.from('test'), 'contract');
       expect(url).toBe('/storage/pdfs/test-uuid-contract.pdf');
+    });
+  });
+
+  describe('deleteImage', () => {
+    it('extracts key from full URL and deletes', async () => {
+      vi.stubEnv('S3_ENDPOINT', '');
+      vi.stubEnv('R2_ACCOUNT_ID', 'abc123');
+      vi.stubEnv('R2_ACCESS_KEY_ID', 'key');
+      vi.stubEnv('R2_SECRET_ACCESS_KEY', 'secret');
+      mockSend.mockResolvedValue({});
+
+      const { deleteImage } = await import('../storage');
+      await deleteImage('https://cdn.example.com/uploads/test-uuid.png');
+
+      expect(mockSend).toHaveBeenCalled();
+    });
+
+    it('handles /api/images proxy URLs', async () => {
+      vi.stubEnv('S3_ENDPOINT', '');
+      vi.stubEnv('R2_ACCOUNT_ID', 'abc123');
+      vi.stubEnv('R2_ACCESS_KEY_ID', 'key');
+      vi.stubEnv('R2_SECRET_ACCESS_KEY', 'secret');
+      mockSend.mockResolvedValue({});
+
+      const { deleteImage } = await import('../storage');
+      await deleteImage('/api/images/uploads/test-uuid.png');
+
+      expect(mockSend).toHaveBeenCalled();
+    });
+
+    it('handles /storage LocalStack URLs', async () => {
+      vi.stubEnv('S3_ENDPOINT', 'http://localhost:4566');
+      mockSend.mockResolvedValue({});
+
+      const { deleteImage } = await import('../storage');
+      await deleteImage('/storage/uploads/test-uuid.png');
+
+      expect(mockSend).toHaveBeenCalled();
+    });
+
+    it('handles direct key paths', async () => {
+      vi.stubEnv('S3_ENDPOINT', 'http://localhost:4566');
+      mockSend.mockResolvedValue({});
+
+      const { deleteImage } = await import('../storage');
+      await deleteImage('uploads/test-uuid.png');
+
+      expect(mockSend).toHaveBeenCalled();
+    });
+  });
+
+  describe('deleteImages', () => {
+    it('deletes multiple images in one batch', async () => {
+      vi.stubEnv('S3_ENDPOINT', '');
+      vi.stubEnv('R2_ACCOUNT_ID', 'abc123');
+      vi.stubEnv('R2_ACCESS_KEY_ID', 'key');
+      vi.stubEnv('R2_SECRET_ACCESS_KEY', 'secret');
+      mockSend.mockResolvedValue({});
+
+      const { deleteImages } = await import('../storage');
+      await deleteImages([
+        'https://cdn.example.com/uploads/test-1.png',
+        '/api/images/uploads/test-2.png',
+      ]);
+
+      expect(mockSend).toHaveBeenCalled();
+    });
+
+    it('returns early if no URLs provided', async () => {
+      vi.stubEnv('S3_ENDPOINT', 'http://localhost:4566');
+      mockSend.mockClear();
+
+      const { deleteImages } = await import('../storage');
+      await deleteImages([]);
+
+      expect(mockSend).not.toHaveBeenCalled();
     });
   });
 });

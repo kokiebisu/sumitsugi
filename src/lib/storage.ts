@@ -2,6 +2,8 @@ import {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
+  DeleteObjectCommand,
+  DeleteObjectsCommand,
 } from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
 
@@ -104,4 +106,50 @@ export async function uploadPdf(
 export function isStorageConfigured(): boolean {
   if (isLocalStack) return true;
   return Boolean(R2_ACCOUNT_ID && R2_ACCESS_KEY_ID && R2_SECRET_ACCESS_KEY);
+}
+
+function extractKey(url: string): string {
+  // Handle full URLs (https://cdn.example.com/uploads/test.png)
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    const urlObj = new URL(url);
+    return urlObj.pathname.slice(1); // Remove leading slash
+  }
+  // Handle proxy URLs (/api/images/uploads/test.png)
+  if (url.startsWith('/api/images/')) {
+    return url.replace('/api/images/', '');
+  }
+  // Handle LocalStack URLs (/storage/uploads/test.png)
+  if (url.startsWith('/storage/')) {
+    return url.replace('/storage/', '');
+  }
+  // Handle direct keys (uploads/test.png)
+  return url;
+}
+
+export async function deleteImage(url: string): Promise<void> {
+  const key = extractKey(url);
+  const client = getS3Client();
+  await client.send(
+    new DeleteObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+    })
+  );
+}
+
+export async function deleteImages(urls: string[]): Promise<void> {
+  if (urls.length === 0) return;
+
+  const keys = urls.map(extractKey);
+  const client = getS3Client();
+
+  await client.send(
+    new DeleteObjectsCommand({
+      Bucket: BUCKET_NAME,
+      Delete: {
+        Objects: keys.map((key) => ({ Key: key })),
+        Quiet: true,
+      },
+    })
+  );
 }
