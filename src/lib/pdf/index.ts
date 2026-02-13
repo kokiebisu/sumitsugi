@@ -5,6 +5,7 @@ export { ConsultationDocument } from './templates/consultation-document';
 export { ConsentForm } from './templates/consent-form';
 export { ScheduleTemplate } from './templates/schedule-template';
 export { ManagementFaq } from './templates/management-faq';
+export { OwnerExplanationDocument } from './templates/owner-explanation-document';
 export {
   buildConsentFormProps,
   mapChecklistToConsentItems,
@@ -16,4 +17,8 @@ export {
   buildConsultationDocumentProps,
   mapFurnitureToConsultationItems,
 } from './consultation-generator';
+export {
+  buildOwnerExplanationProps,
+  type OwnerExplanationDocumentProps,
+} from './owner-explanation-generator';
 export { generateQrCodeDataUrl, FAQ_PAGE_URL } from './qr-code';
