@@ -16,15 +16,16 @@ import {
 import { cn } from '@/lib/utils';
 import { siteConfig } from '@/lib/site-config';
 import type { SellerProfile } from '@/lib/data';
+import { DocumentPreparationChecklist } from './document-preparation-checklist';
 
 interface BecomeSellerFlowProps {
   onComplete: (sellerProfile: SellerProfile) => void;
   onClose: () => void;
 }
 
-type Step = 'intro' | 'profile' | 'social' | 'confirm';
+type Step = 'intro' | 'profile' | 'social' | 'documents' | 'confirm';
 
-const steps: Step[] = ['intro', 'profile', 'social', 'confirm'];
+const steps: Step[] = ['intro', 'profile', 'social', 'documents', 'confirm'];
 
 // 職業リスト
 const occupations = [
@@ -115,6 +116,8 @@ export function BecomeSellerFlow({
       case 'profile':
         return selectedOccupations.length > 0 && bio.trim() !== '';
       case 'social':
+        return true;
+      case 'documents':
         return true;
       case 'confirm':
         return true;
@@ -472,11 +475,37 @@ export function BecomeSellerFlow({
           </div>
         )}
 
+        {/* Step: Documents */}
+        {step === 'documents' && (
+          <div className="flex min-h-full">
+            <div className="flex flex-1 flex-col justify-center px-12 py-16 lg:px-24">
+              <p className="text-sm text-muted-foreground mb-2">ステップ3</p>
+              <h1 className="text-4xl font-semibold mb-6">必要書類の準備</h1>
+              <p className="text-muted-foreground mb-8">
+                報酬受取口座の設定に必要な書類を確認してください
+              </p>
+              <div className="max-w-2xl">
+                <DocumentPreparationChecklist
+                  onComplete={handleNext}
+                  onSkip={handleNext}
+                />
+              </div>
+            </div>
+            <div className="hidden lg:block flex-1">
+              <img
+                src="https://images.unsplash.com/photo-1554224311-beee2f770c1c?w=1920&auto=format&fit=crop&q=90"
+                alt="書類準備イメージ"
+                className="h-full w-full object-cover"
+              />
+            </div>
+          </div>
+        )}
+
         {/* Step: Confirm */}
         {step === 'confirm' && (
           <div className="flex min-h-full">
             <div className="flex flex-1 flex-col justify-center px-12 py-16 lg:px-24">
-              <p className="text-sm text-muted-foreground mb-2">ステップ3</p>
+              <p className="text-sm text-muted-foreground mb-2">ステップ4</p>
               <h1 className="text-4xl font-semibold mb-6">登録内容の確認</h1>
               <p className="text-muted-foreground mb-8">
                 以下の内容で前の住人として登録します

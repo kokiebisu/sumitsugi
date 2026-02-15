@@ -4,13 +4,14 @@ import path from 'path';
 export default defineConfig({
   test: {
     globals: true,
-    environment: 'node',
+    environment: 'jsdom',
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
       '**/.next/**',
       '**/tests/e2e/**', // Exclude Playwright e2e tests
     ],
+    setupFiles: ['./vitest.setup.ts'],
     coverage: {
       provider: 'v8',
       include: ['src/**/*.{ts,tsx}'],
