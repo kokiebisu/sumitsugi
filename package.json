@@ -108,6 +108,7 @@
     "stripe": "^20.3.0",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",
+    "twilio": "^5.12.1",
     "vaul": "^1.1.2",
     "ws": "^8.19.0",
     "zod": "^3.25.76"
@@ -126,6 +127,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/stripe": "^8.0.416",
+    "@types/twilio": "^3.19.3",
     "@typescript-eslint/eslint-plugin": "^8.53.1",
     "@typescript-eslint/parser": "^8.53.1",
     "@vitest/coverage-v8": "^4.0.18",

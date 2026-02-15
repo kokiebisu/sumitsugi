@@ -12,6 +12,7 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 255 }).unique().notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   phone: varchar('phone', { length: 50 }),
+  phoneVerified: boolean('phone_verified').default(false),
   image: text('image'), // NextAuth uses 'image' field
   emailVerified: boolean('email_verified').default(false), // better-auth uses boolean
   createdAt: timestamp('created_at', { withTimezone: true })
