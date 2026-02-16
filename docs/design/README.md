@@ -2,7 +2,7 @@
 
 > 技術的な「How」を記述するドキュメント。「What」（要件・仕様）は [`requirements/`](../requirements/README.md) を参照。
 
-最終更新日: 2026-02-09（モジュラー化: features/ / infrastructure/ / archive/ に分割）
+最終更新日: 2026-02-16（管理会社オペレーション自動化設計追加）
 
 ---
 
@@ -27,18 +27,19 @@ MVP実装に向けた技術選定。`/meeting:tech`（技術会議 2026-02-06）
 
 ### features/ — 機能別設計
 
-| ファイル                                                        | 内容                            |
-| --------------------------------------------------------------- | ------------------------------- |
-| [payment.md](./features/payment.md)                             | 決済システム設計 (T-7)          |
-| [pdf-generation.md](./features/pdf-generation.md)               | PDF自動生成アーキテクチャ (T-1) |
-| [email-system.md](./features/email-system.md)                   | メール送信アーキテクチャ (T-2)  |
-| [cron-jobs.md](./features/cron-jobs.md)                         | Vercel Cron Jobs設定 (T-3)      |
-| [db-schema.md](./features/db-schema.md)                         | DBスキーマ拡張 (T-4)            |
-| [messaging.md](./features/messaging.md)                         | 簡易メッセージ機能 (T-5)        |
-| [pricing-guidance.md](./features/pricing-guidance.md)           | 値付けガイダンス (T-6)          |
-| [move-out-notification.md](./features/move-out-notification.md) | 退去通知システム設計            |
-| [handover-agreement.md](./features/handover-agreement.md)       | 引き継ぎ合意フロー設計          |
-| [approval-flow.md](./features/approval-flow.md)                 | 大家承諾フロー図                |
+| ファイル                                                        | 内容                                                      |
+| --------------------------------------------------------------- | --------------------------------------------------------- |
+| [payment.md](./features/payment.md)                             | 決済システム設計 (T-7)                                    |
+| [pdf-generation.md](./features/pdf-generation.md)               | PDF自動生成アーキテクチャ (T-1)                           |
+| [email-system.md](./features/email-system.md)                   | メール送信アーキテクチャ (T-2)                            |
+| [cron-jobs.md](./features/cron-jobs.md)                         | Vercel Cron Jobs設定 (T-3)                                |
+| [db-schema.md](./features/db-schema.md)                         | DBスキーマ拡張 (T-4)                                      |
+| [messaging.md](./features/messaging.md)                         | 簡易メッセージ機能 (T-5)                                  |
+| [pricing-guidance.md](./features/pricing-guidance.md)           | 値付けガイダンス (T-6)                                    |
+| [move-out-notification.md](./features/move-out-notification.md) | 退去通知システム設計                                      |
+| [handover-agreement.md](./features/handover-agreement.md)       | 引き継ぎ合意フロー設計                                    |
+| [approval-flow.md](./features/approval-flow.md)                 | 大家承諾フロー図                                          |
+| [management-automation.md](./features/management-automation.md) | 管理会社オペレーション自動化設計（Phase 2、F-602〜F-605） |
 
 ### infrastructure/ — インフラ・DevEx設計
 
