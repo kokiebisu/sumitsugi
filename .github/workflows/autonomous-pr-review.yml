@@ -34,7 +34,7 @@ jobs:
     steps:
       - name: Determine if auto-review applies
         id: check
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const prNumber = context.payload.pull_request?.number || ${{ inputs.pr_number || 0 }};
@@ -101,7 +101,7 @@ jobs:
     steps:
       - name: Verify main branch is healthy
         id: health
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             // Helper: poll a smoke test run until completed or timeout
@@ -236,7 +236,7 @@ jobs:
     steps:
       - name: Wait for CI checks to complete
         id: wait
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           PR_NUMBER: ${{ needs.should-auto-review.outputs.pr_number }}
         with:
