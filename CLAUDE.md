@@ -49,7 +49,7 @@ Airbnb風クリーンUI / アクセント: `#FF5A5F` / Lucide React / shadcn/ui 
 ## GitHub Actions (CRITICAL)
 
 Claude Code CLI (`claude -p`) を使用。Anthropic SDKはOAuthトークン非対応。
-Secret: `ANTHROPIC_AUTH_TOKEN`, env: `CLAUDE_CODE_OAUTH_TOKEN`
+Secret: `ANTHROPIC_AUTH_TOKEN`（全ワークフロー共通）
 
 ## Automated Workflows
 

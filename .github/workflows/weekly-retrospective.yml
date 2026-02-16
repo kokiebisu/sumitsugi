@@ -80,9 +80,12 @@ jobs:
           echo "ci_total=$CI_TOTAL" >> "$GITHUB_OUTPUT"
           echo "ci_success=$CI_SUCCESS" >> "$GITHUB_OUTPUT"
 
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
       - name: Generate retrospective
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
           WEEK_START: ${{ steps.metrics.outputs.week_start }}
           WEEK_END: ${{ steps.metrics.outputs.week_end }}
           PRS_MERGED: ${{ steps.metrics.outputs.prs_merged }}
@@ -136,13 +139,7 @@ jobs:
           PRs Created: $PRS_CREATED_DATA
           Failed Runs: $FAILED_RUNS_DATA"
 
-          RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
-            -H "Content-Type: application/json" \
-            -H "x-api-key: $ANTHROPIC_API_KEY" \
-            -H "anthropic-version: 2023-06-01" \
-            -d "{\"model\": \"claude-sonnet-4-5-20250929\", \"max_tokens\": 3000, \"messages\": [{\"role\": \"user\", \"content\": $(echo "$PROMPT" | jq -Rs .)}]}")
-
-          REPORT=$(echo "$RESPONSE" | jq -r '.content[0].text // "Report generation failed"')
+          REPORT=$(echo "$PROMPT" | claude -p --model claude-sonnet-4-5-20250929 2>/dev/null || echo "Report generation failed")
 
           mkdir -p docs/team/retrospectives
           echo "$REPORT" > "docs/team/retrospectives/$WEEK_END.md"
