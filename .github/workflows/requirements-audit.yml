@@ -37,9 +37,12 @@ jobs:
           # Existing tasks
           cat .beads/issues.jsonl 2>/dev/null | jq -s '[.[] | {id, title, status}]' > /tmp/tasks.json 2>/dev/null || echo "[]" > /tmp/tasks.json
 
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
       - name: Run Claude Audit
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
         run: |
           REQUIREMENTS=$(cat /tmp/requirements.md)
           BUSINESS=$(cat /tmp/business.md)
@@ -63,13 +66,8 @@ jobs:
           Existing tasks (avoid duplicates):
           $TASKS"
 
-          RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
-            -H "Content-Type: application/json" \
-            -H "x-api-key: $ANTHROPIC_API_KEY" \
-            -H "anthropic-version: 2023-06-01" \
-            -d "{\"model\": \"claude-sonnet-4-20250514\", \"max_tokens\": 4096, \"messages\": [{\"role\": \"user\", \"content\": $(echo "$PROMPT" | jq -Rs .)}]}")
-
-          echo "$RESPONSE" | jq -r '.content[0].text // "{\"error\": \"failed\"}"' > /tmp/audit.json
+          RESPONSE=$(echo "$PROMPT" | claude -p --model claude-sonnet-4-5-20250929 2>/dev/null || echo '{"error": "failed"}')
+          echo "$RESPONSE" > /tmp/audit.json
           cat /tmp/audit.json
 
       - name: Create tasks and PR
