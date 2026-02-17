@@ -4,10 +4,10 @@
 
 sumitsugiのGitHub Actionsワークフローで使用するSecrets：
 
-| Secret名               | 使用ワークフロー                                                         | 必須       |
-| ---------------------- | ------------------------------------------------------------------------ | ---------- |
-| `ANTHROPIC_AUTH_TOKEN` | Requirements Audit, Daily Standup, Weekly Retrospective, Claude Code CLI | ✅ 必須    |
-| `LINEAR_API_KEY`       | Linear統合（将来）                                                       | オプション |
+| Secret名                  | 使用ワークフロー                                                         | 必須       |
+| ------------------------- | ------------------------------------------------------------------------ | ---------- |
+| `CLAUDE_CODE_OAUTH_TOKEN` | Requirements Audit, Daily Standup, Weekly Retrospective, Claude Code CLI | ✅ 必須    |
+| `LINEAR_API_KEY`          | Linear統合（将来）                                                       | オプション |
 
 ---
 
@@ -28,7 +28,7 @@ sumitsugiのGitHub Actionsワークフローで使用するSecrets：
 4. **「New repository secret」ボタンをクリック**
 
 5. **Secretを追加:**
-   - **Name:** `ANTHROPIC_AUTH_TOKEN`
+   - **Name:** `CLAUDE_CODE_OAUTH_TOKEN`
    - **Value:** [あなたのAnthropic API Key]
    - **「Add secret」をクリック**
 
@@ -41,7 +41,7 @@ sumitsugiのGitHub Actionsワークフローで使用するSecrets：
 source .env.local
 
 # GitHub Secretsに設定
-gh secret set ANTHROPIC_AUTH_TOKEN --body "$ANTHROPIC_API_KEY"
+gh secret set CLAUDE_CODE_OAUTH_TOKEN --body "$ANTHROPIC_API_KEY"
 ```
 
 **確認:**
@@ -53,7 +53,7 @@ gh secret list
 **出力例:**
 
 ```
-ANTHROPIC_AUTH_TOKEN  Updated 2026-02-03
+CLAUDE_CODE_OAUTH_TOKEN  Updated 2026-02-03
 ```
 
 ---
@@ -136,7 +136,7 @@ gh run view --log
 2. GitHub Secretsに設定し直す
 3. ワークフローを再実行
 
-### エラー: "secret ANTHROPIC_AUTH_TOKEN not found"
+### エラー: "secret CLAUDE_CODE_OAUTH_TOKEN not found"
 
 **原因:** Secret名が間違っている、または設定されていない
 
@@ -147,7 +147,7 @@ gh run view --log
 gh secret list
 
 # ANTHROPICで始まるSecretがなければ設定
-gh secret set ANTHROPIC_AUTH_TOKEN --body "sk-ant-your-key-here"
+gh secret set CLAUDE_CODE_OAUTH_TOKEN --body "sk-ant-your-key-here"
 ```
 
 ### エラー: ".env.local: No such file or directory"
@@ -159,7 +159,7 @@ gh secret set ANTHROPIC_AUTH_TOKEN --body "sk-ant-your-key-here"
 **確認すべき箇所:**
 
 - スクリプトが `process.env.ANTHROPIC_API_KEY` を使っているか
-- ワークフローが `env: ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}` を設定しているか
+- ワークフローが `env: ANTHROPIC_API_KEY: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}` を設定しているか
 
 ---
 

@@ -189,7 +189,7 @@ npm run cleanup:manual
    bd create "Review dead code: src/components/OldComponent.tsx"
    ```
 
-2. **Requirements Audit:** Share the same Claude API key (`ANTHROPIC_AUTH_TOKEN` secret), similar report format
+2. **Requirements Audit:** Share the same Claude API key (`CLAUDE_CODE_OAUTH_TOKEN` secret), similar report format
 
 3. **Branch Cleanup:** Leverage existing `cleanup:branches` script pattern for consistency
 
@@ -242,7 +242,7 @@ npm run cleanup:manual
 
 ### GitHub Secrets Required
 
-- `ANTHROPIC_AUTH_TOKEN` (already exists for requirements-audit)
+- `CLAUDE_CODE_OAUTH_TOKEN` (already exists for requirements-audit)
 - `GITHUB_TOKEN` (automatically provided by GitHub Actions)
 
 ## Implementation Phases

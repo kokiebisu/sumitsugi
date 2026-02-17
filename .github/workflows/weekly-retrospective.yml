@@ -85,7 +85,7 @@ jobs:
 
       - name: Generate retrospective
         env:
-          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           WEEK_START: ${{ steps.metrics.outputs.week_start }}
           WEEK_END: ${{ steps.metrics.outputs.week_end }}
           PRS_MERGED: ${{ steps.metrics.outputs.prs_merged }}

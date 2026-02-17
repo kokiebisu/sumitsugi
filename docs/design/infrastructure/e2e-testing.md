@@ -79,7 +79,7 @@ jobs:
         id: claude-analysis
         uses: anthropics/claude-code-action@v1
         with:
-          claude_code_oauth_token: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
             Analyze the changes in this PR and determine which E2E test tags should run.
 
