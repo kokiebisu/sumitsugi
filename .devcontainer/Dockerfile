@@ -73,8 +73,8 @@ RUN mkdir -p /workspace /home/bun/.claude && \
   chown -R bun:bun /workspace /home/bun/.claude
 
 # Create symlink so git submodule worktree path resolves inside container
-# (.git/modules/sumitsugi/config has worktree = ../../../aspects/sumitsugi)
-RUN mkdir -p /aspects && ln -s /workspace /aspects/sumitsugi
+# (.git/modules/projects/sumitsugi/config has worktree = ../../../../projects/sumitsugi)
+RUN mkdir -p /projects && ln -s /workspace /projects/sumitsugi
 
 WORKDIR /workspace
 

@@ -9,7 +9,7 @@ set -e
 bun install
 
 # 2. Fix git if running as a submodule in the container
-#    The .git file references ../../.git/modules/sumitsugi which doesn't exist
+#    The .git file references ../../.git/modules/projects/sumitsugi which doesn't exist
 #    inside the container. We create a container-local git repo instead.
 if [ -f .git ] && ! git rev-parse --git-dir >/dev/null 2>&1; then
   echo "Detected broken git submodule reference, initializing container-local git..."

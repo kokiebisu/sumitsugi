@@ -7,7 +7,8 @@ services:
       - ..:/workspace:cached
       - claude_config:/home/bun/.claude
       # Mount parent repo's git module data so submodule .git reference resolves
-      - ../../../.git/modules/sumitsugi:/.git/modules/sumitsugi:cached
+      # .git file says: gitdir: ../../.git/modules/projects/sumitsugi
+      - ../../../.git/modules/projects/sumitsugi:/.git/modules/projects/sumitsugi:cached
     command: sleep infinity
     cap_add:
       - NET_ADMIN
