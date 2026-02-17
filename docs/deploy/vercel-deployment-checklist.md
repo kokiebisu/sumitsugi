@@ -23,12 +23,12 @@
 - [ ] Output directory: `.next`
 - [ ] Node.js version: 24.x (configured in Vercel project settings)
 
-### 2. GitHub Secrets (for CI and env sync)
+### 2. GitHub Secrets (for CI)
 
-The following secrets must be configured in GitHub repo settings for the `sync-vercel-env.yml` workflow:
+The following secrets must be configured in GitHub repo settings:
 
 ```
-VERCEL_TOKEN          # Vercel API token
+VERCEL_TOKEN          # Vercel API token (for Vercel GitHub integration)
 VERCEL_ORG_ID         # Vercel organization/team ID
 VERCEL_PROJECT_ID     # Vercel project ID
 ```
@@ -73,17 +73,12 @@ VERCEL_PROJECT_ID     # Vercel project ID
 
 ### Syncing Environment Variables
 
-Use the automated workflow to sync GitHub secrets to Vercel:
+Set environment variables directly in the Vercel dashboard or via CLI:
 
 ```bash
-# Via GitHub Actions (recommended)
-# Go to Actions > "Sync Secrets to Vercel" > Run workflow > Type "sync"
-
-# Or manually with Vercel CLI
 bunx vercel env add <VAR_NAME> production
+bunx vercel env add <VAR_NAME> preview
 ```
-
-The sync script (`scripts/sync-env-to-vercel.sh`) pushes all secrets to both `production` and `preview` environments.
 
 ## Deployment Steps
 
@@ -200,7 +195,6 @@ Main Push → Post-Merge Smoke Test → Production Deploy
 | `ci.yml`               | PR push            | Lint, build, unit tests                   |
 | `post-merge-smoke.yml` | Push to main       | Build + tests on production code          |
 | `auto-rollback.yml`    | Smoke test failure | Reverts main after 2 consecutive failures |
-| `sync-vercel-env.yml`  | Manual dispatch    | Syncs GitHub secrets to Vercel env vars   |
 
 ## Rollback
 
@@ -237,7 +231,7 @@ Warnings about `BETTER_AUTH_SECRET` and `BETTER_AUTH_BASE_URL` during build are 
 
 ### Preview Deploys Fail
 
-Ensure environment variables are set for the `preview` environment in Vercel, not just `production`. The `sync-env-to-vercel.sh` script syncs to both environments.
+Ensure environment variables are set for the `preview` environment in Vercel, not just `production`.
 
 ### Vercel CLI Not Linked
 
