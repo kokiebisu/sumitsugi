@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Check for consecutive failures
         id: check
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             // Get recent smoke test runs
@@ -64,7 +64,7 @@ jobs:
 
       - name: Create revert PR
         if: steps.check.outputs.should_rollback == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const failedSha = context.payload.workflow_run.head_sha;
