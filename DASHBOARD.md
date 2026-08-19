@@ -1,6 +1,6 @@
 # sumitsugi Development Dashboard
 
-> Last updated: 2026-02-14
+> Last updated: 2026-08-19
 
 ## Timeline Overview
 
@@ -371,7 +371,7 @@
 
 ## Linear Sync Status
 
-**Last synced:** 2026-02-02
+**Last synced:** 2026-08-19
 **Synced tasks:** TSU-41 to TSU-75 (35 tasks)
 **Status:**
 
